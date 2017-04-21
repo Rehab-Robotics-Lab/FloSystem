@@ -52,7 +52,7 @@ void loop() {
 
   mouth.clear();
   mouth.drawLine(0,3,3,0,LED_ON);
-  mouth.drawLine(0,3,0,12,LED_ON);
+  mouth.drawLine(7,3,7,12,LED_ON);
   mouth.drawLine(0,12,3,15,LED_ON);
   mouth.writeDisplay();
   delay(500);

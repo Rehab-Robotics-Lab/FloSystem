@@ -13,7 +13,8 @@ The on matrix is required for eyes and faces. The demo file shows a description
 as a possible added field, but you can create any others which you think useful.
 
 For eyes the idea is to have a mood specified for a face, then have an eye for
-each direction, which can be specified at a higher level. 
+each direction, which can be specified at a higher level. I'm not sure what eye
+directions will be made, but so long as you are consistent, it should be fine.
 
 You can run the read_faces file to test that it reads the way you want. 
 You can change the mood of the face and the eye direction at the top of the 

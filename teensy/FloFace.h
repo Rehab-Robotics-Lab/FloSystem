@@ -38,12 +38,12 @@ class FloFace
     Adafruit_8x8matrix* _left_eye; ///<The adafruit object for the left eye matrix
     Adafruit_8x8matrix* _right_eye; ///<The adafruit object for the right eye matrix
     Adafruit_8x16matrix* _mouth; ///<The adafruit object for the mouth
-    int _left_eye_channel;
-    int _right_eye_channel;
-    int _mouth_channel;
-    int _left_eye_rot;
-    int _right_eye_rot;
-    int _mouth_rot;
+    int _left_eye_channel; ///<The I2C channel on the left eye
+    int _right_eye_channel; ///<The I2C channel on the right eye
+    int _mouth_channel; ///<The I2C channel on the mouth
+    int _left_eye_rot; ///<The rotation on the left eye
+    int _right_eye_rot; ///<The rotation on the right eye
+    int _mouth_rot; ///<The rotation on the mouth
 };
 
 #endif //FloFace_h

@@ -33,31 +33,68 @@ var rightEyeLocY = 250;
 var mouthLocX = 715;
 var mouthLocY = 500;
 
-var innerLeft = document.getElementById("full")
-for (i = 0; i < 8 ; i++) {
-    for (j = 0; j < 8; j++){
-    full.innerHTML+="<circle id='innerLeft' cx=\""+(leftEyeLocX + (i+1/2)*eyeBetweenMag)+"\" cy=\""+(leftEyeLocY + (j+1/2)*eyeBetweenMag)+"\" r=\""+eyeDiamMag/2+"\" stroke=\"black\" stroke-width=\"1\" fill=\"gray\" onclick=\"setAttribute('fill', 'blue')\"/>"
+var leftCount = new Array();
+
+for (i = 0; i < 8; i++) {
+    leftCount[i] = new Array();
+    for (j = 0; j < 8; j++) {
+        leftCount[i][j] = false;
+    }
 }
+
+/*function leftSwap() {
+    var attribute = innerLeft.getAttribute("fill")
+    console.log(attribute)
+   if (attribute === "Blue") {
+       setAttribute("fill", "Gray")
+   }
+else if(attribute === "Gray") {
+    setAttribute("fill", "Blue")
+}
+else {
+    console.log("Oops")
+}
+}
+*/
+
+function swapLeft(i, j) {
+console.log(leftCount[i][j])
+if (leftCount[i][j] === true) {
+innerLeft.setAttribute("fill", "Blue")
+}
+else {
+innerLeft.setAttribute("fill", "Gray")
+}
+leftCount[i][j] = !leftCount[i][j]
+}
+
+
+
+var innerLeft = document.getElementById("full")
+for (i = 0; i < 8; i++) {
+    for (j = 0; j < 8; j++) {
+        full.innerHTML += "<circle id='innerLeft' cx=\"" + (leftEyeLocX + (i + 1 / 2) * eyeBetweenMag) + "\" cy=\"" + (leftEyeLocY + (j + 1 / 2) * eyeBetweenMag) + "\" r=\"" + eyeDiamMag / 2 + "\" stroke=\"black\" stroke-width=\"1\" fill=\"gray\" onclick=\"swapLeft("+i+", "+j+")\"/>"
+    }
 }
 
 var innerRight = document.getElementById("full")
-for (i = 0; i < 8 ; i++) {
-    for (j = 0; j < 8; j++){
-    full.innerHTML+="<circle cx=\""+(rightEyeLocX + (i+1/2)*eyeBetweenMag)+"\" cy=\""+(rightEyeLocY + (j+1/2)*eyeBetweenMag)+"\" r=\""+eyeDiamMag/2+"\" stroke=\"black\" stroke-width=\"1\" fill=\"gray\" onclick=\"setAttribute('fill', 'blue')\"/>"
-}
+for (i = 0; i < 8; i++) {
+    for (j = 0; j < 8; j++) {
+        full.innerHTML += "<circle cx=\"" + (rightEyeLocX + (i + 1 / 2) * eyeBetweenMag) + "\" cy=\"" + (rightEyeLocY + (j + 1 / 2) * eyeBetweenMag) + "\" r=\"" + eyeDiamMag / 2 + "\" stroke=\"black\" stroke-width=\"1\" fill=\"gray\" onclick=\"setAttribute('fill', 'blue')\"/>"
+    }
 }
 
 var innerMouth = document.getElementById("full")
-for (i = 0; i < 16 ; i++) {
-    for (j = 0; j < 8; j++){
-    full.innerHTML+="<circle cx=\""+(mouthLocX + (i+1/2)*mouthBetweenMag)+"\" cy=\""+(mouthLocY + (j+1/2)*mouthBetweenMag)+"\" r=\""+mouthDiamMag/2+"\" stroke=\"black\" stroke-width=\"1\" fill=\"gray\" onclick=\"setAttribute('fill', 'blue')\"/>"
-}
+for (i = 0; i < 16; i++) {
+    for (j = 0; j < 8; j++) {
+        full.innerHTML += "<circle cx=\"" + (mouthLocX + (i + 1 / 2) * mouthBetweenMag) + "\" cy=\"" + (mouthLocY + (j + 1 / 2) * mouthBetweenMag) + "\" r=\"" + mouthDiamMag / 2 + "\" stroke=\"black\" stroke-width=\"1\" fill=\"gray\" onclick=\"setAttribute('fill', 'blue')\"/>"
+    }
 }
 
-innerLeft.onclick = function() {
+innerLeft.onclick = function () {
     var script = document.createElement("script");
-    script.type="text/javascript";
-    script.src= ""
+    script.type = "text/javascript";
+    script.src = ""
 
 }
 

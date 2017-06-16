@@ -6,11 +6,11 @@
 var perimX = 5.3;
 var perimY = 4.8;
 var eyeSide = 0.75;
-var eyeBetween = .115;
+var eyeBetween = .095;
 var eyeDiam = .085;
 var mouthHorz = 2.5;
 var mouthVert = mouthHorz / 2;
-var mouthBetween = 0.185;
+var mouthBetween = 0.155;
 var mouthDiam = 0.15;
 var mag = 150;
 
@@ -33,9 +33,31 @@ var rightEyeLocY = 250;
 var mouthLocX = 715;
 var mouthLocY = 500;
 
-for (i = 0; i < 9 ; i++) {
+var innerLeft = document.getElementById("full")
+for (i = 0; i < 8 ; i++) {
+    for (j = 0; j < 8; j++){
+    full.innerHTML+="<circle id='innerLeft' cx=\""+(leftEyeLocX + (i+1/2)*eyeBetweenMag)+"\" cy=\""+(leftEyeLocY + (j+1/2)*eyeBetweenMag)+"\" r=\""+eyeDiamMag/2+"\" stroke=\"black\" stroke-width=\"1\" fill=\"gray\" onclick=\"setAttribute('fill', 'blue')\"/>"
+}
+}
 
+var innerRight = document.getElementById("full")
+for (i = 0; i < 8 ; i++) {
+    for (j = 0; j < 8; j++){
+    full.innerHTML+="<circle cx=\""+(rightEyeLocX + (i+1/2)*eyeBetweenMag)+"\" cy=\""+(rightEyeLocY + (j+1/2)*eyeBetweenMag)+"\" r=\""+eyeDiamMag/2+"\" stroke=\"black\" stroke-width=\"1\" fill=\"gray\" onclick=\"setAttribute('fill', 'blue')\"/>"
+}
+}
 
+var innerMouth = document.getElementById("full")
+for (i = 0; i < 16 ; i++) {
+    for (j = 0; j < 8; j++){
+    full.innerHTML+="<circle cx=\""+(mouthLocX + (i+1/2)*mouthBetweenMag)+"\" cy=\""+(mouthLocY + (j+1/2)*mouthBetweenMag)+"\" r=\""+mouthDiamMag/2+"\" stroke=\"black\" stroke-width=\"1\" fill=\"gray\" onclick=\"setAttribute('fill', 'blue')\"/>"
+}
+}
+
+innerLeft.onclick = function() {
+    var script = document.createElement("script");
+    script.type="text/javascript";
+    script.src= ""
 
 }
 

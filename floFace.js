@@ -13,6 +13,7 @@ var mouthVert = mouthHorz / 2;
 var mouthBetween = 0.155;
 var mouthDiam = 0.15;
 var mag = 150;
+var svgns = "http://www.w3.org/2000/svg";
 
 //Using magnification, approximately convert inches to pixels in html
 var perimXMag = perimX * mag;
@@ -42,64 +43,51 @@ for (i = 0; i < 8; i++) {
     }
 }
 
-/*function leftSwap() {
-    var attribute = innerLeft.getAttribute("fill")
+function leftSwap(i, j) {
+    var attribute =  document.getElementById("innerLeft[" + i + "," + j +"]").getAttribute("fill")
     console.log(attribute)
-   if (attribute === "Blue") {
-       setAttribute("fill", "Gray")
+   if (attribute === "blue") {
+       document.getElementById("innerLeft[" + i + "," + j +"]").setAttribute("fill", "gray")
    }
-else if(attribute === "Gray") {
-    setAttribute("fill", "Blue")
+else if(attribute === "gray") {
+    document.getElementById("innerLeft[" + i + "," + j +"]").setAttribute("fill", "blue")
 }
 else {
     console.log("Oops")
 }
 }
-*/
 
-function swapLeft(i, j) {
-console.log(leftCount[i][j])
-if (leftCount[i][j] === true) {
-innerLeft.setAttribute("fill", "Blue")
+function rightSwap(i, j) {
+    var attribute =  document.getElementById("innerRight[" + i + "," + j +"]").getAttribute("fill")
+    console.log(attribute)
+   if (attribute === "blue") {
+       document.getElementById("innerRight[" + i + "," + j +"]").setAttribute("fill", "gray")
+   }
+else if(attribute === "gray") {
+    document.getElementById("innerRight[" + i + "," + j +"]").setAttribute("fill", "blue")
 }
 else {
-innerLeft.setAttribute("fill", "Gray")
+    console.log("Oops")
 }
-leftCount[i][j] = !leftCount[i][j]
-}
-
-
-
-var innerLeft = document.getElementById("full")
-for (i = 0; i < 8; i++) {
-    for (j = 0; j < 8; j++) {
-        full.innerHTML += "<circle id='innerLeft' cx=\"" + (leftEyeLocX + (i + 1 / 2) * eyeBetweenMag) + "\" cy=\"" + (leftEyeLocY + (j + 1 / 2) * eyeBetweenMag) + "\" r=\"" + eyeDiamMag / 2 + "\" stroke=\"black\" stroke-width=\"1\" fill=\"gray\" onclick=\"swapLeft("+i+", "+j+")\"/>"
-    }
 }
 
-var innerRight = document.getElementById("full")
-for (i = 0; i < 8; i++) {
-    for (j = 0; j < 8; j++) {
-        full.innerHTML += "<circle cx=\"" + (rightEyeLocX + (i + 1 / 2) * eyeBetweenMag) + "\" cy=\"" + (rightEyeLocY + (j + 1 / 2) * eyeBetweenMag) + "\" r=\"" + eyeDiamMag / 2 + "\" stroke=\"black\" stroke-width=\"1\" fill=\"gray\" onclick=\"setAttribute('fill', 'blue')\"/>"
-    }
+function mouthSwap(i, j) {
+    var attribute =  document.getElementById("innerMouth[" + i + "," + j +"]").getAttribute("fill")
+    console.log(attribute)
+   if (attribute === "blue") {
+       document.getElementById("innerMouth[" + i + "," + j +"]").setAttribute("fill", "gray")
+   }
+else if(attribute === "gray") {
+    document.getElementById("innerMouth[" + i + "," + j +"]").setAttribute("fill", "blue")
 }
-
-var innerMouth = document.getElementById("full")
-for (i = 0; i < 16; i++) {
-    for (j = 0; j < 8; j++) {
-        full.innerHTML += "<circle cx=\"" + (mouthLocX + (i + 1 / 2) * mouthBetweenMag) + "\" cy=\"" + (mouthLocY + (j + 1 / 2) * mouthBetweenMag) + "\" r=\"" + mouthDiamMag / 2 + "\" stroke=\"black\" stroke-width=\"1\" fill=\"gray\" onclick=\"setAttribute('fill', 'blue')\"/>"
-    }
+else {
+    console.log("Oops")
 }
-
-innerLeft.onclick = function () {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src = ""
-
 }
 
 //Paramaterize Flo's dimensions
 function setValues() {
+    var init = false;
     document.getElementById("facePerim").setAttribute("rx", perimXMag / 2);
     document.getElementById("facePerim").setAttribute("ry", perimYMag / 2);
     document.getElementById("leftEye").setAttribute("height", eyeSideMag);
@@ -114,5 +102,53 @@ function setValues() {
     document.getElementById("mouth").setAttribute("height", mouthVertMag);
     document.getElementById("mouth").setAttribute("x", mouthLocX);
     document.getElementById("mouth").setAttribute("y", mouthLocY);
-}
+    for (i = 0; i < 8; i++) {
+        for (j = 0; j < 8; j++) {
+            var circle = document.createElementNS(svgns, 'circle')
+            circle.setAttributeNS(null, "id", "innerLeft[" + i + "," + j + "]")
+            circle.setAttributeNS(null, "cx", (leftEyeLocX + (i + 1 / 2) * eyeBetweenMag));
+            circle.setAttributeNS(null, "cy", (leftEyeLocY + (j + 1 / 2) * eyeBetweenMag));
+            circle.setAttributeNS(null, "r", (eyeDiamMag / 2));
+            circle.setAttributeNS(null, "fill", "gray");
+            circle.setAttributeNS(null, "width", "50");
+            circle.setAttributeNS(null, "height", "50");
+            circle.setAttributeNS(null, "stroke", "black");
+            circle.setAttributeNS(null, "stroke-width", 1);
+            circle.setAttributeNS(null, "onclick", "leftSwap(" + i + "," + j + ")");
+            document.getElementById('full').appendChild(circle);
+        }
+    }
+      for (i = 0; i < 8; i++) {
+        for (j = 0; j < 8; j++) {
+            var circle = document.createElementNS(svgns, 'circle')
+            circle.setAttributeNS(null, "id", "innerRight[" + i + "," + j + "]")
+            circle.setAttributeNS(null, "cx", (rightEyeLocX + (i + 1 / 2) * eyeBetweenMag));
+            circle.setAttributeNS(null, "cy", (rightEyeLocY + (j + 1 / 2) * eyeBetweenMag));
+            circle.setAttributeNS(null, "r", (eyeDiamMag / 2));
+            circle.setAttributeNS(null, "fill", "gray");
+            circle.setAttributeNS(null, "width", "50");
+            circle.setAttributeNS(null, "height", "50");
+            circle.setAttributeNS(null, "stroke", "black");
+            circle.setAttributeNS(null, "stroke-width", 1);
+            circle.setAttributeNS(null, "onclick", "rightSwap(" + i + "," + j + ")");
+            document.getElementById('full').appendChild(circle);
+        }
+    }
+          for (i = 0; i < 16; i++) {
+        for (j = 0; j < 8; j++) {
+            var circle = document.createElementNS(svgns, 'circle')
+            circle.setAttributeNS(null, "id", "innerMouth[" + i + "," + j + "]")
+            circle.setAttributeNS(null, "cx", (mouthLocX + (i + 1 / 2) * mouthBetweenMag));
+            circle.setAttributeNS(null, "cy", (mouthLocY + (j + 1 / 2) * mouthBetweenMag));
+            circle.setAttributeNS(null, "r", (mouthDiamMag / 2));
+            circle.setAttributeNS(null, "fill", "gray");
+            circle.setAttributeNS(null, "width", "50");
+            circle.setAttributeNS(null, "height", "50");
+            circle.setAttributeNS(null, "stroke", "black");
+            circle.setAttributeNS(null, "stroke-width", 1);
+            circle.setAttributeNS(null, "onclick", "mouthSwap(" + i + "," + j + ")");
+            document.getElementById('full').appendChild(circle);
+        }
+    }
+    }
 

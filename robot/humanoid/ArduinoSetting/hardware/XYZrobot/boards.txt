@@ -1,0 +1,19 @@
+XYZrobot1280.name=XYZrobot-BOLIDE (1280)
+
+XYZrobot1280.upload.protocol=stk500
+XYZrobot1280.upload.maximum_size=126976
+XYZrobot1280.upload.speed=57600
+
+XYZrobot1280.bootloader.low_fuses=0xFF
+XYZrobot1280.bootloader.high_fuses=0xDA
+XYZrobot1280.bootloader.extended_fuses=0xFD
+XYZrobot1280.bootloader.path=atmega1280
+XYZrobot1280.bootloader.file=ATmegaBOOT_168_atmega1280.hex
+XYZrobot1280.bootloader.unlock_bits=0xFF
+XYZrobot1280.bootloader.lock_bits=0x0CF
+
+XYZrobot1280.build.mcu=atmega1280
+XYZrobot1280.build.f_cpu=16000000L
+XYZrobot1280.build.core=XYZrobot1280
+XYZrobot1280.build.variant=XYZrobot1280
+

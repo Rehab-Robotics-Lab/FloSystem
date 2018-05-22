@@ -3,6 +3,7 @@ This is going to be the master repository for all of the Lil'Flo remote control,
 
 ## Dependencies
 - ROS
+- pyserial 
 
 ## Setup
 
@@ -24,6 +25,9 @@ This is going to be the master repository for all of the Lil'Flo remote control,
     - Why do we use links? It allows us to easily remove the code from the catkin workspace
        without removing it from our computer. We simply delete the link. 
 5. Make the code: `cd ~/catkin_ws && catkin_make`
+
+#### Install Various Dependencies:
+1. pip install pyserial --user
 
 #### Optional Things to Make Life Easier
 1. Enable SSH, so you can actually connect to the robot

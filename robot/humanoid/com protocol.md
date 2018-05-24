@@ -6,10 +6,16 @@ Serial running at: 115200
     Header (1 byte) | Packet Length (1 byte) |       CMD (1 byte)         | data | tail
           0xFF      |       (ex. 0x07)       | see Y-01_Mask_Definition.h |      | 0xFE
 
+~~For everything, it looks like we get a response of exactly what we sent. So 
+can wait for a returned packet before doing the next thing~~
 
 First Packet to init motors:
 ff:05:01:12:fe
-packet header, packet length of 5 bytes, init motors, number of servos in the pose (why 12?), packet tail
+packet header, packet length of 5 bytes, init motors, number of servos in the pose,
+ packet tail
+The number of servos in the pose is how many servos are involved in the movements
+for the motion sequence this is used to load up and send out a motion sequence. 
+I don't think we need this, but maybe there will be a use for it at some point. 
 
 Control Motors:
 ff:07:02:01:02:9d:fe

@@ -1,3 +1,5 @@
+#include <Servo.h>
+
 #ifndef BOLIDE_BOARD_H
 #define BOLIDE_BOARD_H
 

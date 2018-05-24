@@ -30,7 +30,7 @@
  *  PROGMEM transition_t name[] = {{NULL,count},{pose_name,1000},...} 
  */
 
-#include "A1_16.h"
+#include "Y01_A1_16.h"
 
 /* pose engine runs at 30Hz (33ms between frames) 
    recommended values for interpolateSetup are of the form X*BIOLOID_FRAME_LENGTH - 1 */
@@ -71,6 +71,9 @@ class BOLIDE_Player
     unsigned char interpolating;                // are we in an interpolation? 0=No, 1=Yes
     unsigned char runningSeq;                   // are we running a sequence? 0=No, 1=Yes 
     int poseSize;                               // how many servos are in this pose, used by Sync()
+	  void setZeroPoint(const short *zeropoint);
+	  short zero_shift[18];                  // Zero Point Shift
+	  int frame_tick;
 
     /* to interpolate:
      *  bioloid.loadPose(myPose);

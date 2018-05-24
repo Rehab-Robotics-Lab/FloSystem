@@ -21,7 +21,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "BOLIDE_Player.h"
+#import "Y01_BOLIDE_Player.h"
 
 static char packet_send[110];
 static unsigned int checksum_1;
@@ -38,10 +38,11 @@ void BOLIDE_Player::setup(long baud, int servo_cnt){
     speed_ = (int *) malloc(servo_cnt * sizeof(int));
     // initialize
     poseSize = servo_cnt;
-    for(i=0;i<poseSize;i++){
+    for(int i = 0; i < poseSize; i++){
         id_[i] = i+1;
         pose_[i] = 512<<A1_16_SHIFT;
         nextpose_[i] = 512<<A1_16_SHIFT;
+        zero_shift[i] = 0;
     }
     interpolating = 0;
     playing = 0;
@@ -56,16 +57,16 @@ int BOLIDE_Player::getId(int index){
 
 /* load a named pose from FLASH into nextpose. */
 void BOLIDE_Player::loadPose( const unsigned int * addr ){
-    int i;
     poseSize = pgm_read_word_near(addr); // number of servos in this pose
-    for(i=0; i<poseSize; i++)
-        nextpose_[i] = pgm_read_word_near(addr+1+i) << A1_16_SHIFT;
+    for(int i = 0; i < poseSize; i++) {
+        nextpose_[i] = (pgm_read_word_near(addr+1+i) + (zero_shift[i])) << A1_16_SHIFT;   // Modify for Zero Point
+    }
 }
 /* read in current servo positions to the pose. */
 void BOLIDE_Player::readPose(){
     for(int i=0;i<poseSize;i++){
         pose_[i] = ReadPosition(id_[i])<<A1_16_SHIFT;
-		delay(25);   
+		//delay(25);   
     }
 }
 /* write pose out to servos using sync write. */
@@ -101,28 +102,34 @@ void BOLIDE_Player::writePose(){
 /* set up for an interpolation from pose to nextpose over TIME 
     milliseconds by setting servo speeds. */
 void BOLIDE_Player::interpolateSetup(int time){
-    int i;
-    int frames = (time/A1_16_FRAME_LENGTH) + 1;
-	total_frame = frames;				//Wei-Shun You edits: record the frames between poses
-    lastframe_ = millis();
-    // set speed each servo...
-    for(i=0;i<poseSize;i++){
-        if(nextpose_[i] > pose_[i]){
-            speed_[i] = (nextpose_[i] - pose_[i])/frames + 1;
-        }else{
-            speed_[i] = (pose_[i]-nextpose_[i])/frames + 1;
-        }
-    }
-    interpolating = 1;
+	int i, frames;
+	frame_tick = time;
+	if (time < A1_16_FRAME_LENGTH)	frames = 1;
+	else frames = (time / A1_16_FRAME_LENGTH);
+	total_frame = frames;				//Wei-Shun You edits: record the frames between poses	
+	// set speed each servo...
+	for (i = 0; i<poseSize; i++){
+		if (nextpose_[i] > pose_[i]){
+			speed_[i] = (nextpose_[i] - pose_[i]) / frames + 1;
+		}
+		else{
+			speed_[i] = (pose_[i] - nextpose_[i]) / frames + 1;
+		}
+	}
+	interpolating = 1;
+	lastframe_ = millis();
 }
 /* interpolate our pose, this should be called at about 30Hz. */
 void BOLIDE_Player::interpolateStep(){
     if(interpolating == 0) return;
     int i;
     int complete = poseSize;
-    while(millis() - lastframe_ < A1_16_FRAME_LENGTH);
-	frame_counter++;
-    lastframe_ = millis();
+	int _time_tick;
+	if (frame_tick > A1_16_FRAME_LENGTH * 2) { _time_tick = A1_16_FRAME_LENGTH; frame_tick -= A1_16_FRAME_LENGTH; }
+	else _time_tick = frame_tick;
+
+	while ((millis() - lastframe_) < _time_tick);
+	frame_counter++;    
     // update each servo
     for(i=0;i<poseSize;i++){
         int diff = nextpose_[i] - pose_[i];
@@ -148,7 +155,8 @@ void BOLIDE_Player::interpolateStep(){
 		interpolating = 0;
 		frame_counter = 0;
 	}
-    writePose();      
+    writePose();    
+	lastframe_ = millis();
 }
 
 /* get a servo value in the current pose */
@@ -206,3 +214,9 @@ void BOLIDE_Player::play(){
     }
 }
 
+void BOLIDE_Player::setZeroPoint(const short *zeropoint)
+{
+    for (int i = 0; i < poseSize; i++) {
+        zero_shift[i] = zeropoint[i];
+    }
+}

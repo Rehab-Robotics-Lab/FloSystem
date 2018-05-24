@@ -1,5 +1,3 @@
-#include <Servo.h>
-
 #ifndef BOLIDE_BOARD_H
 #define BOLIDE_BOARD_H
 
@@ -11,14 +9,41 @@ typedef struct{
     int time;                   // time for transition
 } sp_trans_t;
 
+typedef struct{
+    char RCU_LJX, RCU_LJY, RCU_RJX, RCU_RJY;
+    boolean BTN_L3, BTN_R3;
+} Joystick;
+
+extern uint16_t ROBOT_ZERO_POINT[19];
+
+// EEPROM ADDR 
+#define EEP_ADDR_RESERVERD       0    // [0:9]
+#define EEP_ADDR_SN             10    // [10:23]
+#define EEP_ADDR_FLAG           30    // [30]
+#define EEP_ADDR_ZEROPOINT      31    // [31:66]
+
 //Pin Definition
 //Digital output Pin
 #define BUZZER_PIN 				4
-#define LED_BLUE_PIN 			25
-#define LED_GREEN_PIN 			26
+#define LED_BLUE_PIN 			26
+#define LED_GREEN_PIN 			25
 #define LSA_LED_BLUE_PIN 		44
 #define LSA_LED_GREEN_PIN 		45
 #define LSA_LED_RED_PIN 		46
+
+enum {
+  LED_OFF = 0,
+  BLUE_LED_ON = 1,
+  GREEN_LED_ON = 2,
+  RED_LED_ON = 3,
+  WHITE_LED_ON = 4,
+  BLE_LED_BREATH = 5,
+  GRN_LED_BREATH = 6,
+  RED_LED_BREATH = 7,
+  ONE_LED_ON = 8,
+  LED_SCRATCH = 9,
+};
+
 //Digital input Pin
 #define BUTTON1_PIN 			32
 #define BUTTON2_PIN 			33
@@ -33,6 +58,10 @@ typedef struct{
 #define EYE_LED_GRN digitalWrite(LED_BLUE_PIN, LOW), digitalWrite(LED_GREEN_PIN, HIGH)
 #define EYE_LED_OFF digitalWrite(LED_BLUE_PIN, LOW), digitalWrite(LED_GREEN_PIN, LOW)
 
+#define EYE_MODE_OFF      0
+#define EYE_MODE_GREEN    1
+#define EYE_MODE_BLUE     2
+
 //Timer function definition
 #define _enable_timer3() TIMSK3 |= _BV(TOIE3)
 #define _disable_timer3() TIMSK3 &= ~_BV(TOIE3)
@@ -40,8 +69,11 @@ typedef struct{
 #define _disable_timer4() TIMSK4 &= ~_BV(TOIE4)
 
 #define _reset_timer3(t) TCNT3 = -t
-#define _reset_timer4(t) TCNT4 = -t
-#define timeout_limit				15625    // Ticks for 1 sec @16 MHz,prescale=1024
+#define _reset_timer4(t) { TCNT4 = -t; packet_timeout_status = false; }
+#define timeout_limit				15625      // Ticks for 1 sec @16 MHz,prescale=1024
+#define timer_10ms          164        // 10ms * (32.768kHz/2) 
+
+static boolean packet_timeout_status = false;
 
 //Button
 #define key_mask_button1			0x01
@@ -82,7 +114,7 @@ typedef struct{
 #define  RXFIFO_ERROR_MASK			0x80	// Requested Packet FIFO Error
 
 //Power Detection
-#define  Power_Voltage_Alarm		9   
+#define  Power_Voltage_Alarm		734		// 9.1v / 0.0124   
 //================================================================================================================================
 //=== LED Frequency ===
 const PROGMEM uint16_t log_light_40[41] = {1,
@@ -93,5 +125,29 @@ const PROGMEM uint16_t log_light_40[41] = {1,
 //=== Music Frequency ===
 const PROGMEM uint16_t start_music_frq[7] = {262, 262, 392, 392, 440, 440, 392};
 const PROGMEM uint16_t obstacle_alarm_frq[3] = {262, 550, 392};
+
+// Timer 
+class Constant_Timer
+{  
+public:
+    boolean Timer_Task(unsigned long _time_ms);
+    boolean TimerEvent(void);
+    void Reset(void);
+    void SetTimer(unsigned long _time);
+private:
+    unsigned long _last_time;
+    unsigned long time_tick;
+};
+
+// Robot Function
+int g_sensor_read_reg(int reg);    // G Sensor
+void BT_Flush(void);
+void USB_Flush(void);
+void Action(int N, boolean bFallAction = false);
+void XYZ_Play_Action(const transition_t *addr);
+
+// Global Variable
+extern BOLIDE_Player XYZrobot;
+extern Constant_Timer Timer_Serial;
 
 #endif

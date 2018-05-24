@@ -3,18 +3,15 @@
 ## Arduino IDE (1.0.6) (LINUX)
 0. Install java: `sudo apt install default-jre`
 1. [Download Arduino 1.0.6](https://www.arduino.cc/en/Main/OldSoftwareReleases#previous)
+11. Unpack Arduino
 2. Link in Bolide Player Lib:
     ```bash
-    cd ~/Arduino/libraries
-    mkdir libraries
-    cd libraries
+    cd <arduino download location>/libraries
     ln -s <this repo>/robot/humanoid/ArduinoSetting/libraries/BOLIDE_Player
-    cd ..
-    mkdir hardware
-    cd hardware
-    ln -s ~/Documents/git/LilFloSystem/robot/humanoid/ArduinoSetting/hardware/XYZrobot/
+    cd <arduino download location>/hardware
+    ln -s <this repo>/robot/humanoid/ArduinoSetting/hardware/XYZrobot/
     ```
-3. Run Arduino IDE by going to download location and running arduino
+3. Run Arduino IDE by going to download location and running arduino (`./arduino`)
 
 
 ## Arduino IDE (WINDOWS)

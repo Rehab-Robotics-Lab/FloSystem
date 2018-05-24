@@ -1,8 +1,8 @@
 # Setting up to work with the Bolide
 
-## Arduino IDE (LINUX)
-1. [Install the arduino IDE](https://www.arduino.cc/en/Guide/Linux)
-    - This really needs to use Arduino 1.0.6, so make sure to get an older version
+## Arduino IDE (1.0.6) (LINUX)
+0. Install java: `sudo apt install default-jre`
+1. [Download Arduino 1.0.6](https://www.arduino.cc/en/Main/OldSoftwareReleases#previous)
 2. Link in Bolide Player Lib:
     ```bash
     cd ~/Arduino/libraries
@@ -14,7 +14,7 @@
     cd hardware
     ln -s ~/Documents/git/LilFloSystem/robot/humanoid/ArduinoSetting/hardware/XYZrobot/
     ```
-3. Run Arduino IDE
+3. Run Arduino IDE by going to download location and running arduino
 
 
 ## Arduino IDE (WINDOWS)

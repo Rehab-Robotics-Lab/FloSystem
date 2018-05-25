@@ -49,7 +49,6 @@ void setup()
     //Configure all basic setting
     Serial.begin(115200);
     AIM_Task_Setup();
-    BT_Task_Setup();
     Speaker_Task_Setup();
     LED_Setup();
     Buzzer_Setup();
@@ -355,11 +354,6 @@ void Idle_Task(void)
 void AIM_Task_Setup(void) {
     XYZrobot.setup(115200, 18);
     eeprom_init();
-}
-
-//Configure BT board
-void BT_Task_Setup(void) {
-    Serial2.begin(9600);
 }
 
 //Configure speaker Board

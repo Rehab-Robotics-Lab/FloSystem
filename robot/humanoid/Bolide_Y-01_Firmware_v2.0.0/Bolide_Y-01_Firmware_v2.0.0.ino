@@ -49,7 +49,6 @@ void setup()
     //Configure all basic setting
     Serial.begin(115200);
     AIM_Task_Setup();
-    Speaker_Task_Setup();
     LED_Setup();
     Buzzer_Setup();
     Button_Setup();
@@ -354,12 +353,6 @@ void Idle_Task(void)
 void AIM_Task_Setup(void) {
     XYZrobot.setup(115200, 18);
     eeprom_init();
-}
-
-//Configure speaker Board
-void Speaker_Task_Setup(void) {
-    Serial3.begin(115200);
-    MusicPlaying_wav_volume(0x80);	// Set Music Volume
 }
 
 //Configure eye led board pin

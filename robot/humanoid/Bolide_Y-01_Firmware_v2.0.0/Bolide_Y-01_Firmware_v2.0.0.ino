@@ -52,7 +52,6 @@ void setup()
     LED_Setup(); // Turns of LEDs
 
     //Start motion
-    G_SENSOR_Task_Setup();
     Initial_Pose_Setup();
     AutoMode_Setup();
 
@@ -402,33 +401,6 @@ void eeprom_write_short(int addr, short data) {
 }
 short eeprom_read_short(int addr) {
     return (int16_t)(EEPROM.read(addr) + (EEPROM.read(addr + 1) << 8));
-}
-
-//G-Sensor Setup
-void G_SENSOR_Task_Setup(void) {
-    Wire.begin();
-    setReg(0x2D, 0xA);
-}
-void G_Sensor_Task(void)
-{
-    ax = ((g_sensor_read_reg(0x33) << 8)  + g_sensor_read_reg(0x32)) / 256.0;
-    ay = ((g_sensor_read_reg(0x35) << 8)  + g_sensor_read_reg(0x34)) / 256.0;
-    az = ((g_sensor_read_reg(0x37) << 8)  + g_sensor_read_reg(0x36)) / 256.0;
-}
-void setReg(int reg, int data) {
-    Wire.beginTransmission(I2C_Address);
-    Wire.write(reg);
-    Wire.write(data);
-    Wire.endTransmission();
-}
-int g_sensor_read_reg(int reg) {
-    static int Gsensor_timer;
-    Gsensor_timer = 0;
-    Wire.beginTransmission(I2C_Address);
-    Wire.write(reg);
-    Wire.endTransmission();
-    Wire.requestFrom(I2C_Address,1);
-    if(Wire.available() <= 1 ) return Wire.read();
 }
 
 //Falling Detection Task

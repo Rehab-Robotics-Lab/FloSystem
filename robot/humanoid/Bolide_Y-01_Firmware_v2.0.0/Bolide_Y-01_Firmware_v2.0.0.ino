@@ -52,7 +52,6 @@ void setup()
     LED_Setup(); // Turns of LEDs
 
     //Start motion
-    Initial_Pose_Setup();
     AutoMode_Setup();
 
     Serial.println((String)"Bolide FW Version " + FW_VERSION);
@@ -742,19 +741,6 @@ void Init_AutoMode(void)
     }
 }
 
-//Initial Pose Task
-void Initial_Pose_Setup(void) 
-{
-    XYZrobot.readPose();
-    if(MCUSR & 0x01 != 0) {     // if Robot Power-On Reset
-        Action(A_PowerOn);
-    }
-    else {                      // if Robot External Reset
-        Action(A_Shake);
-        Action(A_DefaultInitial);
-    }    
-    MCUSR = 0;          // Clear Reset Flag  
-}
 void XYZ_Update_ZeroPoint(void)
 {
     // Read Pose

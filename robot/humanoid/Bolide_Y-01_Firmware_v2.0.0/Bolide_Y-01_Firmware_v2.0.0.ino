@@ -50,7 +50,6 @@ void setup()
     Serial.begin(115200);
     AIM_Task_Setup(); // Sets up motor connection
     LED_Setup(); // Turns of LEDs
-    Analog_Input_Setup();
     Timer_Task_Setup();
 
     //Start motion
@@ -364,13 +363,6 @@ void LED_Setup(void) {
     pinMode(LSA_LED_RED_PIN, OUTPUT);
     
     set_led_mode(LED_OFF);
-}
-
-//Configure Analog input pin
-void Analog_Input_Setup(void) {
-    pinMode(PWRDET_PIN, INPUT);
-    pinMode(DISTANCE_SENSOR_PIN, INPUT);
-    analogReference(EXTERNAL); 
 }
 
 void AutoMode_Setup(void) {

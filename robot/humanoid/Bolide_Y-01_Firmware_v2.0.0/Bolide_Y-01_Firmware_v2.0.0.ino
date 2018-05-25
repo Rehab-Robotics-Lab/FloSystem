@@ -48,9 +48,8 @@ void setup()
 {
     //Configure all basic setting
     Serial.begin(115200);
-    AIM_Task_Setup();
-    LED_Setup();
-    Buzzer_Setup();
+    AIM_Task_Setup(); // Sets up motor connection
+    LED_Setup(); // Turns of LEDs
     Button_Setup();
     Analog_Input_Setup();
     Timer_Task_Setup();
@@ -366,11 +365,6 @@ void LED_Setup(void) {
     pinMode(LSA_LED_RED_PIN, OUTPUT);
     
     set_led_mode(LED_OFF);
-}
-
-//Configure onboard buzzer pin
-void Buzzer_Setup(void) {
-    pinMode(BUZZER_PIN, OUTPUT);
 }
 
 //Configure onboard button pin

@@ -50,7 +50,6 @@ void setup()
     Serial.begin(115200);
     AIM_Task_Setup(); // Sets up motor connection
     LED_Setup(); // Turns of LEDs
-    Timer_Task_Setup();
 
     //Start motion
     G_SENSOR_Task_Setup();
@@ -368,25 +367,6 @@ void LED_Setup(void) {
 void AutoMode_Setup(void) {
     randomSeed(analogRead(2));
     Timer_Idle.Reset();
-}
-
-// Timer Setup
-void Timer_Task_Setup(void) {
-    //Set Timer3 as a normal timer for LED task
-    TCCR3A = 0x00;
-    TCCR3B |= _BV(CS32); TCCR3B &= ~_BV(CS31); TCCR3B |= _BV(CS30);
-    _enable_timer3();
-    _reset_timer3(timer_10ms);
-
-    //Set Timer4 as a normal timer for communcation timeout
-    TCCR4A = 0x00;
-    TCCR4B |= _BV(CS42); TCCR4B &= ~_BV(CS41); TCCR4B |= _BV(CS40);
-    _enable_timer4();
-    _reset_timer4(timeout_limit); 
-    //Set Timer5 as a Fast PWM generator for chest LED driver
-    TCCR5A = _BV(COM5A1) | _BV(COM5B1) | _BV(COM5C1) | _BV(WGM51) | _BV(WGM50);  
-    TCCR5B = _BV(WGM52) | _BV(CS52);  
-    OCR5A = 0; OCR5B = 0; OCR5C = 0;
 }
 
 // EEPROM Function

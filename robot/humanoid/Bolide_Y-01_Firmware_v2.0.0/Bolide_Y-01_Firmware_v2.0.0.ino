@@ -51,9 +51,6 @@ void setup()
     AIM_Task_Setup(); // Sets up motor connection
     LED_Setup(); // Turns of LEDs
 
-    //Start motion
-    AutoMode_Setup();
-
     Serial.println((String)"Bolide FW Version " + FW_VERSION);
     Serial.println((String)"Start Playing!!");
 }
@@ -362,10 +359,6 @@ void LED_Setup(void) {
     set_led_mode(LED_OFF);
 }
 
-void AutoMode_Setup(void) {
-    randomSeed(analogRead(2));
-    Timer_Idle.Reset();
-}
 
 // EEPROM Function
 void eeprom_init(void) {

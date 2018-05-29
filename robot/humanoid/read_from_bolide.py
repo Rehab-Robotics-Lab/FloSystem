@@ -39,47 +39,32 @@ def read_data(ser,com):
     return final_joint_pos 
 
 def read_battery_voltage(ser):
-    print('new packet to read power level')
+    ser.flushInput()
     ser.write(bytearray([0xFF,0x04,0x08,0xfe]))
-    start_timer = time.time()
-    ret = None
-    while time.time()-start_timer < 0.15 and not ret:
-        ret = ser.read()
-    if not ret:
-        print('didn''t get header in time: {}'.format(time.time()-start_timer))
+    ret = ser.read(6)
+    if len(ret) != 6:
+        print('wrong length returned')
         return
-    header = ord(ret)
+    header = ord(ret[0])
     if header != 0xFF:
         print('first byte read did not match header: {}'.format(header))
         return
-    ret = None
-    while time.time()-start_timer < 0.15 and not ret:
-        ret = ser.read()
-    if not ret:
-        print('didn''t get length in time: {}'.format(time.time()-start_timer))
+    len_bit = ord(ret[1])
+    if len_bit != 6:
+        print('wrong length bit sent')
         return
-    length = ord(ret)
-    if not length==6:
-        print('illogical length byte: {}'.format(length))
+    command = ord(ret[2])
+    if not command==0x08:
+        print('incorrect command type: {}'.format(command))
         return
-    total_read = 2
-    data_buffer = [0] * (length-2)
-    while time.time()-start_timer < 0.5 and total_read < length :
-        ret = ser.read(1)
-        if ret:
-            data_buffer[total_read - 2] = ord(ret)
-            total_read += 1
-    if total_read < length:
-        print('didn''t receive the entire packet in time: {}'.format(time.time()-start_timer))
+    end = ord(ret[-1])
+    if end!=0xFE:
+        print('bad end bit')
         return
-    if data_buffer[-1] != 0xFE:
-        print('finally data entry was not end byte: {}'.format(data_buffer[-1]))
-        return
-    data_buffer = data_buffer[0:-2]
+    data = ret[3:-1]
     final_joint_pos = [0]*18
-    voltage = ((data_buffer[0]<<8) + data_buffer[1])*0.0124
-    print(voltage)
-    print('loop time: {}'.format(time.time()-start_timer))
+    voltage = ((ord(data[0])<<8) + ord(data[1]))*0.0124
+    print('{}:{}'.format('battery voltage',voltage))
     return voltage 
 
 if __name__ == "__main__":
@@ -102,6 +87,9 @@ if __name__ == "__main__":
 
     while True:
         position = read_data(ser,'pos')
+        bat = read_battery_voltage(ser)
+        current = read_data(ser,'current')
+        torque = read_data(ser,'torque')
         if position:
             servo2 = np.append(servo2,position[1])
             curve2.setData(servo2)

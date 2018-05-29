@@ -19,7 +19,7 @@
 #define CMD_version_read	       0x00
 #define CMD_init_motor             0x01
 #define CMD_set_motor              0x02
-#define CMD_capture_motor          0x03
+#define CMD_capture_pos            0x03
 #define CMD_relax_motor            0x04
 #define CMD_SN_read		           0x05
 #define CMD_capture_current        0x06

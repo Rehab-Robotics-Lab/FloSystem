@@ -176,10 +176,9 @@ boolean Motion_Editor_Packet_Task(void)
             SetPositionI_JOG(motor_ID, 0x00, position_ID);
             Packet_Set(motor_ID, position_ID);
         }
-        else if(pCMD == CMD_capture_motor) {    //get motor position
+        else if(pCMD == CMD_capture_pos) {    //get motor position
             seq_trigger = false; SeqPos = 0;
-            motor_ID = pBuffer[motor_ID_address];
-            Packet_Capture(motor_ID);
+            Packet_Vel_Read();
         }
         else if(pCMD == CMD_relax_motor) {      //relax motor
             seq_trigger = false; SeqPos = 0;
@@ -198,6 +197,9 @@ boolean Motion_Editor_Packet_Task(void)
         else if(pCMD == CMD_version_read) {
             seq_trigger = false; SeqPos = 0;
             Packet_Version_Read();
+        }
+        else if(pCMD == CMD_capture_current){
+            Packet_Current_Read();
         }
     }
     else{Packet_Error_Feedback(0x00); pLength = 0xFF;}
@@ -220,17 +222,29 @@ void Packet_Set(unsigned char motor_ID, int pos_set) {
     Serial.write((pos_set & 0x00FF));
     Serial.write(packet_tail);
 }
-void Packet_Capture(unsigned char motor_ID) {
+void Packet_Vel_Read(void) {
     static int position_buffer[19] = {0};      // position buffer
     static int _i = 0;
     for(_i = 1;_i < 19;_i++) position_buffer[_i] = ReadPosition(_i);
     Serial.write(packet_header);
-    Serial.write(0x29);
-    Serial.write(CMD_capture_motor);
-    Serial.write(motor_ID);
+    Serial.write(0x28);
+    Serial.write(CMD_capture_pos);
     for(_i = 1;_i < 19;_i++) {
         Serial.write(((position_buffer[_i] & 0xFF00) >> 8));
         Serial.write((position_buffer[_i] & 0x00FF));
+    }
+    Serial.write(packet_tail);
+}
+void Packet_Current_Read(void){
+    static int vel_buffer[19] = {0};      // velocity buffer
+    static int _i = 0;
+    for(_i = 1;_i < 19;_i++) vel_buffer[_i] = ReadCurrent(_i);
+    Serial.write(packet_header);
+    Serial.write(0x28);
+    Serial.write(CMD_capture_current);
+    for(_i = 1;_i < 19;_i++) {
+        Serial.write(((vel_buffer[_i] & 0xFF00) >> 8));
+        Serial.write((vel_buffer[_i] & 0x00FF));
     }
     Serial.write(packet_tail);
 }

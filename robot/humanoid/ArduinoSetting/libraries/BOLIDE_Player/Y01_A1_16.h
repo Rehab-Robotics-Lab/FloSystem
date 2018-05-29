@@ -137,6 +137,7 @@ void A1_16_Basic(unsigned char _pID, unsigned char _CMD);
 #define ReadDataRAM1(id, _addr) A1_16_ReadData(id, CMD_RAM_READ, _addr, 0x01)
 #define ReadDataRAM2(id, _addr) A1_16_ReadData(id, CMD_RAM_READ, _addr, 0x02)
 #define ReadPosition(id) A1_16_ReadData(id, CMD_RAM_READ, RAM_Joint_Position, 0x02)
+#define ReadCurrent(id) A1_16_ReadData(id, CMD_RAM_READ, RAM_Bus_Current, 0x02)
 
 #define WriteDataEEP1(id, _addr, _data) A1_16_WriteData(id, CMD_EEP_WRITE, _addr, _data)
 #define WriteDataRAM1(id, _addr, _data) A1_16_WriteData(id, CMD_RAM_WRITE, _addr, _data)

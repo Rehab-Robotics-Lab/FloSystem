@@ -23,7 +23,8 @@
 #define CMD_relax_motor            0x04
 #define CMD_SN_read		           0x05
 #define CMD_capture_current        0x06
-#define CMD_capture_temp           0x07
+#define CMD_capture_torque         0x07
+#define CMD_capture_battery        0x08
 
 #define CMD_SEQ_load_PoseCnt       0x10
 #define CMD_SEQ_load_Pose          0x11

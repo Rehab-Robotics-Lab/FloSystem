@@ -33,12 +33,10 @@ void setup()
 void loop()
 { 
     USB_Task();                          // USB Communcation motion
-    // #TODO: send back a big info pack
-
     // if(Timer_PowerLow.Timer_Task(1000)) {
     //     Power_Detection_Task();
     // }
-    // need to check power level:
+    // #TODO: need to check power level:
     //     PWR_Voltage = analogRead(PWRDET_PIN);   // vol*0.0124
     // if (PWR_Voltage < Power_Voltage_Alarm) 
 }
@@ -194,6 +192,12 @@ boolean Motion_Editor_Packet_Task(void)
         else if(pCMD == CMD_capture_current){
             Packet_Current_Read();
         }
+        else if(pCMD == CMD_capture_torque){
+            Packet_Current_Read();
+        }
+        else if(pCMD == CMD_capture_battery){
+            Packet_Battery_Read();
+        }
     }
     else{Packet_Error_Feedback(0x00); pLength = 0xFF;}
     return motion_editor_mode;
@@ -239,6 +243,28 @@ void Packet_Current_Read(void){
         Serial.write(((current_buffer[_i] & 0xFF00) >> 8));
         Serial.write((current_buffer[_i] & 0x00FF));
     }
+    Serial.write(packet_tail);
+}
+void Packet_Torque_Read(void){
+    static int current_buffer[19] = {0};      // velocity buffer
+    static int _i = 0;
+    for(_i = 1;_i < 19;_i++) current_buffer[_i] = ReadTorque(_i);
+    Serial.write(packet_header);
+    Serial.write(0x28);
+    Serial.write(CMD_capture_torque);
+    for(_i = 1;_i < 19;_i++) {
+        Serial.write(((current_buffer[_i] & 0xFF00) >> 8));
+        Serial.write((current_buffer[_i] & 0x00FF));
+    }
+    Serial.write(packet_tail);
+}
+void Packet_Battery_Read(void){
+    int volt = analogRead(PWRDET_PIN);
+    Serial.write(packet_header);
+    Serial.write(0x06);
+    Serial.write(CMD_capture_battery);
+    Serial.write(((volt & 0xFF00) >> 8));
+    Serial.write(((volt & 0x00FF)));
     Serial.write(packet_tail);
 }
 void Packet_Relax(unsigned char motor_ID) {

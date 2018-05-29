@@ -104,13 +104,13 @@
 #define RAM_Status_Detail                  0x31		//  R/W,1 byte
 #define RAM_LED_Control                    0x35		//  R/W,1 byte
 #define RAM_Voltage                        0x36		//  RO,1 byte
-#define RAM_Temp                           0x37		//  RO,1 byte #TODO: expose voltage
+#define RAM_Temp                           0x37		//  RO,1 byte
 #define RAM_Current_Control_Mode           0x38		//  RO,1 byte
 #define RAM_Tick                           0x39		//  RO,1 byte
 #define RAM_Calibrated_Position            0x3a		//  RO,2 byte
 #define RAM_Joint_Position                 0x3c		//  RO,2 byte
 #define RAM_PWM_Output_Duty                0x40		//  RO,2 byte
-#define RAM_Bus_Current                    0x42		//  RO,2 byte #TODO: expose current
+#define RAM_Bus_Current                    0x42		//  RO,2 byte
 #define RAM_Position_Goal                  0x44		//  RO,2 byte
 #define RAM_Position_Ref                   0x46		//  RO,2 byte
 #define RAM_Omega_Goal                     0x48		//  RO,2 byte
@@ -138,6 +138,7 @@ void A1_16_Basic(unsigned char _pID, unsigned char _CMD);
 #define ReadDataRAM2(id, _addr) A1_16_ReadData(id, CMD_RAM_READ, _addr, 0x02)
 #define ReadPosition(id) A1_16_ReadData(id, CMD_RAM_READ, RAM_Joint_Position, 0x02)
 #define ReadCurrent(id) A1_16_ReadData(id, CMD_RAM_READ, RAM_Bus_Current, 0x02)
+#define ReadTorque(id) A1_16_ReadData(id, CMD_RAM_READ, RAM_PWM_Output_Duty, 0x02)
 
 #define WriteDataEEP1(id, _addr, _data) A1_16_WriteData(id, CMD_EEP_WRITE, _addr, _data)
 #define WriteDataRAM1(id, _addr, _data) A1_16_WriteData(id, CMD_RAM_WRITE, _addr, _data)

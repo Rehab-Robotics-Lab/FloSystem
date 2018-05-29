@@ -23,6 +23,9 @@ packet header, packet length of 7 bytes, set motor position, motor ID, motor pos
 - final motor position = motor position 1 << 8 + motor position 2
 - expect a response that is a copy ff:07:02:01:02:9d:fe
 
+Relax Motors:
+
+
 Get Serial number:
 ff:04:05:fe
 packet header, packet length of 4 bytes, request serial number, packet tail

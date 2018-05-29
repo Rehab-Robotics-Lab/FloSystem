@@ -175,7 +175,7 @@ boolean Motion_Editor_Packet_Task(void)
             Packet_Set(motor_ID, position_ID);
         }
         else if(pCMD == CMD_capture_pos) {    //get motor position
-            Packet_Vel_Read();
+            Packet_Pos_Read();
         }
         else if(pCMD == CMD_relax_motor) {      //relax motor
             motor_ID = pBuffer[motor_ID_address];
@@ -215,7 +215,7 @@ void Packet_Set(unsigned char motor_ID, int pos_set) {
     Serial.write((pos_set & 0x00FF));
     Serial.write(packet_tail);
 }
-void Packet_Vel_Read(void) {
+void Packet_Pos_Read(void) {
     static int position_buffer[19] = {0};      // position buffer
     static int _i = 0;
     for(_i = 1;_i < 19;_i++) position_buffer[_i] = ReadPosition(_i);
@@ -229,15 +229,15 @@ void Packet_Vel_Read(void) {
     Serial.write(packet_tail);
 }
 void Packet_Current_Read(void){
-    static int vel_buffer[19] = {0};      // velocity buffer
+    static int current_buffer[19] = {0};      // velocity buffer
     static int _i = 0;
-    for(_i = 1;_i < 19;_i++) vel_buffer[_i] = ReadCurrent(_i);
+    for(_i = 1;_i < 19;_i++) current_buffer[_i] = ReadCurrent(_i);
     Serial.write(packet_header);
     Serial.write(0x28);
     Serial.write(CMD_capture_current);
     for(_i = 1;_i < 19;_i++) {
-        Serial.write(((vel_buffer[_i] & 0xFF00) >> 8));
-        Serial.write((vel_buffer[_i] & 0x00FF));
+        Serial.write(((current_buffer[_i] & 0xFF00) >> 8));
+        Serial.write((current_buffer[_i] & 0x00FF));
     }
     Serial.write(packet_tail);
 }

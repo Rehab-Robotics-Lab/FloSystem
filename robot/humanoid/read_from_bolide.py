@@ -3,59 +3,39 @@
 import serial
 import time
 
-def read_data(ser,type):
-    print('new packet for: {}'.format(type))
+commands = {'pos':0x03,'current':0x06,'torque':0x07}
+
+def read_data(ser,com):
+    # print('new packet for: {}'.format(type))
     ser.flushInput()
-    if type=='pos':
-        ser.write(bytearray([0xFF,0x04,0x03,0xfe]))
-    elif type=='current':
-        ser.write(bytearray([0xFF,0x04,0x06,0xfe]))
-    elif type=='torque':
-        ser.write(bytearray([0xFF,0x04,0x07,0xfe]))
-    else:
-        print('invalid input')
-    start_timer = time.time()
-    ret = None
-    while time.time()-start_timer < 0.15 and not ret:
-        ret = ser.read()
-    if not ret:
-        print('didn''t get header in time: {}'.format(time.time()-start_timer))
+    ser.write(bytearray([0xFF,0x04,commands[com],0xfe]))
+    ret = ser.read(40)
+    if len(ret) != 40:
+        print('wrong length returned')
         return
-    header = ord(ret)
+    header = ord(ret[0])
     if header != 0xFF:
         print('first byte read did not match header: {}'.format(header))
         return
-    ret = None
-    while time.time()-start_timer < 0.15 and not ret:
-        ret = ser.read()
-    if not ret:
-        print('didn''t get length in time: {}'.format(time.time()-start_timer))
+    len_bit = ord(ret[1])
+    if len_bit != 40:
+        print('wrong length bit sent')
         return
-    length = ord(ret)
-    if not length==40:
-        print('illogical length byte: {}'.format(length))
+    command = ord(ret[2])
+    if not command==commands[com]:
+        print('incorrect command type: {}'.format(command))
         return
-    total_read = 2
-    data_buffer = [0] * (length-2)
-    while time.time()-start_timer < 0.5 and total_read < length :
-        ret = ser.read(1)
-        if ret:
-            data_buffer[total_read - 2] = ord(ret)
-            total_read += 1
-    if total_read < length:
-        print('didn''t receive the entire packet in time: {}'.format(time.time()-start_timer))
+    end = ord(ret[-1])
+    if end!=0xFE:
+        print('bad end bit')
         return
-    if data_buffer[-1] != 0xFE:
-        print('finally data entry was not end byte: {}'.format(data_buffer[-1]))
-        return
-    data_buffer = data_buffer[0:-2]
+    data = ret[3:-1]
     final_joint_pos = [0]*18
     for i in range(18):
-        final_joint_pos[i] = (data_buffer[2*i]<<8) + data_buffer[2*i + 1]
-    if type=='current':
+        final_joint_pos[i] = (ord(data[2*i])<<8) + ord(data[2*i + 1])
+    if com=='current':
         final_joint_pos = [fjp / 200.0 for fjp in final_joint_pos]
-    print(final_joint_pos)
-    print('loop time: {}'.format(time.time()-start_timer))
+    print('{}:{}'.format(com,final_joint_pos))
     return final_joint_pos 
 
 def read_battery_voltage(ser):
@@ -107,7 +87,7 @@ if __name__ == "__main__":
     from pyqtgraph.Qt import QtCore, QtGui
     import numpy as np
     print('imports done')
-    ser = serial.Serial('/dev/ttyUSB0',115200,timeout=0.001)
+    ser = serial.Serial('/dev/ttyUSB0',115200,timeout=0.2)
     print('connection established')
 
 
@@ -122,7 +102,12 @@ if __name__ == "__main__":
 
     while True:
         position = read_data(ser,'pos')
-        servo2 = np.append(servo2,position[1])
-        curve2.setData(servo2)
-        QtGui.QApplication.processEvents()
-        win.repaint()
+        if position:
+            servo2 = np.append(servo2,position[1])
+            curve2.setData(servo2)
+            QtGui.QApplication.processEvents()
+            win.repaint()
+# if __name__ == "__main__":
+#     ser = serial.Serial('/dev/ttyUSB0',115200,timeout=0.2)
+#     while True:  
+#         position = read_data(ser,'pos')

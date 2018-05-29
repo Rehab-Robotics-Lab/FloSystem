@@ -103,12 +103,26 @@ def read_battery_voltage(ser):
     return voltage 
 
 if __name__ == "__main__":
+    import pyqtgraph as pg
+    from pyqtgraph.Qt import QtCore, QtGui
+    import numpy as np
     print('imports done')
     ser = serial.Serial('/dev/ttyUSB0',115200,timeout=0.001)
     print('connection established')
 
+
+    win = pg.GraphicsWindow()
+    win.setWindowTitle('Robot Position')
+
+    servo2 = np.zeros(0)
+    p2 = win.addPlot()
+    p2.setDownsampling(mode='peak')
+    p2.setClipToView(True)
+    curve2 = p2.plot()
+
     while True:
-        read_data(ser,'pos')
-        # read_data(ser,'current')
-        # read_data(ser,'torque')
-        # read_battery_voltage(ser)
+        position = read_data(ser,'pos')
+        servo2 = np.append(servo2,position[1])
+        curve2.setData(servo2)
+        QtGui.QApplication.processEvents()
+        win.repaint()

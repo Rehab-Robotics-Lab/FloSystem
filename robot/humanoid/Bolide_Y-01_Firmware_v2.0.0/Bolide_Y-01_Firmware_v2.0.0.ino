@@ -193,7 +193,7 @@ boolean Motion_Editor_Packet_Task(void)
             Packet_Current_Read();
         }
         else if(pCMD == CMD_capture_torque){
-            Packet_Current_Read();
+            Packet_Torque_Read();
         }
         else if(pCMD == CMD_capture_battery){
             Packet_Battery_Read();

@@ -90,6 +90,7 @@ if __name__ == "__main__":
         bat = read_battery_voltage(ser)
         current = read_data(ser,'current')
         torque = read_data(ser,'torque')
+        print('---------------------')
         if position:
             servo2 = np.append(servo2,position[1])
             curve2.setData(servo2)

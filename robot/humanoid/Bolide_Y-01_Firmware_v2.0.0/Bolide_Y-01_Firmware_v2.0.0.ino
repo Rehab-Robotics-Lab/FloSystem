@@ -164,38 +164,31 @@ boolean Motion_Editor_Packet_Task(void)
     if(pBuffer[pIndex-1] == packet_tail) 
     {
         if(pCMD == CMD_init_motor) {        //initial motion editor setting
-            seq_trigger = false; SeqPos = 0;
             XYZrobot.poseSize = pBuffer[motor_num_address];
             XYZrobot.readPose();
             Packet_Init(pBuffer[motor_num_address]);
         }
         else if(pCMD == CMD_set_motor) {        //set motor position
-            seq_trigger = false; SeqPos = 0;
             motor_ID = pBuffer[motor_ID_address];
             position_ID = (pBuffer[motor_pos_msb] << 8) + pBuffer[motor_pos_lsb];
             SetPositionI_JOG(motor_ID, 0x00, position_ID);
             Packet_Set(motor_ID, position_ID);
         }
         else if(pCMD == CMD_capture_pos) {    //get motor position
-            seq_trigger = false; SeqPos = 0;
             Packet_Vel_Read();
         }
         else if(pCMD == CMD_relax_motor) {      //relax motor
-            seq_trigger = false; SeqPos = 0;
             motor_ID = pBuffer[motor_ID_address];
             A1_16_TorqueOff(motor_ID);
             Packet_Relax(motor_ID);
         }
         else if(pCMD == CMD_SN_read) {          // serial number read
-            seq_trigger = false; SeqPos = 0;
             Packet_SN();
         }
         else if(pCMD == CMD_SEQ_relax) {                //relax servo
-            seq_trigger = false;
             robot_torque_off(); //A1_16_TorqueOff(A1_16_Broadcast_ID);
         }
         else if(pCMD == CMD_version_read) {
-            seq_trigger = false; SeqPos = 0;
             Packet_Version_Read();
         }
         else if(pCMD == CMD_capture_current){

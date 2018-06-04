@@ -18,7 +18,7 @@ def bytize(data):
             data_bytes[i] = data_bytes[i] | (flat_data[i*8 + j] << (7-j))
     return data_bytes
 
-coms = SerialCom('COM3', data_handler)
+coms = SerialCom('/dev/ttyACM0', data_handler)
 
 filename = "faces_demo.json"
 

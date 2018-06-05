@@ -26,8 +26,8 @@ json_data=open(filename)
 faces = json.load(json_data)
 
 coms.sendData([0] + bytize(faces['mouths']['happy']['on']))
-coms.sendData([1] + bytize(faces['eyes']['left']['on']))
-coms.sendData([2] + bytize(faces['eyes']['left']['on']))
+coms.sendData([1] + bytize(faces['eyes']['standard']['left']['on']))
+coms.sendData([2] + bytize(faces['eyes']['standard']['left']['on']))
 
 mouths = faces['mouths'].items()
 
@@ -53,20 +53,20 @@ while keep_running:
     if command=='q':
         keep_running = False
     elif command=='j':
-        coms.sendData([1] + bytize(faces['eyes']['left']['on']))
-        coms.sendData([2] + bytize(faces['eyes']['left']['on']))
+        coms.sendData([1] + bytize(faces['eyes']['standard']['left']['on']))
+        coms.sendData([2] + bytize(faces['eyes']['standard']['left']['on']))
     elif command=='l':
-        coms.sendData([1] + bytize(faces['eyes']['right']['on']))
-        coms.sendData([2] + bytize(faces['eyes']['right']['on']))
+        coms.sendData([1] + bytize(faces['eyes']['standard']['right']['on']))
+        coms.sendData([2] + bytize(faces['eyes']['standard']['right']['on']))
     elif command=='m':
-        coms.sendData([1] + bytize(faces['eyes']['down']['on']))
-        coms.sendData([2] + bytize(faces['eyes']['down']['on']))
+        coms.sendData([1] + bytize(faces['eyes']['standard']['down']['on']))
+        coms.sendData([2] + bytize(faces['eyes']['standard']['down']['on']))
     elif command=='i':
-        coms.sendData([1] + bytize(faces['eyes']['up']['on']))
-        coms.sendData([2] + bytize(faces['eyes']['up']['on']))
+        coms.sendData([1] + bytize(faces['eyes']['standard']['up']['on']))
+        coms.sendData([2] + bytize(faces['eyes']['standard']['up']['on']))
     elif command=='k':
-        coms.sendData([1] + bytize(faces['eyes']['center']['on']))
-        coms.sendData([2] + bytize(faces['eyes']['center']['on']))
+        coms.sendData([1] + bytize(faces['eyes']['standard']['center']['on']))
+        coms.sendData([2] + bytize(faces['eyes']['standard']['center']['on']))
     else:
         try:
             val = int(command)

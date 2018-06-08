@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   trajectory_msgs
   transmission_interface
   urdf
+  serial
 )
 
 ## System dependencies are found with CMake's conventions

@@ -47,29 +47,25 @@ for key in mouth_keys:
     i+=1
 
 keep_running = True
+direction_commands = {'j':'left','l':'right','m':'down','i':'up','k':'center'}
+current_face = 'standard'
+current_direction = 'left'
+current_eye = 'standard'
 while keep_running:
     command = input('>>')
     # command = 1
     if command=='q':
         keep_running = False
-    elif command=='j':
-        coms.sendData([1] + bytize(faces['eyes']['standard']['left']['on']))
-        coms.sendData([2] + bytize(faces['eyes']['standard']['left']['on']))
-    elif command=='l':
-        coms.sendData([1] + bytize(faces['eyes']['standard']['right']['on']))
-        coms.sendData([2] + bytize(faces['eyes']['standard']['right']['on']))
-    elif command=='m':
-        coms.sendData([1] + bytize(faces['eyes']['standard']['down']['on']))
-        coms.sendData([2] + bytize(faces['eyes']['standard']['down']['on']))
-    elif command=='i':
-        coms.sendData([1] + bytize(faces['eyes']['standard']['up']['on']))
-        coms.sendData([2] + bytize(faces['eyes']['standard']['up']['on']))
-    elif command=='k':
-        coms.sendData([1] + bytize(faces['eyes']['standard']['center']['on']))
-        coms.sendData([2] + bytize(faces['eyes']['standard']['center']['on']))
+    elif command in direction_commands:
+        current_direction = direction_commands[command]
+        coms.sendData([1] + bytize(faces['eyes'][current_eye][current_direction]['on']))
+        coms.sendData([2] + bytize(faces['eyes'][current_eye][current_direction]['on']))
     else:
         try:
             val = int(command)
-            coms.sendData([0] + bytize(faces['mouths'][mouth_keys[val-1]]['on']))
+            new_face = mouth_keys[val-1]
+            coms.sendData([0] + bytize(faces['mouths'][new_face]['on']))
+            current_face = new_face
+            current_eye = faces['mouths'][new_face]['eyes']
         except Exception:
             print("I did not understand your input") 

@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+
+# must install serial_coms from FLO_HEAD/teensy/src/seserial_coms/computer/python
+
 import rospy
 from serial_coms import SerialCom # https://github.com/Rehab-Robotics-Lab/serial_coms/tree/master/computer/python/serial_coms
 import math
@@ -14,17 +18,19 @@ class FaceComs(object):
         self.port = rospy.get_param('port', '/dev/ttyACM0')
         self.coms = SerialCom(self.port, self.data_handler)
         self.command_receipt = rospy.Subscriber('face_state',FaceState, self.new_command)
+        rospy.loginfo('started node, connected to face')
+        rospy.spin()
 
     def new_command(self,msg):
         """Send info from command to microcontroller"""
-        self.coms.sendData([0] + bytize(msg.mouth))        
-        self.coms.sendData([1] + bytize(msg.left_eye))
-        self.coms.sendData([2] + bytize(msg.right_eye))        
+        self.coms.sendData([0] + self.bytize(msg.mouth))        
+        self.coms.sendData([1] + self.bytize(msg.left_eye))
+        self.coms.sendData([2] + self.bytize(msg.right_eye))        
 
-    def bytize(flat_data):
+    def bytize(self,flat_data):
         """Turn data into individual bytes"""
         # flat_data = flatten(data)
-        data_bytes = [0]*math.ceil(len(flat_data)/8)
+        data_bytes = [0]*int(math.ceil(len(flat_data)/8))
         for i in range(len(data_bytes)):
             for j in range(8):
                 data_bytes[i] = data_bytes[i] | (flat_data[i*8 + j] << (7-j))
@@ -36,3 +42,6 @@ class FaceComs(object):
         rospy.logdebug(data)
         rospy.logdebug("received as string (may be nonsense):")
         rospy.logdebug("".join(map(chr, data)))
+
+if __name__ == '__main__':
+    FaceComs()

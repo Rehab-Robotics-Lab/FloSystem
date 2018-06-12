@@ -24,8 +24,8 @@ class FaceComs(object):
     def new_command(self,msg):
         """Send info from command to microcontroller"""
         self.coms.sendData([0] + self.bytize(msg.mouth))        
-        self.coms.sendData([1] + self.bytize(msg.left_eye))
-        self.coms.sendData([2] + self.bytize(msg.right_eye))        
+        self.coms.sendData([1] + self.bytize(msg.right_eye))
+        self.coms.sendData([2] + self.bytize(msg.left_eye))        
 
     def bytize(self,flat_data):
         """Turn data into individual bytes"""

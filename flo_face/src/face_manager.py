@@ -26,7 +26,7 @@ class FloFaceManager(object):
         self.current_mouth = 'standard'
         self.current_eyes = 'standard'
 
-        self.state_pub = rospy.Publisher('face_state',FaceState)
+        self.state_pub = rospy.Publisher('face_state',FaceState,queue_size=1)
         self.set_eye_service = rospy.Service('set_eye_direction', SetEyeDirection, self.set_eye_direction)
         self.set_face_service = rospy.Service('set_face', SetFace, self.set_face)
         self.options_service = rospy.Service('get_face_options', GetFaceOptions,self.get_face_options)      

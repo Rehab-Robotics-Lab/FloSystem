@@ -27,6 +27,7 @@ class FloFaceManager(object):
         self.current_eyes = 'standard'
 
         self.state_pub = rospy.Publisher('face_state',FaceState)
+        self.set_eye_service = rospy.Service('set_eye_direction', SetEyeDirection, self.set_eye_direction)
         self.set_face_service = rospy.Service('set_face', SetFace, self.set_face)
         self.options_service = rospy.Service('get_face_options', GetFaceOptions,self.get_face_options)      
         rospy.loginfo('face manager up')  
@@ -64,11 +65,15 @@ class FloFaceManager(object):
                 new_state.eye_height = len(new_eye_data[self.eye_direction]['on'])            
             resp.success = True
             resp.info = 'face sent'
+            resp.available_eye_directions = list(new_eye_data.keys())
             self.state_pub.publish(new_state)
         else:
             resp.success = False
             resp.info = 'invalid face string'
         return resp
+
+    def set_eye_direction(sef, request):
+        return None
 
 
 if __name__ == '__main__':

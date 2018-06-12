@@ -36,7 +36,7 @@ class FaceComs(object):
                 data_bytes[i] = data_bytes[i] | (flat_data[i*8 + j] << (7-j))
         return data_bytes
 
-    def data_handler(received, *data):
+    def data_handler(self, received, *data):
         """Receive information from microcontroller and log it"""
         rospy.logdebug("received as ints:")
         rospy.logdebug(data)

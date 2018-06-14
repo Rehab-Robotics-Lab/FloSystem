@@ -8,7 +8,7 @@
 #include "src/FloFace/src/FloFace.h"
 #include "src/serial_coms/arduino/SerialCom/src/SerialCom.h" // https://github.com/Rehab-Robotics-Lab/serial_coms
 
-FloFace floFace = FloFace(0x72, 0x71, 0x70, 3, 1, 1);
+FloFace floFace = FloFace(0x72, 0x71, 0x70, 1, 1, 1);
 
 void process_incoming(char* data, int length);
 SerialCom communicator = SerialCom(process_incoming);

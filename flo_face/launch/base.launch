@@ -1,0 +1,4 @@
+<launch>
+    <node name="com_manager" pkg="flo_face" type="com_manager.py" output="screen"/>
+    <node name="face_manager" pkg="flo_face" type="face_manager.py" output="screen"/>
+</launch>

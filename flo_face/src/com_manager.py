@@ -15,7 +15,7 @@ class FaceComs(object):
     def __init__(self):
         """Construct node, open serial port, prep to receive commands"""
         rospy.init_node('face_com_manager')
-        self.port = rospy.get_param('port', '/dev/ttyACM0')
+        self.port = rospy.get_param('port', 'flo_face')
         self.coms = SerialCom(self.port, self.data_handler)
         self.command_receipt = rospy.Subscriber('face_state',FaceState, self.new_command)
         rospy.loginfo('started node, connected to face')

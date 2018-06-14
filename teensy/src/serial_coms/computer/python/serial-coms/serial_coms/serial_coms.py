@@ -44,7 +44,7 @@ class SerialCom:
         clean_byte_data = bytearray()
         for val in byte_data:
             if val in self.reserved_dict:
-                clean_byte_data.extend([self.reserved_byte, self.reserved_dict.index(val)])
+                clean_byte_data.extend([self.reserved_byte, self.reserved_dict.index(bytearray([val]))])
             else:
                 clean_byte_data.extend([val])
             #todo: make this more efficient

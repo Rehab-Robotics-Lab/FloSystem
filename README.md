@@ -10,7 +10,7 @@ ROS nodes.
 - An adafruit 2039 LED matrix or similar (mouth)
 - Two adafruit 959 LED matricies or similar (eyes)
 - Arduino installed
-- Teensyduino installed
+- [Teensyduino installed](https://www.pjrc.com/teensy/td_download.html#linux_issues)
 
 ## Setting Up:
 1. Set address for eyes and mouth: The left eye should be 
@@ -25,7 +25,7 @@ ROS nodes.
    have power connted to the Vin port on the Teensy and ground
    connected to the ground port on the teensy. 
 4. Plug the Teensy into the computer, open 
-   `<this repo>/teensy/src/teensy.ino`, if necessary change the
+   `<this repo>/teensy.ino`, if necessary change the
    board in the arduino IDE to be a teensy 3.2, and upload the 
    code. 
 5. Navigate to `<this repo>/teensy/src/serial_coms/computer/python/serial-coms/` 
@@ -48,10 +48,12 @@ ROS nodes.
 
 ## Running:
 1. Run a roscore
-2. Run `roslaunch flo_face base.launch`
-3. You can now see which faces are available by running: 
+2. Open a new terminal window
+3. Run `roslaunch flo_face base.launch`
+4. Open a third terminal window
+5. You can now see which faces are available by running: 
    `rosservice call /get_face_options
-4. You can now set the face by running: 
+6. You can now set the face by running: 
    `rosservice call /set_face "face: '<face you want>'"`
    
 

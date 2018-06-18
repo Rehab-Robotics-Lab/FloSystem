@@ -9,7 +9,7 @@
 #define FloFace_h
 
 #include "Arduino.h" // Need the basic arduino libs
-#include "Adafruit_LEDBackpack.h" // The library for the LED matrices
+#include "adafruit_led_backpack/Adafruit_LEDBackpack.h" // The library for the LED matrices
 #include "Adafruit_GFX.h" // The adafruit graphics drawing library
 
 /**

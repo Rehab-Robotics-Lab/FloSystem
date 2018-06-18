@@ -10,9 +10,7 @@ ROS nodes.
 - An adafruit 2039 LED matrix or similar (mouth)
 - Two adafruit 959 LED matricies or similar (eyes)
 - Arduino installed
-- Teensyduino installed
--See https://www.pjrc.com/teensy/td_download.html#linux_issues for
-help with installing Teensyduino
+- [Teensyduino installed](https://www.pjrc.com/teensy/td_download.html#linux_issues)
 
 ## Setting Up:
 1. Set address for eyes and mouth: The left eye should be 

@@ -51,10 +51,8 @@ ROS nodes.
 2. Open a new terminal window
 3. Run `roslaunch flo_face base.launch`
 4. Open a third terminal window
-5. You can now see which faces are available by running: 
-   `rosservice call /get_face_options
-6. You can now set the face by running: 
-   `rosservice call /set_face "face: '<face you want>'"`
+5. You can now run `rosrun flo_face keyboard_teleop.py` to operate the face with
+   your keyboard.
    
 
 

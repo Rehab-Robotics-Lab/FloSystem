@@ -83,6 +83,8 @@ class FloFaceManager(object):
         resp = SetEyeDirectionResponse()
         new_eye_data = self.face_data['eyes'][self.current_eyes]
         if request.direction in new_eye_data:
+            if request.direction == 'default':
+                request.direction = new_eye_data['default']
             self.eye_direction = request.direction
             self.set_eye()
             resp.success = True

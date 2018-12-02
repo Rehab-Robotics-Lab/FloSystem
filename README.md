@@ -28,6 +28,7 @@ ROS nodes.
    `<this repo>/teensy.ino`, if necessary change the
    board in the arduino IDE to be a teensy 3.2, and upload the 
    code. 
+4a. Turn the repo into a catkin ws. Instructions here: http://wiki.ros.org/catkin/Tutorials/create_a_workspace
 5. Navigate to `<this repo>/teensy/src/serial_coms/computer/python/serial-coms/` 
    and run `python setup.py install --user`
 6. Setup [UDEV Rules to make the face always have the same name](https://unix.stackexchange.com/a/183492):

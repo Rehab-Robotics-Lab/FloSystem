@@ -6,15 +6,19 @@ from flo_face.srv import (GetFaceOptions, GetFaceOptionsResponse,
                           SetEyeDirection, SetEyeDirectionResponse,
                           SetFace, SetFaceResponse)
 
-avialiable_face_commands = ['q','w','e','r','t','a','s','d','f','g','z','x',
+avialiable_commands = ['q','w','e','r','t','a','s','d','f','g','z','x',
                             'c','v','1','2','3','4','5','6','y','h','b','n','7',
                             '8','9']
-eye_commands = {'i':'up', 'k':'center', 'j':'left', 'l':'right', ',':'down',
-                'u':'up_left','o':'up_right','m':'down_left','.':'down_right'}
+clean_eye_commands = {'i':'up', 'k':'center', 'j':'left', 'l':'right', ',':'down',
+                      'u':'up_left','o':'up_right','m':'down_left','.':'down_right', 
+                      '0':'default'}
 
 
 mappings = dict() # mapping from button press to action key tuples
-
+funky_eyes = dict() 
+eye_commands = dict()
+eye_commands.update(clean_eye_commands)
+eye_commands.update(funky_eyes)
 if __name__=='__main__':
     rospy.init_node('face_keyboard_teleop')
     # get services
@@ -29,12 +33,13 @@ if __name__=='__main__':
     print('Available Faces:')
     print('key\tface')
     for idx, face in enumerate(face_options.faces):
-        key = avialiable_face_commands[idx]
+        key = avialiable_commands.pop(0)
         mappings[key] = face
         print('{}\t{}'.format(key,face))
     print('to change eye direction, your options are:\nkey\tdirection')
     for key, direction in eye_commands.items():
         print('{}\t{}'.format(key,direction))
+    print('you can press 0 to activate the default eyes')
     # set terminal for single line input
     rate = rospy.Rate(100)
     old_attr = termios.tcgetattr(sys.stdin)
@@ -48,10 +53,21 @@ if __name__=='__main__':
                 desired_face = mappings[new_input]
                 resp = set_face(desired_face)
                 if resp.success:
+                    avialiable_commands.extend(funky_eyes.keys())
+                    funky_eyes = dict()
                     print('changed face to {} with info: {}'.format(
                                         desired_face, resp.info))
                     print('Available Eye Directions: {}'.format(
                                         resp.available_eye_directions))
+                    for direction in resp.available_eye_directions:
+                        if direction not in eye_commands.values():
+                            key = avialiable_commands.pop(0)
+                            funky_eyes[key] = direction
+                            print('you can press {} to activate the {} eyes'.format(
+                                key, direction))
+                    eye_commands = dict()
+                    eye_commands.update(clean_eye_commands)
+                    eye_commands.update(funky_eyes)
                 else:
                     print('failed to set new face with info: {}'.format(
                                         resp.info))

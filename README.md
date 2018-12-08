@@ -28,7 +28,8 @@ ROS nodes.
    `<this repo>/teensy.ino`, if necessary change the
    board in the arduino IDE to be a teensy 3.2, and upload the 
    code. 
-4a. Turn the repo into a catkin ws. Instructions here: http://wiki.ros.org/catkin/Tutorials/create_a_workspace
+4. Clone or link this repo into a catkin ws. Instructions here: http://wiki.ros.org/catkin/Tutorials/create_a_workspace
+4. Build the catkin workspace using `catkin_make` from the catkin_ws directory
 5. Navigate to `<this repo>/teensy/src/serial_coms/computer/python/serial-coms/` 
    and run `python setup.py install --user`
 6. Setup [UDEV Rules to make the face always have the same name](https://unix.stackexchange.com/a/183492):
@@ -52,9 +53,11 @@ ROS nodes.
 2. Open a new terminal window
 3. Run `roslaunch flo_face base.launch`
 4. Open a third terminal window
+### Keyboard 
 5. You can now run `rosrun flo_face keyboard_teleop.py` to operate the face with
    your keyboard.
-   
+### Design study
+6. You can run `rosrun flo_face experiment_manager.py`
 
 
 ## Dependencies:

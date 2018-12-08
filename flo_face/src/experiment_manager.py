@@ -22,10 +22,10 @@ def change_face(name):
     return resp.available_eye_directions
 
 def calc_next_face_change():
-    return rospy.get_rostime() + rospy.Duration(random.uniform(10,20))
+    return rospy.get_rostime() + rospy.Duration(random.uniform(7,15))
 
 def calc_next_eye_change():
-    return rospy.get_rostime() + rospy.Duration(random.uniform(5,10))
+    return rospy.get_rostime() + rospy.Duration(random.uniform(3,10))
 
 mode = 'static'
 if __name__=='__main__':

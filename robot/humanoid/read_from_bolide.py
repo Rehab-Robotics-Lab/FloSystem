@@ -5,13 +5,15 @@ import time
 
 commands = {'pos':0x03,'current':0x06,'torque':0x07}
 
+motors = {'L-shoulder-flex/exten':1, 'L-shoulder-abduct':2, 'L-med-rot':4, 'L-elbow-flex/exten':11}
+
 def read_data(ser,com):
     # print('new packet for: {}'.format(type))
     ser.flushInput()
     ser.write(bytearray([0xFF,0x04,commands[com],0xfe]))
     ret = ser.read(40)
     if len(ret) != 40:
-        print('wrong length returned')
+        # print('wrong length returned, got {}, expected {}'.format(len(ret),40))
         return
     header = ord(ret[0])
     if header != 0xFF:
@@ -79,21 +81,25 @@ if __name__ == "__main__":
     win = pg.GraphicsWindow()
     win.setWindowTitle('Robot Position')
 
-    servo2 = np.zeros(0)
+    servo_vals = np.zeros([1,len(motors)])
     p2 = win.addPlot()
     p2.setDownsampling(mode='peak')
     p2.setClipToView(True)
-    curve2 = p2.plot()
+    curves = [p2.plot(name=name) for name in motors.keys()]
+    # curve2 = p2.plot()
 
     while True:
         position = read_data(ser,'pos')
-        bat = read_battery_voltage(ser)
-        current = read_data(ser,'current')
-        torque = read_data(ser,'torque')
-        print('---------------------')
+        # bat = read_battery_voltage(ser)
+        # current = read_data(ser,'current')
+        # torque = read_data(ser,'torque')
+        # print('---------------------')
         if position:
-            servo2 = np.append(servo2,position[1])
-            curve2.setData(servo2)
+            print('pos: {}'.format(position))
+            servo_vals = np.append(servo_vals,np.atleast_2d(np.asarray(position)[motors.values()]),axis=0)
+            # curve2.setData(servo2)
+            for idx, curve in enumerate(curves):
+                curve.setData(servo_vals[:,idx])
             QtGui.QApplication.processEvents()
             win.repaint()
 # if __name__ == "__main__":

@@ -73,6 +73,13 @@ if __name__ == "__main__":
     import pyqtgraph as pg
     from pyqtgraph.Qt import QtCore, QtGui
     import numpy as np
+    from matplotlib import cm
+
+    colormap = cm.get_cmap("viridis")  # cm.get_cmap("CMRmap")
+    colormap._init()
+    color_lut = (colormap._lut * 255).view(np.ndarray)  # Convert matplotlib colormap from 0-1 to 0 -255 for Qt
+
+
     print('imports done')
     ser = serial.Serial('/dev/ttyUSB0',115200,timeout=0.2)
     print('connection established')
@@ -85,7 +92,8 @@ if __name__ == "__main__":
     p2 = win.addPlot()
     p2.setDownsampling(mode='peak')
     p2.setClipToView(True)
-    curves = [p2.plot(name=name) for name in motors.keys()]
+    p2.addLegend()
+    curves = [p2.plot(pen=pg.mkPen(color_lut[idx*color_lut.shape[0]/len(motors)]), name=name) for idx,name in enumerate(motors.keys())]
     # curve2 = p2.plot()
 
     while True:
@@ -99,7 +107,7 @@ if __name__ == "__main__":
             servo_vals = np.append(servo_vals,np.atleast_2d(np.asarray(position)[motors.values()]),axis=0)
             # curve2.setData(servo2)
             for idx, curve in enumerate(curves):
-                curve.setData(servo_vals[:,idx])
+                curve.setData(servo_vals[-500:,idx])
             QtGui.QApplication.processEvents()
             win.repaint()
 # if __name__ == "__main__":

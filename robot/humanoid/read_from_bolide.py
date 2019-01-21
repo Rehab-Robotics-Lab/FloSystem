@@ -178,6 +178,8 @@ class BolideReader:
             if to_store > 0:
                 self.times = self.times[-to_store:]
                 self.servo_vals = self.servo_vals[-to_store:,:]
+            return position
+        return False
 
     def update_pos_plot(self, time_to_plot=15):
         '''updates the position plots
@@ -192,6 +194,12 @@ class BolideReader:
                               self.servo_vals[plot_min_idx:,idx])
             QtGui.QApplication.processEvents()
             self.pos_win.repaint()
+    
+    def print_pos(self, position):
+        toprint = ''
+        for motor in self.motors.keys():
+            toprint += '{}:{}\t'.format(motor,position[self.motors[motor]])
+        print(toprint)
 
 if __name__ == "__main__":
     ser = serial.Serial('/dev/ttyUSB0',115200,timeout=0.2)
@@ -200,5 +208,7 @@ if __name__ == "__main__":
     robot = BolideReader(ser)
     robot.setup_pos_plots()
     while True:
-        robot.collect_pos_data()
+        pos = robot.collect_pos_data()
+        if pos:
+            robot.print_pos(pos)
         robot.update_pos_plot()

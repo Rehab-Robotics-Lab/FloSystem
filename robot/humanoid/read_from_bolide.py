@@ -9,8 +9,6 @@ import numpy as np
 from matplotlib import cm
 import time
 
-
-
 logging_level = 2
 
 def log(level, message):
@@ -39,6 +37,7 @@ class BolideReader:
         '''
         self.ser = ser
         self.servo_vals = np.zeros([0,len(self.motors)])
+        self.pos_offsets = np.zeros(len(self.motors),dtype=np.int64)
         self.times = np.zeros(0)
         self.start_time = time.time()
         self.current_time = 0 # elapsed time from start
@@ -157,8 +156,23 @@ class BolideReader:
         '''
         position = self.read_data('pos')
         if position:
+            new_vals = np.asarray(position)[self.motors.values()]
+            # detect wraparound and unwrap:
+            # if self.servo_vals.shape[0] > 0:
+            #     end_range = 100
+            #     upper = 1023-end_range
+            #     prior_vals = self.servo_vals[-1] - self.pos_offsets
+            #     wrap_up = np.logical_and(new_vals < end_range, 
+            #                              prior_vals > upper)
+            #     wrap_down = np.logical_and(new_vals > upper, 
+            #                                prior_vals < end_range)
+            #     self.pos_offsets += wrap_up * 1032
+            #     self.pos_offsets -= wrap_down * 1032
+            #     # TODO: Why is this 1032? Is 1032 2*pi or is that some wraparound effect?
+            #     print(prior_vals)
+            #     new_vals += self.pos_offsets
             self.servo_vals = np.append(self.servo_vals,np.atleast_2d(
-                np.asarray(position)[self.motors.values()]),axis=0)
+                new_vals),axis=0)
             self.current_time = time.time()- self.start_time
             self.times = np.append(self.times, self.current_time)
             if to_store > 0:
@@ -174,7 +188,8 @@ class BolideReader:
         if len(self.times)>0:
             plot_min_idx = np.argmax(self.times>self.current_time-15)
             for idx, curve in enumerate(self.curves):
-                curve.setData(self.times[plot_min_idx:],self.servo_vals[plot_min_idx:,idx])
+                curve.setData(self.times[plot_min_idx:],
+                              self.servo_vals[plot_min_idx:,idx])
             QtGui.QApplication.processEvents()
             self.pos_win.repaint()
 

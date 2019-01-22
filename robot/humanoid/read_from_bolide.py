@@ -26,6 +26,8 @@ def log(level, message):
 class BolideReader:
     commands = {'pos':0x03,'current':0x06,'torque':0x07}
 
+    feedback = {'error':0x00,'keep_going':0x01,'done':0x02}
+    
     motors = {'L-shoulder-flex/exten':1, 'L-shoulder-abduct':2, 'L-med-rot':4, 
             'L-elbow-flex/exten':11}
 
@@ -54,7 +56,6 @@ class BolideReader:
         self.ser.flushInput()
         self.ser.write(bytearray([0xFF,0x04,self.commands[target],0xfe]))
         ret = ''
-        tries = 5
         while len(ret) < 1 and tries > 0:
             ret = self.ser.read(40)
             tries -= 1
@@ -97,6 +98,56 @@ class BolideReader:
             final_joint_pos = [fjp / 200.0 for fjp in final_joint_pos]
         # print('{}:{}'.format(com,final_joint_pos))
         return final_joint_pos 
+
+    def read_feedback(self, tries=5):
+        '''Read data from the bolide robot. Check the header, length, and end. 
+        Read either position, current, or torque
+
+        Args:
+            target: the the targeted thing to read. Options are `pos`, 
+                    `current`, `torque`
+            tries:  The number of serial read attempts before giving up. 
+        '''
+        ret = ''
+        print('starting to look for feedback')
+        while len(ret) < 3 and tries > 0:
+            ret = self.ser.read(1)
+            tries -= 1
+
+        if len(ret)>0:
+            print([ord(r) for r in ret])
+            header = ord(ret[0])
+        else:
+            log(3,'not enough data returned after tries')
+            return
+        
+        if header != 0xFF:
+            log(3,'first byte read did not match header: {}'.format(header))
+            return
+        else:
+            good_header = True
+
+        while len(ret) < ord(ret[1]) and tries > 0:
+            print('starting try')
+            ret = ret + self.ser.read(4-len(ret))
+            print('done try with: {}'.format(ret))
+            tries -= 1
+
+        len_bit = ord(ret[1])
+        if len_bit != len(ret):
+            log(3,'wrong length bit sent')
+            return
+
+        feedback = ord(ret[2])
+
+        end = ord(ret[-1])
+
+        if end!=0xFE:
+            log(3,'bad end bit')
+            return
+        
+        return [key for key, value in self.feedback.items() if value == feedback] 
+
 
     def read_battery_voltage(self):
         ''' Read battery voltage, not ready for usage
@@ -200,6 +251,7 @@ class BolideReader:
         for motor in self.motors.keys():
             toprint += '{}:{}\t'.format(motor,position[self.motors[motor]])
         print(toprint)
+        print(position)
 
 if __name__ == "__main__":
     ser = serial.Serial('/dev/ttyUSB0',115200,timeout=0.2)

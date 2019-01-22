@@ -17,6 +17,9 @@ static boolean cmd_torque_off = false, torque_released = false;
 //Motion Editor Parameter
 static boolean seq_trigger = false, seq_loop_trigger = false;
 static int seq_pSeqCnt = 0xFF, SeqPos = 0x00;
+static int poses[max_pose_index][MAX_SERVOS];      // poses [index][servo_id-1], check for the motion index!!
+static int pose_index[max_pose_index];
+sp_trans_t sequence[max_seq_index];// sequence
 
 //========================= Set up =======================================
 void setup() 
@@ -33,6 +36,7 @@ void setup()
 void loop()
 { 
     USB_Task();                          // USB Communcation motion
+    vExeMode_MotionEditor();            // play a sequence if it is setup
     // if(Timer_PowerLow.Timer_Task(1000)) {
     //     Power_Detection_Task();
     // }
@@ -130,6 +134,7 @@ boolean Motion_Editor_Packet_Task(void)
     static int pBuffer[128] = {0};
     static unsigned char pIndex = 0, pLength = 0xFF, pCMD = 0x00;
     static unsigned char motor_ID = 0;
+    static unsigned char playtime=0;
     static int position_ID = 0;
     static int seq_pPoseCnt = 0xFF, PoseCnt = 0;
     static int SeqCnt = 0;
@@ -161,7 +166,9 @@ boolean Motion_Editor_Packet_Task(void)
     motion_editor_mode = true;
     if(pBuffer[pIndex-1] == packet_tail) 
     {
-        if(pCMD == CMD_init_motor) {        //initial motion editor setting
+        //initial motion editor setting, must tell the robot how many motors there are.
+        // send packet: [header, size, command (0x01), num motors, tail]
+        if(pCMD == CMD_init_motor) {        
             XYZrobot.poseSize = pBuffer[motor_num_address];
             XYZrobot.readPose();
             Packet_Init(pBuffer[motor_num_address]);
@@ -169,7 +176,9 @@ boolean Motion_Editor_Packet_Task(void)
         else if(pCMD == CMD_set_motor) {        //set motor position
             motor_ID = pBuffer[motor_ID_address];
             position_ID = (pBuffer[motor_pos_msb] << 8) + pBuffer[motor_pos_lsb];
-            SetPositionI_JOG(motor_ID, 0x00, position_ID);
+            // playtime = pBuffer[0x06] // time in units of 10ms 
+            // SetPositionI_JOG(motor_ID, playtime, position_ID);
+            SetPositionI_JOG(motor_ID, 0, position_ID);
             Packet_Set(motor_ID, position_ID);
         }
         else if(pCMD == CMD_capture_pos) {    //get motor position
@@ -198,6 +207,78 @@ boolean Motion_Editor_Packet_Task(void)
         else if(pCMD == CMD_capture_battery){
             Packet_Battery_Read();
         }
+        /// Work with loading then playing a sequence of poses:
+        //load total pose number, how many unique poses are in the sequence which you will play?
+        // Send packet: [header, size, command (0x10), number of sequences, tail]
+        else if(pCMD == CMD_SEQ_load_PoseCnt) { 
+            seq_trigger = false; SeqPos = 0;
+            seq_pPoseCnt = pBuffer[seq_pose_cnt_address];
+            PoseCnt = 0;
+            if(seq_pPoseCnt > max_pose_index) Packet_Error_Feedback(0x00);
+            else {Packet_Error_Feedback(0x01); SeqProcessCnt = SEQ_Process_load_PoseCnt; seq_loop_trigger = false;}
+        }
+        //load pose in sequence. you should send a command here for eachpose in the sequence
+        // Send packet: [header, size, command (0x11), poseID, msb of motor0, lsb of motor0, msb of motor1, lsb of motor1, ... , msb of motorn, lsb of motorn, tail]
+        else if(pCMD == CMD_SEQ_load_Pose) {            
+            static int PoseID = 0, _i = 0;
+            seq_trigger = false; SeqPos = 0;
+            if(SeqProcessCnt == SEQ_Process_load_PoseCnt) {
+                PoseID = pBuffer[seq_pose_ID_address];
+                for(_i = 0; _i < XYZrobot.poseSize; _i++) {
+                    poses[PoseCnt][_i] = (pBuffer[seq_pose_start_address + 2*_i] << 8) + pBuffer[seq_pose_start_address + 1 + 2*_i];
+                    pose_index[PoseCnt] = PoseID;
+                }
+                PoseCnt++;
+                if(PoseCnt == seq_pPoseCnt){Packet_Error_Feedback(0x02); PoseCnt = 0; SeqProcessCnt = SEQ_Process_load_Pose;}
+                else Packet_Error_Feedback(0x01);
+            }
+            else Packet_Error_Feedback(0x00);
+        }
+        // how many steps are in the sequence?
+        // send packet: [head, size, command (0x12), number of steps, tail]
+        else if(pCMD == CMD_SEQ_load_SEQCnt) {          //load total sequence number
+            seq_trigger = false; SeqPos = 0;
+            if(SeqProcessCnt == SEQ_Process_load_Pose) {
+                seq_pSeqCnt = pBuffer[seq_seq_cnt_address];
+                if(seq_pSeqCnt > max_seq_index) Packet_Error_Feedback(0x00);
+                else {Packet_Error_Feedback(0x01); SeqProcessCnt = SEQ_Process_load_SEQCnt;}
+            }
+            else Packet_Error_Feedback(0x00);
+        }
+        // Tell the order of poses and time for each. Once all sequence steps are sent, the sequence begins
+        // send packet: [header, size, command (0x13), poseID (loaded above), transition time msb, transition time lsb, tail]
+        else if(pCMD == CMD_SEQ_load_SEQ) {             //load sequence
+            static int sPoseID = 0, sTime = 0, _i;
+            seq_trigger = false; SeqPos = 0;
+            if(SeqProcessCnt == SEQ_Process_load_SEQCnt) {
+                sPoseID = pBuffer[seq_pose_name_address];
+                sTime = (pBuffer[seq_pose_time_MSB_address] << 8) + pBuffer[seq_pose_time_LSB_address];
+                for(_i = 0;_i < max_pose_index;_i++){
+                    if(pose_index[_i] == sPoseID) {
+                        sequence[SeqCnt].pose = _i; sequence[SeqCnt].time = sTime;
+                        SeqCnt++; break;
+                    }
+                }
+                if(SeqCnt == seq_pSeqCnt) {
+                    Packet_Error_Feedback(0x02);
+                    SeqCnt = 0; seq_trigger = true;
+                    XYZrobot.readPose();
+                    SeqProcessCnt = SEQ_Process_load_SEQ;
+                }
+                else Packet_Error_Feedback(0x01);
+            }
+            else Packet_Error_Feedback(0x00);
+        }
+        else if(pCMD == CMD_SEQ_halt) {                 //halt sequence
+            seq_trigger = false;
+            Packet_Error_Feedback(0x03);
+            //halt sequence
+        }
+    }
+    else if(pCMD == CMD_SEQ_relax) {                //relax servo
+        seq_trigger = false;
+        robot_torque_off(); //A1_16_TorqueOff(A1_16_Broadcast_ID);
+        Packet_Error_Feedback(0x03);
     }
     else{Packet_Error_Feedback(0x00); pLength = 0xFF;}
     return motion_editor_mode;
@@ -299,4 +380,28 @@ void Packet_Error_Feedback(unsigned char CMD_reaction) {
     Serial.write(0x04);
     Serial.write(CMD_reaction);
     Serial.write(packet_tail);
+}
+
+
+// SEQUENCE PLAYING CODE:
+void vExeMode_MotionEditor(void)
+{
+    if(seq_trigger) {                    // play sequence edited by motion editor
+        Motion_Editor_Seq_Play();
+    }  
+}
+
+void Motion_Editor_Seq_Play(void) {
+    static int _i = 0;
+    static int pose_index = 0;
+    pose_index = sequence[SeqPos].pose;
+    for(_i = 0; _i < XYZrobot.poseSize; _i++) XYZrobot.setNextPose(_i+1, poses[pose_index][_i]);
+    XYZrobot.interpolateSetup(sequence[SeqPos].time);
+    while(XYZrobot.interpolating) XYZrobot.interpolateStep();
+    SeqPos++;
+    if(SeqPos == seq_pSeqCnt) {
+        SeqPos = 0;
+        if(seq_loop_trigger);
+        else{seq_trigger = false; seq_pSeqCnt = 0xFF;}
+    }
 }

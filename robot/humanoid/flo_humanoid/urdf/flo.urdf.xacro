@@ -1,18 +1,73 @@
 <?xml version="1.0"?>
 <robot name="lilFlo"  xmlns:xacro="http://ros.org/wiki/xacro">
 
-  <xacro:macro name="default_inertial" params="mass">
-    <inertial>
-      <mass value="${mass}" />
-      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
-    </inertial>
-  </xacro:macro>
+    <xacro:property name="mesh_extension" value="dae" />
 
-  <link name="base_link">
-    <visual>
-      <geometry>
-        <mesh filename="file://$(arg mesh_dir)BODY - FLO-CHEST-01.stl"/>
-      </geometry>
-    </visual>
-  </link>
+    <xacro:macro name="add_mesh" params="file_name xyz:='0 0 0' rpy:='0 0 0'">
+        <visual>
+            <origin xyz="${xyz}" rpy="${rpy}"/>
+            <geometry>
+                <mesh filename="file://$(arg mesh_dir)${file_name}.${mesh_extension}"/>
+            </geometry>
+        </visual>
+    </xacro:macro>
+
+    <xacro:macro name="default_inertial" params="mass">
+        <inertial>
+            <mass value="${mass}" />
+            <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" />
+        </inertial>
+    </xacro:macro>
+
+    <link name="base_link"/>
+
+    <link name="hang_bar">
+        <visual>
+            <origin rpy="0 ${pi/2} 0"/>
+            <geometry>
+                <cylinder length=".046" radius="0.0029972"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <joint name="bar2base" type="fixed">
+        <parent link="base_link"/>
+        <child link="hang_bar"/>
+        <!-- <origin rpy="0 ${pi/2} ${pi}" xyz="0 0 0"/> -->
+    </joint>
+
+    <link name="chest">
+        <xacro:add_mesh file_name="BODY - FLO-CHEST-01"/>
+    </link>
+
+    <joint name="chest_ref" type="fixed">
+        <parent link="hang_bar"/>
+        <child link="chest"/>
+        <origin xyz=".0435 -.0720 .0466"/>
+    </joint>
+        
+    <link name="left_shoulder">
+        <xacro:add_mesh file_name="FLO-ARM-01 UPPER ARM MOUNT - FLO-ARM-LEFT-01 UPPER ARM MOUNT" rpy="0 ${pi/2} 0"/>
+    </link>
+
+    <joint name="left_shoulder_flexionextension" type="revolute">
+        <axis xyz="0 0 1"/>
+        <limit effort="1000.0" lower="0.0" upper="2.5" velocity="0.5"/>
+        <parent link="hang_bar"/>
+        <child link="left_shoulder"/>
+        <origin xyz="-0.04965 .072  -.02153" rpy="${pi/2} 0 ${-pi/2}"/>
+    </joint>
+
+    <link name="left_forearm">
+    </link>
+
+    <joint name="lef_shoulder_abduction" type="revolute">
+        <axis xyz="0 0 1"/>
+        <limit effort="1000.0" lower="0.0" upper="2.5" velocity="0.5"/>
+        <parent link="left_shoulder"/>
+        <child link="left_forearm"/>
+        <origin xyz="0 0 .04572" rpy="0 ${-pi/2} 0"/>
+    </joint>
+
+
 </robot>

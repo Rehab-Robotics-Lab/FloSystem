@@ -43,7 +43,7 @@
     <joint name="chest_ref" type="fixed">
         <parent link="hang_bar"/>
         <child link="chest"/>
-        <origin xyz=".0435 -.0720 .0466"/>
+        <origin xyz="-0.04660000 .0720 -0.04351694" rpy="0 ${pi/2} ${pi}"/>
     </joint>
         
     <link name="left_shoulder">
@@ -58,15 +58,40 @@
         <origin xyz="-0.04965 .072  -.02153" rpy="${pi/2} 0 ${-pi/2}"/>
     </joint>
 
-    <link name="left_forearm">
+    <link name="left_upperarm">
+        <xacro:add_mesh file_name="FLO-ARM-02 MIDDLE ARM DOUBLE MOUNT-LEFT" xyz="-0.00250 -0.04318000 000" rpy="${-pi/2} ${pi/2} 0"/>
     </link>
 
-    <joint name="lef_shoulder_abduction" type="revolute">
+    <joint name="left_shoulder_abduction" type="revolute">
         <axis xyz="0 0 1"/>
         <limit effort="1000.0" lower="0.0" upper="2.5" velocity="0.5"/>
         <parent link="left_shoulder"/>
-        <child link="left_forearm"/>
+        <child link="left_upperarm"/>
         <origin xyz="0 0 .04572" rpy="0 ${-pi/2} 0"/>
+    </joint>
+
+    <link name="left_elbow">
+        <xacro:add_mesh file_name="FLO-ARM-04 MID ARM CONNECTOR - FLO-ARM-LEFT-04 MID ARM CONNECTOR" rpy="0 ${pi/2} ${pi/2}"/>
+    </link>
+
+    <joint name="left_shoulder_rotation" type="revolute">
+        <axis xyz="0 0 1"/>
+        <limit effort="1000.0" lower="0.0" upper="2.5" velocity="0.5"/>
+        <parent link="left_upperarm"/>
+        <child link="left_elbow"/>
+        <origin xyz="0.07951 0 0" rpy="0 ${pi/2} 0"/>
+    </joint>
+
+    <link name="left_forearm">
+        <xacro:add_mesh file_name="FLO LOWER ARM - LEFT" xyz="0.01071292 0 0" rpy="${pi} 0 0"/>
+    </link>
+
+    <joint name="left_elbow_flexion" type="revolute">
+        <axis xyz="0 0 1"/>
+        <limit effort="1000.0" lower="0.0" upper="2.5" velocity="0.5"/>
+        <parent link="left_elbow"/>
+        <child link="left_forearm"/>
+        <origin xyz="0 0 0.03442" rpy="0 ${-pi/2} 0"/>
     </joint>
 
 

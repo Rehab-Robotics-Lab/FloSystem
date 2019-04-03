@@ -86,7 +86,7 @@
         <xacro:add_mesh file_name="FLO LOWER ARM - LEFT" xyz="0.01071292 0 0" rpy="${pi} 0 0"/>
     </link>
 
-    <joint name="left_elbow_flexion" type="revolute">
+    <joint name="left_elbow_flexionextension" type="revolute">
         <axis xyz="0 0 1"/>
         <limit effort="1000.0" lower="0.0" upper="2.5" velocity="0.5"/>
         <parent link="left_elbow"/>

@@ -1,4 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+
+import csv
+import rospy
+import rospkg
+import os
 
 from read_from_bolide import BolideReader 
 from sensor_msgs.msg import JointState
@@ -21,6 +26,19 @@ class BolideController:
 
         self.reader = BolideReader(self.ser)
         #TODO: read in a paramater file describing servo offsets
+        self.package_path = rospack.get_path('flo_humanoid')
+        default_config_fn = os.path.join(self.package_path,'config','joints')
+        self.config_fn = rospy.get_param('robot_joint_config',default_config_fn)
+        with open(self.config_fn) as cfile:
+            reader = csv.DictReader(cfile)
+            for row in reader:
+                import pdb
+                pdb.set_trace()
+                print(row)
+
+        return
+
+        # self.params = 
 
     def get_pos(self):
         position = self.reader.read_data('pos')
@@ -30,6 +48,9 @@ class BolideController:
 
         #TODO: take position data and turn it into something that can be broadcast
 
-    def new_command(self, msg):
+    # def new_command(self, msg):
         #TODO: take in a commanded joint state and target system time to achieve it, interpolate it out to make it happen and send the command to the robot
 
+
+if __name__ == "__main__":
+    controller=BolideController()

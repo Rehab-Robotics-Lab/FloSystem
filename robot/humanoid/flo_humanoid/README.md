@@ -4,3 +4,5 @@ This has the ros packages necessary to talk to the bolide robot
 ## Dependencies:
 - pyqtgraph: `pip install pyqtgraph`
 - ros kinetic
+
+## Assigning the bolide to have a fixed address

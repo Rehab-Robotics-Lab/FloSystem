@@ -33,13 +33,18 @@ class BolideController:
         self.package_path = self.rospack.get_path('flo_humanoid')
         default_config_fn = os.path.join(self.package_path,'config','joints')
         self.config_fn = rospy.get_param('robot_joint_config',default_config_fn)
+        self.joint_config = dict()
         with open(self.config_fn) as cfile:
-            reader = csv.DictReader(cfile)
-            for row in reader:
-                import pdb
-                # pdb.set_trace()
-                print(row)
-
+            headings = None
+            for row in cfile:
+                if not headings:
+                    headings = row.split()
+                else:
+                    new_data = row.split()
+                    new_data_dict = {key: value for key, value in zip(headings,new_data)}
+                    self.joint_config[new_data_dict['address']] = new_data_dict
+                    self.joint_config[new_data_dict['name']] = new_data_dict
+                    
         return
 
         # self.params = 

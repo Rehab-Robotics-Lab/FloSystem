@@ -22,7 +22,7 @@ class BolideController:
         self.port = rospy.get_param('robot_port','/dev/bolide')
         self.ser = None
         try:
-            self.ser = serial.Serial(self.port, 115200, timeout=0.2)
+            self.ser = serial.Serial(self.port, 115200, timeout=0.05)
         except:
             rospy.logerr('failed to connect to bolide')
             return
@@ -56,6 +56,7 @@ class BolideController:
                     self.available_motor_ids.append(this_address)
                     self.available_motor_names.append(this_name)
 
+        self.rate = rospy.Rate(3)
         self.tasks = Queue.Queue()
         self.read_loop()
 
@@ -65,6 +66,7 @@ class BolideController:
                 self.get_pose()
             else:
                 return None
+            self.rate.sleep()
                     
     def get_pose(self):
         position = self.reader.read_data('pos')

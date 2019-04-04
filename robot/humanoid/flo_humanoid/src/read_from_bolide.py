@@ -9,7 +9,7 @@ import numpy as np
 from matplotlib import cm
 import time
 
-logging_level = 2
+logging_level = 3 
 
 def log(level, message):
     ''' Print the logged info if the current level is high enough. 
@@ -59,6 +59,7 @@ class BolideReader:
         while len(ret) < 1 and tries > 0:
             ret = self.ser.read(40)
             tries -= 1
+            log(1,'len(ret): {} | ret: {}'.format(len(ret),ret))
         if len(ret)>0:
             header = ord(ret[0])
         else:
@@ -71,6 +72,7 @@ class BolideReader:
             good_header = True
         while len(ret) < 40 and tries > 0:
             ret = ret + self.ser.read(40-len(ret))
+            log(1,'len(ret): {} | ret: {}'.format(len(ret),ret))
             tries -= 1
         
         if len(ret) != 40:

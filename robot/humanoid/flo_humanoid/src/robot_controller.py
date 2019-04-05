@@ -14,6 +14,7 @@ from sensor_msgs.msg import JointState
 from flo_humanoid.msg import JointTarget
 from read_from_bolide import BolideReader
 
+
 class BolideController(object):
     def __init__(self):
         rospy.init_node('robot_manager')

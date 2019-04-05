@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <robot name="lilFlo"  xmlns:xacro="http://ros.org/wiki/xacro">
 
+    <!--Macros-->
     <xacro:property name="mesh_extension" value="dae" />
 
     <xacro:macro name="add_mesh" params="file_name xyz:='0 0 0' rpy:='0 0 0'">
@@ -19,6 +20,7 @@
         </inertial>
     </xacro:macro>
 
+    <!--Core of robot-->
     <link name="base_link"/>
 
     <link name="hang_bar">
@@ -36,6 +38,7 @@
         <!-- <origin rpy="0 ${pi/2} ${pi}" xyz="0 0 0"/> -->
     </joint>
 
+    <!--chest-->
     <link name="chest">
         <xacro:add_mesh file_name="BODY - FLO-CHEST-01"/>
     </link>
@@ -45,7 +48,8 @@
         <child link="chest"/>
         <origin xyz="-0.04660000 .0720 -0.04351694" rpy="0 ${pi/2} ${pi}"/>
     </joint>
-        
+
+    <!--Left Arm-->
     <link name="left_shoulder">
         <xacro:add_mesh file_name="FLO-ARM-01 UPPER ARM MOUNT - FLO-ARM-LEFT-01 UPPER ARM MOUNT" rpy="0 ${pi/2} 0"/>
     </link>
@@ -57,6 +61,7 @@
         <child link="left_shoulder"/>
         <origin xyz="-0.04965 .072  -.02153" rpy="${pi/2} 0 ${-pi/2}"/>
     </joint>
+
 
     <link name="left_upperarm">
         <xacro:add_mesh file_name="FLO-ARM-02 MIDDLE ARM DOUBLE MOUNT-LEFT" xyz="-0.00250 -0.04318000 000" rpy="${-pi/2} ${pi/2} 0"/>
@@ -92,6 +97,56 @@
         <parent link="left_elbow"/>
         <child link="left_forearm"/>
         <origin xyz="0 0 0.03442" rpy="0 ${-pi/2} 0"/>
+    </joint>
+
+    <!--Right Arm-->
+    <link name="right_shoulder">
+        <xacro:add_mesh file_name="FLO-ARM-01 UPPER ARM MOUNT - FLO-ARM-RIGHT-01 UPPER ARM MOUNT" rpy="0 ${pi/2} 0"/>
+    </link>
+
+    <joint name="right_shoulder_flexionextension" type="revolute">
+        <axis xyz="0 0 1"/>
+        <limit effort="1000.0" lower="0.0" upper="2.5" velocity="0.5"/>
+        <parent link="hang_bar"/>
+        <child link="right_shoulder"/>
+        <origin xyz="0.04965 .072  -.02153" rpy="${pi/2} 0 ${-pi/2}"/>
+    </joint>
+
+
+    <link name="right_upperarm">
+        <xacro:add_mesh file_name="FLO-ARM-02 MIDDLE ARM DOUBLE MOUNT-RIGHT" xyz="0.00250 -0.04318000 000" rpy="${pi/2} ${pi/2} 0"/>
+    </link>
+
+    <joint name="right_shoulder_abduction" type="revolute">
+        <axis xyz="0 0 -1"/>
+        <limit effort="1000.0" lower="0.0" upper="2.5" velocity="0.5"/>
+        <parent link="right_shoulder"/>
+        <child link="right_upperarm"/>
+        <origin xyz="0 0 -.04572" rpy="0 ${-pi/2} 0"/>
+    </joint>
+
+    <link name="right_elbow">
+        <xacro:add_mesh file_name="FLO-ARM-04 MID ARM CONNECTOR - FLO-ARM-RIGHT-04 MID ARM CONNECTOR" rpy="0 ${pi/2} ${pi/2}"/>
+    </link>
+
+    <joint name="right_shoulder_rotation" type="revolute">
+        <axis xyz="0 0 1"/>
+        <limit effort="1000.0" lower="0.0" upper="2.5" velocity="0.5"/>
+        <parent link="right_upperarm"/>
+        <child link="right_elbow"/>
+        <origin xyz="-0.07951 0 0" rpy="0 ${pi/2} 0"/>
+    </joint>
+
+    <link name="right_forearm">
+        <xacro:add_mesh file_name="FLO LOWER ARM - RIGHT" xyz="-0.01071292 0 0.11378887" rpy="${pi} ${pi} 0"/>
+    </link>
+
+    <joint name="right_elbow_flexionextension" type="revolute">
+        <axis xyz="0 0 -1"/>
+        <limit effort="1000.0" lower="0.0" upper="2.5" velocity="0.5"/>
+        <parent link="right_elbow"/>
+        <child link="right_forearm"/>
+        <origin xyz="0 0 -0.03442" rpy="0 ${-pi/2} 0"/>
     </joint>
 
 

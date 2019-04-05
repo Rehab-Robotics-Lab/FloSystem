@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 from __future__ import print_function
 from __future__ import division
@@ -11,7 +11,7 @@ from pyqtgraph.Qt import QtCore, QtGui
 import numpy as np
 from matplotlib import cm
 
-logging_level = 3
+logging_level = 6
 
 
 def log(level, message):
@@ -65,7 +65,7 @@ class BolideReader(object):
             ret = self.ser.read(40)
             tries -= 1
             log(1, 'len(ret): {} | ret: {}'.format(len(ret), ret))
-        if not ret > 0:
+        if ret:
             header = ord(ret[0])
         else:
             log(3, 'not enough data returned after tries')
@@ -121,7 +121,7 @@ class BolideReader(object):
             ret = self.ser.read(1)
             tries -= 1
 
-        if not ret:
+        if ret:
             print([ord(r) for r in ret])
             header = ord(ret[0])
         else:

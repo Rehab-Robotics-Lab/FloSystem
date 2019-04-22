@@ -34,7 +34,7 @@ class BolideReader(object):
     feedback = {'error': 0x00, 'keep_going': 0x01, 'done': 0x02}
 
     motors = {'L-shoulder-flex/exten': 1, 'L-shoulder-abduct': 2,
-              'L-med-rot': 4, 'L-elbow-flex/exten': 11}
+              'L-med-rot': 4, 'L-elbow-flex/exten': 11, 'R-shoulder-flex/exten': 0, 'R-shoulder-abduction': 14, 'R-shoulder-rotation': 3, 'R-elbow-flex/exten': 5}
 
     def __init__(self, ser):
         ''' create an object to read data from the bolide robot

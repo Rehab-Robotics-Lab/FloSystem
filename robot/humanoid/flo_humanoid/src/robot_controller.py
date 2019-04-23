@@ -30,11 +30,14 @@ class BolideController(object):
             return
         rospy.loginfo('connected to robot')
 
-        self.joint_publisher = rospy.Publisher(
+        joint_publisher = rospy.Publisher(
             'joint_states', JointState, queue_size=1)
 
-        self.command_reader = rospy.Subscriber(
-            'target_joint_states', JointTarget, self.new_command)
+        joint_command_reader = rospy.Subscriber(
+            'target_joint_states', JointTarget, self.new_joint_command)
+
+        general_command_reader = rospy.Subscriber(
+            'motor_commands', String, self.new_command)
 
         self.reader = BolideReader(self.ser)
         package_path = rospack.get_path('flo_humanoid')
@@ -61,17 +64,24 @@ class BolideController(object):
                     self.available_motor_names.append(this_name)
 
         self.rate = rospy.Rate(3)
-        self.tasks = Queue.Queue()
+        self.joint_tasks = Queue.Queue()
+        self.command_tasks = Queue.Queue()
         self.read_loop()
 
     def read_loop(self):
         """If there are motion tasks to do, do those, otherwise, check the
         robot's pose"""
         while not rospy.is_shutdown():
-            if self.tasks.empty():
-                self.get_pose()
-            else:
-                return None
+            while not self.joint_tasks.empty():
+                msg = self.joint_tasks.pop()
+
+            while not self.command_tasks.empty():
+                msg = self.command_tasks.pop()
+                command = msg.data
+                if command == 'relax':
+                    # Relax the motors
+
+            self.get_pose()
             self.rate.sleep()
 
     def get_pose(self):
@@ -103,7 +113,30 @@ class BolideController(object):
 
         :param msg: The message that is being passed in that we should parse
         """
-        self.tasks.put(msg)
+        self.joint_tasks.put(msg)
+
+    def new_command_command(self, msg):
+        """Take a new control message and add it to the control queue 
+
+        :param msg: The message being given
+        """
+        self.command_tasks.put(msg)
+
+    def send_packet(self, command):
+        to_send = bytearray([0xff, len(command)+3]+command+[0xfe])
+        print('sending: {}'.format([hex(s) for s in to_send]))
+        ser.write(to_send)
+        # feedback = br.read_feedback()
+        # print(feedback)
+        time.sleep(.1)
+        print('received: {}'.format([ord(r) for r in ser.read_all()]))
+        # ret = ser.read(ser.in_waiting)
+        # print('sent: {}'.format(command))
+        # if ret:
+        #     print('received: {}'.format([ord(c) for c in ret]))
+
+    def relax_motors(self):
+        send_packet(ser,[CMD_SEQ_relax])
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
 Header header
 string[] name
 float64[] position
-time[] target_completion_time
+float64 target_completion_time

@@ -3,7 +3,20 @@ This has the ros packages necessary to talk to the bolide robot
 
 ## Dependencies:
 - pyqtgraph: `pip install pyqtgraph`
+    - This is only needed if you want to run the read from bolide code and get a nice graph. Not generally needed
 - ros kinetic
+    - Just do the full desktop install and you are good
+- numpy
+    - Installed via rosdep
+- matplotlib
+    - installed via rosdep
+
+### Installing dependencies
+All of the critical dependencies can be installed using rosdep. You will need to:
+`sudo apt install python-rosdep`
+
+Then go into your catkin workspace and run:
+`rosdep install --from-paths src --ignore-src -r -y
 
 ## Assigning the bolide to have a fixed address
 Setup [UDEV Rules to make the face always have the same name](https://unix.stackexchange.com/a/183492):

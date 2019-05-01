@@ -72,7 +72,7 @@
         <limit effort="1000.0" lower="0.0" upper="2.5" velocity="0.5"/>
         <parent link="left_shoulder"/>
         <child link="left_upperarm"/>
-        <origin xyz="0 0 .04572" rpy="0 ${-pi/2} 0"/>
+        <origin xyz="0 0 .04572" rpy="${pi/2} 0 ${-pi/2}"/>
     </joint>
 
     <link name="left_elbow">
@@ -84,7 +84,7 @@
         <limit effort="1000.0" lower="0.0" upper="2.5" velocity="0.5"/>
         <parent link="left_upperarm"/>
         <child link="left_elbow"/>
-        <origin xyz="0.07951 0 0" rpy="0 ${pi/2} 0"/>
+        <origin xyz="0.07951 0 0" rpy="${pi/2} 0 ${pi/2}"/>
     </joint>
 
     <link name="left_forearm">
@@ -122,7 +122,7 @@
         <limit effort="1000.0" lower="0.0" upper="2.5" velocity="0.5"/>
         <parent link="right_shoulder"/>
         <child link="right_upperarm"/>
-        <origin xyz="0 0 -.04572" rpy="0 ${-pi/2} 0"/>
+        <origin xyz="0 0 -.04572" rpy="${pi/2} 0 ${pi/2}"/>
     </joint>
 
     <link name="right_elbow">
@@ -134,7 +134,7 @@
         <limit effort="1000.0" lower="0.0" upper="2.5" velocity="0.5"/>
         <parent link="right_upperarm"/>
         <child link="right_elbow"/>
-        <origin xyz="-0.07951 0 0" rpy="0 ${pi/2} 0"/>
+        <origin xyz="-0.07951 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
     </joint>
 
     <link name="right_forearm">

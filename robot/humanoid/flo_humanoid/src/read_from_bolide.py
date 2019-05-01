@@ -6,8 +6,6 @@ from __future__ import division
 import time
 import datetime
 import serial
-import pyqtgraph as pg
-from pyqtgraph.Qt import QtCore, QtGui
 import numpy as np
 from matplotlib import cm
 
@@ -188,6 +186,7 @@ class BolideReader(object):
 
     def setup_pos_plots(self):
         '''Set up the pyqt graph to visualize positions'''
+        import pyqtgraph as pg
         colormap = cm.get_cmap("viridis")  # cm.get_cmap("CMRmap")
         colormap._init()
         # Convert matplotlib colormap from 0-1 to 0 -255 for Qt
@@ -230,6 +229,7 @@ class BolideReader(object):
         Args:
             time_to_plot: The amount of time back to plot in seconds
         '''
+        from pyqtgraph.Qt import QtCore, QtGui
         if len(self.times) > 0:
             plot_min_idx = np.argmax(self.times > self.current_time-15)
             for idx, curve in enumerate(self.curves):

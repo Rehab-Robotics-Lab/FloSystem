@@ -2,7 +2,7 @@
 
   <arg name="model" default="$(find flo_humanoid)/urdf/flo.urdf.xacro"/>
   <arg name="gui" default="true" />
-  <arg name="rvizconfig" default="$(find urdf_tutorial)/rviz/urdf.rviz" />
+  <arg name="rvizconfig" default="$(find flo_humanoid)/rviz/urdf.rviz" />
 
   <param name="robot_description" command="$(find xacro)/xacro.py --inorder $(arg model) mesh_dir:=$(find flo_humanoid)/urdf/CAD_refs/" />
   <param name="use_gui" value="$(arg gui)"/>

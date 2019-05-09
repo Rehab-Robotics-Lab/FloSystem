@@ -1,0 +1,5 @@
+<launch>
+
+  <node name="bolide_controller" pkg="flo_humanoid" type="robot_controller.py" output="screen"/>
+    <include file="$(find flo_humanoid)/launch/urdf.launch" />
+</launch>

@@ -37,3 +37,24 @@ Setup [UDEV Rules to make the face always have the same name](https://unix.stack
     4. Load the rules: `sudo udevadm trigger`
     5. You can check that it worked by running: `ls -l /dev/flo_face`
     6. Chmod 666 the port so you can actually write to it...
+
+### Amazon Polly
+Polly will need to have access to AWS to work. To set that up, go to the [IAM Console](https://console.aws.amazon.com/iam)
+and click on users. Then select the user you want to give access to. Click "Create access key" under
+Security Credentials. Then in the console on the computer, [install the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html).
+Then in the console, run `aws configure --profile flo` and fill in the info from the IAM console with region set
+to us-east-1 and output set to json.
+
+A few notes:
+- you should probably restrict what the user that is getting access can do. The best option is
+  to set the permissions to AmazonPollyReadOnlyAccess
+- You can have other users configured. By changing the --profile, you control the name of the user
+  if no profile is specified, then the information is saved to a default
+- If you ever need to revoke permissions for a user, that can be done from the IAM Console by
+  deactivating the user's Access Keys.
+- TODO: I would like to find a way to limit how many calls can be made by a user.
+- To check whether polly is available given the profile, run `aws polly help --profile flo`.
+  If you get back a list of commands to run on polly, you should be good.
+- To fully test, can run: `aws polly synthesize-speech --output-format mp3 --voice-id Ivy --text 'hello, this is a test' --profile flo test.mp3`
+- you might find that you are getting some sort of server connection errors.
+  you can resolve that by running `pip3 install -U boto3`

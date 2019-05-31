@@ -1,0 +1,14 @@
+# RUNNING SYSTEM
+
+## Setup
+You first need to go through the README and ge things setup.
+You will need to make sure that the laptop is set as the ros master
+and all of the networking is connected.
+
+## Local Machine
+run a roscore: `roscore`
+launch camera capture: `rosrun usb_cam usb_cam_node`
+
+## Remote Machine
+launch `rosrun image_view image_view image:=usb_cam/image_raw _image_transport:=theora _window_name:=remote-video`
+then make the screen full screen: `wmctrl -r remote-video -b add,fullscreen

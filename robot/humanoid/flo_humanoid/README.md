@@ -16,7 +16,9 @@ All of the critical dependencies can be installed using rosdep. You will need to
 `sudo apt install python-rosdep`
 
 Then go into your catkin workspace and run:
-`rosdep install --from-paths src --ignore-src -r -y
+`rosdep install --from-paths src --ignore-src -r -y`
+
+audio: `sudo apt install ros-kinetic-audio-common`
 
 ## Assigning the bolide to have a fixed address
 Setup [UDEV Rules to make the face always have the same name](https://unix.stackexchange.com/a/183492):
@@ -58,3 +60,10 @@ A few notes:
 - To fully test, can run: `aws polly synthesize-speech --output-format mp3 --voice-id Ivy --text 'hello, this is a test' --profile flo test.mp3`
 - you might find that you are getting some sort of server connection errors.
   you can resolve that by running `pip3 install -U boto3`
+
+## Getting video to work
+`sudo apt install ros-kinetic-usb-cam`
+Then run node with rosrun usb-cam usb_cam_node
+
+`sudo apt install ros-kinetic-webrtc-ros`
+`rosrun webrtc_ros webrtc_ros_server__node`

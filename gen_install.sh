@@ -13,8 +13,6 @@ source /opt/ros/kinetic/setup.bash
 [ ! -d "/etc/ros/rosdep/sources.list.d" ] && sudo rosdep init
 rosdep update
 sudo apt install python-rosinstall python-rosinstall-generator python-wstool build-essential
-mkdir -p ~/catkin_ws/src
-ln -sf ~/Documents/git/LilFloSystem ~/catkin_ws/src/
 cd ~/catkin_ws && catkin_make
 source devel/setup.bash
 cd -
@@ -28,6 +26,3 @@ sudo apt install python-rosdep
 cd ~/catkin_ws
 rosdep install --from-paths src --ignore-src -r -y
 cd -
-
-## Adding to the bashrc file
-grep -qxF 'source ~/catkin_ws/src/LilFloSystem/bash_includes' ~/.bashrc || echo 'source ~/catkin_ws/src/LilFloSystem/bash_includes' >> ~/.bashrc

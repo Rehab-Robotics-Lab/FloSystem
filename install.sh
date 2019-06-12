@@ -28,3 +28,6 @@ sudo apt install python-rosdep
 cd ~/catkin_ws
 rosdep install --from-paths src --ignore-src -r -y
 cd -
+
+## Adding to the bashrc file
+grep -qxF 'source ~/catkin_ws/src/LilFloSystem/bash_includes' ~/.bashrc || echo 'source ~/catkin_ws/src/LilFloSystem/bash_includes' >> ~/.bashrc

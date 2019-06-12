@@ -1,0 +1,6 @@
+source /opt/ros/kinetic/setup.bash
+source ~/catkin_ws/devel/setup.bash
+export ROS_MASTER_URI=http://10.42.0.1:11311
+function ifip { /sbin/ifconfig $1 | grep "inet addr" | awk -F: '{print $2}' |awk '{print $1}'; }
+export ROS_IP=`ifip wlp58s0`
+export DISPLAY=:0

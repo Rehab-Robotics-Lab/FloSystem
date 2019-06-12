@@ -35,38 +35,13 @@ You should then be able to connect to the router using the settings setup on the
 at the beginning from the nuc on the robot
 
 ### NUC
-1. Setup Linux, Either Ubuntu or Lubuntu
+1. Setup Ubuntu
     1. Make sure to connect to a network and update everything
     2. Make sure to set the system to login automatically
-1. Clone this repo somewhere, like `~/Documents/git/LilFloSystem`
-2. [Install ROS Kinetic](http://wiki.ros.org/kinetic/Installation)
-    1. Be sure to setup ROS to load in your bashrc by adding: `source ~/catkin_ws/devel/setup.bash`
-3.  Setup the network in the bashrc. It is likely that you will be on a network that changes your IP address frequently, so that needs to be handled.
-    1. Type `ifconfig` and get the name of the wifi adapter
-    2. Add this line to `~/.bashrc`: `function ifip { /sbin/ifconfig $1 | grep "inet addr" | awk -F: '{print $2}' |awk '{print $1}'; }`
-    3. Setup the IP address in the bashrc: ``export ROS_IP=`ifip <name of wifi adapter, source /opt/ros/kinetic/setup.bashex: wlp3s0>` ``
-    4. Set the ROS Master to be the local machine in the bashrc: `export ROS_MASTER_URI=http://localhost:11311`
-3. Create a catkin workspace, ex: `mkdir ~/catkin_ws/src -r` #TODO: actually try that command
-    1. Load the catkin ws in your bashrc by adding: `~/catkin_ws/devel/setup.bash`
-4. Link the repo into the catkin ws, ex: `cd ~/catkin_ws/src && ln -s ~/Documents/git/LilFloSystem`
-    - Why do we use links? It allows us to easily remove the code from the catkin workspace
-       without removing it from our computer. We simply delete the link.
-5. Make the code: `cd ~/catkin_ws && catkin_make`
-
-#### Install Various Dependencies:
-1. pip install pyserial --user
-
-#### Optional Things to Make Life Easier
-1. Enable SSH, so you can actually connect to the robot
-2. Enable VNC, so that you can see what is on the robot
-3. Install RMATE to allow you to edit code over SSH from a remote text editor:
-    ```bash
-    sudo wget -O /usr/local/bin/rcode \
-    https://raw.github.com/aurora/rmate/master/rmate
-    chmod a+x /usr/local/bin/rcode
-    ```
-
-### Lighting Control Teensy
+    3. enable ssh: `sudo apt install openssh-server`
+1. Use lsyncd with the configuration file (See section on Developing) to copy files over
+2. ssh into the robot and run the install script
+3. Add the includes to the bashrc: `echo 'source ~/catkin_ws/src/LilFloSystem/bash_includes' >> ~/.bashrc`
 
 ### Dev Computer
 If you would like to have a separate development computer, which would make a

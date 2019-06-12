@@ -12,6 +12,28 @@ Take a look at `templateSyncConfig.lua` to learn how to sync your work over to t
 
 ## Setup
 
+### Network
+You will need a router to get it all working. There is a Cisco Linksys E1200 that we are
+using. Plug in one of the switching Ethernet ports to the port on your development computer.
+Setup with:
+- SSID: flo-net
+- Broadcasting: off
+- PWD: xxxxx
+- type: WPA2
+- router name: flo-net-host
+
+You then need to use the router to share the internet through your development machine:
+- Set router into AP Mode (Access Point Mode)
+- Open network settings on the development machine and click edit connections
+- Click Add
+- Select Ethernet
+- name the connection `shared-net`
+- Under general, select Automatically connect when available and all users may use network
+- Under IPv4 settings select Method: Shared to other computers
+
+You should then be able to connect to the router using the settings setup on the router
+at the beginning from the nuc on the robot
+
 ### NUC
 1. Setup Linux, Either Ubuntu or Lubuntu
     1. Make sure to connect to a network and update everything

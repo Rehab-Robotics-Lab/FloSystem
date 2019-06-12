@@ -52,3 +52,6 @@ tags
 
 # Persistent undo
 [._]*.un~
+
+# sync config
+mySyncConfig.lua

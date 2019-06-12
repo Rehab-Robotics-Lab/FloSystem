@@ -5,7 +5,7 @@
 -- You will need to setup ssh keys if you want this to work without constantly
 -- entering passwords. You can do that by running (on your development machine):
 --     ssh-keygen -t rsa -f ~/.ssh/id_rsa
---     ssh flo-username@flo-ip 'cat >> .ssh/authorized_keys' < ~/.ssh/id_rsa.pub
+--     ssh flo-username@flo-ip 'mkdir -p .ssh; touch .ssh/authorized_keys; cat >> .ssh/authorized_keys' < ~/.ssh/id_rsa.pub
 -- Note, you can leave your rsa keys with no passphrase, but you might want some
 -- more security: https://superuser.com/questions/261361/do-i-need-to-have-a-passphrase-for-my-ssh-rsa-key
 

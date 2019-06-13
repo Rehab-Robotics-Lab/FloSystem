@@ -87,3 +87,4 @@ at the beginning from the nuc on the robot
     3. enable ssh: `sudo apt install openssh-server`
 1. Use lsyncd with the configuration file (See section on Developing) to copy files over
 2. ssh into the robot and run the install script (`robot_install.sh`)
+3. Follow instructions in the flo_humanoid/README to name the bolide and face and setup amazon polly.

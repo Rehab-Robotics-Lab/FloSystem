@@ -5,7 +5,6 @@ This is going to be the master repository for all of the Lil'Flo remote control,
 Take a look at `templateSyncConfig.lua` to learn how to sync your work over to the robot.
 .#TODO: Need to figure out how to automatically open tabs and windows, etc.
 
-
 ## Dependencies
 - ROS
 - pyserial
@@ -57,6 +56,15 @@ your robot doesn't have a static IP address, this isn't going to work too well.
 The way this is setup, calling `connect_to_robot #` will automatically ssh into
 the robot with rmate set to route back to allow remote text editing. You may
 find that this needs to be altered for your use case.
+
+It is probably useful to edit your hosts file: `sudo nvim /etc/hosts` to have the nuc listed. Add this: `10.42.0.189 flo-nuc`
+
+You can also create a function in your bashrc that allows easier sshing in:
+```bash
+function ssh-flo {
+    ssh nuc-admin@flo-nuc
+}
+```
 
 ### Network
 You will need a router to get it all working. There is a Cisco Linksys E1200 that we are

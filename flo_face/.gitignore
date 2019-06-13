@@ -29,3 +29,6 @@
 *.app
 
 .vscode/
+
+dist/
+*.egg-info/

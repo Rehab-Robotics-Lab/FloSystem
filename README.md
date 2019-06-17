@@ -95,9 +95,62 @@ at the beginning from the nuc on the robot
     3. enable ssh: `sudo apt install openssh-server`
 1. Use lsyncd with the configuration file (See section on Developing) to copy files over
 2. ssh into the robot and run the install script (`robot_install.sh`)
-3. Follow instructions in the flo_humanoid/README to name the bolide and face and setup amazon polly.
+4. You need to setup read/write privileges for all of the USB devices:
+
+#### Assigning the serial devices to have a fixed addresses
+Setup [UDEV Rules to make the face always have the same name](https://unix.stackexchange.com/a/183492):
+
+    1. Run `python -m serial.tools.list_ports` to see which ports
+       are connected. Then plug in the device and run it again,
+       the new port is the one which you are connected to
+    2. Run `udevadm info --name=/dev/ttyACM0 --attribute-walk`
+       with the name matching the port which you found in the
+       previous step. Find the device with manufacturer
+       . Note the idVendor, id Product, and serial
+       number.
+    3. Edit file `/etc/udev/rules.d/99-usb-serial.rules` (create if
+       necessary) to have:
+       `SUBSYSTEM=="tty", ATTRS{idVendor}=="XXXX", ATTRS{idProduct}=="XXXX", ATTRS{serial}=="XXXXXXX", SYMLINK+="flo_face", MODE="0666"
+        `SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", SYMLINK+="bolide"`
+
+    4. Load the rules: `sudo udevadm trigger`
+    5. You can check that it worked by running: `ls -l /dev/flo_face`
+
 The naming scheme ends up like this:
+```bash
 SUBSYSTEM=="tty", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="0483", ATTRS{serial}=="1582410", SYMLINK+="flo_face", MODE="0666"
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A104D4GV", SYMLINK+="bolide", MODE="0666"
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="kobuki_A907BUO2", SYMLINK+="kobuki", MODE="0666"
-4. You need to setup read/write privelages for all of the USB devices:
+```
+
+If this is working correctly then the mode should be 666 to allow read/write privileges.
+If it isn't working and getting a no access error, then you will need to run
+`chmod 666 /dev/XXXX`. Then figure out what is wrong and fix it...
+
+
+#### Amazon Polly
+Polly will need to have access to AWS to work. To set that up, go to the
+[IAM Console](https://console.aws.amazon.com/iam)
+and click on users. Then select the user you want to give access to.
+Click "Create access key" under Security Credentials.
+Then in the console on the computer,
+[install the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
+(This should actually be done by the install script)
+Then in the console, run `aws configure --profile flo` and fill in the info from the
+IAM console with region set to us-east-1 and output set to json.
+
+A few notes:
+- you should probably restrict what the user that is getting access can do. The best option is
+  to set the permissions to AmazonPollyReadOnlyAccess
+- You can have other users configured. By changing the --profile, you control the name of the user
+  if no profile is specified, then the information is saved to a default
+- If you ever need to revoke permissions for a user, that can be done from the IAM Console by
+  deactivating the user's Access Keys.
+- TODO: I would like to find a way to limit how many calls can be made by a user.
+- To check whether polly is available given the profile, run `aws polly help --profile flo`.
+  If you get back a list of commands to run on polly, you should be good.
+- To fully test, can run: `aws polly synthesize-speech --output-format mp3 --voice-id Ivy --text 'hello, this is a test' --profile flo test.mp3`
+  and then play the audio by installing: `sudo apt install mpg123` and typing `mpg123 test.mp3`
+- you might find that you are getting some sort of server connection errors.
+  you can resolve that by running `pip3 install -U boto3`
+  (this should now be a part of the install script, but it is commented out)

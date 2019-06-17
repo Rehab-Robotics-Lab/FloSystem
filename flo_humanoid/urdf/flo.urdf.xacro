@@ -8,7 +8,7 @@
         <visual>
             <origin xyz="${xyz}" rpy="${rpy}"/>
             <geometry>
-                <mesh filename="file://$(arg mesh_dir)${file_name}.${mesh_extension}"/>
+                <mesh filename="package://flo_humanoid/urdf/CAD_refs/${file_name}.${mesh_extension}"/>
             </geometry>
         </visual>
     </xacro:macro>

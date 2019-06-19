@@ -65,6 +65,9 @@
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
 
+  <exec_depend>tts</exec_depend>
+  <build_depend>tts</build_depend>
+  <build_export_depend>tts</build_export_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

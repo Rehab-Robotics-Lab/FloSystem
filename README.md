@@ -138,6 +138,7 @@ Then in the console on the computer,
 (This should actually be done by the install script)
 Then in the console, run `aws configure --profile flo` and fill in the info from the
 IAM console with region set to us-east-1 and output set to json.
+NOTE: For right now, profiles aren't supported, so just do this as `aws configure`
 
 A few notes:
 - you should probably restrict what the user that is getting access can do. The best option is

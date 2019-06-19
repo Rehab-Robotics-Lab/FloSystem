@@ -6,7 +6,7 @@
     <node name="bolide_interface" pkg="flo_humanoid" type="robot_controller.py" />
     <!--The robot URDF parsing and loading-->
     <arg name="model" default="$(find flo_humanoid)/urdf/flo.urdf.xacro"/>
-    <param name="robot_description" command="$(find xacro)/xacro.py --inorder $(arg model) " />
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(arg model) " />
     <!--Publishing the robot joint positions instead of just angles-->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
 

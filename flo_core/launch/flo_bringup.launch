@@ -1,9 +1,20 @@
 <launch>
+    <!--Face -->
     <include file="$(find flo_face)/launch/base.launch" />
-    <node name="bolide_interface" pkg="flo_humanoid" type="robot_controller.py" />
 
+    <!--Humanoid Robot -->
+    <node name="bolide_interface" pkg="flo_humanoid" type="robot_controller.py" />
+    <!--The robot URDF parsing and loading-->
     <arg name="model" default="$(find flo_humanoid)/urdf/flo.urdf.xacro"/>
     <param name="robot_description" command="$(find xacro)/xacro.py --inorder $(arg model) " />
+    <!--Publishing the robot joint positions instead of just angles-->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+
+    <!--Voice-->
+    <arg name="voice_config_file" default="$(find flo_core)/config/polly.yaml" />
+    <include file="$(find tts)/launch/tts_polly.launch" >
+        <arg name="config_file" value="$(arg voice_config_file)"/>
+    </include>
+
 
 </launch>

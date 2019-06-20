@@ -12,6 +12,7 @@
 
     <!--Voice-->
     <arg name="voice_config_file" default="$(find flo_core)/config/polly.yaml" />
+    <env name="AWS_PROFILE" value="flo" />
     <include file="$(find tts)/launch/tts_polly.launch" >
         <arg name="config_file" value="$(arg voice_config_file)"/>
     </include>

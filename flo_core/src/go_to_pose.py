@@ -25,7 +25,8 @@ class PositionRecorder(object):
                          'l': ('move to a pose on the left arm', self.move, 'left'),
                          'q': ('quit the program', self.quit, None),
                          'e': ('enumerate all saved poses', self.enumerate, None),
-                         'h': ('print help message', self.help, None)
+                         'h': ('print help message', self.help, None),
+                         'c': ('relax the motors', self.relax, None)
                          }
 
         rospy.init_node('pose_teleop')
@@ -91,6 +92,9 @@ class PositionRecorder(object):
 
     def quit(self):
         self.run = False
+
+    def relax(self):
+        self.control_pub.publish('relax')
 
 
 if __name__ == "__main__":

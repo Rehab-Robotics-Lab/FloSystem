@@ -55,3 +55,6 @@ tags
 
 # sync config
 mySyncConfig.lua
+
+# python compiled files
+*.pyc

@@ -36,6 +36,7 @@ class PositionRecorder(object):
         rospy.Subscriber('joint_states', JointState, self.new_joint_data)
         self.current_joint_data = None
 
+    def keyboard_interface(self):
         rate = rospy.Rate(100)
         rospy.sleep(3)
         self.old_attr = termios.tcgetattr(sys.stdin)
@@ -94,4 +95,5 @@ class PositionRecorder(object):
 
 
 if __name__ == "__main__":
-    PositionRecorder()
+    pr = PositionRecorder()
+    pr.keyboard_interface()

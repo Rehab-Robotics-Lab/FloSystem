@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! /usr/bin/env python
 
 from db import DB
 
@@ -10,7 +10,7 @@ if __name__ == "__main__":
     db.ex('''CREATE TABLE poses (
                 id integer PRIMARY KEY,
                 description text,
-                poses text,
+                angles text,
                 names text
             );''')
 
@@ -18,7 +18,8 @@ if __name__ == "__main__":
                 id integer PRIMARY KEY,
                 times real,
                 commands text,
-                length real
+                length real,
+                description text
             );''')
 
     db.ex('''CREATE TABLE phrases(

@@ -1,7 +1,8 @@
-#!/usr/bin/env python
+#! /usr/bin/env python
 
 import sqlite3
 import pdb
+import json
 
 
 class DB(object):
@@ -12,10 +13,21 @@ class DB(object):
     def ex(self, command, *args):
         # this with statement will auto commit
         with self.conn:
-            self.conn.execute(command, args)
+            if args:
+                to_return = self.conn.execute(command, args)
+            else:
+                to_return = self.conn.execute(command)
+        return to_return
 
     def drop_table(self, table):
         self.ex('DROP TABLE ?', table)
 
+    def con(self):
+        return self.conn
+
     def __del__(self):
         self.conn.close()
+
+    def add_pose(self, description, angles, names):
+        self.ex('insert into poses(description, angles, names) values (?,?,?)',
+                description, json.dumps(angles), json.dumps(names))

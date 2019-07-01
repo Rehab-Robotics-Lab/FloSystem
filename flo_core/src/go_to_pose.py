@@ -17,6 +17,8 @@ from std_msgs.msg import String
 from sensor_msgs.msg import JointState
 from flo_humanoid.msg import JointTarget
 
+# TODO: Make a searching ability to find poses
+
 
 class PositionRecorder(object):
 
@@ -26,7 +28,8 @@ class PositionRecorder(object):
                          'q': ('quit the program', self.quit, None),
                          'e': ('enumerate all saved poses', self.enumerate, None),
                          'h': ('print help message', self.help, None),
-                         'c': ('relax the motors', self.relax, None)
+                         'c': ('relax the motors', self.relax, None),
+                         's': ('search for a pose', self.search, None)
                          }
 
         rospy.init_node('pose_teleop')
@@ -95,6 +98,20 @@ class PositionRecorder(object):
 
     def relax(self):
         self.control_pub.publish('relax')
+
+    def search(self):
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.old_attr)
+        target = raw_input("Input the desired search term:\n")
+        tty.setcbreak(sys.stdin.fileno())
+
+        found = False
+
+        for row in self.db.ex('select id, description from poses where description like ?',
+                              '%'+target+'%'):
+            print(row)
+            found = True
+        if not found:
+            print('no records found')
 
 
 if __name__ == "__main__":

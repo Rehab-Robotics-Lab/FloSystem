@@ -10,6 +10,7 @@ import select
 import termios
 import tty
 import pdb
+import json
 
 import rospy
 from std_msgs.msg import String
@@ -17,17 +18,21 @@ from sensor_msgs.msg import JointState
 from flo_humanoid.msg import JointTarget
 
 
-class PositionRecorder(object):
+class Programmer(object):
 
     def __init__(self):
-        self.commands = {'r': ('record a pose on the right arm', self.record, 'right'),
-                         'l': ('record a pose on the left arm', self.record, 'left'),
+        self.commands = {'r': ('record a pose on the right arm', self.record_pose, 'right'),
+                         'l': ('record a pose on the left arm', self.record_pose, 'left'),
                          'q': ('quit the program', self.quit, None),
-                         'e': ('enumerate all saved poses', self.enumerate, None),
-                         'h': ('print help message', self.help, None)
+                         'p': ('enumerate all saved poses', self.enumerate_poses, None),
+                         'h': ('print help message', self.help, None),
+                         'e': ('move to a pose on the right arm', self.move, 'right'),
+                         'o': ('move to a pose on the left arm', self.move, 'left'),
+                         'c': ('relax the motors', self.relax, None),
+                         's': ('search for a pose', self.search_poses, None)
                          }
 
-        rospy.init_node('robot_pos_recorder')
+        rospy.init_node('motion_seq_programmer')
         self.run = True
 
         db_path = rospy.get_param("database_location")
@@ -35,6 +40,11 @@ class PositionRecorder(object):
 
         rospy.Subscriber('joint_states', JointState, self.new_joint_data)
         self.current_joint_data = None
+
+        self.target_pub = rospy.Publisher(
+            'target_joint_states', JointTarget, queue_size=4)
+        self.control_pub = rospy.Publisher(
+            'motor_commands', String, queue_size=1)
 
     def keyboard_interface(self):
         rate = rospy.Rate(100)
@@ -51,15 +61,17 @@ class PositionRecorder(object):
                         self.commands[new_input][1](arg)
                     else:
                         self.commands[new_input][1]()
+                    print('---------------\n')
                 else:
                     print('unkown key pressed, press h for help')
+                    print('---------------\n')
             rate.sleep()
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.old_attr)
 
     def new_joint_data(self, data):
         self.current_joint_data = data
 
-    def record(self, side):
+    def record_pose(self, side):
         if self.current_joint_data:
             termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.old_attr)
             description = raw_input(
@@ -81,7 +93,7 @@ class PositionRecorder(object):
         else:
             print('no joint data available')
 
-    def enumerate(self):
+    def enumerate_poses(self):
         print('pose ids and descriptions:')
         for row in self.db.ex('select id, description from poses'):
             print(row)
@@ -93,7 +105,43 @@ class PositionRecorder(object):
     def quit(self):
         self.run = False
 
+    def move(self, side):
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.old_attr)
+        description = raw_input(
+            "Please provide the ID of the pose to move arm {} to, type cancel to cancel:\n".format(side))
+        if description == 'cancel':
+            tty.setcbreak(sys.stdin.fileno())
+            print('cancelled')
+            return
+        curs = self.db.ex('select * from poses where id = ?', int(description))
+        data = curs.fetchone()
+        msg = JointTarget()
+        msg.name = [side+'_'+el for el in json.loads(data['names'])]
+        msg.position = json.loads(data['angles'])
+        msg.target_completion_time = 2
+        tty.setcbreak(sys.stdin.fileno())
+        self.target_pub.publish(msg)
+        self.control_pub.publish('move')
+
+    def relax(self):
+        self.control_pub.publish('relax')
+        print('relaxing motors')
+
+    def search_poses(self):
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.old_attr)
+        target = raw_input("Input the desired search term:\n")
+        tty.setcbreak(sys.stdin.fileno())
+
+        found = False
+
+        for row in self.db.ex('select id, description from poses where description like ?',
+                              '%'+target+'%'):
+            print(row)
+            found = True
+        if not found:
+            print('no records found')
+
 
 if __name__ == "__main__":
-    pr = PositionRecorder()
+    pr = Programmer()
     pr.keyboard_interface()

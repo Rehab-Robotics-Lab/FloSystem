@@ -14,9 +14,8 @@ if __name__ == "__main__":
                 names text
             );''')
 
-    db.ex('''CREATE TABLE sequences (
+    db.ex('''CREATE TABLE action_sequences (
                 id integer PRIMARY KEY,
-                times real,
                 commands text,
                 length real,
                 description text
@@ -28,4 +27,11 @@ if __name__ == "__main__":
                 text text, 
                 length real,
                 metadata text
+            );''')
+
+    db.ex('''CREATE TABLE motion_sequences (
+                id integer PRIMARY KEY,
+                commands text,
+                length real,
+                description text
             );''')

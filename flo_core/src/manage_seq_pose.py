@@ -170,8 +170,8 @@ class Programmer(object):
                     print('could not find a sequence with that ID')
                 else:
                     found = True
-                    initial = initial_list[0].commands
-                    prior_desc = initial_list[0].description
+                    initial = initial_list[0]['commands']
+                    prior_desc = initial_list[0]['description']
 
         elif new_old == 'n':
             print('creating a new sequence')

@@ -154,3 +154,8 @@ A few notes:
 - you might find that you are getting some sort of server connection errors.
   you can resolve that by running `pip3 install -U boto3`
   (this should now be a part of the install script, but it is commented out)
+
+
+## Some useful tools:
+For monitoring the kobuki, you can use the [kobuki dashboard](http://wiki.ros.org/turtlebot_bringup/Tutorials/indigo/PC%20Bringup).
+Run: `rqt -s kobuki_dashboard`.

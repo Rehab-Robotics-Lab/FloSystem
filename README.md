@@ -46,6 +46,7 @@ function connect_to_robot {
     fi
 }
 ```
+
 This first sets up the local IP address, then gives you a function to connect to
 a robot. If you want to work in ROS treating your local machine as the robot
 (which will be the use case for this system)
@@ -60,6 +61,7 @@ find that this needs to be altered for your use case.
 It is probably useful to edit your hosts file: `sudo nvim /etc/hosts` to have the nuc listed. Add this: `10.42.0.189 flo-nuc`
 
 You can also create a function in your bashrc that allows easier sshing in:
+
 ```bash
 function ssh-flo {
     ssh nuc-admin@flo-nuc
@@ -117,6 +119,7 @@ Setup [UDEV Rules to make the face always have the same name](https://unix.stack
     5. You can check that it worked by running: `ls -l /dev/flo_face`
 
 The naming scheme ends up like this:
+
 ```bash
 SUBSYSTEM=="tty", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="0483", ATTRS{serial}=="1582410", SYMLINK+="flo_face", MODE="0666"
 SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="A104D4GV", SYMLINK+="bolide", MODE="0666"

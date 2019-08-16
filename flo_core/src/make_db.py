@@ -10,8 +10,8 @@ if __name__ == "__main__":
     db.ex('''CREATE TABLE poses (
                 id integer PRIMARY KEY,
                 description text,
-                angles text,
-                names text
+                joint_positions text,
+                joint_names text
             );''')
 
     db.ex('''CREATE TABLE action_sequences (

@@ -1,3 +1,3 @@
 string description
-string[] name
-float64[] position
+string[] joint_names
+float64[] joint_positions

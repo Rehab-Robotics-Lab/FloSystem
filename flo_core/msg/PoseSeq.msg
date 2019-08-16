@@ -1,5 +1,5 @@
 Pose[] poses
-float[] times
+float32[] times
 string[] arms
-str desc
-float total_time
+string desc
+float32 total_time

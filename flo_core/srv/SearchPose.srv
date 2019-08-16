@@ -1,3 +1,4 @@
 string search
 ---
 Pose[] poses
+uint32[] ids

@@ -12,6 +12,8 @@ from db import DB
 
 from flo_core.srv import GetPoseID, GetPoseIDResponse
 from flo_core.srv import SetPose, SetPoseResponse
+from flo_core.srv import SearchPose, SearchPoseResponse
+from flo_core.msg import Pose
 
 # Needs to be able to:
 # - search for pose by id
@@ -37,6 +39,7 @@ class FloDb(object):
 
         rospy.Service('get_pose_id', GetPoseID, self.get_pose_id)
         rospy.Service('set_pose', SetPose, self.set_pose)
+        rospy.Service('search_pose', SearchPose, self.search_pose)
 
         rospy.loginfo('Node up, services ready')
 
@@ -58,6 +61,20 @@ class FloDb(object):
             return resp
         else:
             raise rospy.ServiceException('That ID does not exist')
+
+    def search_pose(self, request):
+        db = DB(self.db_path)
+        resp = SearchPoseResponse()
+        for row in db.ex('select * from poses where description like ?',
+                         '%'+request.search+'%'):
+            new_pose = Pose()
+            new_pose.description = row['description']
+            new_pose.joint_names = json.loads(row['joint_names'])
+            new_pose.joint_positions = json.loads(row['joint_positions'])
+
+            resp.poses.append(new_pose)
+            resp.ids.append(row['id'])
+        return resp
 
     @staticmethod
     def clean_pose_names(name_list, side):

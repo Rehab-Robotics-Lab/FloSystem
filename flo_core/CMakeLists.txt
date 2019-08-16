@@ -63,6 +63,8 @@ find_package(catkin REQUIRED COMPONENTS
    GetPoseSeqID.srv
    SearchPoseSeq.srv
    SearchPose.srv
+   SetPoseSeq.srv
+   SetPose.srv
  )
 
 ## Generate actions in the 'action' folder

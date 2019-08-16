@@ -8,13 +8,16 @@ import json
 import rospy
 import json
 
-from db import DB
 
 from flo_core.srv import GetPoseID, GetPoseIDResponse
 from flo_core.srv import SetPose, SetPoseResponse
 from flo_core.srv import SearchPose, SearchPoseResponse
 from flo_core.msg import Pose
 from flo_core.srv import SetPoseSeq, SetPoseSeqResponse
+from flo_core.srv import GetPoseSeqID, GetPoseSeqIDResponse
+
+
+from db import DB
 
 # Needs to be able to:
 # - search for pose by id
@@ -42,6 +45,7 @@ class FloDb(object):
         rospy.Service('set_pose', SetPose, self.set_pose)
         rospy.Service('search_pose', SearchPose, self.search_pose)
         rospy.Service('set_pose_seq', SetPoseSeq, self.set_pose_seq)
+        rospy.Service('get_pose_seq_id', GetPoseSeqID, self.get_pose_seq_id)
 
         rospy.loginfo('Node up, services ready')
 
@@ -175,6 +179,20 @@ class FloDb(object):
             updated_row = db_return.lastrowid
 
         return updated_row
+
+    def get_pose_seq_id(self, request):
+        db = DB(self.db_path)
+        curs = db.ex('select * from pose_sequences where id = ?', request.id)
+        data = curs.fetchone()
+        if data:
+            resp = GetPoseSeqIDResponse()
+            resp.sequence.description = data['description']
+            resp.sequence.times = json.loads(data['times'])
+            resp.sequence.arms = json.loads(data['arms'])
+            resp.sequence.total_time = data['total_time']
+            return resp
+        else:
+            raise rospy.ServiceException('That ID does not exist')
 
 
 if __name__ == "__main__":

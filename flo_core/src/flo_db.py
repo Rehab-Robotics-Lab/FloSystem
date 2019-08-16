@@ -14,6 +14,7 @@ from flo_core.srv import GetPoseID, GetPoseIDResponse
 from flo_core.srv import SetPose, SetPoseResponse
 from flo_core.srv import SearchPose, SearchPoseResponse
 from flo_core.msg import Pose
+from flo_core.srv import SetPoseSeq, SetPoseSeqResponse
 
 # Needs to be able to:
 # - search for pose by id
@@ -40,6 +41,7 @@ class FloDb(object):
         rospy.Service('get_pose_id', GetPoseID, self.get_pose_id)
         rospy.Service('set_pose', SetPose, self.set_pose)
         rospy.Service('search_pose', SearchPose, self.search_pose)
+        rospy.Service('set_pose_seq', SetPoseSeq, self.set_pose_seq)
 
         rospy.loginfo('Node up, services ready')
 
@@ -125,6 +127,52 @@ class FloDb(object):
                 json.dumps(request.pose.joint_names))
             updated_row = db_return.lastrowid
             rospy.loginfo('stored new pose at id: %i', updated_row)
+
+        return updated_row
+
+    def set_pose_seq(self, request):
+        db = DB(self.db_path)
+        seq = request.sequence
+
+        if not (len(seq.pose_ids) == len(seq.times) == len(seq.arms)):
+            raise rospy.ServiceException(
+                'the length of the pose ids, times, and arms are not consistent')
+
+        for pose_id in seq.pose_ids:
+            curs = db.ex('select id from poses where id = ?', pose_id)
+            data = curs.fetchone()
+            if not data:
+                raise rospy.ServiceException(
+                    'The pose id: {} does not exist'.format(pose_id))
+
+        if request.id:
+            curs = db.ex(
+                'select id from pose_sequences where id = ?', request.id)
+            data = curs.fetchone()
+            if data:
+                db_return = db.ex(
+                    'replace into pose_sequences(id, times, pose_ids, total_time, arms, description) values (?,?,?,?,?,?)',
+                    request.id,
+                    json.dumps(seq.times),
+                    json.dumps(seq.pose_ids),
+                    seq.total_time,
+                    json.dumps(seq.arms),
+                    seq.description
+                )
+                updated_row = request.id
+            else:
+                raise rospy.ServiceException(
+                    'The selected row does not exist, you cannot update it')
+        else:
+            db_return = db.ex(
+                'insert into pose_sequences(times, pose_ids, total_time, arms, description) values (?,?,?,?,?)',
+                json.dumps(seq.times),
+                json.dumps(seq.pose_ids),
+                seq.total_time,
+                json.dumps(seq.arms),
+                seq.description
+            )
+            updated_row = db_return.lastrowid
 
         return updated_row
 

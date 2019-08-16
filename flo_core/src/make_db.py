@@ -14,10 +14,12 @@ if __name__ == "__main__":
                 joint_names text
             );''')
 
-    db.ex('''CREATE TABLE action_sequences (
+    db.ex('''CREATE TABLE pose_sequences(
                 id integer PRIMARY KEY,
-                commands text,
-                length real,
+                times text, 
+                pose_ids text, 
+                arms text, 
+                total_time real,
                 description text
             );''')
 

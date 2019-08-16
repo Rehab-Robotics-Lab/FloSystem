@@ -1,5 +1,5 @@
-Pose[] poses
+uint32[] pose_ids
 float32[] times
 string[] arms
-string desc
+string description
 float32 total_time

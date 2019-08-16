@@ -15,7 +15,8 @@ from flo_core.srv import SearchPose, SearchPoseResponse
 from flo_core.msg import Pose
 from flo_core.srv import SetPoseSeq, SetPoseSeqResponse
 from flo_core.srv import GetPoseSeqID, GetPoseSeqIDResponse
-
+from flo_core.srv import SearchPoseSeq, SearchPoseSeqResponse
+from flo_core.msg import PoseSeq
 
 from db import DB
 
@@ -46,6 +47,7 @@ class FloDb(object):
         rospy.Service('search_pose', SearchPose, self.search_pose)
         rospy.Service('set_pose_seq', SetPoseSeq, self.set_pose_seq)
         rospy.Service('get_pose_seq_id', GetPoseSeqID, self.get_pose_seq_id)
+        rospy.Service('search_pose_seq', SearchPoseSeq, self.search_pose_seq)
 
         rospy.loginfo('Node up, services ready')
 
@@ -193,6 +195,22 @@ class FloDb(object):
             return resp
         else:
             raise rospy.ServiceException('That ID does not exist')
+
+    def search_pose_seq(self, request):
+        db = DB(self.db_path)
+        resp = SearchPoseSeqResponse()
+        for row in db.ex('select * from pose_sequences where description like ?',
+                         '%'+request.search+'%'):
+            new_pose_seq = PoseSeq()
+            new_pose_seq.description = row['description']
+            new_pose_seq.pose_ids = json.loads(row['pose_ids'])
+            new_pose_seq.times = json.loads(row['times'])
+            new_pose_seq.arms = json.loads(row['arms'])
+            new_pose_seq.total_time = row['total_time']
+
+            resp.sequences.append(new_pose_seq)
+            resp.ids.append(row['id'])
+        return resp
 
 
 if __name__ == "__main__":

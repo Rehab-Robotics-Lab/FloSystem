@@ -80,6 +80,10 @@ class FloDb(object):
         :param request: The SetPose service message request
         """
         db = DB(self.db_path)
+        if not (len(request.pose.joint_positions) == len(request.pose.joint_names)):
+            raise rospy.ServiceException(
+                'the length of the pose values and names are not consistent')
+
         if request.id:
             curs = db.ex('select id from poses where id = ?', request.id)
             data = curs.fetchone()

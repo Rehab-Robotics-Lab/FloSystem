@@ -31,7 +31,3 @@ class DB(object):
 
     def __del__(self):
         self.conn.close()
-
-    def add_pose(self, description, angles, names):
-        self.ex('insert into poses(description, angles, names) values (?,?,?)',
-                description, json.dumps(angles), json.dumps(names))

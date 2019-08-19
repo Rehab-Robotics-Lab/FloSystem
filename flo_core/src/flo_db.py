@@ -40,7 +40,8 @@ class FloDb(object):
 
         rospy.init_node('db_manager')
 
-        self.db_path = rospy.get_param("database_location")
+        self.db_path = rospy.get_param("database_location",
+                                       path.expanduser('~/db/flo.db'))
 
         rospy.Service('get_pose_id', GetPoseID, self.get_pose_id)
         rospy.Service('set_pose', SetPose, self.set_pose)

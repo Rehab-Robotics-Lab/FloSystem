@@ -162,3 +162,11 @@ A few notes:
 ## Some useful tools:
 For monitoring the kobuki, you can use the [kobuki dashboard](http://wiki.ros.org/turtlebot_bringup/Tutorials/indigo/PC%20Bringup).
 Run: `rqt -s kobuki_dashboard`.
+
+## Things that may break:
+
+### The web interface just doesn't do anything
+check to see if the socket is just closing imediately. If it is, then it may
+be that the version of tornado on the server is wrong. Uninstall the version
+from pip, then uninstall the version from apt, then reinstall the rosbridge
+suite.

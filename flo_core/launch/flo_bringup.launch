@@ -4,6 +4,7 @@
 
     <!--Humanoid Robot -->
     <node name="bolide_interface" pkg="flo_humanoid" type="robot_controller.py" />
+
     <!--The robot URDF parsing and loading-->
     <arg name="model" default="$(find flo_humanoid)/urdf/flo.urdf.xacro"/>
     <param name="robot_description" command="$(find xacro)/xacro --inorder $(arg model) " />
@@ -17,5 +18,10 @@
         <arg name="config_file" value="$(arg voice_config_file)"/>
     </include>
 
+
+    <!--Rosbridge for web-->
+    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch">
+        <arg name="port" value="9090"/>
+    </launch>
 
 </launch>

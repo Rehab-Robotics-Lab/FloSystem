@@ -4,7 +4,6 @@ from __future__ import division
 from __future__ import print_function
 
 
-from db import DB
 import sys
 import select
 import termios
@@ -18,10 +17,22 @@ import tempfile
 import os
 from subprocess import call
 
+# for csv with string:
+import csv
+import io
+
 import rospy
 from std_msgs.msg import String
 from sensor_msgs.msg import JointState
 from flo_humanoid.msg import JointTarget
+
+from flo_core.srv import GetPoseID
+from flo_core.srv import SetPose, SetPoseRequest
+from flo_core.srv import SearchPose
+from flo_core.srv import SetPoseSeq
+from flo_core.srv import GetPoseSeqID
+from flo_core.srv import SearchPoseSeq
+from flo_core.msg import Pose
 
 EDITOR = os.environ.get('EDITOR', 'vim')
 
@@ -46,9 +57,6 @@ class Programmer(object):
         rospy.init_node('motion_seq_programmer')
         self.run = True
 
-        db_path = rospy.get_param("database_location")
-        self.db = DB(db_path)
-
         rospy.Subscriber('joint_states', JointState, self.new_joint_data)
         self.current_joint_data = None
 
@@ -56,6 +64,21 @@ class Programmer(object):
             'target_joint_states', JointTarget, queue_size=4)
         self.control_pub = rospy.Publisher(
             'motor_commands', String, queue_size=1)
+
+        rospy.wait_for_service('get_pose_id')
+        self.get_pose_id_srv = rospy.ServiceProxy('get_pose_id', GetPoseID)
+        rospy.wait_for_service('set_pose')
+        self.set_pose_srv = rospy.ServiceProxy('set_pose', SetPose)
+        rospy.wait_for_service('search_pose')
+        self.search_pose_srv = rospy.ServiceProxy('search_pose', SearchPose)
+        rospy.wait_for_service('set_pose_seq')
+        self.set_pose_seq_srv = rospy.ServiceProxy('set_pose_seq', SetPoseSeq)
+        rospy.wait_for_service('get_pose_seq_id')
+        self.get_pose_seq_id_srv = rospy.ServiceProxy(
+            'get_pose_seq_id', GetPoseSeqID)
+        rospy.wait_for_service('search_pose_seq')
+        self.search_pose_seq_srv = rospy.ServiceProxy(
+            'search_pose_seq', SearchPoseSeq)
 
     def keyboard_interface(self):
         rate = rospy.Rate(100)
@@ -98,9 +121,19 @@ class Programmer(object):
             pos = [self.current_joint_data.position[idx]
                    for idx in joints_of_interest]
             clean_names = [itm[len(side)+1:] for itm in names]
-            self.db.add_pose(description, pos, clean_names)
+            pose_msg = Pose()
+            pose_msg.description = description
+            pose_msg.joint_names = clean_names
+            pose_msg.joint_positions = pos
+            set_pose_req = SetPoseRequest()
+            set_pose_req.pose = pose_msg
+            try:
+                saved_id = self.set_pose_srv(set_pose_req)
+                print('saved with ID: {}'.format(saved_id))
+            except rospy.ServiceException as err:
+                print('there was an error saving: {}'.format(err))
+
             tty.setcbreak(sys.stdin.fileno())
-            print('saved')
         else:
             print('no joint data available')
 
@@ -119,11 +152,10 @@ class Programmer(object):
             tty.setcbreak(sys.stdin.fileno())
             print('cancelled')
             return
-        curs = self.db.ex('select * from poses where id = ?', int(description))
-        data = curs.fetchone()
+        pose = self.get_pose_id_srv(int(id))
         msg = JointTarget()
-        msg.name = [side+'_'+el for el in json.loads(data['names'])]
-        msg.position = json.loads(data['angles'])
+        msg.name = [side+'_'+el for el in pose.joint_names]
+        msg.position = pose.joint_positions
         msg.target_completion_time = 2
         tty.setcbreak(sys.stdin.fileno())
         self.target_pub.publish(msg)
@@ -139,19 +171,18 @@ class Programmer(object):
             "Input the desired search term, to list all enter blank:\n")
         tty.setcbreak(sys.stdin.fileno())
 
-        found = False
-
-        for row in self.db.ex('select id, description from poses where description like ?',
-                              '%'+target+'%'):
-            print(row)
-            found = True
-        if not found:
+        results = self.search_pose_srv(target)
+        if results.ids:
+            for id, desc in zip(results.ids, results.poses.description):
+                print('{}: {}'.format(id, desc))
+        else:
             print('no records found')
 
     def record_motion_seq(self):
         termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.old_attr)
         new_old = raw_input(
             "would you like to record a new (n) or overwrite (o) an existing sequence, cancel to cancel\n")
+
         if new_old == 'cancel':
             tty.setcbreak(sys.stdin.fileno())
             return
@@ -163,19 +194,23 @@ class Programmer(object):
                 if target == 'cancel':
                     tty.setcbreak(sys.stdin.fileno())
                     return
-                initial_list = self.db.ex(
-                    'select commands, description from motion_sequences where id = ?',
-                    target).fetchall()
-                if not len(initial_list) == 1:
-                    print('could not find a sequence with that ID')
-                else:
+                seq = self.get_pose_seq_id_srv(int(target))
+                if seq:
                     found = True
-                    initial = initial_list[0]['commands']
-                    prior_desc = initial_list[0]['description']
+                    output_str = io.BytesIO()
+                    writer = csv.writer(output_str)
+                    writer.writerow('end time after prior',
+                                    'pose IDs', 'arm (left, right, or both)')
+                    for time, id, arm in zip(seq.times, seq.pose_ids, seq.arms):
+                        writer.writerow([time, id, arm])
+                    initial = output_str.getvalue()
+                    prior_desc = seq.description
+                else:
+                    print('could not find a sequence with that ID')
 
         elif new_old == 'n':
-            print('creating a new sequence')
             initial = 'end time after prior, pose IDs, arm (left, right, or both)'
+            print('creating a new sequence')
         else:
             print('invalid option, exiting')
             return
@@ -185,8 +220,7 @@ class Programmer(object):
 
         if new_old == 'o':
             sure = raw_input(
-                'you are about to overwrite sequence {}. Are you sure (yes/cancel)\n'.format(
-                    target))
+                'you are about to overwrite sequence {}. Are you sure (yes/cancel)\n'.format(target))
             if sure == 'cancel':
                 tty.setcbreak(sys.stdin.fileno())
                 return

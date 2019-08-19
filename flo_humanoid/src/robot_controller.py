@@ -46,12 +46,14 @@ class BolideController(object):
 
         port = rospy.get_param('robot_port', '/dev/bolide')
         self.ser = None
-        try:
-            self.ser = serial.Serial(port, 115200, timeout=0.05)
-        except serial.SerialException as err:
-            rospy.logerr(
-                'failed to connect to bolide with err: %s', err)
-            return
+        self.simulate = rospy.get_param('simulate', False)
+        if not self.simulate:
+            try:
+                self.ser = serial.Serial(port, 115200, timeout=0.05)
+            except serial.SerialException as err:
+                rospy.logerr(
+                    'failed to connect to bolide with err: %s', err)
+                return
         rospy.loginfo('connected to robot')
 
         self.joint_publisher = rospy.Publisher(
@@ -63,7 +65,9 @@ class BolideController(object):
         rospy.Subscriber(
             'motor_commands', String, self.new_control_command)
 
-        self.reader = BolideReader(self.ser)
+        if not self.simulate:
+            self.reader = BolideReader(self.ser)
+
         package_path = rospack.get_path('flo_humanoid')
         default_config_fn = os.path.join(package_path, 'config', 'joints')
         config_fn = rospy.get_param('robot_joint_config',
@@ -86,6 +90,18 @@ class BolideController(object):
                     self.joint_config[this_name] = new_data_dict
                     self.available_motor_ids.append(this_address)
                     self.available_motor_names.append(this_name)
+
+        if self.simulate:
+            self.sim_robot_uploaded_commands = Queue.Queue()
+            self.sim_current_pose = [0]*self.NUM_MOTORS
+            self.sim_moving = False
+            self.sim_motors_stiff = False
+            self.sim_seq_poses = [None]*256
+            self.sim_seq_times = [None]*256
+            self.sim_seq_length = 0
+            self.sim_num_poses = 0
+            self.sim_timer = time.time()
+            self.sim_starting_pose = [0]*self.NUM_MOTORS
 
         self.rate = rospy.Rate(3)
         self.joint_tasks = Queue.Queue()
@@ -143,9 +159,6 @@ class BolideController(object):
                                 next_pose = int(round((raw_target - prior_position)
                                                       * percents[motion_idx] + prior_position))
                                 poses[motion_idx][motor_id] = next_pose
-                                import pdb
-                                if next_pose < 0:
-                                    pdb.set_trace()
                             current_move_program_id[motor_id] = end_id
                     poses = poses[1:]
                     unique_times = unique_times[1:]
@@ -157,7 +170,28 @@ class BolideController(object):
 
     def get_pose(self):
         """get the pose of the robot and publish it to the joint state"""
-        position = self.reader.read_data('pos')
+        if self.simulate:
+            if self.sim_moving:
+                cur_time = time.time() - self.sim_timer
+                if cur_time > self.sim_seq_times[self.sim_seq_length-1]:
+                    self.sim_moving = False
+                else:
+                    current_move = next(idx for (idx, val) in enumerate(
+                        self.sim_seq_times) if val > cur_time)
+                    if current_move == 0:
+                        percent_complete = cur_time/self.sim_seq_times[0]
+                        for idx in range(len(self.sim_current_pose)):
+                            self.sim_current_pose[idx] = percent_complete * (
+                                self.sim_seq_poses[0][idx] - self.sim_starting_pose[idx])
+                    else:
+                        percent_complete = (cur_time-self.sim_seq_times[current_move-1])/(
+                            self.sim_seq_times[current_move]-self.sim_seq_times[current_move-1])
+                        for idx in range(len(self.sim_current_pose)):
+                            self.sim_current_pose[idx] = percent_complete * (
+                                self.sim_seq_poses[current_move]-self.sim_seq_poses[current_move-1])
+            position = self.sim_current_pose  # if not self.sim_moving else []
+        else:
+            position = self.reader.read_data('pos')
         if not position:
             rospy.logerr('couldn\'t get postion data')
             return
@@ -212,7 +246,10 @@ class BolideController(object):
 
     def relax_motors(self):
         """relax_motors"""
-        self.send_packet([self.CMD_SEQ_relax])
+        if self.simulate:
+            self.sim_motors_stiff
+        else:
+            self.send_packet([self.CMD_SEQ_relax])
         self.motors_initialized = False
 
     def upload_pose(self, id, pose):
@@ -235,7 +272,10 @@ class BolideController(object):
     def initialize_motors(self):
         """initialize_motors on the robot to prepare for motion.
         Must be run before trying to move"""
-        self.send_packet([self.CMD_init_motor, self.NUM_MOTORS])
+        if self.simulate:
+            self.sim_motors_stiff = True
+        else:
+            self.send_packet([self.CMD_init_motor, self.NUM_MOTORS])
 
     def upload_poses(self, poses):
         """upload_poses to the robot for a motion sequence.
@@ -243,9 +283,14 @@ class BolideController(object):
         :param poses: The poses to upload. This should be a list of lists,
                       with each inner list of length number of motors.
         """
-        self.send_packet([self.CMD_SEQ_load_PoseCnt, len(poses)])
-        for idx, pose in enumerate(poses):
-            self.upload_pose(idx, pose)
+        if self.simulate:
+            self.sim_num_poses = len(poses)
+            for idx, pose in enumerate(poses):
+                self.sim_poses[idx] = pose
+        else:
+            self.send_packet([self.CMD_SEQ_load_PoseCnt, len(poses)])
+            for idx, pose in enumerate(poses):
+                self.upload_pose(idx, pose)
 
     def upload_sequence(self, poses, times):
         """upload_sequence, uploads the entire set of poses to the robot with
@@ -259,17 +304,24 @@ class BolideController(object):
         if not self.motors_initialized:
             self.initialize_motors()
         self.upload_poses(poses)
-        self.send_packet([self.CMD_SEQ_load_SEQCnt, len(times)])
-        for idx, time in enumerate(times):
-            # import pdb
-            # pdb.set_trace()
-            # time is in units of 10ms on the robot. But in sec coming in
-            # TODO: somewhere there should be a check to make sure time is <10 sec
-            ms_time = time*1000
-            bb, lb = struct.pack('>H', ms_time)
-            bb = (ord(bb))
-            lb = (ord(lb))
-            self.send_packet([self.CMD_SEQ_load_SEQ, idx, bb, lb])
+        if self.simulate:
+            self.sim_seq_length = len(times)
+            for idx, time in enumerate(times):
+                self.sim_sequence_times[idx] = time
+            self.sim_moving = True
+            self.sim_starting_pose = self.sim_current_pose
+        else:
+            self.send_packet([self.CMD_SEQ_load_SEQCnt, len(times)])
+            for idx, time in enumerate(times):
+                # import pdb
+                # pdb.set_trace()
+                # time is in units of 10ms on the robot. But in sec coming in
+                # TODO: somewhere there should be a check to make sure time is <10 sec
+                ms_time = time*1000
+                bb, lb = struct.pack('>H', ms_time)
+                bb = (ord(bb))
+                lb = (ord(lb))
+                self.send_packet([self.CMD_SEQ_load_SEQ, idx, bb, lb])
 
 
 if __name__ == "__main__":

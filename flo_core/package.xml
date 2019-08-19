@@ -70,13 +70,15 @@
   <build_depend>tts</build_depend>
   <build_export_depend>tts</build_export_depend>
 
-  <exec_depend>kobuki-dashboard</exec_depend>
-  <build_depend>ros-kinetic-kobuki</build_depend>
-  <build_export_depend>ros-kinetic-kobuki</build_export_depend>
-  <exec_depend>ros-kinetic-kobuki</exec_depend>
-  <build_depend>ros-kinetic-kobuki-core</build_depend>
-  <build_export_depend>ros-kinetic-kobuki-core</build_export_depend>
-  <exec_depend>ros-kinetic-kobuki-core</exec_depend>
+  <!--<exec_depend>kobuki-dashboard</exec_depend>-->
+  <!--<build_depend>ros-kinetic-kobuki</build_depend>-->
+  <!--<build_export_depend>ros-kinetic-kobuki</build_export_depend>-->
+  <!--<exec_depend>ros-kinetic-kobuki</exec_depend>-->
+  <!--<build_depend>ros-kinetic-kobuki-core</build_depend>-->
+  <!--<build_export_depend>ros-kinetic-kobuki-core</build_export_depend>-->
+  <!--<exec_depend>ros-kinetic-kobuki-core</exec_depend>-->
+
+  <exec_depend>rosbridge_suite</exec_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

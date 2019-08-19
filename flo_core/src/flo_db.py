@@ -2,12 +2,10 @@
 
 from __future__ import print_function
 
-import sqlite3
-import pdb
 import json
 import rospy
-import json
 
+from os import path
 
 from flo_core.srv import GetPoseID, GetPoseIDResponse
 from flo_core.srv import SetPose, SetPoseResponse
@@ -59,7 +57,7 @@ class FloDb(object):
 
         :param request: The GetPoseID service request
         """
-        db = DB(self.db_path)
+        db = DB(self.db_path)  # pylint:disable=invalid-name
         curs = db.ex('select * from poses where id = ?', request.id)
         data = curs.fetchone()
         if data:
@@ -72,7 +70,15 @@ class FloDb(object):
             raise rospy.ServiceException('That ID does not exist')
 
     def search_pose(self, request):
-        db = DB(self.db_path)
+        """search for a pose in the database using descriptions
+
+        Args:
+            request: the service request with the string to look with
+
+        Returns:
+            the service response
+        """
+        db = DB(self.db_path)  # pylint: disable=invalid-name
         resp = SearchPoseResponse()
         for row in db.ex('select * from poses where description like ?',
                          '%'+request.search+'%'):
@@ -105,8 +111,8 @@ class FloDb(object):
 
         :param request: The SetPose service message request
         """
-        db = DB(self.db_path)
-        if not (len(request.pose.joint_positions) == len(request.pose.joint_names)):
+        db = DB(self.db_path)  # pylint: disable=invalid-name
+        if not len(request.pose.joint_positions) == len(request.pose.joint_names):
             raise rospy.ServiceException(
                 'the length of the pose values and names are not consistent')
 
@@ -138,10 +144,18 @@ class FloDb(object):
         return updated_row
 
     def set_pose_seq(self, request):
-        db = DB(self.db_path)
+        """set_pose_seq
+
+        Args:
+            request: The service request
+
+        Returns:
+            The response.
+        """
+        db = DB(self.db_path)  # pylint: disable=invalid-name
         seq = request.sequence
 
-        if not (len(seq.pose_ids) == len(seq.times) == len(seq.arms)):
+        if not len(seq.pose_ids) == len(seq.times) == len(seq.arms):
             raise rospy.ServiceException(
                 'the length of the pose ids, times, and arms are not consistent')
 
@@ -184,7 +198,15 @@ class FloDb(object):
         return updated_row
 
     def get_pose_seq_id(self, request):
-        db = DB(self.db_path)
+        """Get a pose sequence given its id
+
+        Args:
+            request: the service request
+
+        Returns:
+            The service response
+        """
+        db = DB(self.db_path)  # pylint: disable=invalid-name
         curs = db.ex('select * from pose_sequences where id = ?', request.id)
         data = curs.fetchone()
         if data:
@@ -198,7 +220,15 @@ class FloDb(object):
             raise rospy.ServiceException('That ID does not exist')
 
     def search_pose_seq(self, request):
-        db = DB(self.db_path)
+        """Search for a pose sequence in the database using a string of the description
+
+        Args:
+            request: the service request
+
+        Returns:
+            The service response
+        """
+        db = DB(self.db_path)  # pylint:disable=invalid-name
         resp = SearchPoseSeqResponse()
         for row in db.ex('select * from pose_sequences where description like ?',
                          '%'+request.search+'%'):

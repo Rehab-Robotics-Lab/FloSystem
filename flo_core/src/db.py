@@ -5,11 +5,18 @@ import sqlite3
 import pdb
 import json
 import os.path
+from os import mkdir
 
 
 class DB(object):
     def __init__(self, db_location):
         need_to_build = False
+        db_location = os.path.expanduser(db_location)
+
+        dir_name = os.path.dirname(db_location)
+        if not os.path.exists(dir_name):
+            mkdir(dir_name)
+
         if not os.path.exists(db_location):
             need_to_build = True
 

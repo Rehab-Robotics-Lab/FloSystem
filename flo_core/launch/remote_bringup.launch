@@ -1,7 +1,3 @@
 <launch>
-    <!--Database for poses, actions, etc-->
-    <rosparam param="database_location">"/home/mjsobrep/db/flo.db"</rosparam>
-
-
     <include file="$(find flo_humanoid)/launch/urdf.launch" />
 </launch>

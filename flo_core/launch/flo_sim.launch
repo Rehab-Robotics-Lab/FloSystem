@@ -22,8 +22,10 @@
 
 
     <!--Rosbridge for web-->
-    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch">
-        <arg name="port" value="9090"/>
-    </include>
+    <include file="$(find flo_web)/launch/web_app.launch" />
+
+    <!--Database for poses, actions, etc-->
+    <rosparam param="database_location">"~/db/flo.db"</rosparam>
+    <node name="pose_db_manager" pkg="flo_core" type="flo_db.py"/>
 
 </launch>

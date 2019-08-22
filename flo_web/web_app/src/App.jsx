@@ -10,7 +10,7 @@ function App() {
     <div className="App">
       Flo control center
       <Header ros={ros} setRos={setRos} />
-      <URDF ros={ros} />
+      //<URDF ros={ros} />
     </div>
   );
 }

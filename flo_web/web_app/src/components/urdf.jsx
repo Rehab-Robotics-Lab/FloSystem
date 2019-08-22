@@ -14,6 +14,9 @@ function URDF({ ros, connected }) {
       width: 400,
       height: 200,
       antialias: true,
+      background: '#fefef', // sets the background color
+      alpha: 0.3, // background transparency
+      cameraPose: { x: 0.15, y: 0.5, z: 0.05 },
     });
 
 
@@ -37,7 +40,7 @@ function URDF({ ros, connected }) {
     const client = new ROS3D.UrdfClient({
       ros,
       tfClient,
-      path: '%PUBLIC_URL%/urdf/',
+      path: `${process.env.PUBLIC_URL}/mesh_root/`,
       rootObject: viewer.scene,
       // loader: ROS3D.COLLADA_LOADER_2,
     });

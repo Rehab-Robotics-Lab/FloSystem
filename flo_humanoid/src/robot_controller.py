@@ -154,8 +154,6 @@ class BolideController(object):
                             raw_target = target_position * int(self.joint_config[motor_id]['inversion'])*1023/(
                                 2*math.pi)+int(self.joint_config[motor_id]['neutral'])
                             for motion_idx in range(start_id+1, 1+end_id):
-                                # import pdb
-                                # pdb.set_trace()
                                 next_pose = int(round((raw_target - prior_position)
                                                       * percents[motion_idx] + prior_position))
                                 poses[motion_idx][motor_id] = next_pose
@@ -172,17 +170,24 @@ class BolideController(object):
         """get the pose of the robot and publish it to the joint state"""
         if self.simulate:
             if self.sim_moving:
+                print('moving')
                 cur_time = time.time() - self.sim_timer
+                # import pdb
+                # pdb.set_trace()
                 if cur_time > self.sim_seq_times[self.sim_seq_length-1]:
+                    print('done moving')
                     self.sim_moving = False
                 else:
                     current_move = next(idx for (idx, val) in enumerate(
                         self.sim_seq_times) if val > cur_time)
                     if current_move == 0:
                         percent_complete = cur_time/self.sim_seq_times[0]
+                        print('** {}'.format(self.sim_starting_pose))
                         for idx in range(len(self.sim_current_pose)):
+                            # import pdb
+                            # pdb.set_trace()
                             self.sim_current_pose[idx] = percent_complete * (
-                                self.sim_seq_poses[0][idx] - self.sim_starting_pose[idx])
+                                self.sim_seq_poses[0][idx] - self.sim_starting_pose[idx]) + self.sim_starting_pose[idx]
                     else:
                         percent_complete = (cur_time-self.sim_seq_times[current_move-1])/(
                             self.sim_seq_times[current_move]-self.sim_seq_times[current_move-1])
@@ -286,7 +291,7 @@ class BolideController(object):
         if self.simulate:
             self.sim_num_poses = len(poses)
             for idx, pose in enumerate(poses):
-                self.sim_poses[idx] = pose
+                self.sim_seq_poses[idx] = pose
         else:
             self.send_packet([self.CMD_SEQ_load_PoseCnt, len(poses)])
             for idx, pose in enumerate(poses):
@@ -306,18 +311,17 @@ class BolideController(object):
         self.upload_poses(poses)
         if self.simulate:
             self.sim_seq_length = len(times)
-            for idx, time in enumerate(times):
-                self.sim_sequence_times[idx] = time
+            self.sim_timer = time.time()
+            for idx, ttime in enumerate(times):
+                self.sim_seq_times[idx] = ttime
             self.sim_moving = True
             self.sim_starting_pose = self.sim_current_pose
         else:
             self.send_packet([self.CMD_SEQ_load_SEQCnt, len(times)])
-            for idx, time in enumerate(times):
-                # import pdb
-                # pdb.set_trace()
+            for idx, ttime in enumerate(times):
                 # time is in units of 10ms on the robot. But in sec coming in
                 # TODO: somewhere there should be a check to make sure time is <10 sec
-                ms_time = time*1000
+                ms_time = ttime*1000
                 bb, lb = struct.pack('>H', ms_time)
                 bb = (ord(bb))
                 lb = (ord(lb))

@@ -152,10 +152,10 @@ class Programmer(object):
             tty.setcbreak(sys.stdin.fileno())
             print('cancelled')
             return
-        pose = self.get_pose_id_srv(int(id))
+        resp = self.get_pose_id_srv(int(description))
         msg = JointTarget()
-        msg.name = [side+'_'+el for el in pose.joint_names]
-        msg.position = pose.joint_positions
+        msg.name = [side+'_'+el for el in resp.pose.joint_names]
+        msg.position = resp.pose.joint_positions
         msg.target_completion_time = 2
         tty.setcbreak(sys.stdin.fileno())
         self.target_pub.publish(msg)

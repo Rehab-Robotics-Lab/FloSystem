@@ -4,7 +4,8 @@
 
     <!--Humanoid Robot -->
     <param name="simulate" type="bool" value="True"/>
-    <node name="bolide_interface" pkg="flo_humanoid" type="robot_controller.py" output="screen" />
+    <!--<node name="bolide_interface" pkg="flo_humanoid" type="robot_controller.py" output="screen" />-->
+    <node name="bolide_interface" pkg="flo_humanoid" type="robot_controller.py" />
 
     <!--The robot URDF parsing and loading-->
     <arg name="model" default="$(find flo_humanoid)/urdf/flo.urdf.xacro"/>

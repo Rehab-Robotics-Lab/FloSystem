@@ -170,22 +170,15 @@ class BolideController(object):
         """get the pose of the robot and publish it to the joint state"""
         if self.simulate:
             if self.sim_moving:
-                print('moving')
                 cur_time = time.time() - self.sim_timer
-                # import pdb
-                # pdb.set_trace()
                 if cur_time > self.sim_seq_times[self.sim_seq_length-1]:
-                    print('done moving')
                     self.sim_moving = False
                 else:
                     current_move = next(idx for (idx, val) in enumerate(
                         self.sim_seq_times) if val > cur_time)
                     if current_move == 0:
                         percent_complete = cur_time/self.sim_seq_times[0]
-                        print('** {}'.format(self.sim_starting_pose))
                         for idx in range(len(self.sim_current_pose)):
-                            # import pdb
-                            # pdb.set_trace()
                             self.sim_current_pose[idx] = percent_complete * (
                                 self.sim_seq_poses[0][idx] - self.sim_starting_pose[idx]) + self.sim_starting_pose[idx]
                     else:
@@ -239,15 +232,6 @@ class BolideController(object):
         to_send = bytearray([0xff, len(command)+3]+command+[0xfe])
         rospy.loginfo('sending: %s', [hex(s) for s in to_send])
         self.ser.write(to_send)
-        # feedback = br.read_feedback()
-        # print(feedback)
-        # time.sleep(.1)
-        # print('received: {}'.format([ord(r) for r in ser.read_all()]))
-        # ret = ser.read(ser.in_waiting)
-        # print('sent: {}'.format(command))
-        # if ret:
-        #     print('received: {}'.format([ord(c) for c in ret]))
-        # todo: really should have feedback checking see bolide-...0.ino:378
 
     def relax_motors(self):
         """relax_motors"""

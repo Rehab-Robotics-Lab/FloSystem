@@ -3,7 +3,7 @@ import * as ROS3D from 'ros3d';
 import * as ROSLIB from 'roslib';
 
 // Takes a parameter ros, which is the connection to ros
-function URDF({ ros }) {
+function URDF({ ros, connected }) {
   const [viewer, setViewer] = useState(null);
 
   // We need to wait until the target diff exists
@@ -24,7 +24,7 @@ function URDF({ ros }) {
   }, []);
 
   useEffect(() => {
-    if (!ros) return;
+    if (!connected) return;
     // The connection to move things around, thresholded to prevent too many redraws
     const tfClient = new ROSLIB.TFClient({
       ros,

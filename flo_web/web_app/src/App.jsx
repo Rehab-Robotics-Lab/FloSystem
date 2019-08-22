@@ -11,11 +11,11 @@ function App() {
 
   const addError = (err) => { setErrorList([...errorList, err]); };
 
-  // <URDF ros={ros} />
   return (
     <div className="App">
       Flo control center
       <Header ros={ros} setRos={setRos} errorList={errorList} addError={addError} connected={connected} setConnected={setConnected} />
+      <URDF ros={ros} connected={connected} />
     </div>
   );
 }

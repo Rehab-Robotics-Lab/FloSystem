@@ -170,3 +170,16 @@ check to see if the socket is just closing imediately. If it is, then it may
 be that the version of tornado on the server is wrong. Uninstall the version
 from pip, then uninstall the version from apt, then reinstall the rosbridge
 suite.
+
+### Packages are missing
+It probably means you added dependencies since installing. Most dependencies are installed
+via rosdep by running:
+```bash
+rosdep install --from-paths ~/catkin_ws/src/LilFloSystem/ --ignore-src --rosdistro=kinetic -y
+```
+Some dependencies can't be installed by rosdep and should be installed by the install scripts.
+In that case, you should look at the most recent commits into git for the install scripts
+and try to figure out which commands need to be run.
+
+### Weird stuff says services don't exist
+Try running catkin_make on the catkin ws

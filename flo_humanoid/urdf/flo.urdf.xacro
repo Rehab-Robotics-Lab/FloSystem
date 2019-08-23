@@ -55,7 +55,7 @@
     </link>
 
     <joint name="left_shoulder_flexionextension" type="revolute">
-        <axis xyz="0 0 -1"/>
+        <axis xyz="0 0 1"/>
         <limit effort="1000.0" lower="0.0" upper="2.5" velocity="0.5"/>
         <parent link="hang_bar"/>
         <child link="left_shoulder"/>
@@ -105,7 +105,7 @@
     </link>
 
     <joint name="right_shoulder_flexionextension" type="revolute">
-        <axis xyz="0 0 -1"/>
+        <axis xyz="0 0 1"/>
         <limit effort="1000.0" lower="0.0" upper="2.5" velocity="0.5"/>
         <parent link="hang_bar"/>
         <child link="right_shoulder"/>

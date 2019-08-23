@@ -110,6 +110,12 @@ class BolideController(object):
         self.motors_initialized = False
         self.read_loop()
 
+    def __del__(self):
+        self.relax_motors()
+        if self.ser:
+            self.ser.flush()
+            self.ser.close()
+
     def read_loop(self):
         """If there are motion tasks to do, do those, otherwise, check the
         robot's pose"""

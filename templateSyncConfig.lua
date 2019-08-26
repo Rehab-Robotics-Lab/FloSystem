@@ -19,7 +19,7 @@ sync {
     delay     = 1, -- How long to wait before executing. Give it a second in
                    -- case there are lots of changes we can put together, but
                    -- don't want to be sitting around forever...
-    exclude = {'/.git'},
+    exclude = {'/.git','node_modules'},
     rsync     = {
         archive  = true,
         compress = true

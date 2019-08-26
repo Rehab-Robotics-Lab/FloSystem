@@ -183,3 +183,12 @@ and try to figure out which commands need to be run.
 
 ### Weird stuff says services don't exist
 Try running catkin_make on the catkin ws
+
+### REALSENSE has version mismatches and stuff
+apt update and upgrade
+Go into catkin_ws/src/realsense-ros
+run:
+```bash
+git checkout `git tag | sort -V | grep -P "^\d+\.\d+\.\d+" | tail -1`
+```
+cd up to catkin_ws and run catkin_make floowed by catkin_make install

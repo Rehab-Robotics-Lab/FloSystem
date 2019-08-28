@@ -216,12 +216,14 @@ class BolideController(object):
                         # pdb.set_trace()
                         percent_complete = (cur_time-self.sim_seq_times[current_move-1])/(
                             self.sim_seq_times[current_move]-self.sim_seq_times[current_move-1])
-                        import pdb
-                        pdb.set_trace()
+                        # import pdb
+                        # pdb.set_trace()
                         for idx in range(len(self.sim_current_pose)):
-                            self.sim_current_pose[idx] = percent_complete * (
+                            self.sim_current_pose[idx] = (percent_complete * (
                                 self.sim_seq_poses[current_move][idx] -
+                                self.sim_seq_poses[current_move-1][idx]) +
                                 self.sim_seq_poses[current_move-1][idx])
+
             position = self.sim_current_pose  # if not self.sim_moving else []
         ### End Simulator ###
         else:
@@ -229,7 +231,7 @@ class BolideController(object):
         if not position:
             rospy.logerr('couldn\'t get postion data')
             return
-        rospy.loginfo('raw position data: %s', position)
+        rospy.logdebug('raw position data: %s', position)
         names = []
         positions = []
         for id in self.available_motor_ids:

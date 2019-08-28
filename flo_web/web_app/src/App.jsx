@@ -3,6 +3,7 @@ import './App.css';
 import * as ROSLIB from 'roslib';
 import Header from './components/Header.jsx';
 import URDF from './components/urdf.jsx';
+import PoseContainer from './components/PoseContainer.jsx';
 
 function App() {
   const [ros, setRos] = useState(null);
@@ -23,6 +24,7 @@ function App() {
       Flo control center
       <Header ros={ros} setRos={setRos} errorList={errorList} addError={addError} connected={connected} setConnected={setConnectedWrap} />
       <URDF ros={ros} connected={connected} />
+      <PoseContainer ros={ros} connected={connected} />
     </div>
   );
 }

@@ -135,25 +135,41 @@ class BolideController(object):
                     while not self.joint_tasks.empty():
                         moves.append(self.joint_tasks.get())
                     # build unique times, for now, lets work linearly:
+                    # TODO build extra times in to allow for better return values and stopping mid move
                     unique_times = [0]
                     for move in moves:
                         tct = move.target_completion_time
                         if tct not in unique_times:
                             unique_times.append(tct)
-                    # now we need to fill in the poses:
+                    # now we need to fill in the poses with some default values:
                     poses = [list(self.current_positions)
                              for n in range(len(unique_times))]
                     # poses[0] = self.current_positions
                     current_move_program_id = [0]*self.NUM_MOTORS
+                    # we will run through each move and see where it applies
                     for move in moves:
                         end_time = move.target_completion_time
                         end_id = unique_times.index(end_time)
+                        # import pdb
+                        # pdb.set_trace()
+                        # each move will only specify a select number of joints that
+                        # should change, the rest should stay the same
                         for command_idx, name in enumerate(move.name):
                             motor_id = int(self.joint_config[name]['address'])
                             target_position = move.position[command_idx]
+                            # we need to know where this motors starting position is
+                            # being defined. The way this works is that motion will
+                            # start from the last time this joint was defined.
+                            # if a user wants to set the start position later in time,
+                            # they should just pass in the prior pose again at the later
+                            # start time:
                             start_id = current_move_program_id[motor_id]
                             start_time = unique_times[start_id]
+
                             total_time = (end_time-start_time)
+                            # figure out where this move would fall, because
+                            # of the way that the unique times works, this may
+                            # occur over multiple time points
                             percents = [(ut - start_time)/total_time for
                                         ut in unique_times]
                             prior_position = poses[start_id][motor_id]
@@ -162,18 +178,26 @@ class BolideController(object):
                             for motion_idx in range(start_id+1, 1+end_id):
                                 next_pose = int(round((raw_target - prior_position)
                                                       * percents[motion_idx] + prior_position))
-                                poses[motion_idx][motor_id] = next_pose
+                                # we need to tell all future times to use this pose unless we
+                                # change it with another move:
+                                for p_idx in range(motion_idx, len(poses)):
+                                    poses[p_idx][motor_id] = next_pose
                             current_move_program_id[motor_id] = end_id
                     poses = poses[1:]
+                    # import pdb
+                    # pdb.set_trace()
                     unique_times = unique_times[1:]
                     rospy.loginfo(
                         'telling robot to go to: \n%s \nat times: \n%s', poses, unique_times)
+                    # import pdb
+                    # pdb.set_trace()
                     self.upload_sequence(poses, unique_times)
             self.get_pose()
             self.rate.sleep()
 
     def get_pose(self):
         """get the pose of the robot and publish it to the joint state"""
+        ### Start Simulator ###
         if self.simulate:
             if self.sim_moving:
                 cur_time = time.time() - self.sim_timer
@@ -188,12 +212,18 @@ class BolideController(object):
                             self.sim_current_pose[idx] = percent_complete * (
                                 self.sim_seq_poses[0][idx] - self.sim_starting_pose[idx]) + self.sim_starting_pose[idx]
                     else:
+                        # import pdb
+                        # pdb.set_trace()
                         percent_complete = (cur_time-self.sim_seq_times[current_move-1])/(
                             self.sim_seq_times[current_move]-self.sim_seq_times[current_move-1])
+                        import pdb
+                        pdb.set_trace()
                         for idx in range(len(self.sim_current_pose)):
                             self.sim_current_pose[idx] = percent_complete * (
-                                self.sim_seq_poses[current_move]-self.sim_seq_poses[current_move-1])
+                                self.sim_seq_poses[current_move][idx] -
+                                self.sim_seq_poses[current_move-1][idx])
             position = self.sim_current_pose  # if not self.sim_moving else []
+        ### End Simulator ###
         else:
             position = self.reader.read_data('pos')
         if not position:

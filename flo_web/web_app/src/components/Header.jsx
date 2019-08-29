@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import * as ROSLIB from 'roslib';
 import PropTypes from 'prop-types';
+import colors from '../styleDefs/colors';
 
 function Header({
   setRos, addError, connected, setConnected,
@@ -35,19 +36,29 @@ function Header({
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <label>
+    <div style={{
+      display: 'flex', alignItems: 'stretch', justifyContent: 'space-between', backgroundColor: colors.blue.neutral, color: colors.white,
+    }}
+    >
+      <h1 style={{ margin: '0px' }}>
+        Flo Control Center
+      </h1>
+      <div>
+        <form onSubmit={handleSubmit}>
+          <label>
       IP Address:
-          <input type="text" name="ip_addr" value={ipAddr} onChange={(e) => setIpAddr(e.target.value)} />
-        </label>
-        <label>
+            <input type="text" name="ip_addr" value={ipAddr} onChange={(e) => setIpAddr(e.target.value)} />
+          </label>
+          <label>
       IP Port:
-          <input type="text" name="ip_port" value={ipPort} onChange={(e) => setIpPort(e.target.value)} />
-        </label>
-        <input type="submit" value="Connect" disabled={connected} />
-      </form>
-      {connectedString()}
+            <input type="text" name="ip_port" value={ipPort} onChange={(e) => setIpPort(e.target.value)} />
+          </label>
+          <input type="submit" value="Connect" disabled={connected} />
+        </form>
+        <b>
+          {connectedString()}
+        </b>
+      </div>
     </div>
   );
 }

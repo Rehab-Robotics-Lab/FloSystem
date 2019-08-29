@@ -3,6 +3,7 @@ import './App.css';
 import Header from './components/Header';
 import URDF from './components/urdf';
 import PoseContainer from './components/PoseContainer';
+import ErrorDisplay from './components/ErrorDisplay';
 
 function App() {
   const [ros, setRos] = useState(null);
@@ -16,7 +17,10 @@ function App() {
     setConnected(con);
   };
 
-  const addError = (err) => { setErrorList([...errorList, err]); };
+  const addError = (text, src) => {
+    const newError = { text, time: new Date(), src };
+    setErrorList([...errorList, newError]);
+  };
 
   return (
     <div className="App">
@@ -29,6 +33,7 @@ function App() {
         connected={connected}
         setConnected={setConnectedWrap}
       />
+      <ErrorDisplay errorList={errorList} />
       <URDF ros={ros} connected={connected} />
       <PoseContainer ros={ros} connected={connected} />
     </div>

@@ -7,13 +7,17 @@ function Header({
   const [ipAddr, setIpAddr] = useState('localhost');
   const [ipPort, setIpPort] = useState('9090');
 
+  const errorWrapper = () => {
+    addError('ROS Connection Error', 'Header');
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!(ipAddr && ipPort)) return;
     const ros = new ROSLIB.Ros({
       url: `ws://${ipAddr}:${ipPort}`,
     });
-    ros.on('error', (err) => { addError(err); });
+    ros.on('error', (err) => { errorWrapper(err); });
     ros.on('connection', () => { setConnected(true); });
     ros.on('close', () => { setConnected(false); });
     setRos(ros);

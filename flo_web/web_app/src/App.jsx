@@ -5,6 +5,7 @@ import URDF from './components/urdf';
 import PoseContainer from './components/PoseContainer';
 import ErrorDisplay from './components/ErrorDisplay';
 import SequenceContainer from './components/SequenceContainer';
+import colors from './styleDefs/colors';
 
 function App() {
   const [ros, setRos] = useState(null);
@@ -36,10 +37,23 @@ function App() {
         connected={connected}
         setConnected={setConnectedWrap}
       />
-      <ErrorDisplay errorList={errorList} />
-      <URDF ros={ros} connected={connected} />
-      <PoseContainer ros={ros} connected={connected} addToMoveList={addToMoveList} />
-      <SequenceContainer ros={ros} connected={connected} MovesList={MovesList} setMovesList={setMovesList} />
+      <div className="body" style={{ backgroundColor: colors.gray.dark2 }}>
+        <div className="visualFeeds">
+          <URDF ros={ros} connected={connected} />
+        </div>
+        <PoseContainer
+          ros={ros}
+          connected={connected}
+          addToMoveList={addToMoveList}
+        />
+        <SequenceContainer
+          ros={ros}
+          connected={connected}
+          MovesList={MovesList}
+          setMovesList={setMovesList}
+        />
+        <ErrorDisplay errorList={errorList} />
+      </div>
     </div>
   );
 }

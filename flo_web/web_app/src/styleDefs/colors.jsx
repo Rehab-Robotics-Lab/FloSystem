@@ -11,6 +11,9 @@ const colors = {
     neutral: '#95001a',
   },
   white: '#ffffff',
+  gray: {
+    dark2: '#44464b',
+  },
 };
 
 export default colors;

@@ -33,7 +33,7 @@ Error.propTypes = {
 function ErrorDisplay({ errorList }) {
   return (
     <div style={{
-      height: '40px', overflow: 'auto', display: 'flex', flexDirection: 'column-reverse',
+      height: '40px', overflow: 'auto', display: 'flex', flexDirection: 'column-reverse', color: 'red',
     }}
     >
       <div>

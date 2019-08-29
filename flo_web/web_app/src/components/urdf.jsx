@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import * as ROS3D from 'ros3d';
 import * as ROSLIB from 'roslib';
+import PropTypes from 'prop-types';
 
 // Takes a parameter ros, which is the connection to ros
 function URDF({ ros, connected }) {
@@ -60,5 +61,15 @@ function URDF({ ros, connected }) {
     <div id="urdf" />
   );
 }
+
+URDF.defaultProps = {
+  ros: null,
+};
+
+URDF.propTypes = {
+  ros: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  connected: PropTypes.bool.isRequired,
+};
+
 
 export default URDF;

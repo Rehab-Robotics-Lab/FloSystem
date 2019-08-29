@@ -38,7 +38,7 @@ function Header({
       IP Port:
           <input type="text" name="ip_port" value={ipPort} onChange={(e) => setIpPort(e.target.value)} />
         </label>
-        <input type="submit" value="Connect" />
+        <input type="submit" value="Connect" disabled={connected} />
       </form>
       {connectedString()}
     </div>

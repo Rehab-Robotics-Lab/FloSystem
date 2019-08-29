@@ -9,28 +9,33 @@ function URDF({ ros, connected }) {
 
   // We need to wait until the target diff exists
   useEffect(() => {
-    if (viewer !== null) return;
+    // if (viewer !== null) return; I don't think this is an issue since
+    // this only runs once
     // The view window
     const vw = new ROS3D.Viewer({
       divID: 'urdf',
       width: 400,
-      height: 200,
+      height: 400,
       antialias: true,
       background: '#f2f2f2', // sets the background color
       alpha: 0.3, // background transparency
-      cameraPose: { x: 0.15, y: 0.5, z: 0.05 },
+      cameraPose: { x: 0.2, y: 0.75, z: 0.05 },
     });
-
-
     // A grid
     // vw.addObject(new ROS3D.Grid({ num_cells: 5, cellSize: 0.1 }));
-
     setViewer(vw);
   }, []);
 
   useEffect(() => {
-    if (!connected) return;
+    if (!connected) {
+      if (client !== null) {
+        viewer.scene.remove(client.urdf);
+        setClient(null);
+      }
+      return;
+    }
     if (client !== null) return;
+
     // The connection to move things around, thresholded to prevent too many redraws
     const tfClient = new ROSLIB.TFClient({
       ros,

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import * as ROSLIB from 'roslib';
+import PropTypes from 'prop-types';
 
 function Header({
-  ros, setRos, errorList, addError, connected, setConnected,
+  setRos, addError, connected, setConnected,
 }) {
   const [ipAddr, setIpAddr] = useState('localhost');
   const [ipPort, setIpPort] = useState('9090');
@@ -14,21 +15,23 @@ function Header({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!(ipAddr && ipPort)) return;
-    const ros = new ROSLIB.Ros({
+    const newRosConnection = new ROSLIB.Ros({
       url: `ws://${ipAddr}:${ipPort}`,
     });
-    ros.on('error', (err) => { errorWrapper(err); });
-    ros.on('connection', () => { setConnected(true); });
-    ros.on('close', () => { setConnected(false); });
-    setRos(ros);
+    newRosConnection.on('error', (err) => { errorWrapper(err); });
+    newRosConnection.on('connection', () => { setConnected(true); });
+    newRosConnection.on('close', () => { setConnected(false); });
+    setRos(newRosConnection);
   };
   const connectedString = () => {
+    let toReturn;
     if (!connected) {
-      return <span style={{ color: 'red' }}>Not Connected</span>;
+      toReturn = <span style={{ color: 'red' }}>Not Connected</span>;
     }
     if (connected) {
-      return <span style={{ color: 'green' }}>Connected</span>;
+      toReturn = <span style={{ color: 'green' }}>Connected</span>;
     }
+    return toReturn;
   };
 
   return (
@@ -48,5 +51,12 @@ function Header({
     </div>
   );
 }
+
+Header.propTypes = {
+  setRos: PropTypes.func.isRequired,
+  addError: PropTypes.func.isRequired,
+  connected: PropTypes.bool.isRequired,
+  setConnected: PropTypes.func.isRequired,
+};
 
 export default Header;

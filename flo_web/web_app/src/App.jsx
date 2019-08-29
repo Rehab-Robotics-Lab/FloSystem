@@ -26,9 +26,7 @@ function App() {
     <div className="App">
       Flo control center
       <Header
-        ros={ros}
         setRos={setRos}
-        errorList={errorList}
         addError={addError}
         connected={connected}
         setConnected={setConnectedWrap}

@@ -1,0 +1,11 @@
+## Goal:
+JointTarget[] targets
+---
+## Result
+bool completed
+float32 positional_error
+---
+## Feedback
+duration time_elapsed
+duration time_remaining
+int16 move_number

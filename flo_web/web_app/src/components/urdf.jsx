@@ -58,7 +58,7 @@ function URDF({ ros, connected }) {
     });
 
     setClient(clientT);
-  });
+  },[connected,client,ros,viewer]);
 
   return (
     <div id="urdf" />

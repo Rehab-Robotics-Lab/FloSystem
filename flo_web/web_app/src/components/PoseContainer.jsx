@@ -55,7 +55,7 @@ function PoseContainer({ ros, connected, addToMoveList }) {
       }
       setPosesList(poses);
     });
-  }, [connected]);
+  }, [connected,ros]);
 
 
   return (

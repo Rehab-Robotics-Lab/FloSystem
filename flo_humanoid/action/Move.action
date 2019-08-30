@@ -6,6 +6,6 @@ bool completed
 float32 positional_error
 ---
 ## Feedback
-duration time_elapsed
-duration time_remaining
+float32 time_elapsed
+float32 time_remaining
 int16 move_number

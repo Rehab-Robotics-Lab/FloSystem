@@ -12,10 +12,13 @@ import serial
 import struct
 import time
 
+import actionlib
+
 from std_msgs.msg import String
 from sensor_msgs.msg import JointState
 from flo_humanoid.msg import JointTarget
 from read_from_bolide import BolideReader
+from flo_humanoid.msg import MoveAction, MoveGoal, MoveResult, MoveFeedback
 
 
 class BolideController(object):
@@ -59,11 +62,10 @@ class BolideController(object):
         self.joint_publisher = rospy.Publisher(
             'joint_states', JointState, queue_size=1)
 
-        rospy.Subscriber(
-            'target_joint_states', JointTarget, self.new_joint_command)
-
-        rospy.Subscriber(
-            'motor_commands', String, self.new_control_command)
+        # that false is autostart. It should always be false
+        self.server = actionlib.SimpleActionServer(
+            'move', MoveAction, self.move, False)
+        # TODO add in an action for relaxing motors?
 
         if not self.simulate:
             self.reader = BolideReader(self.ser)
@@ -108,6 +110,9 @@ class BolideController(object):
         self.command_tasks = Queue.Queue()
         self.current_positions = None
         self.motors_initialized = False
+
+        self.server.start()
+
         self.read_loop()
 
     def __del__(self):
@@ -116,82 +121,114 @@ class BolideController(object):
             self.ser.flush()
             self.ser.close()
 
+    def move(self, goal):
+        done = False
+        time_start = rospy.get_time()
+        completion_times = []
+
+        # SETUP AND SHIP MOVE TO ROBOT
+        moves = goal.targets
+        # build unique times, for now, lets work linearly:
+        # TODO build extra times in to allow for better return values and stopping mid move
+        unique_times = [0]
+        for move in moves:
+            tct = move.target_completion_time
+            completion_times.append(tct)
+            if tct not in unique_times:
+                unique_times.append(tct)
+        # now we need to fill in the poses with some default values:
+        poses = [list(self.current_positions)
+                 for n in range(len(unique_times))]
+        # poses[0] = self.current_positions
+        current_move_program_id = [0]*self.NUM_MOTORS
+        # we will run through each move and see where it applies
+        for move in moves:
+            end_time = move.target_completion_time
+            end_id = unique_times.index(end_time)
+            # import pdb
+            # pdb.set_trace()
+            # each move will only specify a select number of joints that
+            # should change, the rest should stay the same
+            for command_idx, name in enumerate(move.name):
+                motor_id = int(self.joint_config[name]['address'])
+                target_position = move.position[command_idx]
+                # we need to know where this motors starting position is
+                # being defined. The way this works is that motion will
+                # start from the last time this joint was defined.
+                # if a user wants to set the start position later in time,
+                # they should just pass in the prior pose again at the later
+                # start time:
+                start_id = current_move_program_id[motor_id]
+                start_time = unique_times[start_id]
+
+                total_time = (end_time-start_time)
+                # figure out where this move would fall, because
+                # of the way that the unique times works, this may
+                # occur over multiple time points
+                percents = [(ut - start_time)/total_time for
+                            ut in unique_times]
+                prior_position = poses[start_id][motor_id]
+                raw_target = target_position * int(self.joint_config[motor_id]['inversion'])*1023/(
+                    2*math.pi)+int(self.joint_config[motor_id]['neutral'])
+                for motion_idx in range(start_id+1, 1+end_id):
+                    next_pose = int(round((raw_target - prior_position)
+                                          * percents[motion_idx] + prior_position))
+                    # we need to tell all future times to use this pose unless we
+                    # change it with another move:
+                    for p_idx in range(motion_idx, len(poses)):
+                        poses[p_idx][motor_id] = next_pose
+                current_move_program_id[motor_id] = end_id
+        poses = poses[1:]
+        # import pdb
+        # pdb.set_trace()
+        unique_times = unique_times[1:]
+        rospy.loginfo(
+            'telling robot to go to: \n%s \nat times: \n%s', poses, unique_times)
+        # import pdb
+        # pdb.set_trace()
+        self.upload_sequence(poses, unique_times)
+        final_goal = poses[-1]
+
+        # ITERATE GIVE FEEDBACK
+        while not done:
+            self.get_pose()
+            if self.server.is_preempt_requested():
+                # I think that this would stop motion?
+                self.upload_sequence([self.current_positions], [0])
+                result = MoveResult()
+                result.completed = False
+                self.get_pose()
+                result.positional_error = self.error(final_goal)
+                self.server.set_preempted(result, "Movement Preempted")
+                return
+            feedback = MoveFeedback()
+            feedback.time_elapsed = rospy.get_time() - time_start
+            feedback.time_remaining = unique_times[-1] - feedback.time_elapsed
+            if feedback.time_remaining > 0:
+                self.server.publish_feedback(feedback)
+                feedback.move_number = next(
+                    idx for idx, value in enumerate(completion_times) if value >
+                    feedback.time_elapsed)
+            else:
+                result = MoveResult()
+                result.completed = True
+                result.positional_error = self.error(final_goal)
+                self.server.set_succeeded(result, "Motion complete")
+                done = True
+            self.rate.sleep()
+
+    def error(self, goal, joint_ids=None):
+        if joint_ids is None:
+            joint_ids = self.available_motor_ids
+        err = 0
+        for joint_id in joint_ids:
+            err += abs(self.current_positions[joint_id]-goal[joint_id])
+        return err
+
     def read_loop(self):
         """If there are motion tasks to do, do those, otherwise, check the
         robot's pose"""
         while not rospy.is_shutdown():
-            while not self.command_tasks.empty():
-                msg = self.command_tasks.get()
-                command = msg.data
-                if command == 'relax':
-                    self.relax_motors()
-                elif command == 'stop_motion':
-                    self.upload_sequence([self.current_positions], [0])
-                elif command == 'clear_poses':
-                    while not self.joint_tasks.empty():
-                        self.joint_tasks.get()
-                elif command == 'move':
-                    moves = []
-                    while not self.joint_tasks.empty():
-                        moves.append(self.joint_tasks.get())
-                    # build unique times, for now, lets work linearly:
-                    # TODO build extra times in to allow for better return values and stopping mid move
-                    unique_times = [0]
-                    for move in moves:
-                        tct = move.target_completion_time
-                        if tct not in unique_times:
-                            unique_times.append(tct)
-                    # now we need to fill in the poses with some default values:
-                    poses = [list(self.current_positions)
-                             for n in range(len(unique_times))]
-                    # poses[0] = self.current_positions
-                    current_move_program_id = [0]*self.NUM_MOTORS
-                    # we will run through each move and see where it applies
-                    for move in moves:
-                        end_time = move.target_completion_time
-                        end_id = unique_times.index(end_time)
-                        # import pdb
-                        # pdb.set_trace()
-                        # each move will only specify a select number of joints that
-                        # should change, the rest should stay the same
-                        for command_idx, name in enumerate(move.name):
-                            motor_id = int(self.joint_config[name]['address'])
-                            target_position = move.position[command_idx]
-                            # we need to know where this motors starting position is
-                            # being defined. The way this works is that motion will
-                            # start from the last time this joint was defined.
-                            # if a user wants to set the start position later in time,
-                            # they should just pass in the prior pose again at the later
-                            # start time:
-                            start_id = current_move_program_id[motor_id]
-                            start_time = unique_times[start_id]
-
-                            total_time = (end_time-start_time)
-                            # figure out where this move would fall, because
-                            # of the way that the unique times works, this may
-                            # occur over multiple time points
-                            percents = [(ut - start_time)/total_time for
-                                        ut in unique_times]
-                            prior_position = poses[start_id][motor_id]
-                            raw_target = target_position * int(self.joint_config[motor_id]['inversion'])*1023/(
-                                2*math.pi)+int(self.joint_config[motor_id]['neutral'])
-                            for motion_idx in range(start_id+1, 1+end_id):
-                                next_pose = int(round((raw_target - prior_position)
-                                                      * percents[motion_idx] + prior_position))
-                                # we need to tell all future times to use this pose unless we
-                                # change it with another move:
-                                for p_idx in range(motion_idx, len(poses)):
-                                    poses[p_idx][motor_id] = next_pose
-                            current_move_program_id[motor_id] = end_id
-                    poses = poses[1:]
-                    # import pdb
-                    # pdb.set_trace()
-                    unique_times = unique_times[1:]
-                    rospy.loginfo(
-                        'telling robot to go to: \n%s \nat times: \n%s', poses, unique_times)
-                    # import pdb
-                    # pdb.set_trace()
-                    self.upload_sequence(poses, unique_times)
             self.get_pose()
             self.rate.sleep()
 
@@ -274,7 +311,7 @@ class BolideController(object):
     def relax_motors(self):
         """relax_motors"""
         if self.simulate:
-            self.sim_motors_stiff
+            self.sim_motors_stiff = False
         else:
             self.send_packet([self.CMD_SEQ_relax])
         self.motors_initialized = False

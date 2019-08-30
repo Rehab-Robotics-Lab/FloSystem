@@ -22,6 +22,7 @@ import csv
 import io
 
 import rospy
+import actionlib
 from std_msgs.msg import String
 from sensor_msgs.msg import JointState
 from flo_humanoid.msg import JointTarget
@@ -33,6 +34,8 @@ from flo_core.srv import SetPoseSeq
 from flo_core.srv import GetPoseSeqID
 from flo_core.srv import SearchPoseSeq
 from flo_core.msg import Pose
+
+from flo_humanoid.msg import MoveAction, MoveGoal, MoveResult, MoveFeedback
 
 EDITOR = os.environ.get('EDITOR', 'vim')
 
@@ -60,10 +63,8 @@ class Programmer(object):
         rospy.Subscriber('joint_states', JointState, self.new_joint_data)
         self.current_joint_data = None
 
-        self.target_pub = rospy.Publisher(
-            'target_joint_states', JointTarget, queue_size=4)
-        self.control_pub = rospy.Publisher(
-            'motor_commands', String, queue_size=1)
+        self.movement_client = actionlib.SimpleActionClient('move', MoveAction)
+        self.movement_client.wait_for_server()
 
         rospy.wait_for_service('get_pose_id')
         self.get_pose_id_srv = rospy.ServiceProxy('get_pose_id', GetPoseID)
@@ -158,8 +159,24 @@ class Programmer(object):
         msg.position = resp.pose.joint_positions
         msg.target_completion_time = 2
         tty.setcbreak(sys.stdin.fileno())
-        self.target_pub.publish(msg)
-        self.control_pub.publish('move')
+
+        goal = MoveGoal()
+        goal.targets = [msg]
+        self.movement_client.send_goal(
+            goal, done_cb=self.move_done, feedback_cb=self.move_feedback)
+
+    def move_done(self, final_state, result):
+        if final_state == 3:
+            print('done, with positional error: {}'.format(
+                result.positional_error))
+        elif final_state == 2:
+            print('pre-empted')
+        elif final_state == 4:
+            print('aborted')
+
+    def move_feedback(self, feedback):
+        print('feedback from movement: {}[elapsed] : {}[remaining] : {}[move]'.format(
+            feedback.time_elapsed, feedback.time_remaining, feedback.move_number))
 
     def relax(self):
         self.control_pub.publish('relax')

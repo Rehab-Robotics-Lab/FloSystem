@@ -205,10 +205,10 @@ class BolideController(object):
             feedback.time_elapsed = rospy.get_time() - time_start
             feedback.time_remaining = unique_times[-1] - feedback.time_elapsed
             if feedback.time_remaining > 0:
-                self.server.publish_feedback(feedback)
                 feedback.move_number = next(
                     idx for idx, value in enumerate(completion_times) if value >
                     feedback.time_elapsed)
+                self.server.publish_feedback(feedback)
             else:
                 result = MoveResult()
                 result.completed = True

@@ -66,9 +66,9 @@
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>message_runtime</exec_depend>
 
-  <exec_depend>tts</exec_depend>
-  <build_depend>tts</build_depend>
-  <build_export_depend>tts</build_export_depend>
+  <!--<exec_depend>tts</exec_depend>-->
+  <!--<build_depend>tts</build_depend>-->
+  <!--<build_export_depend>tts</build_export_depend>-->
 
   <!--<exec_depend>kobuki-dashboard</exec_depend>-->
   <!--<build_depend>ros-kinetic-kobuki</build_depend>-->

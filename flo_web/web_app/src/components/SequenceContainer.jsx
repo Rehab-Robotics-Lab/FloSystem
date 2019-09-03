@@ -10,29 +10,32 @@ const poseProp = PropTypes.shape({
 
 
 function Move({
-  id, pose, lr, time, setTime, toggleLR, moveUp, moveDown, remove,
+  id, pose, lr, time, setTime, toggleLR, moveUp, moveDown, remove, status,
 }) {
+  const style = {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    background: (id % 2) ? '#bcd2e0' : 'white',
+    border: 'none',
+  };
+  if (status === 'complete') {
+    style.border = '2px solid green';
+  } else if (status === 'moving') {
+    style.border = '2px solid blue';
+  }
+
   return (
-    <tr>
-      <td>
+    <div style={style}>
+      <span style={{ width: '100px' }}>
         {pose.pose.description}
-      </td>
-      <td>
-        <input type="number" min="0" max="10" step="any" value={time} onChange={(e) => setTime(id, parseFloat(e.target.value))} />
-      </td>
-      <td>
-        <button type="button" onClick={() => { toggleLR(id); }}>{lr}</button>
-      </td>
-      <td>
-        <button type="button" onClick={() => { moveUp(id); }}>&uarr;</button>
-      </td>
-      <td>
-        <button type="button" onClick={() => { moveDown(id); }}>&darr;</button>
-      </td>
-      <td>
-        <button type="button" onClick={() => { remove(id); }}>&#10007;</button>
-      </td>
-    </tr>
+      </span>
+      <input type="number" min="0" max="10" step="any" value={time} onChange={(e) => setTime(id, parseFloat(e.target.value))} style={{ width: '35px' }} />
+      <button type="button" onClick={() => { toggleLR(id); }}>{lr}</button>
+      <button type="button" onClick={() => { moveUp(id); }}>&uarr;</button>
+      <button type="button" onClick={() => { moveDown(id); }}>&darr;</button>
+      <button type="button" onClick={() => { remove(id); }}>&#10007;</button>
+    </div>
   );
 }
 
@@ -50,7 +53,7 @@ Move.propTypes = {
 
 // Takes a parameter ros, which is the connection to ros
 function SequenceContainer({
-  ros, connected, MovesList, setMovesList,
+  ros, connected, MovesList, setMovesList, moving, setMoving,
 }) {
   const setTime = (id, time) => {
     const moveListN = [...MovesList];
@@ -89,10 +92,10 @@ function SequenceContainer({
   };
 
   const runSequence = () => {
-    const targetPub = new ROSLIB.Topic({
+    const actionClient = new ROSLIB.ActionClient({
       ros,
-      name: '/target_joint_states',
-      messageType: 'flo_humanoid/JointTarget',
+      serverName: '/move',
+      actionName: 'flo_humanoid/MoveAction',
     });
 
     let time = 0;
@@ -100,6 +103,7 @@ function SequenceContainer({
     // Need to iterate through the move list and do:
     // - add limb prefix
     // - calculate the actual target time
+    const targets = [];
     MovesList.forEach((move) => {
       time += move.time;
       const names = [...move.pose.pose.joint_names];
@@ -111,29 +115,60 @@ function SequenceContainer({
         position: move.pose.pose.joint_positions,
         target_completion_time: time,
       });
-      targetPub.publish(msg);
+      targets.push(msg);
     });
 
-    const commandPub = new ROSLIB.Topic({
-      ros,
-      name: '/motor_commands',
-      messageType: 'std_msgs/String',
+    const goal = new ROSLIB.Goal({
+      actionClient,
+      goalMessage: {
+        targets,
+      },
     });
 
-    commandPub.publish({ data: 'move' });
+    goal.on('feedback', (fb) => {
+      const curMove = fb.move_number;
+      const moveListN = [...MovesList];
+      for (let idx = 0; idx < curMove; idx += 1) {
+        moveListN[idx].status = 'complete';
+      }
+      moveListN[curMove].status = 'moving';
+      setMovesList(moveListN);
+    });
+
+    goal.on('result', (res) => {
+      setMoving(false);
+      const moveListN = [...MovesList];
+      for (let idx = 0; idx < moveListN.length; idx += 1) {
+        moveListN[idx].status = 'none';
+      }
+      setMovesList(moveListN);
+    });
+
+    setMoving(true);
+    const moveListN = [...MovesList];
+    for (let idx = 0; idx < moveListN.length; idx += 1) {
+      moveListN[idx].status = 'planned';
+    }
+    setMovesList(moveListN);
+
+    goal.send();
   };
 
 
   return (
-    <div id="moves-container">
+    <div
+      id="moves-container"
+      style={{
+        backgroundColor: 'white', borderRadius: '25px', padding: '10px', margin: '10px',
+      }}
+    >
       <h2>List of moves to make:</h2>
-      <table className="poses-list">
-        <tbody>
-          <tr>
-            <th>Pose</th>
-            <th>Time from prior (s)</th>
-          </tr>
-          {
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div>
+            Pose
+            Time from prior (s)
+        </div>
+        {
         MovesList.map((value, index) => (
           <Move
             id={index}
@@ -145,12 +180,12 @@ function SequenceContainer({
             moveUp={moveUp}
             moveDown={moveDown}
             remove={remove}
+            status={value.status}
           />
         ))
 }
-        </tbody>
-      </table>
-      <button type="button" disabled={!connected} onClick={() => { runSequence(); }}>Run Sequence</button>
+      </div>
+      <button type="button" disabled={!connected || moving} onClick={() => { runSequence(); }}>Run Sequence</button>
     </div>
   );
 }

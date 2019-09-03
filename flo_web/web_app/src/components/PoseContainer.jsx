@@ -10,16 +10,9 @@ const poseProp = PropTypes.shape({
 
 function Pose({ pose, addToMoveList }) {
   return (
-    <tr>
-      <td className="pose">
-        {pose.pose.description}
-      </td>
-      <td>
         <button type="button" onClick={() => { addToMoveList(pose); }}>
-Add to move list
+        {pose.pose.description}
         </button>
-      </td>
-    </tr>
   );
 }
 
@@ -59,10 +52,9 @@ function PoseContainer({ ros, connected, addToMoveList }) {
 
 
   return (
-    <div id="poses-container">
-      <h2>Available Poses:</h2>
-      <table className="poses-list">
-        <tbody>
+    <div id="poses-container" style={{maxWidth: '150px',backgroundColor:'white',borderRadius:'25px',padding:'10px',margin:'10px'}}>
+      <h2>Poses:</h2>
+      <div style={{display:'flex',flexDirection:'column',overflow:'auto',maxHeight:'400px'}}>
           {
                 PosesList.map((value) => (
                   <Pose
@@ -72,8 +64,7 @@ function PoseContainer({ ros, connected, addToMoveList }) {
                   />
                 ))
             }
-        </tbody>
-      </table>
+        </div>
     </div>
   );
 }

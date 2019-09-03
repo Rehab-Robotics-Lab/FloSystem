@@ -12,9 +12,21 @@ function App() {
   const [errorList, setErrorList] = useState([]);
   const [connected, setConnected] = useState(false);
   const [MovesList, setMovesList] = useState([]);
+  const [moving, setMoving] = useState(false);
+
+  const addError = (text, src) => {
+    const newError = { text, time: new Date(), src };
+    setErrorList([...errorList, newError]);
+  };
 
   const addToMoveList = (value) => {
-    setMovesList([...MovesList, { time: 2, pose: value, lr: 'right' }]);
+    if (moving) {
+      addError('Cannot add to moves list while moving', 'core');
+      return;
+    }
+    setMovesList([...MovesList, {
+      time: 2, pose: value, lr: 'right', status: 'not-run',
+    }]);
   };
 
   const setConnectedWrap = (con) => {
@@ -22,11 +34,6 @@ function App() {
       setRos(null);
     }
     setConnected(con);
-  };
-
-  const addError = (text, src) => {
-    const newError = { text, time: new Date(), src };
-    setErrorList([...errorList, newError]);
   };
 
   return (
@@ -41,17 +48,21 @@ function App() {
         <div className="visualFeeds">
           <URDF ros={ros} connected={connected} />
         </div>
-        <PoseContainer
-          ros={ros}
-          connected={connected}
-          addToMoveList={addToMoveList}
-        />
-        <SequenceContainer
-          ros={ros}
-          connected={connected}
-          MovesList={MovesList}
-          setMovesList={setMovesList}
-        />
+        <div style={{ display: 'flex', flexDirection: 'row' }}>
+          <PoseContainer
+            ros={ros}
+            connected={connected}
+            addToMoveList={addToMoveList}
+          />
+          <SequenceContainer
+            ros={ros}
+            connected={connected}
+            MovesList={MovesList}
+            setMovesList={setMovesList}
+            moving={moving}
+            setMoving={setMoving}
+          />
+        </div>
         <ErrorDisplay errorList={errorList} />
       </div>
     </div>

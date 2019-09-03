@@ -175,7 +175,9 @@ suite.
 It probably means you added dependencies since installing. Most dependencies are installed
 via rosdep by running:
 ```bash
-rosdep install --from-paths ~/catkin_ws/src/LilFloSystem/ --ignore-src --rosdistro=kinetic -y
+sudo apt update -y && sudo apt upgrade -y
+rosdep update
+rosdep install --from-paths ~/catkin_ws/src/LilFloSystem/ --ignore-src -r -y
 ```
 Some dependencies can't be installed by rosdep and should be installed by the install scripts.
 In that case, you should look at the most recent commits into git for the install scripts

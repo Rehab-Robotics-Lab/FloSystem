@@ -6,7 +6,7 @@ import colors from '../styleDefs/colors';
 function Header({
   setRos, addError, connected, setConnected,
 }) {
-  const [ipAddr, setIpAddr] = useState('localhost');
+  const [ipAddr, setIpAddr] = useState(window.location.hostname);
   const [ipPort, setIpPort] = useState('9090');
 
   const errorWrapper = () => {

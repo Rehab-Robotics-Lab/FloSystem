@@ -4,7 +4,7 @@ import Header from './components/Header';
 import URDF from './components/urdf';
 import PoseContainer from './components/PoseContainer';
 import ErrorDisplay from './components/ErrorDisplay';
-import SequenceContainer from './components/SequenceContainer';
+import SequenceRunContainer from './components/SequenceRunContainer';
 import colors from './styleDefs/colors';
 
 function App() {
@@ -54,7 +54,7 @@ function App() {
             connected={connected}
             addToMoveList={addToMoveList}
           />
-          <SequenceContainer
+          <SequenceRunContainer
             ros={ros}
             connected={connected}
             MovesList={MovesList}

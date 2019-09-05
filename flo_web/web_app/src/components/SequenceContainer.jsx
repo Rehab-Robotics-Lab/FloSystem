@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import * as ROSLIB from 'roslib';
-import PropTypes from 'prop-types';
+import { sequencePropDef, sequenceContainerPropDef } from '../propTypes';
 
 function Sequence({ sequence, setMovesList, getPoseSrv }) {
   return (
@@ -35,17 +35,7 @@ function Sequence({ sequence, setMovesList, getPoseSrv }) {
   );
 }
 
-Sequence.propTypes = {
-  sequence: PropTypes.shape({
-    pose_ids: PropTypes.arrayOf(PropTypes.number),
-    times: PropTypes.arrayOf(PropTypes.number),
-    arms: PropTypes.arrayOf(PropTypes.string),
-    description: PropTypes.string,
-    total_time: PropTypes.number,
-  }).isRequired,
-  setMovesList: PropTypes.func.isRequired,
-};
-
+Sequence.propTypes = sequencePropDef;
 
 // Takes a parameter ros, which is the connection to ros
 function SequenceContainer({
@@ -223,11 +213,6 @@ SequenceContainer.defaultProps = {
   ros: null,
 };
 
-SequenceContainer.propTypes = {
-  ros: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-  connected: PropTypes.bool.isRequired,
-  addToMoveList: PropTypes.func.isRequired,
-};
-
+SequenceContainer.propTypes = sequenceContainerPropDef;
 
 export default SequenceContainer;

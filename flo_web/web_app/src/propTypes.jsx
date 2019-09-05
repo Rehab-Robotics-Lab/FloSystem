@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 
 export default null;
 
+// -----      Errors     -----
 const errorItem = PropTypes.shape({
   text: PropTypes.string.isRequired,
   time: PropTypes.instanceOf(Date).isRequired,
@@ -16,6 +17,7 @@ export const errorListPropDef = {
   errorList: PropTypes.arrayOf(errorItem).isRequired,
 };
 
+// -----      Header     -----
 export const headerPropDef = {
   setRos: PropTypes.func.isRequired,
   addError: PropTypes.func.isRequired,
@@ -24,6 +26,7 @@ export const headerPropDef = {
 };
 
 
+// -----      Pose     -----
 const InnerPoseProp = PropTypes.shape({
   description: PropTypes.string,
   joint_names: PropTypes.array,
@@ -39,6 +42,25 @@ export const posePropDef = {
 };
 
 export const poseContainerPropDef = {
+  ros: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  connected: PropTypes.bool.isRequired,
+  addToMoveList: PropTypes.func.isRequired,
+};
+
+
+// -----      Sequence     -----
+export const sequencePropDef = {
+  sequence: PropTypes.shape({
+    pose_ids: PropTypes.arrayOf(PropTypes.number),
+    times: PropTypes.arrayOf(PropTypes.number),
+    arms: PropTypes.arrayOf(PropTypes.string),
+    description: PropTypes.string,
+    total_time: PropTypes.number,
+  }).isRequired,
+  setMovesList: PropTypes.func.isRequired,
+};
+
+export const sequenceContainerPropDef = {
   ros: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   connected: PropTypes.bool.isRequired,
   addToMoveList: PropTypes.func.isRequired,

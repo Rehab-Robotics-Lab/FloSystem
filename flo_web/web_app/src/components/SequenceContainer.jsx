@@ -9,7 +9,6 @@ function Sequence({ sequence, setMovesList, getPoseSrv }) {
       onClick={() => {
         const movesListT = [];
         const seqLength = sequence.seq.arms.length;
-        let numElements = 0;
         for (let idx = 0; idx < seqLength; idx += 1) {
           const poseId = sequence.seq.pose_ids[idx];
           const req = new ROSLIB.ServiceRequest({
@@ -22,10 +21,7 @@ function Sequence({ sequence, setMovesList, getPoseSrv }) {
               status: 'not-run',
               time: sequence.seq.times[idx],
             };
-            numElements += 1;
-            if (numElements === seqLength) {
-              setMovesList(movesListT);
-            }
+            setMovesList(movesListT);
           });
         }
       }}
@@ -88,22 +84,49 @@ function SequenceContainer({
     <div
       id="sequences-container"
       style={{
-        maxWidth: '150px', backgroundColor: 'white', borderRadius: '25px', padding: '10px', margin: '10px',
+        maxWidth: '150px',
+        backgroundColor: 'white',
+        borderRadius: '25px',
+        padding: '10px',
+        margin: '10px',
       }}
     >
       <h2>Sequences:</h2>
 
 
-      <button type="button" onClick={() => { setShowSave(true); }} disabled={!connected}>Save Sequence</button>
+      <button
+        type="button"
+        onClick={() => {
+          setShowSave(true);
+        }}
+        disabled={!connected}
+      >
+Save Sequence
+      </button>
       <hr />
       {showSave
         && (
         <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, top: 0, background: 'rgba(0,0,0,.3)', display: 'flex', justifyContent: 'center', alignItems: 'center',
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          top: 0,
+          background: 'rgba(0,0,0,.3)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
         }}
         >
           <div style={{
-            width: '200px', background: 'white', borderRadius: '10px', minWidth: '500px', position: 'relative', textAlign: 'center', display: 'flex', flexDirection: 'column',
+            width: '200px',
+            background: 'white',
+            borderRadius: '10px',
+            minWidth: '500px',
+            position: 'relative',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
           }}
           >
             <h3>Save a New Sequence or Overwrite an Existing One</h3>
@@ -131,7 +154,13 @@ Save As:
             </label>
             <label htmlFor="saveSeqDescription">
                 Description:
-              <input type="text" value={saveDescription} onChange={(obj) => { setSaveDescription(obj.target.value); }} />
+              <input
+                type="text"
+                value={saveDescription}
+                onChange={(obj) => {
+                  setSaveDescription(obj.target.value);
+                }}
+              />
             </label>
 
             <button
@@ -164,14 +193,17 @@ Save As:
                 });
 
                 setSeqSrv.callService(req, (res) => {
-                  const targetId = SeqList.findIndex((item) => (item.id === res.id));
+                  const targetId = SeqList.findIndex((item) => (
+                    item.id === res.id));
                   const SeqListT = [...SeqList];
                   if (targetId === -1) {
                     SeqListT.push({
                       id: res.id,
                       seq: newSeq,
                     });
-                  } else { SeqListT[targetId] = { id: res.id, seq: newSeq }; }
+                  } else {
+                    SeqListT[targetId] = { id: res.id, seq: newSeq };
+                  }
                   setSeqList(SeqListT);
                   setShowSave(false);
                   setSaveID(0);
@@ -184,14 +216,24 @@ Save As:
             >
 Save
             </button>
-            <button type="button" onClick={() => { setShowSave(false); }}>Cancel</button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowSave(false);
+              }}
+            >
+Cancel
+            </button>
           </div>
         </div>
         )}
 
 
       <div style={{
-        display: 'flex', flexDirection: 'column', overflow: 'auto', maxHeight: '400px',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'auto',
+        maxHeight: '400px',
       }}
       >
         {

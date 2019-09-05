@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import * as ROSLIB from 'roslib';
-import PropTypes from 'prop-types';
 import colors from '../styleDefs/colors';
+import { headerPropDef } from '../propTypes';
 
 function Header({
   setRos, addError, connected, setConnected,
@@ -45,11 +45,11 @@ function Header({
       </h1>
       <div>
         <form onSubmit={handleSubmit}>
-          <label>
+          <label htmlFor="ip_addr">
       IP Address:
             <input type="text" name="ip_addr" value={ipAddr} onChange={(e) => setIpAddr(e.target.value)} />
           </label>
-          <label>
+          <label htmlFor="ip_port">
       IP Port:
             <input type="text" name="ip_port" value={ipPort} onChange={(e) => setIpPort(e.target.value)} />
           </label>
@@ -63,11 +63,6 @@ function Header({
   );
 }
 
-Header.propTypes = {
-  setRos: PropTypes.func.isRequired,
-  addError: PropTypes.func.isRequired,
-  connected: PropTypes.bool.isRequired,
-  setConnected: PropTypes.func.isRequired,
-};
+Header.propTypes = headerPropDef;
 
 export default Header;

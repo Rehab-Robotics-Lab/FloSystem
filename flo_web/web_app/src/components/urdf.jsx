@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import * as ROS3D from 'ros3d';
 import * as ROSLIB from 'roslib';
-import PropTypes from 'prop-types';
+import { urdfPropDef } from '../propTypes';
 
 // Takes a parameter ros, which is the connection to ros
 function URDF({ ros, connected }) {
@@ -10,7 +10,8 @@ function URDF({ ros, connected }) {
 
   // We need to wait until the target diff exists
   useEffect(() => {
-    // if (viewer !== null) return; I don't think this is an issue since
+    // if (viewer !== null) return; I don't think
+    // this is an issue since
     // this only runs once
     // The view window
     const vw = new ROS3D.Viewer({
@@ -58,7 +59,7 @@ function URDF({ ros, connected }) {
     });
 
     setClient(clientT);
-  },[connected,client,ros,viewer]);
+  }, [connected, client, ros, viewer]);
 
   return (
     <div id="urdf" />
@@ -69,10 +70,6 @@ URDF.defaultProps = {
   ros: null,
 };
 
-URDF.propTypes = {
-  ros: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-  connected: PropTypes.bool.isRequired,
-};
-
+URDF.propTypes = urdfPropDef;
 
 export default URDF;

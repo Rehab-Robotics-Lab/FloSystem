@@ -86,3 +86,10 @@ export const sequenceRunContainerPropDef = {
   MovesList: PropTypes.arrayOf(movePropDef).isRequired,
   setMovesList: PropTypes.func.isRequired,
 };
+
+
+// -----      URDF     -----
+export const urdfPropDef = {
+  ros: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  connected: PropTypes.bool.isRequired,
+};

@@ -1,191 +1,219 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import * as ROSLIB from 'roslib';
 import PropTypes from 'prop-types';
 
-const poseProp = PropTypes.shape({
-  description: PropTypes.string,
-  joint_names: PropTypes.array,
-  joint_positions: PropTypes.array,
-});
-
-
-function Move({
-  id, pose, lr, time, setTime, toggleLR, moveUp, moveDown, remove, status,
-}) {
-  const style = {
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    background: (id % 2) ? '#bcd2e0' : 'white',
-    border: 'none',
-  };
-  if (status === 'complete') {
-    style.border = '2px solid green';
-  } else if (status === 'moving') {
-    style.border = '2px solid blue';
-  }
-
+function Sequence({ sequence, setMovesList, getPoseSrv }) {
   return (
-    <div style={style}>
-      <span style={{ width: '100px' }}>
-        {pose.pose.description}
-      </span>
-      <input type="number" min="0" max="10" step="any" value={time} onChange={(e) => setTime(id, parseFloat(e.target.value))} style={{ width: '35px' }} />
-      <button type="button" onClick={() => { toggleLR(id); }}>{lr}</button>
-      <button type="button" onClick={() => { moveUp(id); }}>&uarr;</button>
-      <button type="button" onClick={() => { moveDown(id); }}>&darr;</button>
-      <button type="button" onClick={() => { remove(id); }}>&#10007;</button>
-    </div>
+    <button
+      type="button"
+      onClick={() => {
+        const movesListT = [];
+        const seqLength = sequence.seq.arms.length;
+        let numElements = 0;
+        for (let idx = 0; idx < seqLength; idx += 1) {
+          const poseId = sequence.seq.pose_ids[idx];
+          const req = new ROSLIB.ServiceRequest({
+            id: poseId,
+          });
+          getPoseSrv.callService(req, (res) => {
+            movesListT[idx] = {
+              lr: sequence.seq.arms[idx],
+              pose: { id: poseId, pose: res.pose },
+              status: 'not-run',
+              time: sequence.seq.times[idx],
+            };
+            numElements += 1;
+            if (numElements === seqLength) {
+              setMovesList(movesListT);
+            }
+          });
+        }
+      }}
+    >
+      {sequence.seq.description}
+    </button>
   );
 }
 
-Move.propTypes = {
-  id: PropTypes.number.isRequired,
-  pose: poseProp.isRequired,
-  time: PropTypes.number.isRequired,
-  lr: PropTypes.string.isRequired,
-  setTime: PropTypes.func.isRequired,
-  toggleLR: PropTypes.func.isRequired,
-  moveUp: PropTypes.func.isRequired,
-  moveDown: PropTypes.func.isRequired,
-  remove: PropTypes.func.isRequired,
+Sequence.propTypes = {
+  sequence: PropTypes.shape({
+    pose_ids: PropTypes.arrayOf(PropTypes.number),
+    times: PropTypes.arrayOf(PropTypes.number),
+    arms: PropTypes.arrayOf(PropTypes.string),
+    description: PropTypes.string,
+    total_time: PropTypes.number,
+  }).isRequired,
+  setMovesList: PropTypes.func.isRequired,
 };
+
 
 // Takes a parameter ros, which is the connection to ros
 function SequenceContainer({
-  ros, connected, MovesList, setMovesList, moving, setMoving,
+  ros, connected, setMovesList, MovesList,
 }) {
-  const setTime = (id, time) => {
-    const moveListN = [...MovesList];
-    const target = moveListN[id];
-    target.time = time;
-    moveListN[id] = target;
-    setMovesList(moveListN);
-  };
+  const [SeqList, setSeqList] = useState([]);
+  const [showSave, setShowSave] = useState(false);
+  const [saveID, setSaveID] = useState(0);
+  const [saveDescription, setSaveDescription] = useState('');
+  const [setSeqSrv, setSetSeqSrv] = useState(null);
+  const [getPoseSrv, setGetPoseSrv] = useState(null);
 
-  const toggleLR = (id) => {
-    const moveListN = [...MovesList];
-    const target = moveListN[id];
-    target.lr = (target.lr === 'left' ? 'right' : 'left');
-    moveListN[id] = target;
-    setMovesList(moveListN);
-  };
+  // get all of the poses
+  useEffect(() => {
+    if (!connected) return;
 
-  const moveUp = (id) => {
-    if (id === 0) return;
-    const moveListN = [...MovesList];
-    moveListN.splice(id, 0, moveListN.splice(id - 1, 1)[0]);
-    setMovesList(moveListN);
-  };
-
-  const moveDown = (id) => {
-    if (id === MovesList.length - 1) return;
-    const moveListN = [...MovesList];
-    moveListN.splice(id, 0, moveListN.splice(id + 1, 1)[0]);
-    setMovesList(moveListN);
-  };
-
-  const remove = (id) => {
-    const moveListN = [...MovesList];
-    moveListN.splice(id, 1);
-    setMovesList(moveListN);
-  };
-
-  const runSequence = () => {
-    const actionClient = new ROSLIB.ActionClient({
+    const searchSeqClient = new ROSLIB.Service({
       ros,
-      serverName: '/move',
-      actionName: 'flo_humanoid/MoveAction',
+      name: '/search_pose_seq',
+      serviceType: 'flo_core/SearchPoseSeq',
     });
 
-    let time = 0;
+    const request = new ROSLIB.ServiceRequest({ search: '' });
 
-    // Need to iterate through the move list and do:
-    // - add limb prefix
-    // - calculate the actual target time
-    const targets = [];
-    MovesList.forEach((move) => {
-      time += move.time;
-      const names = [...move.pose.pose.joint_names];
-      for (let idx = 0; idx < names.length; idx += 1) {
-        names[idx] = `${move.lr}_${names[idx]}`;
+    searchSeqClient.callService(request, (resp) => {
+      const seqs = [];
+      for (let i = 0; i < resp.ids.length; i += 1) {
+        seqs.push({ id: resp.ids[i], seq: resp.sequences[i] });
       }
-      const msg = new ROSLIB.Message({
-        name: names,
-        position: move.pose.pose.joint_positions,
-        target_completion_time: time,
-      });
-      targets.push(msg);
+      setSeqList(seqs);
     });
 
-    const goal = new ROSLIB.Goal({
-      actionClient,
-      goalMessage: {
-        targets,
-      },
+    const setSeqSrvT = new ROSLIB.Service({
+      ros,
+      name: '/set_pose_seq',
+      serviceType: 'flo_core/SetPoseSeq',
     });
+    setSetSeqSrv(setSeqSrvT);
 
-    goal.on('feedback', (fb) => {
-      const curMove = fb.move_number;
-      const moveListN = [...MovesList];
-      for (let idx = 0; idx < curMove; idx += 1) {
-        moveListN[idx].status = 'complete';
-      }
-      moveListN[curMove].status = 'moving';
-      setMovesList(moveListN);
+    const getPoseSrvT = new ROSLIB.Service({
+      ros,
+      name: '/get_pose_id',
+      serviceType: 'flo_core/GetPoseID',
     });
-
-    goal.on('result', (res) => {
-      setMoving(false);
-      const moveListN = [...MovesList];
-      for (let idx = 0; idx < moveListN.length; idx += 1) {
-        moveListN[idx].status = 'none';
-      }
-      setMovesList(moveListN);
-    });
-
-    setMoving(true);
-    const moveListN = [...MovesList];
-    for (let idx = 0; idx < moveListN.length; idx += 1) {
-      moveListN[idx].status = 'planned';
-    }
-    setMovesList(moveListN);
-
-    goal.send();
-  };
+    setGetPoseSrv(getPoseSrvT);
+  }, [connected, ros]);
 
 
   return (
     <div
-      id="moves-container"
+      id="sequences-container"
       style={{
-        backgroundColor: 'white', borderRadius: '25px', padding: '10px', margin: '10px',
+        maxWidth: '150px', backgroundColor: 'white', borderRadius: '25px', padding: '10px', margin: '10px',
       }}
     >
-      <h2>List of moves to make:</h2>
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <div>
-            Pose
-            Time from prior (s)
-        </div>
-        {
-        MovesList.map((value, index) => (
-          <Move
-            id={index}
-            pose={value.pose}
-            lr={value.lr}
-            toggleLR={toggleLR}
-            time={value.time}
-            setTime={setTime}
-            moveUp={moveUp}
-            moveDown={moveDown}
-            remove={remove}
-            status={value.status}
-          />
-        ))
+      <h2>Sequences:</h2>
+
+
+      <button type="button" onClick={() => { setShowSave(true); }} disabled={!connected}>Save Sequence</button>
+      <hr />
+      {showSave
+        && (
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0, top: 0, background: 'rgba(0,0,0,.3)', display: 'flex', justifyContent: 'center', alignItems: 'center',
+        }}
+        >
+          <div style={{
+            width: '200px', background: 'white', borderRadius: '10px', minWidth: '500px', position: 'relative', textAlign: 'center', display: 'flex', flexDirection: 'column',
+          }}
+          >
+            <h3>Save a New Sequence or Overwrite an Existing One</h3>
+            <label htmlFor="saveSeqIDSelector">
+Save As:
+              <select
+                id="saveSeqIDSelector"
+                onChange={(obj) => {
+                  setSaveID(obj.target.value);
+                  if (saveID > 0) {
+                    const newDesc = obj.target[obj.target.selectedIndex].textContent;
+                    setSaveDescription(newDesc);
+                  }
+                }}
+              >
+                <option value="0">New Sequence</option>
+                {
+                SeqList.map((value) => (
+                  <option value={value.id}>{value.seq.description}</option>
+                ))
+                }
+
+              </select>
+            </label>
+            <label htmlFor="saveSeqDescription">
+                Description:
+              <input type="text" value={saveDescription} onChange={(obj) => { setSaveDescription(obj.target.value); }} />
+            </label>
+
+            <button
+              type="button"
+              disabled={
+                    !connected || !saveDescription
 }
+              onClick={() => {
+                const poseIds = [];
+                const times = [];
+                const arms = [];
+                let totalTime = 0;
+                for (let idx = 0; idx < MovesList.length; idx += 1) {
+                  poseIds.push(MovesList[idx].pose.id);
+                  times.push(MovesList[idx].time);
+                  arms.push(MovesList[idx].lr);
+                  totalTime += MovesList[idx].time;
+                }
+
+                const newSeq = {
+                  pose_ids: poseIds,
+                  times,
+                  arms,
+                  description: saveDescription,
+                  total_time: totalTime,
+                };
+                const req = new ROSLIB.ServiceRequest({
+                  sequence: newSeq,
+                  id: saveID,
+                });
+
+                setSeqSrv.callService(req, (res) => {
+                  const targetId = SeqList.findIndex((item) => (item.id === res.id));
+                  const SeqListT = [...SeqList];
+                  if (targetId === -1) {
+                    SeqListT.push({
+                      id: res.id,
+                      seq: newSeq,
+                    });
+                  } else { SeqListT[targetId] = { id: res.id, seq: newSeq }; }
+                  setSeqList(SeqListT);
+                  setShowSave(false);
+                  setSaveID(0);
+                  setSaveDescription('');
+                });
+
+
+                // ros serve save id
+              }}
+            >
+Save
+            </button>
+            <button type="button" onClick={() => { setShowSave(false); }}>Cancel</button>
+          </div>
+        </div>
+        )}
+
+
+      <div style={{
+        display: 'flex', flexDirection: 'column', overflow: 'auto', maxHeight: '400px',
+      }}
+      >
+        {
+                SeqList.map((value) => (
+                  <Sequence
+                    id={value.id}
+                    sequence={value}
+                    setMovesList={setMovesList}
+                    getPoseSrv={getPoseSrv}
+                  />
+                ))
+            }
       </div>
-      <button type="button" disabled={!connected || moving} onClick={() => { runSequence(); }}>Run Sequence</button>
     </div>
   );
 }
@@ -197,8 +225,7 @@ SequenceContainer.defaultProps = {
 SequenceContainer.propTypes = {
   ros: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   connected: PropTypes.bool.isRequired,
-  MovesList: PropTypes.arrayOf(Move.propTypes).isRequired,
-  setMovesList: PropTypes.func.isRequired,
+  addToMoveList: PropTypes.func.isRequired,
 };
 
 

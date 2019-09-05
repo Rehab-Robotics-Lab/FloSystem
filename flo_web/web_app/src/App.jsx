@@ -5,6 +5,7 @@ import URDF from './components/urdf';
 import PoseContainer from './components/PoseContainer';
 import ErrorDisplay from './components/ErrorDisplay';
 import SequenceRunContainer from './components/SequenceRunContainer';
+import SequenceContainer from './components/SequenceContainer';
 import colors from './styleDefs/colors';
 
 function App() {
@@ -62,6 +63,13 @@ function App() {
             moving={moving}
             setMoving={setMoving}
           />
+          <SequenceContainer
+            ros={ros}
+            connected={connected}
+            MovesList={MovesList}
+            setMovesList={setMovesList}
+          />
+
         </div>
         <ErrorDisplay errorList={errorList} />
       </div>

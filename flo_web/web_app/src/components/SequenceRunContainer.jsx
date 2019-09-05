@@ -1,12 +1,6 @@
 import React from 'react';
 import * as ROSLIB from 'roslib';
-import PropTypes from 'prop-types';
-
-const poseProp = PropTypes.shape({
-  description: PropTypes.string,
-  joint_names: PropTypes.array,
-  joint_positions: PropTypes.array,
-});
+import { movePropDef, sequenceRunContainerPropDef } from '../propTypes.jsx';
 
 
 function Move({
@@ -67,17 +61,7 @@ function Move({
   );
 }
 
-Move.propTypes = {
-  id: PropTypes.number.isRequired,
-  pose: poseProp.isRequired,
-  time: PropTypes.number.isRequired,
-  lr: PropTypes.string.isRequired,
-  setTime: PropTypes.func.isRequired,
-  toggleLR: PropTypes.func.isRequired,
-  moveUp: PropTypes.func.isRequired,
-  moveDown: PropTypes.func.isRequired,
-  remove: PropTypes.func.isRequired,
-};
+Move.propTypes = movePropDef;
 
 // Takes a parameter ros, which is the connection to ros
 function SequenceRunContainer({
@@ -242,12 +226,6 @@ SequenceRunContainer.defaultProps = {
   ros: null,
 };
 
-SequenceRunContainer.propTypes = {
-  ros: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-  connected: PropTypes.bool.isRequired,
-  MovesList: PropTypes.arrayOf(Move.propTypes).isRequired,
-  setMovesList: PropTypes.func.isRequired,
-};
-
+SequenceRunContainer.propTypes = sequenceRunContainerPropDef;
 
 export default SequenceRunContainer;

@@ -65,3 +65,24 @@ export const sequenceContainerPropDef = {
   connected: PropTypes.bool.isRequired,
   addToMoveList: PropTypes.func.isRequired,
 };
+
+
+// -----      Movement     -----
+export const movePropDef = {
+  id: PropTypes.number.isRequired,
+  pose: InnerPoseProp.isRequired,
+  time: PropTypes.number.isRequired,
+  lr: PropTypes.string.isRequired,
+  setTime: PropTypes.func.isRequired,
+  toggleLR: PropTypes.func.isRequired,
+  moveUp: PropTypes.func.isRequired,
+  moveDown: PropTypes.func.isRequired,
+  remove: PropTypes.func.isRequired,
+};
+
+export const sequenceRunContainerPropDef = {
+  ros: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  connected: PropTypes.bool.isRequired,
+  MovesList: PropTypes.arrayOf(movePropDef).isRequired,
+  setMovesList: PropTypes.func.isRequired,
+};

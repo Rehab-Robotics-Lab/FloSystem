@@ -123,7 +123,7 @@ Save As:
                 id="saveSeqIDSelector"
                 onChange={(obj) => {
                   setSaveID(obj.target.value);
-                  if (saveID > 0) {
+                  if (obj.target.value > 0) {
                     const newDesc = obj.target[obj.target.selectedIndex].textContent;
                     setSaveDescription(newDesc);
                   }

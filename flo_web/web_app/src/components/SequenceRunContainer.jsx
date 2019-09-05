@@ -164,9 +164,13 @@ function SequenceRunContainer({
     >
       <h2>List of moves to make:</h2>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <div>
-            Pose
-            Time from prior (s)
+        <div style={{ display: 'flex', flexDirection: 'row' }}>
+          <div>Pose</div>
+          <div>Time from prior (s)</div>
+          <div>Arm</div>
+          <div>Up</div>
+          <div>Down</div>
+          <div>Delete</div>
         </div>
         {
         MovesList.map((value, index) => (
@@ -185,6 +189,7 @@ function SequenceRunContainer({
         ))
 }
       </div>
+      <hr />
       <button type="button" disabled={!connected || moving} onClick={() => { runSequence(); }}>Run Sequence</button>
     </div>
   );

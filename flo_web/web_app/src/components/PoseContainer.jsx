@@ -91,6 +91,7 @@ function PoseContainer({ ros, connected, addToMoveList }) {
 
 
       <button type="button" onClick={() => { setShowSave(true); }} disabled={!connected}>Save Pose</button>
+      <hr />
       {showSave
         && (
         <div style={{
@@ -113,7 +114,7 @@ Save As:
                 id="savePoseIDSelector"
                 onChange={(obj) => {
                   setSaveID(obj.target.value);
-                  if (saveID > 0) {
+                  if (obj.target.value > 0) {
                     const newDesc = obj.target[obj.target.selectedIndex].textContent;
                     setSaveDescription(newDesc);
                   }

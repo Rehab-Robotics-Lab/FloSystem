@@ -30,11 +30,39 @@ function Move({
       <span style={{ width: '100px' }}>
         {pose.pose.description}
       </span>
-      <input type="number" min="0" max="10" step="any" value={time} onChange={(e) => setTime(id, parseFloat(e.target.value))} style={{ width: '35px' }} />
-      <button type="button" onClick={() => { toggleLR(id); }}>{lr}</button>
-      <button type="button" onClick={() => { moveUp(id); }}>&uarr;</button>
-      <button type="button" onClick={() => { moveDown(id); }}>&darr;</button>
-      <button type="button" onClick={() => { remove(id); }}>&#10007;</button>
+      <input
+        type="number"
+        min="0"
+        max="10"
+        step="any"
+        value={time}
+        onChange={(e) => setTime(id, parseFloat(e.target.value))}
+        style={{ width: '35px' }}
+      />
+      <button
+        type="button"
+        onClick={() => { toggleLR(id); }}
+      >
+        {lr}
+      </button>
+      <button
+        type="button"
+        onClick={() => { moveUp(id); }}
+      >
+&uarr;
+      </button>
+      <button
+        type="button"
+        onClick={() => { moveDown(id); }}
+      >
+&darr;
+      </button>
+      <button
+        type="button"
+        onClick={() => { remove(id); }}
+      >
+&#10007;
+      </button>
     </div>
   );
 }
@@ -159,7 +187,10 @@ function SequenceRunContainer({
     <div
       id="moves-container"
       style={{
-        backgroundColor: 'white', borderRadius: '25px', padding: '10px', margin: '10px',
+        backgroundColor: 'white',
+        borderRadius: '25px',
+        padding: '10px',
+        margin: '10px',
       }}
     >
       <h2>List of moves to make:</h2>
@@ -190,8 +221,19 @@ function SequenceRunContainer({
 }
       </div>
       <hr />
-      <button type="button" disabled={!connected || moving} onClick={() => { runSequence(); }}>Run Sequence</button>
-      <button type="button" onClick={() => { setMovesList([]); }}>Clear</button>
+      <button
+        type="button"
+        disabled={!connected || moving}
+        onClick={() => { runSequence(); }}
+      >
+Run Sequence
+      </button>
+      <button
+        type="button"
+        onClick={() => { setMovesList([]); }}
+      >
+Clear
+      </button>
     </div>
   );
 }

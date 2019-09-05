@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import * as ROSLIB from 'roslib';
-import PropTypes from 'prop-types';
+import { posePropDef, poseContainerPropDef } from '../propTypes';
 
-const poseProp = PropTypes.shape({
-  description: PropTypes.string,
-  joint_names: PropTypes.array,
-  joint_positions: PropTypes.array,
-});
 
 function Pose({ pose, addToMoveList }) {
   return (
@@ -16,14 +11,7 @@ function Pose({ pose, addToMoveList }) {
   );
 }
 
-Pose.propTypes = {
-  pose: PropTypes.shape({
-    pose: poseProp,
-    id: PropTypes.number,
-  }).isRequired,
-  addToMoveList: PropTypes.func.isRequired,
-};
-
+Pose.propTypes = posePropDef;
 
 // Takes a parameter ros, which is the connection to ros
 function PoseContainer({ ros, connected, addToMoveList }) {
@@ -105,7 +93,17 @@ function PoseContainer({ ros, connected, addToMoveList }) {
             <h3>Save a New Pose or Overwrite an Existing One</h3>
             <label htmlFor="saveLRButton">
 Arm to save:
-              <button id="saveLRButton" type="button" onClick={() => { saveLR === 'right' ? setSaveLR('left') : setSaveLR('right'); }}>{saveLR}</button>
+              <button
+                id="saveLRButton"
+                type="button"
+                onClick={() => {
+                  if (saveLR === 'right') {
+                    setSaveLR('left');
+                  } else { setSaveLR('right'); }
+                }}
+              >
+                {saveLR}
+              </button>
               {' '}
             </label>
             <label htmlFor="savePoseIDSelector">
@@ -124,7 +122,11 @@ Save As:
                 <option value="0">New Pose</option>
                 {
                 PosesList.map((value) => (
-                  <option value={value.id}>{value.pose.description}</option>
+                  <option
+                    value={value.id}
+                  >
+                    {value.pose.description}
+                  </option>
                 ))
                 }
 
@@ -132,7 +134,13 @@ Save As:
             </label>
             <label htmlFor="savePoseDescription">
                 Description:
-              <input type="text" value={saveDescription} onChange={(obj) => { setSaveDescription(obj.target.value); }} />
+              <input
+                type="text"
+                value={saveDescription}
+                onChange={(obj) => {
+                  setSaveDescription(obj.target.value);
+                }}
+              />
             </label>
 
             <button
@@ -169,7 +177,9 @@ Save As:
                       id: res.id,
                       pose: newPose,
                     });
-                  } else { PosesListT[targetId] = { id: res.id, pose: newPose }; }
+                  } else {
+                    PosesListT[targetId] = { id: res.id, pose: newPose };
+                  }
                   setPosesList(PosesListT);
                   setShowSave(false);
                   setSaveID(0);
@@ -182,14 +192,24 @@ Save As:
             >
 Save
             </button>
-            <button type="button" onClick={() => { setShowSave(false); }}>Cancel</button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowSave(false);
+              }}
+            >
+Cancel
+            </button>
           </div>
         </div>
         )}
 
 
       <div style={{
-        display: 'flex', flexDirection: 'column', overflow: 'auto', maxHeight: '400px',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'auto',
+        maxHeight: '400px',
       }}
       >
         {
@@ -210,11 +230,6 @@ PoseContainer.defaultProps = {
   ros: null,
 };
 
-PoseContainer.propTypes = {
-  ros: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-  connected: PropTypes.bool.isRequired,
-  addToMoveList: PropTypes.func.isRequired,
-};
-
+PoseContainer.propTypes = poseContainerPropDef;
 
 export default PoseContainer;

@@ -191,6 +191,7 @@ function SequenceRunContainer({
       </div>
       <hr />
       <button type="button" disabled={!connected || moving} onClick={() => { runSequence(); }}>Run Sequence</button>
+      <button type="button" onClick={() => { setMovesList([]); }}>Clear</button>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import { errorPropDef, errorListPropDef } from '../propTypes';
 
 function Error({ item }) {
   const h = item.time.getHours();
@@ -22,13 +22,7 @@ function Error({ item }) {
   );
 }
 
-Error.propTypes = {
-  item: PropTypes.shape({
-    text: PropTypes.string,
-    time: PropTypes.instanceOf(Date),
-    src: PropTypes.string,
-  }).isRequired,
-};
+Error.propTypes = errorPropDef;
 
 function ErrorDisplay({ errorList }) {
   return (
@@ -47,8 +41,6 @@ function ErrorDisplay({ errorList }) {
   );
 }
 
-ErrorDisplay.propTypes = {
-  errorList: PropTypes.arrayOf(Error.propTypes).isRequired,
-};
+ErrorDisplay.propTypes = errorListPropDef;
 
 export default ErrorDisplay;

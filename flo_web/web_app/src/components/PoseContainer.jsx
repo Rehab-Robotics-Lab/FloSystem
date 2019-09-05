@@ -113,8 +113,9 @@ Save As:
               <select
                 id="savePoseIDSelector"
                 onChange={(obj) => {
-                  setSaveID(obj.target.value);
-                  if (obj.target.value > 0) {
+                  const newId = parseInt(obj.target.value, 10);
+                  setSaveID(newId);
+                  if (newId > 0) {
                     const newDesc = obj.target[obj.target.selectedIndex].textContent;
                     setSaveDescription(newDesc);
                   }

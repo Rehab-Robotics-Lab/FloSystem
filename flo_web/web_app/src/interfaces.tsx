@@ -1,20 +1,18 @@
-import PropTypes from 'prop-types';
-
 export default null;
 
 // -----      Errors     -----
-const errorItem = PropTypes.shape({
-  text: PropTypes.string,
-  time: PropTypes.instanceOf(Date),
-  src: PropTypes.string,
-});
+interface errorItem {
+  text: string,
+  time: Date,
+  src: string,
+};
 
-export const errorPropDef = {
+interface errorPropDef  {
   item: errorItem,
 };
 
-export const errorListPropDef = {
-  errorList: PropTypes.arrayOf(errorItem),
+interface errorListPropDef {
+  errorList: [index: number]: errorItem,
 };
 
 // -----      Header     -----

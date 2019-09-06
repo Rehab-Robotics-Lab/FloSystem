@@ -4,9 +4,9 @@ export default null;
 
 // -----      Errors     -----
 const errorItem = PropTypes.shape({
-  text: PropTypes.string.isRequired,
-  time: PropTypes.instanceOf(Date).isRequired,
-  src: PropTypes.string.isRequired,
+  text: PropTypes.string,
+  time: PropTypes.instanceOf(Date),
+  src: PropTypes.string,
 });
 
 export const errorPropDef = {
@@ -14,15 +14,15 @@ export const errorPropDef = {
 };
 
 export const errorListPropDef = {
-  errorList: PropTypes.arrayOf(errorItem).isRequired,
+  errorList: PropTypes.arrayOf(errorItem),
 };
 
 // -----      Header     -----
 export const headerPropDef = {
-  setRos: PropTypes.func.isRequired,
-  addError: PropTypes.func.isRequired,
-  connected: PropTypes.bool.isRequired,
-  setConnected: PropTypes.func.isRequired,
+  setRos: PropTypes.func,
+  addError: PropTypes.func,
+  connected: PropTypes.bool,
+  setConnected: PropTypes.func,
 };
 
 
@@ -33,11 +33,12 @@ const InnerPoseProp = PropTypes.shape({
   joint_positions: PropTypes.array,
 });
 
+const poseWrapperPropDef = PropTypes.shape({
+  pose: InnerPoseProp,
+  id: PropTypes.number,
+});
 export const posePropDef = {
-  pose: PropTypes.shape({
-    pose: InnerPoseProp,
-    id: PropTypes.number,
-  }).isRequired,
+  pose: poseWrapperPropDef.isRequired,
   addToMoveList: PropTypes.func.isRequired,
 };
 
@@ -68,22 +69,27 @@ export const sequenceContainerPropDef = {
 
 
 // -----      Movement     -----
-export const movePropDef = {
-  id: PropTypes.number.isRequired,
-  pose: InnerPoseProp.isRequired,
-  time: PropTypes.number.isRequired,
-  lr: PropTypes.string.isRequired,
-  setTime: PropTypes.func.isRequired,
-  toggleLR: PropTypes.func.isRequired,
-  moveUp: PropTypes.func.isRequired,
-  moveDown: PropTypes.func.isRequired,
-  remove: PropTypes.func.isRequired,
-};
+export const movePropDef = PropTypes.shape({
+  id: PropTypes.number,
+  pose: InnerPoseProp,
+  time: PropTypes.number,
+  lr: PropTypes.string,
+  setTime: PropTypes.func,
+  toggleLR: PropTypes.func,
+  moveUp: PropTypes.func,
+  moveDown: PropTypes.func,
+  remove: PropTypes.func,
+}).isRequired;
 
 export const sequenceRunContainerPropDef = {
   ros: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   connected: PropTypes.bool.isRequired,
-  MovesList: PropTypes.arrayOf(movePropDef).isRequired,
+  MovesList: PropTypes.arrayOf(PropTypes.shape({
+    time: PropTypes.number,
+    pose: poseWrapperPropDef,
+    lr: PropTypes.string,
+    status: PropTypes.string,
+  })).isRequired,
   setMovesList: PropTypes.func.isRequired,
 };
 

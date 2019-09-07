@@ -1,50 +1,14 @@
 export default null;
 
 // -----      Errors     -----
-interface errorItem {
-  text: string,
-  time: Date,
-  src: string,
-};
 
-interface errorPropDef  {
-  item: errorItem,
-};
 
-interface errorListPropDef {
-  errorList: [index: number]: errorItem,
-};
 
 // -----      Header     -----
-export const headerPropDef = {
-  setRos: PropTypes.func,
-  addError: PropTypes.func,
-  connected: PropTypes.bool,
-  setConnected: PropTypes.func,
-};
 
 
 // -----      Pose     -----
-const InnerPoseProp = PropTypes.shape({
-  description: PropTypes.string,
-  joint_names: PropTypes.array,
-  joint_positions: PropTypes.array,
-});
 
-const poseWrapperPropDef = PropTypes.shape({
-  pose: InnerPoseProp,
-  id: PropTypes.number,
-});
-export const posePropDef = {
-  pose: poseWrapperPropDef.isRequired,
-  addToMoveList: PropTypes.func.isRequired,
-};
-
-export const poseContainerPropDef = {
-  ros: PropTypes.object, // eslint-disable-line react/forbid-prop-types
-  connected: PropTypes.bool.isRequired,
-  addToMoveList: PropTypes.func.isRequired,
-};
 
 
 // -----      Sequence     -----

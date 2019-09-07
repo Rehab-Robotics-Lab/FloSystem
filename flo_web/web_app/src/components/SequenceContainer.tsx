@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import * as ROSLIB from 'roslib';
-import { sequencePropDef, sequenceContainerPropDef } from '../propTypes';
+import { sequenceInterface, sequenceContainerInterface } from '../interfaces';
 
 function Sequence({ sequence, setMovesList, getPoseSrv }) {
   return (

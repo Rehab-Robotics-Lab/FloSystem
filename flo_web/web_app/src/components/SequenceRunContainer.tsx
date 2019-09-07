@@ -1,6 +1,6 @@
 import React from 'react';
 import * as ROSLIB from 'roslib';
-import { movePropDef, sequenceRunContainerPropDef } from '../propTypes';
+import { moveInterface, sequenceRunContainerInterface } from '../interfaces';
 
 
 function Move({

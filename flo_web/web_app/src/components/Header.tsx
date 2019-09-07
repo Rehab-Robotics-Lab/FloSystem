@@ -1,19 +1,27 @@
 import React, { useState } from 'react';
 import * as ROSLIB from 'roslib';
 import colors from '../styleDefs/colors';
-import { headerPropDef } from '../propTypes';
+import {addErrorInterface, setConnectedInterface} from '../App';
 
-function Header({
+ interface headerProps {
+     setRos: (ros :ROSLIB.Ros)=>any,
+  addError: addErrorInterface,
+  connected: boolean,
+  setConnected: setConnectedInterface,
+};
+
+const Header: React.FunctionComponent<headerProps>=({
   setRos, addError, connected, setConnected,
-}) {
+}) => {
   const [ipAddr, setIpAddr] = useState(window.location.hostname);
   const [ipPort, setIpPort] = useState('9090');
 
-  const errorWrapper = () => {
-    addError('ROS Connection Error', 'Header');
+  const errorWrapper = (err:string) => {
+    addError('ROS Connection Error: '+err, 'Header');
   };
 
-  const handleSubmit = (e) => {
+    //TODO: TS
+  const handleSubmit = (e: any) => {
     e.preventDefault();
     if (!(ipAddr && ipPort)) return;
     const newRosConnection = new ROSLIB.Ros({
@@ -24,6 +32,7 @@ function Header({
     newRosConnection.on('close', () => { setConnected(false); });
     setRos(newRosConnection);
   };
+
   const connectedString = () => {
     let toReturn;
     if (!connected) {
@@ -63,6 +72,5 @@ function Header({
   );
 }
 
-Header.propTypes = headerPropDef;
 
 export default Header;

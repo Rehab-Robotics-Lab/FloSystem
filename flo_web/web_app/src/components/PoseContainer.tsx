@@ -1,9 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import * as ROSLIB from 'roslib';
-import { posePropDef, poseContainerPropDef } from '../propTypes';
 
+interface InnerPoseInterface {
+  description: string,
+  joint_names: Array<string>,
+        joint_positions: Array<string>,
+};
 
-function Pose({ pose, addToMoveList }) {
+interface poseWrapperInterface {
+  pose: InnerPoseInterface,
+  id: number,
+};
+
+interface poseProps  {
+  pose: poseWrapperInterface,
+  addToMoveList: Function,
+};
+
+const Pose:React.FunctionComponent<poseProps>=({ pose, addToMoveList }) =>{
   return (
     <button type="button" onClick={() => { addToMoveList(pose); }}>
       {pose.pose.description}
@@ -11,10 +25,16 @@ function Pose({ pose, addToMoveList }) {
   );
 }
 
-Pose.propTypes = posePropDef;
+// TODO: specific add to move list
+interface poseContainerProps  {
+  ros: ROSLIB.Ros | null,
+  connected: Boolean,
+  addToMoveList: Function,
+};
+
 
 // Takes a parameter ros, which is the connection to ros
-function PoseContainer({ ros, connected, addToMoveList }) {
+const PoseContainer:React.FunctionComponent<poseContainerProps>=({ ros, connected, addToMoveList }) => {
   const [PosesList, setPosesList] = useState([]);
   const [showSave, setShowSave] = useState(false);
   const [saveLR, setSaveLR] = useState('right');
@@ -29,7 +49,7 @@ function PoseContainer({ ros, connected, addToMoveList }) {
     if (!connected) return;
 
     const searchPosesClient = new ROSLIB.Service({
-      ros,
+        ros,
       name: '/search_pose',
       serviceType: 'flo_core/SearchPose',
     });

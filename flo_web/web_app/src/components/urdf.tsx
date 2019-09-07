@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import * as ROS3D from 'ros3d';
 import * as ROSLIB from 'roslib';
-import { urdfPropDef } from '../propTypes';
+import { urdfInterface } from '../interfaces';
 
 // Takes a parameter ros, which is the connection to ros
-function URDF({ ros, connected }) {
+function URDF({ ros: any, connected: boolean }) {
   const [viewer, setViewer] = useState(null);
   const [client, setClient] = useState(null);
 

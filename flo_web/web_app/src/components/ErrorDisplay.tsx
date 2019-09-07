@@ -1,7 +1,16 @@
 import React from 'react';
-import { errorPropDef, errorListPropDef } from '../propTypes';
 
-function Error({ item }) {
+export interface errorItem {
+  text: string,
+  time: Date,
+  src: string,
+};
+
+interface errorProps{
+    item:errorItem
+}
+
+const Error: React.FunctionComponent<errorProps> =({ item }) => {
   const h = item.time.getHours();
   const m = item.time.getMinutes();
   const s = item.time.getSeconds();
@@ -16,15 +25,17 @@ function Error({ item }) {
 :
       {s}
 ] :
-      {' '}
+      {' '}item
       {item.text}
     </div>
   );
 }
 
-Error.propTypes = errorPropDef;
+interface errorDisplayProps {
+    errorList: Array<errorItem>
+}
 
-function ErrorDisplay({ errorList }) {
+const  ErrorDisplay:React.FunctionComponent<errorDisplayProps> = ({ errorList }) => {
   return (
     <div style={{
       height: '40px', overflow: 'auto', display: 'flex', flexDirection: 'column-reverse', color: 'red',
@@ -40,7 +51,5 @@ function ErrorDisplay({ errorList }) {
     </div>
   );
 }
-
-ErrorDisplay.propTypes = errorListPropDef;
 
 export default ErrorDisplay;

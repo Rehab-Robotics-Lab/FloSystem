@@ -7,6 +7,7 @@
     "@types/node": "^12.7.4",
     "@types/react": "^16.9.2",
     "@types/react-dom": "^16.9.0",
+    "@types/roslib": "^0.18.3",
     "prop-types": "^15.7.2",
     "react": "^16.9.0",
     "react-cookie": "^4.0.1",
@@ -38,11 +39,12 @@
     ]
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.1.0",
     "@typescript-eslint/parser": "^2.1.0",
     "babel-eslint": "^10.0.2",
     "eslint": "^6.2.1",
     "eslint-config-airbnb": "^18.0.1",
-    "eslint-config-prettier": "^6.1.0",
+    "eslint-config-prettier": "^6.2.0",
     "eslint-config-standard": "^14.0.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-jsx-a11y": "^6.2.3",

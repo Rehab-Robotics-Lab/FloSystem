@@ -194,3 +194,13 @@ run:
 git checkout `git tag | sort -V | grep -P "^\d+\.\d+\.\d+" | tail -1`
 ```
 cd up to catkin_ws and run catkin_make floowed by catkin_make install
+
+### Stuff just won't build
+All kinds of things could cause this. The first thing to try it to clean
+the build and reinstall it:
+```bash
+cd ~/catkin_ws
+catkin_make clean
+catkin_make
+catkin_make install
+'''

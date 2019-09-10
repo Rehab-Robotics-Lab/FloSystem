@@ -1,25 +1,50 @@
-import React, { useEffect, useState } from 'react';
-import * as ROSLIB from 'roslib';
-import { sequenceInterface, sequenceContainerInterface } from '../interfaces';
+import React, { useEffect, useState } from "react";
+import * as ROSLIB from "roslib";
+import { SetMovesList, AddToMoveList, genRandID } from "../App";
+import { Move } from "./SequenceRunContainer";
 
-function Sequence({ sequence, setMovesList, getPoseSrv }) {
+interface Sequence {
+  pose_ids: number[];
+  times: number[];
+  arms: string[];
+  description: string;
+  total_time: number;
+}
+
+interface SequenceListItem {
+  id: number;
+  seq: Sequence;
+}
+
+interface SequenceProps {
+  setMovesList: SetMovesList;
+  getPoseSrv: ROSLIB.Service;
+  sequence: SequenceListItem;
+}
+
+const Sequence: React.FunctionComponent<SequenceProps> = ({
+  sequence,
+  setMovesList,
+  getPoseSrv
+}) => {
   return (
     <button
       type="button"
-      onClick={() => {
-        const movesListT = [];
+      onClick={(): void => {
+        const movesListT: Move[] = [];
         const seqLength = sequence.seq.arms.length;
         for (let idx = 0; idx < seqLength; idx += 1) {
           const poseId = sequence.seq.pose_ids[idx];
           const req = new ROSLIB.ServiceRequest({
-            id: poseId,
+            id: poseId
           });
-          getPoseSrv.callService(req, (res) => {
+          getPoseSrv.callService(req, res => {
             movesListT[idx] = {
-              lr: sequence.seq.arms[idx],
+              lr: sequence.seq.arms[idx] as ("left" | "right"),
               pose: { id: poseId, pose: res.pose },
-              status: 'not-run',
+              status: "not-run",
               time: sequence.seq.times[idx],
+              key: genRandID()
             };
             setMovesList(movesListT);
           });
@@ -29,135 +54,150 @@ function Sequence({ sequence, setMovesList, getPoseSrv }) {
       {sequence.seq.description}
     </button>
   );
+};
+
+interface SequenceContainerProps {
+  ros: ROSLIB.Ros | null;
+  connected: boolean;
+  setMovesList: SetMovesList;
+  MovesList: Move[];
 }
 
-Sequence.propTypes = sequencePropDef;
-
 // Takes a parameter ros, which is the connection to ros
-function SequenceContainer({
-  ros, connected, setMovesList, MovesList,
-}) {
-  const [SeqList, setSeqList] = useState([]);
+const SequenceContainer: React.FunctionComponent<SequenceContainerProps> = ({
+  ros,
+  connected,
+  setMovesList,
+  MovesList
+}) => {
+  const [SeqList, setSeqList] = useState<SequenceListItem[]>([]);
   const [showSave, setShowSave] = useState(false);
   const [saveID, setSaveID] = useState(0);
-  const [saveDescription, setSaveDescription] = useState('');
-  const [setSeqSrv, setSetSeqSrv] = useState(null);
-  const [getPoseSrv, setGetPoseSrv] = useState(null);
+  const [saveDescription, setSaveDescription] = useState("");
+  const [setSeqSrv, setSetSeqSrv] = useState<ROSLIB.Service | null>(null);
+  const [getPoseSrv, setGetPoseSrv] = useState<ROSLIB.Service | null>(null);
 
   // get all of the poses
   useEffect(() => {
     if (!connected) return;
 
     const searchSeqClient = new ROSLIB.Service({
-      ros,
-      name: '/search_pose_seq',
-      serviceType: 'flo_core/SearchPoseSeq',
+      ros: ros as ROSLIB.Ros,
+      name: "/search_pose_seq",
+      serviceType: "flo_core/SearchPoseSeq"
     });
 
-    const request = new ROSLIB.ServiceRequest({ search: '' });
+    const request = new ROSLIB.ServiceRequest({ search: "" });
 
-    searchSeqClient.callService(request, (resp) => {
+    searchSeqClient.callService(request, resp => {
       const seqs = [];
       for (let i = 0; i < resp.ids.length; i += 1) {
-        seqs.push({ id: resp.ids[i], seq: resp.sequences[i] });
+        seqs.push({
+          id: resp.ids[i],
+          seq: resp.sequences[i]
+        });
       }
       setSeqList(seqs);
     });
 
     const setSeqSrvT = new ROSLIB.Service({
-      ros,
-      name: '/set_pose_seq',
-      serviceType: 'flo_core/SetPoseSeq',
+      ros: ros as ROSLIB.Ros,
+      name: "/set_pose_seq",
+      serviceType: "flo_core/SetPoseSeq"
     });
     setSetSeqSrv(setSeqSrvT);
 
     const getPoseSrvT = new ROSLIB.Service({
-      ros,
-      name: '/get_pose_id',
-      serviceType: 'flo_core/GetPoseID',
+      ros: ros as ROSLIB.Ros,
+      name: "/get_pose_id",
+      serviceType: "flo_core/GetPoseID"
     });
     setGetPoseSrv(getPoseSrvT);
   }, [connected, ros]);
-
 
   return (
     <div
       id="sequences-container"
       style={{
-        maxWidth: '150px',
-        backgroundColor: 'white',
-        borderRadius: '25px',
-        padding: '10px',
-        margin: '10px',
+        maxWidth: "150px",
+        backgroundColor: "white",
+        borderRadius: "25px",
+        padding: "10px",
+        margin: "10px"
       }}
     >
       <h2>Sequences:</h2>
 
-
       <button
         type="button"
-        onClick={() => {
+        onClick={(): void => {
           setShowSave(true);
         }}
         disabled={!connected}
       >
-Save Sequence
+        Save Sequence
       </button>
       <hr />
-      {showSave
-        && (
-        <div style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          top: 0,
-          background: 'rgba(0,0,0,.3)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-        >
-          <div style={{
-            width: '200px',
-            background: 'white',
-            borderRadius: '10px',
-            minWidth: '500px',
-            position: 'relative',
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
+      {showSave && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            top: 0,
+            background: "rgba(0,0,0,.3)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center"
           }}
+        >
+          <div
+            style={{
+              width: "200px",
+              background: "white",
+              borderRadius: "10px",
+              minWidth: "500px",
+              position: "relative",
+              textAlign: "center",
+              display: "flex",
+              flexDirection: "column"
+            }}
           >
             <h3>Save a New Sequence or Overwrite an Existing One</h3>
             <label htmlFor="saveSeqIDSelector">
-Save As:
+              Save As:
               <select
                 id="saveSeqIDSelector"
-                onChange={(obj) => {
-                  const newId = parseInt(obj.target.value, 10);
+                onChange={(obj): void => {
+                  const newId: number = parseInt(obj.target.value, 10);
                   setSaveID(newId);
                   if (newId > 0) {
-                    const newDesc = obj.target[obj.target.selectedIndex].textContent;
+                    const newDescT: string | null =
+                      obj.target[obj.target.selectedIndex].textContent;
+                    let newDesc = "";
+                    if (newDescT !== null) {
+                      newDesc = newDescT;
+                    }
+
                     setSaveDescription(newDesc);
                   }
                 }}
               >
                 <option value="0">New Sequence</option>
-                {
-                SeqList.map((value) => (
-                  <option value={value.id}>{value.seq.description}</option>
-                ))
-                }
-
+                {SeqList.map((value, idx) => (
+                  <option key={idx} value={value.id}>
+                    {value.seq.description}
+                  </option>
+                ))}
               </select>
             </label>
             <label htmlFor="saveSeqDescription">
-                Description:
+              Description:
               <input
                 type="text"
                 value={saveDescription}
-                onChange={(obj) => {
+                onChange={(obj): void => {
                   setSaveDescription(obj.target.value);
                 }}
               />
@@ -165,10 +205,8 @@ Save As:
 
             <button
               type="button"
-              disabled={
-                    !connected || !saveDescription
-}
-              onClick={() => {
+              disabled={!connected || !saveDescription}
+              onClick={(): void => {
                 const poseIds = [];
                 const times = [];
                 const arms = [];
@@ -180,81 +218,80 @@ Save As:
                   totalTime += MovesList[idx].time;
                 }
 
-                const newSeq = {
+                const newSeq: Sequence = {
                   pose_ids: poseIds,
                   times,
                   arms,
                   description: saveDescription,
-                  total_time: totalTime,
+                  total_time: totalTime
                 };
                 const req = new ROSLIB.ServiceRequest({
                   sequence: newSeq,
-                  id: saveID,
+                  id: saveID
                 });
 
-                setSeqSrv.callService(req, (res) => {
-                  const targetId = SeqList.findIndex((item) => (
-                    item.id === res.id));
+                if (setSeqSrv === null) {
+                  return;
+                }
+                setSeqSrv.callService(req, res => {
+                  const targetId = SeqList.findIndex(
+                    item => item.id === res.id
+                  );
                   const SeqListT = [...SeqList];
                   if (targetId === -1) {
                     SeqListT.push({
                       id: res.id,
-                      seq: newSeq,
+                      seq: newSeq
                     });
                   } else {
-                    SeqListT[targetId] = { id: res.id, seq: newSeq };
+                    SeqListT[targetId] = {
+                      id: res.id,
+                      seq: newSeq
+                    };
                   }
                   setSeqList(SeqListT);
                   setShowSave(false);
                   setSaveID(0);
-                  setSaveDescription('');
+                  setSaveDescription("");
                 });
-
 
                 // ros serve save id
               }}
             >
-Save
+              Save
             </button>
             <button
               type="button"
-              onClick={() => {
+              onClick={(): void => {
                 setShowSave(false);
               }}
             >
-Cancel
+              Cancel
             </button>
           </div>
         </div>
-        )}
+      )}
 
-
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'auto',
-        maxHeight: '400px',
-      }}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          overflow: "auto",
+          maxHeight: "400px"
+        }}
       >
-        {
-                SeqList.map((value) => (
-                  <Sequence
-                    id={value.id}
-                    sequence={value}
-                    setMovesList={setMovesList}
-                    getPoseSrv={getPoseSrv}
-                  />
-                ))
-            }
+        {getPoseSrv !== null &&
+          SeqList.map(value => (
+            <Sequence
+              key={value.id}
+              sequence={value}
+              setMovesList={setMovesList}
+              getPoseSrv={getPoseSrv}
+            />
+          ))}
       </div>
     </div>
   );
-}
-
-SequenceContainer.defaultProps = {
-  ros: null,
 };
-
-SequenceContainer.propTypes = sequenceContainerPropDef;
 
 export default SequenceContainer;

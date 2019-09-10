@@ -1,16 +1,16 @@
 import React from 'react';
 
-export interface errorItem {
+export interface ErrorItem {
   text: string,
   time: Date,
   src: string,
 };
 
-interface errorProps{
-    item:errorItem
+interface ErrorProps{
+    item:ErrorItem
 }
 
-const Error: React.FunctionComponent<errorProps> =({ item }) => {
+const Error: React.FunctionComponent<ErrorProps> =({ item }) => {
   const h = item.time.getHours();
   const m = item.time.getMinutes();
   const s = item.time.getSeconds();
@@ -32,7 +32,7 @@ const Error: React.FunctionComponent<errorProps> =({ item }) => {
 }
 
 interface errorDisplayProps {
-    errorList: Array<errorItem>
+    errorList: Array<ErrorItem>
 }
 
 const  ErrorDisplay:React.FunctionComponent<errorDisplayProps> = ({ errorList }) => {

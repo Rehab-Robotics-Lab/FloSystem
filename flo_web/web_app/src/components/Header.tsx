@@ -1,76 +1,95 @@
-import React, { useState } from 'react';
-import * as ROSLIB from 'roslib';
-import colors from '../styleDefs/colors';
-import {addErrorInterface, setConnectedInterface} from '../App';
+import React, { useState } from "react";
+import * as ROSLIB from "roslib";
+import colors from "../styleDefs/colors";
+import { AddError, SetConnected } from "../App";
 
- interface headerProps {
-     setRos: (ros :ROSLIB.Ros)=>any,
-  addError: addErrorInterface,
-  connected: boolean,
-  setConnected: setConnectedInterface,
-};
+interface HeaderProps {
+  setRos: (ros: ROSLIB.Ros) => any;
+  addError: AddError;
+  connected: boolean;
+  setConnected: SetConnected;
+}
 
-const Header: React.FunctionComponent<headerProps>=({
-  setRos, addError, connected, setConnected,
+const Header: React.FunctionComponent<HeaderProps> = ({
+  setRos,
+  addError,
+  connected,
+  setConnected
 }) => {
   const [ipAddr, setIpAddr] = useState(window.location.hostname);
-  const [ipPort, setIpPort] = useState('9090');
+  const [ipPort, setIpPort] = useState("9090");
 
-  const errorWrapper = (err:string) => {
-    addError('ROS Connection Error: '+err, 'Header');
+  const errorWrapper = (err: string) => {
+    addError("ROS Connection Error: " + err, "Header");
   };
 
-    //TODO: TS
+  //TODO: TS
   const handleSubmit = (e: any) => {
     e.preventDefault();
     if (!(ipAddr && ipPort)) return;
     const newRosConnection = new ROSLIB.Ros({
-      url: `ws://${ipAddr}:${ipPort}`,
+      url: `ws://${ipAddr}:${ipPort}`
     });
-    newRosConnection.on('error', (err) => { errorWrapper(err); });
-    newRosConnection.on('connection', () => { setConnected(true); });
-    newRosConnection.on('close', () => { setConnected(false); });
+    newRosConnection.on("error", err => {
+      errorWrapper(err);
+    });
+    newRosConnection.on("connection", () => {
+      setConnected(true);
+    });
+    newRosConnection.on("close", () => {
+      setConnected(false);
+    });
     setRos(newRosConnection);
   };
 
   const connectedString = () => {
     let toReturn;
     if (!connected) {
-      toReturn = <span style={{ color: 'red' }}>Not Connected</span>;
+      toReturn = <span style={{ color: "red" }}>Not Connected</span>;
     }
     if (connected) {
-      toReturn = <span style={{ color: 'green' }}>Connected</span>;
+      toReturn = <span style={{ color: "green" }}>Connected</span>;
     }
     return toReturn;
   };
 
   return (
-    <div style={{
-      display: 'flex', alignItems: 'stretch', justifyContent: 'space-between', backgroundColor: colors.blue.neutral, color: colors.white,
-    }}
+    <div
+      style={{
+        display: "flex",
+        alignItems: "stretch",
+        justifyContent: "space-between",
+        backgroundColor: colors.blue.neutral,
+        color: colors.white
+      }}
     >
-      <h1 style={{ margin: '0px' }}>
-        Flo Control Center
-      </h1>
+      <h1 style={{ margin: "0px" }}>Flo Control Center</h1>
       <div>
         <form onSubmit={handleSubmit}>
           <label htmlFor="ip_addr">
-      IP Address:
-            <input type="text" name="ip_addr" value={ipAddr} onChange={(e) => setIpAddr(e.target.value)} />
+            IP Address:
+            <input
+              type="text"
+              name="ip_addr"
+              value={ipAddr}
+              onChange={e => setIpAddr(e.target.value)}
+            />
           </label>
           <label htmlFor="ip_port">
-      IP Port:
-            <input type="text" name="ip_port" value={ipPort} onChange={(e) => setIpPort(e.target.value)} />
+            IP Port:
+            <input
+              type="text"
+              name="ip_port"
+              value={ipPort}
+              onChange={e => setIpPort(e.target.value)}
+            />
           </label>
           <input type="submit" value="Connect" disabled={connected} />
         </form>
-        <b>
-          {connectedString()}
-        </b>
+        <b>{connectedString()}</b>
       </div>
     </div>
   );
-}
-
+};
 
 export default Header;

@@ -1,54 +1,76 @@
-import React, { useState } from 'react';
-import './App.css';
-import { CookiesProvider, useCookies } from 'react-cookie';
-import Header from './components/Header';
-import URDF from './components/urdf';
-import PoseContainer from './components/PoseContainer';
-import {errorItem} from ErrorDisplay from './components/ErrorDisplay';
-import SequenceRunContainer from './components/SequenceRunContainer';
-import SequenceContainer from './components/SequenceContainer';
-import colors from './styleDefs/colors';
+import React, { useState } from "react";
+import "./App.css";
+import { CookiesProvider, useCookies } from "react-cookie";
+import Header from "./components/Header";
+import URDF from "./components/urdf";
+import PoseContainer from "./components/PoseContainer";
+import ErrorDisplay, { ErrorItem } from "./components/ErrorDisplay";
+import SequenceRunContainer, { Move } from "./components/SequenceRunContainer";
+import SequenceContainer from "./components/SequenceContainer";
+import colors from "./styleDefs/colors";
 
+export function genRandID(): number {
+  return Math.round(Math.random() * 10000) + Date.now();
+}
 
-export interface addErrorInterface{
-(text: string, src: string): void;
-    }
+export interface AddError {
+  (text: string, src: string): void;
+}
 
-export interface setConnectedInterface{
-    (con: boolean): void;
+export interface SetMovesList {
+  (arg: Move[]): any;
+}
+
+export interface AddToMoveList {
+  (value: Move): void;
+}
+
+export interface SetConnected {
+  (con: boolean): void;
+}
+
+export interface SetMoving {
+  (arg: boolean): void;
 }
 
 const App: React.FunctionComponent = () => {
-  const [cookies, setCookie] = useCookies(['movesList']);
+  const [cookies, setCookie] = useCookies(["movesList"]);
   const [ros, setRos] = useState<ROSLIB.Ros | null>(null);
-  const [errorList, setErrorList] = useState<Array<errorItem>>([]);
+  const [errorList, setErrorList] = useState<Array<ErrorItem>>([]);
   const [connected, setConnected] = useState(false);
   const [MovesList, setMovesListInternal] = useState(cookies.movesList || []);
   const [moving, setMoving] = useState(false);
 
   // TODO: make this type more specific
-  const setMovesList = (arg: any): void => {
-    setCookie('movesList', arg);
+  const setMovesList: SetMovesList = arg => {
+    setCookie("movesList", arg);
     setMovesListInternal(arg);
   };
 
-  const addError: addErrorInterface = (text, src) => {
+  const addError: AddError = (text, src) => {
     const newError = { text, time: new Date(), src };
     // setErrorList([...errorList, newError]); TODO: get this back in
   };
 
   // TODO: TS
-  const addToMoveList = (value: any): void => {
+  const addToMoveList: AddToMoveList = value => {
     if (moving) {
-      addError('Cannot add to moves list while moving', 'core');
+      addError("Cannot add to moves list while moving", "core");
       return;
     }
-    setMovesList([...MovesList, {
-      time: 2, pose: value, lr: 'right', status: 'not-run',
-    }]);
+    setMovesList([
+      ...MovesList,
+      {
+        time: 2,
+        pose: value,
+        lr: "right",
+        status: "not-run",
+        key: genRandID()
+      }
+    ]);
   };
 
-  const setConnectedWrap: setConnectedInterface = (con) => {
+  const setConnectedWrap: SetConnected = con => {
     if (con === false && ros !== null) {
       setRos(null);
     }
@@ -68,7 +90,7 @@ const App: React.FunctionComponent = () => {
           <div className="visualFeeds">
             <URDF ros={ros} connected={connected} />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'row' }}>
+          <div style={{ display: "flex", flexDirection: "row" }}>
             <PoseContainer
               ros={ros}
               connected={connected}
@@ -88,7 +110,6 @@ const App: React.FunctionComponent = () => {
               MovesList={MovesList}
               setMovesList={setMovesList}
             />
-
           </div>
           <ErrorDisplay errorList={errorList} />
         </div>

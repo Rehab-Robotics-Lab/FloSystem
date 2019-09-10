@@ -11,6 +11,7 @@ import rospkg
 import serial
 import struct
 import time
+import threading
 
 import actionlib
 
@@ -43,21 +44,15 @@ class BolideController(object):
     NUM_MOTORS = 18
 
     def __init__(self):
-        rospy.init_node('robot_manager')
+        rospy.init_node('robot_manager', log_level=rospy.DEBUG)
 
         rospack = rospkg.RosPack()
 
-        port = rospy.get_param('robot_port', '/dev/bolide')
+        self.usb_lock = threading.Lock()
+        self.port = rospy.get_param('robot_port', '/dev/bolide')
         self.ser = None
         self.simulate = rospy.get_param('simulate', False)
-        if not self.simulate:
-            try:
-                self.ser = serial.Serial(port, 115200, timeout=0.05)
-            except serial.SerialException as err:
-                rospy.logerr(
-                    'failed to connect to bolide with err: %s', err)
-                return
-        rospy.loginfo('connected to robot')
+        self.connect()
 
         self.joint_publisher = rospy.Publisher(
             'joint_states', JointState, queue_size=1)
@@ -115,11 +110,27 @@ class BolideController(object):
 
         self.read_loop()
 
+    def connect(self):
+        with self.usb_lock:
+            if not self.simulate:
+                self.close_ser
+                try:
+                    self.ser = serial.Serial(self.port, 115200, timeout=0.05)
+                except serial.SerialException as err:
+                    rospy.logerr(
+                        'failed to connect to bolide with err: %s', err)
+                    return
+            rospy.loginfo('connected to robot')
+
     def __del__(self):
         self.relax_motors()
+        self.close_ser()
+
+    def close_ser(self):
         if self.ser:
-            self.ser.flush()
-            self.ser.close()
+            with self.usb_lock:
+                self.ser.flush()
+                self.ser.close()
 
     def move(self, goal):
         done = False
@@ -165,8 +176,9 @@ class BolideController(object):
                 # figure out where this move would fall, because
                 # of the way that the unique times works, this may
                 # occur over multiple time points
+                print(unique_times)
                 percents = [(ut - start_time)/total_time for
-                            ut in unique_times]
+                            ut in unique_times]  # TODO: devision by zero problem
                 prior_position = poses[start_id][motor_id]
                 raw_target = target_position * int(self.joint_config[motor_id]['inversion'])*1023/(
                     2*math.pi)+int(self.joint_config[motor_id]['neutral'])
@@ -203,7 +215,8 @@ class BolideController(object):
                 return
             feedback = MoveFeedback()
             feedback.time_elapsed = rospy.get_time() - time_start
-            feedback.time_remaining = unique_times[-1] - feedback.time_elapsed
+            feedback.time_remaining = unique_times[-1] - \
+                feedback.time_elapsed
             if feedback.time_remaining > 0:
                 feedback.move_number = next(
                     idx for idx, value in enumerate(completion_times) if value >
@@ -216,6 +229,7 @@ class BolideController(object):
                 self.server.set_succeeded(result, "Motion complete")
                 done = True
             self.rate.sleep()
+    rospy.logdebug('exiting move function')
 
     def error(self, goal, joint_ids=None):
         if joint_ids is None:
@@ -229,61 +243,67 @@ class BolideController(object):
         """If there are motion tasks to do, do those, otherwise, check the
         robot's pose"""
         while not rospy.is_shutdown():
+            rospy.logdebug('starting read loop')
             self.get_pose()
             self.rate.sleep()
 
     def get_pose(self):
         """get the pose of the robot and publish it to the joint state"""
-        ### Start Simulator ###
-        if self.simulate:
-            if self.sim_moving:
-                cur_time = time.time() - self.sim_timer
-                if cur_time > self.sim_seq_times[self.sim_seq_length-1]:
-                    self.sim_moving = False
-                else:
-                    current_move = next(idx for (idx, val) in enumerate(
-                        self.sim_seq_times) if val > cur_time)
-                    if current_move == 0:
-                        percent_complete = cur_time/self.sim_seq_times[0]
-                        for idx in range(len(self.sim_current_pose)):
-                            self.sim_current_pose[idx] = percent_complete * (
-                                self.sim_seq_poses[0][idx] - self.sim_starting_pose[idx]) + self.sim_starting_pose[idx]
+        with self.usb_lock:
+            ### Start Simulator ###
+            if self.simulate:
+                if self.sim_moving:
+                    cur_time = time.time() - self.sim_timer
+                    if cur_time > self.sim_seq_times[self.sim_seq_length-1]:
+                        self.sim_moving = False
                     else:
-                        # import pdb
-                        # pdb.set_trace()
-                        percent_complete = (cur_time-self.sim_seq_times[current_move-1])/(
-                            self.sim_seq_times[current_move]-self.sim_seq_times[current_move-1])
-                        # import pdb
-                        # pdb.set_trace()
-                        for idx in range(len(self.sim_current_pose)):
-                            self.sim_current_pose[idx] = (percent_complete * (
-                                self.sim_seq_poses[current_move][idx] -
-                                self.sim_seq_poses[current_move-1][idx]) +
-                                self.sim_seq_poses[current_move-1][idx])
+                        current_move = next(idx for (idx, val) in enumerate(
+                            self.sim_seq_times) if val > cur_time)
+                        if current_move == 0:
+                            percent_complete = cur_time/self.sim_seq_times[0]
+                            for idx in range(len(self.sim_current_pose)):
+                                self.sim_current_pose[idx] = percent_complete * (
+                                    self.sim_seq_poses[0][idx] - self.sim_starting_pose[idx]) + self.sim_starting_pose[idx]
+                        else:
+                            # import pdb
+                            # pdb.set_trace()
+                            percent_complete = (cur_time-self.sim_seq_times[current_move-1])/(
+                                self.sim_seq_times[current_move]-self.sim_seq_times[current_move-1])
+                            # import pdb
+                            # pdb.set_trace()
+                            for idx in range(len(self.sim_current_pose)):
+                                self.sim_current_pose[idx] = (percent_complete * (
+                                    self.sim_seq_poses[current_move][idx] -
+                                    self.sim_seq_poses[current_move-1][idx]) +
+                                    self.sim_seq_poses[current_move-1][idx])
 
-            position = self.sim_current_pose  # if not self.sim_moving else []
-        ### End Simulator ###
-        else:
-            position = self.reader.read_data('pos')
-        if not position:
-            rospy.logerr('couldn\'t get postion data')
-            return
-        rospy.logdebug('raw position data: %s', position)
-        names = []
-        positions = []
-        for id in self.available_motor_ids:
-            raw_position = position[id]
-            rad_position = (raw_position - int(
-                self.joint_config[id]['neutral'])) * int(
-                    self.joint_config[id]['inversion'])*2*math.pi/1023
-            names.append(self.joint_config[id]['name'])
-            positions.append(rad_position)
-        new_msg = JointState()
-        new_msg.name = names
-        new_msg.position = positions
-        new_msg.header.stamp = rospy.Time.now()
-        self.joint_publisher.publish(new_msg)
-        self.current_positions = position
+                position = self.sim_current_pose  # if not self.sim_moving else []
+            ### End Simulator ###
+            else:
+                try:
+                    position = self.reader.read_data('pos')
+                except serial.SerialException as err:
+                    rospy.logerr('error when reading position: %s', err)
+                    self.connect()
+            if not position:
+                rospy.logerr('couldn\'t get postion data')
+                return
+            rospy.logdebug('raw position data: %s', position)
+            names = []
+            positions = []
+            for id in self.available_motor_ids:
+                raw_position = position[id]
+                rad_position = (raw_position - int(
+                    self.joint_config[id]['neutral'])) * int(
+                        self.joint_config[id]['inversion'])*2*math.pi/1023
+                names.append(self.joint_config[id]['name'])
+                positions.append(rad_position)
+            new_msg = JointState()
+            new_msg.name = names
+            new_msg.position = positions
+            new_msg.header.stamp = rospy.Time.now()
+            self.joint_publisher.publish(new_msg)
+            self.current_positions = position
 
     def new_joint_command(self, msg):
         """take a new message from the joint command topic and add it to the task queue
@@ -304,9 +324,10 @@ class BolideController(object):
 
         :param command: the command to send, this should be given as a list
         """
-        to_send = bytearray([0xff, len(command)+3]+command+[0xfe])
-        rospy.loginfo('sending: %s', [hex(s) for s in to_send])
-        self.ser.write(to_send)
+        with self.usb_lock:
+            to_send = bytearray([0xff, len(command)+3]+command+[0xfe])
+            rospy.loginfo('sending: %s', [hex(s) for s in to_send])
+            self.ser.write(to_send)
 
     def relax_motors(self):
         """relax_motors"""

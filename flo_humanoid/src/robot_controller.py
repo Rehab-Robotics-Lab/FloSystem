@@ -12,6 +12,9 @@ import serial
 import struct
 import time
 import threading
+import numpy as np
+import numpy.matlib as matlib
+import pdb
 
 import actionlib
 
@@ -44,7 +47,7 @@ class BolideController(object):
     NUM_MOTORS = 18
 
     def __init__(self):
-        rospy.init_node('robot_manager', log_level=rospy.DEBUG)
+        rospy.init_node('robot_manager')  # , log_level=rospy.DEBUG)
 
         rospack = rospkg.RosPack()
 
@@ -90,15 +93,15 @@ class BolideController(object):
 
         if self.simulate:
             self.sim_robot_uploaded_commands = Queue.Queue()
-            self.sim_current_pose = [0]*self.NUM_MOTORS
+            self.sim_current_pose = np.zeros(self.NUM_MOTORS)
             self.sim_moving = False
             self.sim_motors_stiff = False
-            self.sim_seq_poses = [None]*256
-            self.sim_seq_times = [None]*256
+            self.sim_seq_poses = np.array([None]*256)
+            self.sim_seq_times = np.array([None]*256)
             self.sim_seq_length = 0
             self.sim_num_poses = 0
             self.sim_timer = time.time()
-            self.sim_starting_pose = [0]*self.NUM_MOTORS
+            self.sim_starting_pose = np.zeros(self.NUM_MOTORS)
 
         self.rate = rospy.Rate(3)
         self.joint_tasks = Queue.Queue()
@@ -111,9 +114,16 @@ class BolideController(object):
         self.read_loop()
 
     def connect(self):
+        """connect to the robot
+
+        Will first try to disconect and close the serial connection if it exists
+        then re connect.
+
+        TODO: The timeout value should probably be revisted
+        """
         with self.usb_lock:
             if not self.simulate:
-                self.close_ser
+                self.close_ser()
                 try:
                     self.ser = serial.Serial(self.port, 115200, timeout=0.05)
                 except serial.SerialException as err:
@@ -127,6 +137,8 @@ class BolideController(object):
         self.close_ser()
 
     def close_ser(self):
+        """Close the serial connection in a safeish way, waiting to be given
+        access, flushing, then closing."""
         if self.ser:
             with self.usb_lock:
                 self.ser.flush()
@@ -135,29 +147,26 @@ class BolideController(object):
     def move(self, goal):
         done = False
         time_start = rospy.get_time()
-        completion_times = []
+        completion_times = np.array([])
 
         # SETUP AND SHIP MOVE TO ROBOT
         moves = goal.targets
         # build unique times, for now, lets work linearly:
         # TODO build extra times in to allow for better return values and stopping mid move
-        unique_times = [0]
+        unique_times = np.array([0])
         for move in moves:
             tct = move.target_completion_time
-            completion_times.append(tct)
+            completion_times = np.append(completion_times, tct)
             if tct not in unique_times:
-                unique_times.append(tct)
+                unique_times = np.append(unique_times, tct)
         # now we need to fill in the poses with some default values:
-        poses = [list(self.current_positions)
-                 for n in range(len(unique_times))]
+        poses = matlib.repmat(self.current_positions, len(unique_times), 1)
         # poses[0] = self.current_positions
-        current_move_program_id = [0]*self.NUM_MOTORS
+        current_move_program_id = np.zeros(self.NUM_MOTORS, dtype=np.uintc)
         # we will run through each move and see where it applies
         for move in moves:
             end_time = move.target_completion_time
-            end_id = unique_times.index(end_time)
-            # import pdb
-            # pdb.set_trace()
+            end_id = np.where(unique_times == end_time)[0][0]
             # each move will only specify a select number of joints that
             # should change, the rest should stay the same
             for command_idx, name in enumerate(move.name):
@@ -176,9 +185,11 @@ class BolideController(object):
                 # figure out where this move would fall, because
                 # of the way that the unique times works, this may
                 # occur over multiple time points
-                print(unique_times)
-                percents = [(ut - start_time)/total_time for
-                            ut in unique_times]  # TODO: devision by zero problem
+                pdb.set_trace()
+                if total_time <= 0:
+                    raise ValueError(
+                        'The total time for the move must be greater than zero')
+                percents = (unique_times-start_time)/total_time
                 prior_position = poses[start_id][motor_id]
                 raw_target = target_position * int(self.joint_config[motor_id]['inversion'])*1023/(
                     2*math.pi)+int(self.joint_config[motor_id]['neutral'])
@@ -191,13 +202,9 @@ class BolideController(object):
                         poses[p_idx][motor_id] = next_pose
                 current_move_program_id[motor_id] = end_id
         poses = poses[1:]
-        # import pdb
-        # pdb.set_trace()
         unique_times = unique_times[1:]
         rospy.loginfo(
             'telling robot to go to: \n%s \nat times: \n%s', poses, unique_times)
-        # import pdb
-        # pdb.set_trace()
         self.upload_sequence(poses, unique_times)
         final_goal = poses[-1]
 
@@ -247,6 +254,7 @@ class BolideController(object):
             self.get_pose()
             self.rate.sleep()
 
+# TODO: a lot of this could be vectorized using np
     def get_pose(self):
         """get the pose of the robot and publish it to the joint state"""
         with self.usb_lock:
@@ -265,12 +273,8 @@ class BolideController(object):
                                 self.sim_current_pose[idx] = percent_complete * (
                                     self.sim_seq_poses[0][idx] - self.sim_starting_pose[idx]) + self.sim_starting_pose[idx]
                         else:
-                            # import pdb
-                            # pdb.set_trace()
                             percent_complete = (cur_time-self.sim_seq_times[current_move-1])/(
                                 self.sim_seq_times[current_move]-self.sim_seq_times[current_move-1])
-                            # import pdb
-                            # pdb.set_trace()
                             for idx in range(len(self.sim_current_pose)):
                                 self.sim_current_pose[idx] = (percent_complete * (
                                     self.sim_seq_poses[current_move][idx] -
@@ -285,7 +289,7 @@ class BolideController(object):
                 except serial.SerialException as err:
                     rospy.logerr('error when reading position: %s', err)
                     self.connect()
-            if not position:
+            if position is None:
                 rospy.logerr('couldn\'t get postion data')
                 return
             rospy.logdebug('raw position data: %s', position)

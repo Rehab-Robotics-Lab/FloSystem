@@ -185,7 +185,6 @@ class BolideController(object):
                 # figure out where this move would fall, because
                 # of the way that the unique times works, this may
                 # occur over multiple time points
-                pdb.set_trace()
                 if total_time <= 0:
                     raise ValueError(
                         'The total time for the move must be greater than zero')

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import * as ROSLIB from "roslib";
 import { PoseMsg, PoseWrapper } from "./PoseContainer";
 import { SetMoving, SetMovesList } from "../App";
@@ -22,6 +22,9 @@ interface MoveProps {
   moveDown: SimpleModificationFunc;
   remove: SimpleModificationFunc;
   status: string;
+  prior_lr: "left" | "right" | "";
+  priorTime: number;
+  setErrorState: (arg: boolean) => void;
 }
 
 export interface Move {
@@ -42,7 +45,10 @@ const Move: React.FunctionComponent<MoveProps> = ({
   moveUp,
   moveDown,
   remove,
-  status
+  status,
+  prior_lr,
+  priorTime,
+  setErrorState
 }) => {
   const style: React.CSSProperties = {
     display: "flex",
@@ -57,50 +63,64 @@ const Move: React.FunctionComponent<MoveProps> = ({
     style.border = "2px solid blue";
   }
 
+  let errorTitle = "";
+
+  if (time <= 0 && prior_lr === lr) {
+    errorTitle = "You cannot have zero time between two moves on the same arm";
+    setErrorState(true);
+  } else if (time === 0 && priorTime === 0) {
+    errorTitle = "You can't have zero time for two consecutive moves";
+    setErrorState(true);
+  } else {
+    setErrorState(false);
+  }
   return (
-    <div style={style}>
-      <span style={{ width: "100px" }}>{pose.pose.description}</span>
-      <input
-        type="number"
-        min="0"
-        max="10"
-        step="any"
-        value={time}
-        onChange={(e): void => setTime(id, parseFloat(e.target.value))}
-        style={{ width: "35px" }}
-      />
-      <button
-        type="button"
-        onClick={(): void => {
-          toggleLR(id);
-        }}
-      >
-        {lr}
-      </button>
-      <button
-        type="button"
-        onClick={(): void => {
-          moveUp(id);
-        }}
-      >
-        &uarr;
-      </button>
-      <button
-        type="button"
-        onClick={(): void => {
-          moveDown(id);
-        }}
-      >
-        &darr;
-      </button>
-      <button
-        type="button"
-        onClick={(): void => {
-          remove(id);
-        }}
-      >
-        &#10007;
-      </button>
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      <div style={style}>
+        <span style={{ width: "100px" }}>{pose.pose.description}</span>
+        <input
+          type="number"
+          min="0"
+          max="10"
+          step="any"
+          value={time}
+          onChange={(e): void => setTime(id, parseFloat(e.target.value))}
+          style={{ width: "35px" }}
+        />
+        <button
+          type="button"
+          onClick={(): void => {
+            toggleLR(id);
+          }}
+        >
+          {lr}
+        </button>
+        <button
+          type="button"
+          onClick={(): void => {
+            moveUp(id);
+          }}
+        >
+          &uarr;
+        </button>
+        <button
+          type="button"
+          onClick={(): void => {
+            moveDown(id);
+          }}
+        >
+          &darr;
+        </button>
+        <button
+          type="button"
+          onClick={(): void => {
+            remove(id);
+          }}
+        >
+          &#10007;
+        </button>
+      </div>
+      {errorTitle && <span style={{ color: "red" }}>{errorTitle}</span>}
     </div>
   );
 };
@@ -118,6 +138,7 @@ interface SequenceRunContainerProps {
 const SequenceRunContainer: React.FunctionComponent<
   SequenceRunContainerProps
 > = ({ ros, connected, MovesList, setMovesList, moving, setMoving }) => {
+  const [errorList, setErrorList] = useState<boolean[]>([]);
   const setTime: SetTime = (id, time) => {
     const moveListN = [...MovesList];
     const target = moveListN[id];
@@ -154,6 +175,7 @@ const SequenceRunContainer: React.FunctionComponent<
     setMovesList(moveListN);
   };
 
+  // need to check that two successive commands don't have the same limb with zero time.
   const runSequence = (): void => {
     const actionClient = new ROSLIB.ActionClient({
       ros: ros as ROSLIB.Ros,
@@ -168,7 +190,14 @@ const SequenceRunContainer: React.FunctionComponent<
     // - add limb prefix
     // - calculate the actual target time
     const targets: Array<ROSLIB.Message> = [];
+    let priorArm = "";
     MovesList.forEach(move => {
+      if (move.lr === priorArm && move.time === 0) {
+        throw new Error(
+          "There cannot be two arm movements with zero time on the same arm"
+        );
+      }
+      priorArm = move.lr;
       time += move.time;
       const names = [...move.pose.pose.joint_names];
       for (let idx = 0; idx < names.length; idx += 1) {
@@ -258,13 +287,22 @@ const SequenceRunContainer: React.FunctionComponent<
             moveDown={moveDown}
             remove={remove}
             status={value.status}
+            prior_lr={index === 0 ? "" : MovesList[index - 1].lr}
+            priorTime={index === 0 ? 0 : MovesList[index - 1].time}
+            setErrorState={val => {
+              if (val !== errorList[index]) {
+                const errorListT: boolean[] = [...errorList];
+                errorListT[index] = val;
+                setErrorList(errorListT);
+              }
+            }}
           />
         ))}
       </div>
       <hr />
       <button
         type="button"
-        disabled={!connected || moving}
+        disabled={!connected || moving || errorList.some(val => val)}
         onClick={(): void => {
           runSequence();
         }}
@@ -281,10 +319,6 @@ const SequenceRunContainer: React.FunctionComponent<
       </button>
     </div>
   );
-};
-
-SequenceRunContainer.defaultProps = {
-  ros: null
 };
 
 export default SequenceRunContainer;

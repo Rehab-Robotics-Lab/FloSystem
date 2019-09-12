@@ -9,6 +9,7 @@ import SequenceRunContainer, { Move } from "./components/SequenceRunContainer";
 import SequenceContainer from "./components/SequenceContainer";
 import colors from "./styleDefs/colors";
 import SpeechContainer from "./components/SpeechContainer";
+import SavedSpeech from "./components/SavedSpeech";
 
 export function genRandID(): number {
   return Math.round(Math.random() * 10000) + Date.now();
@@ -133,14 +134,16 @@ const App: React.FunctionComponent = () => {
               setMovesList={setMovesList}
             />
           </div>
-          <SpeechContainer
-            ros={ros}
-            connected={connected}
-            speechString={speechString}
-            setSpeechString={setSpeechString}
-            setSpeaking={setSpeaking}
-            speaking={speaking}
-          />
+          <div>
+            <SpeechContainer
+              ros={ros}
+              connected={connected}
+              speechString={speechString}
+              setSpeechString={setSpeechString}
+              setSpeaking={setSpeaking}
+              speaking={speaking}
+            />
+          </div>
           <ErrorDisplay errorList={errorList} />
         </div>
       </div>

@@ -60,10 +60,10 @@ class DB(object):
                     description text
                 );''')
 
-        # type can be either 'ssml' or 'plain'
+        # type can be either 'ssml' or 'plain'. Removing type
+        # always assume ssml. and it is in the metadata anyway
         self.ex('''CREATE TABLE IF NOT EXISTS phrases(
                     id integer PRIMARY KEY,
-                    type text,
                     text text, 
                     length real,
                     metadata text

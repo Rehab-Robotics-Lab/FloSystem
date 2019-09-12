@@ -8,6 +8,7 @@ import ErrorDisplay, { ErrorItem } from "./components/ErrorDisplay";
 import SequenceRunContainer, { Move } from "./components/SequenceRunContainer";
 import SequenceContainer from "./components/SequenceContainer";
 import colors from "./styleDefs/colors";
+import SpeechContainer from "./components/SpeechContainer";
 
 export function genRandID(): number {
   return Math.round(Math.random() * 10000) + Date.now();
@@ -33,6 +34,23 @@ export interface SetMoving {
   (arg: boolean): void;
 }
 
+export interface SetSpeechString {
+  (arg: string): void;
+}
+
+export interface Speech {
+  id: number;
+  text: string;
+}
+
+export interface SetSpeechList {
+  (val: Speech): void;
+}
+
+export interface SetSpeaking {
+  (val: boolean): void;
+}
+
 const App: React.FunctionComponent = () => {
   const [cookies, setCookie] = useCookies(["movesList"]);
   const [ros, setRos] = useState<ROSLIB.Ros | null>(null);
@@ -40,6 +58,8 @@ const App: React.FunctionComponent = () => {
   const [connected, setConnected] = useState(false);
   const [MovesList, setMovesListInternal] = useState(cookies.movesList || []);
   const [moving, setMoving] = useState(false);
+  const [speechString, setSpeechString] = useState("");
+  const [speaking, setSpeaking] = useState(false);
 
   // TODO: make this type more specific
   const setMovesList: SetMovesList = arg => {
@@ -113,6 +133,14 @@ const App: React.FunctionComponent = () => {
               setMovesList={setMovesList}
             />
           </div>
+          <SpeechContainer
+            ros={ros}
+            connected={connected}
+            speechString={speechString}
+            setSpeechString={setSpeechString}
+            setSpeaking={setSpeaking}
+            speaking={speaking}
+          />
           <ErrorDisplay errorList={errorList} />
         </div>
       </div>

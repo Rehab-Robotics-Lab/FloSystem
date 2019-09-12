@@ -31,8 +31,8 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
     const goal = new ROSLIB.Goal({
       actionClient,
       goalMessage: {
-        text: speechString,
-        metadata: ""
+        text: "<speak>" + speechString + "</speak>",
+        metadata: '{ "text_type": "ssml", "voice_id":"Ivy"}'
       }
     });
 
@@ -62,7 +62,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       }}
     >
       <label htmlFor="speechString">
-        String to speak:
+        String to speak (SSML):
         <input
           type="text"
           name="speechString"

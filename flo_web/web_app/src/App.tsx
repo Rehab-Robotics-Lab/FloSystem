@@ -43,8 +43,10 @@ const App: React.FunctionComponent = () => {
 
   // TODO: make this type more specific
   const setMovesList: SetMovesList = arg => {
-    setCookie("movesList", arg);
-    setMovesListInternal(arg);
+    if (!moving) {
+      setCookie("movesList", arg);
+      setMovesListInternal(arg);
+    }
   };
 
   const addError: AddError = (text, src) => {

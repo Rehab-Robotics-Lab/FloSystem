@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
-import { SetSpeechString, SetSpeaking } from "../App";
+import { SetSpeechTarget, SetSpeaking, Utterance } from "../App";
 
 interface SpeechProps {
   ros: ROSLIB.Ros | null;
   connected: boolean;
-  speechString: string;
-  setSpeechString: SetSpeechString;
+  speechTarget: Utterance;
+  setSpeechTarget: SetSpeechTarget;
   setSpeaking: SetSpeaking;
   speaking: boolean;
 }
+
 // Takes a parameter ros, which is the connection to ros
 const Speech: React.FunctionComponent<SpeechProps> = ({
   ros,
   connected,
-  speechString,
-  setSpeechString,
+  speechTarget,
+  setSpeechTarget,
   setSpeaking,
   speaking
 }) => {
@@ -28,12 +29,22 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       timeout: 1 //Not sure about this value here. needs testing
     });
 
+    let metadata = JSON.stringify({
+      text_type: "ssml",
+      voice_id: "Ivy"
+    });
     const goal = new ROSLIB.Goal({
       actionClient,
       goalMessage: {
-        text: "<speak>" + speechString + "</speak>",
-        metadata: '{ "text_type": "ssml", "voice_id":"Ivy"}'
+        text: "<speak>" + speechTarget.text + "</speak>",
+        metadata: metadata
       }
+    });
+
+    setSpeechTarget({
+      text: speechTarget.text,
+      metadata: metadata,
+      fileLocation: null
     });
 
     goal.on("feedback", fb => {
@@ -41,6 +52,11 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
     });
 
     goal.on("result", res => {
+      setSpeechTarget({
+        text: speechTarget.text,
+        metadata: speechTarget.metadata,
+        fileLocation: res
+      });
       setSpeaking(false);
       //TODO do something to handle state of the result response
       // should get a useful response
@@ -61,13 +77,19 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
         margin: "10px"
       }}
     >
-      <label htmlFor="speechString">
+      <label htmlFor="speechTarget">
         String to speak (SSML):
         <input
           type="text"
-          name="speechString"
-          value={speechString}
-          onChange={(e): void => setSpeechString(e.target.value)}
+          name="speechTarget"
+          value={speechTarget.text}
+          onChange={(e): void =>
+            setSpeechTarget({
+              text: e.target.value,
+              metadata: null,
+              fileLocation: null
+            })
+          }
         />
       </label>
 
@@ -84,9 +106,9 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       <button
         type="button"
         onClick={(): void => {
-          setSpeechString("");
+          setSpeechTarget({ text: "", metadata: null, fileLocation: null });
         }}
-        disabled={speechString === ""}
+        disabled={speechTarget.text === ""}
       >
         Clear
       </button>

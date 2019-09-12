@@ -35,8 +35,14 @@ export interface SetMoving {
   (arg: boolean): void;
 }
 
-export interface SetSpeechString {
-  (arg: string): void;
+export interface Utterance {
+  text: string;
+  metadata: string | null;
+  fileLocation: string | null;
+}
+
+export interface SetSpeechTarget {
+  (arg: Utterance): void;
 }
 
 export interface Speech {
@@ -59,7 +65,11 @@ const App: React.FunctionComponent = () => {
   const [connected, setConnected] = useState(false);
   const [MovesList, setMovesListInternal] = useState(cookies.movesList || []);
   const [moving, setMoving] = useState(false);
-  const [speechString, setSpeechString] = useState("");
+  const [speechTarget, setSpeechTarget] = useState<Utterance>({
+    text: "",
+    metadata: null,
+    fileLocation: null
+  });
   const [speaking, setSpeaking] = useState(false);
 
   // TODO: make this type more specific
@@ -138,8 +148,8 @@ const App: React.FunctionComponent = () => {
             <SpeechContainer
               ros={ros}
               connected={connected}
-              speechString={speechString}
-              setSpeechString={setSpeechString}
+              speechTarget={speechTarget}
+              setSpeechTarget={setSpeechTarget}
               setSpeaking={setSpeaking}
               speaking={speaking}
             />

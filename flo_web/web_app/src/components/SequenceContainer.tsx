@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
 import { SetMovesList, AddToMoveList, genRandID } from "../App";
 import { Move } from "./SequenceRunContainer";
+import ModalWrapper from "./ModalWrapper";
 
 interface Sequence {
   pose_ids: number[];
@@ -127,7 +128,6 @@ const SequenceContainer: React.FunctionComponent<SequenceContainerProps> = ({
       }}
     >
       <h2>Sequences:</h2>
-
       <button
         type="button"
         onClick={(): void => {
@@ -138,140 +138,110 @@ const SequenceContainer: React.FunctionComponent<SequenceContainerProps> = ({
         Save Sequence
       </button>
       <hr />
-      {showSave && (
-        <div
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            top: 0,
-            background: "rgba(0,0,0,.3)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center"
-          }}
-        >
-          <div
-            style={{
-              width: "200px",
-              background: "white",
-              borderRadius: "10px",
-              minWidth: "500px",
-              position: "relative",
-              textAlign: "center",
-              display: "flex",
-              flexDirection: "column"
+      <ModalWrapper show={showSave}>
+        <h3>Save a New Sequence or Overwrite an Existing One</h3>
+        <label htmlFor="saveSeqIDSelector">
+          Save As:
+          <select
+            id="saveSeqIDSelector"
+            onChange={(obj): void => {
+              const newId: number = parseInt(obj.target.value, 10);
+              setSaveID(newId);
+              if (newId > 0) {
+                const newDescT: string | null =
+                  obj.target[obj.target.selectedIndex].textContent;
+                let newDesc = "";
+                if (newDescT !== null) {
+                  newDesc = newDescT;
+                }
+
+                setSaveDescription(newDesc);
+              }
             }}
           >
-            <h3>Save a New Sequence or Overwrite an Existing One</h3>
-            <label htmlFor="saveSeqIDSelector">
-              Save As:
-              <select
-                id="saveSeqIDSelector"
-                onChange={(obj): void => {
-                  const newId: number = parseInt(obj.target.value, 10);
-                  setSaveID(newId);
-                  if (newId > 0) {
-                    const newDescT: string | null =
-                      obj.target[obj.target.selectedIndex].textContent;
-                    let newDesc = "";
-                    if (newDescT !== null) {
-                      newDesc = newDescT;
-                    }
+            <option value="0">New Sequence</option>
+            {SeqList.map((value, idx) => (
+              <option key={idx} value={value.id}>
+                {value.seq.description}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label htmlFor="saveSeqDescription">
+          Description:
+          <input
+            type="text"
+            value={saveDescription}
+            onChange={(obj): void => {
+              setSaveDescription(obj.target.value);
+            }}
+          />
+        </label>
 
-                    setSaveDescription(newDesc);
-                  }
-                }}
-              >
-                <option value="0">New Sequence</option>
-                {SeqList.map((value, idx) => (
-                  <option key={idx} value={value.id}>
-                    {value.seq.description}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label htmlFor="saveSeqDescription">
-              Description:
-              <input
-                type="text"
-                value={saveDescription}
-                onChange={(obj): void => {
-                  setSaveDescription(obj.target.value);
-                }}
-              />
-            </label>
+        <button
+          type="button"
+          disabled={!connected || !saveDescription}
+          onClick={(): void => {
+            const poseIds = [];
+            const times = [];
+            const arms = [];
+            let totalTime = 0;
+            for (let idx = 0; idx < MovesList.length; idx += 1) {
+              poseIds.push(MovesList[idx].pose.id);
+              times.push(MovesList[idx].time);
+              arms.push(MovesList[idx].lr);
+              totalTime += MovesList[idx].time;
+            }
 
-            <button
-              type="button"
-              disabled={!connected || !saveDescription}
-              onClick={(): void => {
-                const poseIds = [];
-                const times = [];
-                const arms = [];
-                let totalTime = 0;
-                for (let idx = 0; idx < MovesList.length; idx += 1) {
-                  poseIds.push(MovesList[idx].pose.id);
-                  times.push(MovesList[idx].time);
-                  arms.push(MovesList[idx].lr);
-                  totalTime += MovesList[idx].time;
-                }
+            const newSeq: Sequence = {
+              pose_ids: poseIds,
+              times,
+              arms,
+              description: saveDescription,
+              total_time: totalTime
+            };
+            const req = new ROSLIB.ServiceRequest({
+              sequence: newSeq,
+              id: saveID
+            });
 
-                const newSeq: Sequence = {
-                  pose_ids: poseIds,
-                  times,
-                  arms,
-                  description: saveDescription,
-                  total_time: totalTime
+            if (setSeqSrv === null) {
+              return;
+            }
+            setSeqSrv.callService(req, res => {
+              const targetId = SeqList.findIndex(item => item.id === res.id);
+              const SeqListT = [...SeqList];
+              if (targetId === -1) {
+                SeqListT.push({
+                  id: res.id,
+                  seq: newSeq
+                });
+              } else {
+                SeqListT[targetId] = {
+                  id: res.id,
+                  seq: newSeq
                 };
-                const req = new ROSLIB.ServiceRequest({
-                  sequence: newSeq,
-                  id: saveID
-                });
+              }
+              setSeqList(SeqListT);
+              setShowSave(false);
+              setSaveID(0);
+              setSaveDescription("");
+            });
 
-                if (setSeqSrv === null) {
-                  return;
-                }
-                setSeqSrv.callService(req, res => {
-                  const targetId = SeqList.findIndex(
-                    item => item.id === res.id
-                  );
-                  const SeqListT = [...SeqList];
-                  if (targetId === -1) {
-                    SeqListT.push({
-                      id: res.id,
-                      seq: newSeq
-                    });
-                  } else {
-                    SeqListT[targetId] = {
-                      id: res.id,
-                      seq: newSeq
-                    };
-                  }
-                  setSeqList(SeqListT);
-                  setShowSave(false);
-                  setSaveID(0);
-                  setSaveDescription("");
-                });
-
-                // ros serve save id
-              }}
-            >
-              Save
-            </button>
-            <button
-              type="button"
-              onClick={(): void => {
-                setShowSave(false);
-              }}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-
+            // ros serve save id
+          }}
+        >
+          Save
+        </button>
+        <button
+          type="button"
+          onClick={(): void => {
+            setShowSave(false);
+          }}
+        >
+          Cancel
+        </button>
+      </ModalWrapper>
       <div
         style={{
           display: "flex",

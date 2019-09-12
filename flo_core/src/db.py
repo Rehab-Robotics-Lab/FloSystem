@@ -17,17 +17,13 @@ class DB(object):
         if not os.path.exists(dir_name):
             mkdir(dir_name)
 
-        if not os.path.exists(db_location):
-            need_to_build = True
-
         try:
             self.conn = sqlite3.connect(db_location)
         except sqlite3.OperationalError as e:
             print("unable to connect to database at location: {}".format(db_location))
             print("error: {}".format(e))
         self.conn.row_factory = sqlite3.Row
-        if need_to_build:
-            self.make_db(db_location)
+        self.make_db(db_location)
 
     def ex(self, command, *args):
         # this with statement will auto commit
@@ -48,14 +44,14 @@ class DB(object):
         self.conn.close()
 
     def make_db(self, db_location):
-        self.ex('''CREATE TABLE poses (
+        self.ex('''CREATE TABLE IF NOT EXISTS poses (
                     id integer PRIMARY KEY,
                     description text,
                     joint_positions text,
                     joint_names text
                 );''')
 
-        self.ex('''CREATE TABLE pose_sequences(
+        self.ex('''CREATE TABLE IF NOT EXISTS pose_sequences(
                     id integer PRIMARY KEY,
                     times text, 
                     pose_ids text, 
@@ -64,15 +60,16 @@ class DB(object):
                     description text
                 );''')
 
-        self.ex('''CREATE TABLE phrases(
+        # type can be either 'ssml' or 'plain'
+        self.ex('''CREATE TABLE IF NOT EXISTS phrases(
                     id integer PRIMARY KEY,
-                    type text, 
+                    type text,
                     text text, 
                     length real,
                     metadata text
                 );''')
 
-        self.ex('''CREATE TABLE action_sequences (
+        self.ex('''CREATE TABLE IF NOT EXISTS action_sequences (
                     id integer PRIMARY KEY,
                     action_type text,
                     target text,

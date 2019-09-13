@@ -14,6 +14,8 @@ from flo_core.msg import Pose
 from flo_core.srv import SetPoseSeq, SetPoseSeqResponse
 from flo_core.srv import GetPoseSeqID, GetPoseSeqIDResponse
 from flo_core.srv import SearchPoseSeq, SearchPoseSeqResponse
+from flo_core.srv import SetUtterance, SetUtteranceResponse
+from flo_core.srv import SearchUtterance, SearchUtteranceResponse
 from flo_core.msg import PoseSeq
 
 from db import DB
@@ -47,6 +49,8 @@ class FloDb(object):
         rospy.Service('set_pose_seq', SetPoseSeq, self.set_pose_seq)
         rospy.Service('get_pose_seq_id', GetPoseSeqID, self.get_pose_seq_id)
         rospy.Service('search_pose_seq', SearchPoseSeq, self.search_pose_seq)
+        rospy.Service('search_utterace', SearchUtterance,
+                      self.search_utterance)
 
         rospy.loginfo('Node up, services ready')
 
@@ -242,6 +246,52 @@ class FloDb(object):
             resp.sequences.append(new_pose_seq)
             resp.ids.append(row['id'])
         return resp
+
+    def search_utterance(self, request):
+        db = DB(self.db_path)  # pylint: disable=invalid-name
+        resp = SearchUtteranceResponse()
+        for row in db.ex('select * from utterances where text like ?',
+                         '%'+request.search+'%'):
+            resp.ids.append(row['id'])
+            resp.texts.append(row['text'])
+            resp.metadatas.append(row['metadata'])
+            resp.length.append(row['length'])
+        return resp
+
+    def set_utterance(self, request):
+        db = DB(self.db_path)  # pylint: disable=invalid-name
+        if not (len(request.text) == len(request.metadata) ==
+                len(request.filename) == len(request.id)):
+            raise rospy.ServiceException(
+                'the length of the inputs are not consistent')
+
+            # WORKING HERE
+        if request.id:
+            curs = db.ex('select id from poses where id = ?', request.id)
+            data = curs.fetchone()
+            if data:
+                db_return = db.ex(
+                    'replace into poses(id, description, joint_positions, joint_names) values (?,?,?,?)',
+                    request.id,
+                    request.pose.description,
+                    json.dumps(request.pose.joint_positions),
+                    json.dumps(request.pose.joint_names))
+                updated_row = request.id
+                rospy.loginfo('updated pose at id: %i', updated_row)
+            else:
+                rospy.logerr('Attempt to change a non-existant row')
+                raise rospy.ServiceException(
+                    'The selected row does not exist, you cannot update it')
+        else:
+            db_return = db.ex(
+                'insert into poses(description, joint_positions, joint_names) values (?,?,?)',
+                request.pose.description,
+                json.dumps(request.pose.joint_positions),
+                json.dumps(request.pose.joint_names))
+            updated_row = db_return.lastrowid
+            rospy.loginfo('stored new pose at id: %i', updated_row)
+
+        return updated_row
 
 
 if __name__ == "__main__":

@@ -62,7 +62,7 @@ class DB(object):
 
         # type can be either 'ssml' or 'plain'. Removing type
         # always assume ssml. and it is in the metadata anyway
-        self.ex('''CREATE TABLE IF NOT EXISTS phrases(
+        self.ex('''CREATE TABLE IF NOT EXISTS utterances(
                     id integer PRIMARY KEY,
                     text text, 
                     length real,

@@ -77,6 +77,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
         margin: "10px"
       }}
     >
+      <h2>Speech to Speak</h2>
       <label htmlFor="speechTarget">
         String to speak (SSML):
         <input

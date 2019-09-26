@@ -18,6 +18,8 @@ from flo_core.srv import SetUtterance, SetUtteranceResponse
 from flo_core.srv import SearchUtterance, SearchUtteranceResponse
 from flo_core.msg import PoseSeq
 
+import mutagen
+
 from db import DB
 
 # Needs to be able to:
@@ -51,6 +53,7 @@ class FloDb(object):
         rospy.Service('search_pose_seq', SearchPoseSeq, self.search_pose_seq)
         rospy.Service('search_utterance', SearchUtterance,
                       self.search_utterance)
+        rospy.Service('set_utterance', SetUtterance, self.set_utterance)
 
         rospy.loginfo('Node up, services ready')
 
@@ -260,36 +263,35 @@ class FloDb(object):
 
     def set_utterance(self, request):
         db = DB(self.db_path)  # pylint: disable=invalid-name
-        if not (len(request.text) == len(request.metadata) ==
-                len(request.filename) == len(request.id)):
-            raise rospy.ServiceException(
-                'the length of the inputs are not consistent')
-
-            # WORKING HERE
+        # Find the length of the utterance:
+        mut_d = mutagen.File(request.filename)
+        time_length = mut_d.info.length
         if request.id:
-            curs = db.ex('select id from poses where id = ?', request.id)
+            curs = db.ex('select id from utterances where id = ?', request.id)
             data = curs.fetchone()
             if data:
                 db_return = db.ex(
-                    'replace into poses(id, description, joint_positions, joint_names) values (?,?,?,?)',
+                    'replace into utterances(id, text, length, metadata) values (?,?,?,?)',
                     request.id,
-                    request.pose.description,
-                    json.dumps(request.pose.joint_positions),
-                    json.dumps(request.pose.joint_names))
+                    request.text,
+                    time_length,
+                    request.metadata
+                )
                 updated_row = request.id
-                rospy.loginfo('updated pose at id: %i', updated_row)
+                rospy.loginfo('updated utterance at id: %i', updated_row)
             else:
                 rospy.logerr('Attempt to change a non-existant row')
                 raise rospy.ServiceException(
                     'The selected row does not exist, you cannot update it')
         else:
             db_return = db.ex(
-                'insert into poses(description, joint_positions, joint_names) values (?,?,?)',
-                request.pose.description,
-                json.dumps(request.pose.joint_positions),
-                json.dumps(request.pose.joint_names))
+                'insert into utterances(text, length, metadata) values (?,?,?)',
+                request.text,
+                time_length,
+                request.metadata
+            )
             updated_row = db_return.lastrowid
-            rospy.loginfo('stored new pose at id: %i', updated_row)
+            rospy.loginfo('stored new utterance at id: %i', updated_row)
 
         return updated_row
 

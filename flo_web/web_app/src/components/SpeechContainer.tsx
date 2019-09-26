@@ -55,7 +55,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       setSpeechTarget({
         text: speechTarget.text,
         metadata: speechTarget.metadata,
-        fileLocation: res
+        fileLocation: res.response
       });
       setSpeaking(false);
       //TODO do something to handle state of the result response

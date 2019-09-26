@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
 import { SetSpeechTarget, Utterance } from "../App";
+import ModalWrapper from "./ModalWrapper";
+
+const shrinkString = (str: string): string => {
+  let ret = str;
+  if (str.length > 25) {
+    ret = str.slice(0, 10) + "..." + str.slice(-9);
+  }
+  return ret;
+};
 
 interface UtteranceID extends Utterance {
   id: number;
@@ -11,7 +20,7 @@ interface UtteranceProps {
   setSpeechTarget: SetSpeechTarget;
 }
 
-const Utterace: React.FunctionComponent<UtteranceProps> = ({
+const UtteranceCont: React.FunctionComponent<UtteranceProps> = ({
   utterance,
   setSpeechTarget
 }) => {
@@ -22,7 +31,7 @@ const Utterace: React.FunctionComponent<UtteranceProps> = ({
         setSpeechTarget(utterance);
       }}
     >
-      {utterance.text}
+      {shrinkString(utterance.text)}
     </button>
   );
 };
@@ -42,16 +51,46 @@ const SavedSpeech: React.FunctionComponent<SavedSpeechProps> = ({
   setSpeechTarget,
   speaking
 }) => {
-  const saveSpeech = (): void => {
-    // send service call to add new utterance
-    //
-    // read back response and add to the list
-  };
   const [utterances, setUtterances] = useState<UtteranceID[]>([]);
   const [showSave, setShowSave] = useState(false);
   const [saveID, setSaveID] = useState(0);
   const [setUtterSrv, setSetUtterSrv] = useState<ROSLIB.Service | null>(null);
 
+  const saveSpeech = (): void => {
+    const req = new ROSLIB.ServiceRequest({
+      text: speechTarget.text,
+      metadata: speechTarget.metadata === null ? "" : speechTarget.metadata,
+      id: saveID,
+      filename: speechTarget.fileLocation
+    });
+    // send service call to add new utterance
+    if (setUtterSrv === null) {
+      return;
+    }
+    setUtterSrv.callService(req, res => {
+      const targetId = utterances.findIndex(item => item.id === res.id);
+      const utterancesT = [...utterances];
+      if (targetId === -1) {
+        utterancesT.push({
+          id: res.id,
+          text: speechTarget.text,
+          metadata: speechTarget.metadata,
+          fileLocation: speechTarget.fileLocation
+        });
+      } else {
+        utterancesT[targetId] = {
+          id: res.id,
+          text: speechTarget.text,
+          metadata: speechTarget.metadata,
+          fileLocation: speechTarget.fileLocation
+        };
+      }
+      setUtterances(utterancesT);
+      setSaveID(0);
+    });
+    //
+    // read back response and add to the list
+  };
   // get all of the utterances
   useEffect(() => {
     if (!connected) return;
@@ -78,11 +117,11 @@ const SavedSpeech: React.FunctionComponent<SavedSpeechProps> = ({
     });
 
     const setUtterSrvT = new ROSLIB.Service({
-    ros: ros as ROSLIB.Ros,
-    name: "/set_setUtterSrvT_seq",
-    serviceType: "flo_core/SetPoseSeq"
+      ros: ros as ROSLIB.Ros,
+      name: "/set_utterance",
+      serviceType: "flo_core/SetUtterance"
     });
-    setSetSeqSrv(setSeqSrvT);
+    setSetUtterSrv(setUtterSrvT);
   }, [connected, ros]);
 
   return (
@@ -99,13 +138,57 @@ const SavedSpeech: React.FunctionComponent<SavedSpeechProps> = ({
       <button
         type="button"
         onClick={(): void => {
-          saveSpeech();
+          setShowSave(true);
         }}
         disabled={!speechTarget.fileLocation}
       >
         Save
       </button>
       <hr />
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          overflow: "auto",
+          maxHeight: "400px"
+        }}
+      >
+        {utterances.map(value => (
+          <UtteranceCont utterance={value} setSpeechTarget={setSpeechTarget} />
+        ))}
+      </div>
+
+      <ModalWrapper show={showSave}>
+        <h3>Save an Utterance or Overwrite an Exisiting One</h3>
+        <label htmlFor="saveUtterIDSelector">
+          Save As:
+          <select
+            id="saveUtterIDSeelector"
+            onChange={(obj): void => {
+              const newId: number = parseInt(obj.target.value, 10);
+              setSaveID(newId);
+            }}
+          >
+            <option value="0">New Utterance</option>
+            {utterances.map((value, idx) => (
+              <option key={idx} value={value.id}>
+                {shrinkString(value.text)}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <button
+          type="button"
+          onClick={(): void => {
+            saveSpeech();
+            setShowSave(false);
+          }}
+        >
+          Save
+        </button>
+      </ModalWrapper>
     </div>
   );
 };

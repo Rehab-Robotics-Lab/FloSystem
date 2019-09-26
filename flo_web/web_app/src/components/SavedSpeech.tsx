@@ -2,8 +2,12 @@ import React, { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
 import { SetSpeechTarget, Utterance } from "../App";
 
-interface UtteranceProps extends Utterance {
+interface UtteranceID extends Utterance {
   id: number;
+}
+
+interface UtteranceProps {
+  utterance: UtteranceID;
   setSpeechTarget: SetSpeechTarget;
 }
 
@@ -12,7 +16,12 @@ const Utterace: React.FunctionComponent<UtteranceProps> = ({
   setSpeechTarget
 }) => {
   return (
-    <button type="button" onClick={(): void => {}}>
+    <button
+      type="button"
+      onClick={(): void => {
+        setSpeechTarget(utterance);
+      }}
+    >
       {utterance.text}
     </button>
   );
@@ -22,7 +31,7 @@ interface SavedSpeechProps {
   ros: ROSLIB.Ros | null;
   connected: boolean;
   speechTarget: Utterance;
-  setSpeechString: SetSpeechTarget;
+  setSpeechTarget: SetSpeechTarget;
   speaking: boolean;
 }
 // Takes a parameter ros, which is the connection to ros
@@ -30,11 +39,11 @@ const SavedSpeech: React.FunctionComponent<SavedSpeechProps> = ({
   ros,
   connected,
   speechTarget,
-  setSpeechString,
+  setSpeechTarget,
   speaking
 }) => {
   const saveSpeechString = (str: string): void => {};
-  const [utterances, setUtterances] = useState<UtteranceProps[]>([]);
+  const [utterances, setUtterances] = useState<UtteranceID[]>([]);
   const [showSave, setShowSave] = useState(false);
   const [saveID, setSaveID] = useState(0);
   const [setSeqSrv, setSetSeqSrv] = useState<ROSLIB.Service | null>(null);
@@ -45,8 +54,8 @@ const SavedSpeech: React.FunctionComponent<SavedSpeechProps> = ({
 
     const searchUtterances = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
-      name: "/search_utterances",
-      serviceType: "flo_core/SearchUtterances"
+      name: "/search_utterance",
+      serviceType: "flo_core/SearchUtterance"
     });
 
     const request = new ROSLIB.ServiceRequest({ search: "" });
@@ -56,26 +65,20 @@ const SavedSpeech: React.FunctionComponent<SavedSpeechProps> = ({
       for (let i = 0; i < resp.ids.length; i += 1) {
         utterances.push({
           id: resp.ids[i],
-          seq: resp.text[i]
-          //WORKING HERE
+          text: resp.texts[i],
+          metadata: resp.metadatas[i],
+          fileLocation: null
         });
       }
-      setSeqList(seqs);
+      setUtterances(utterances);
     });
 
-    const setSeqSrvT = new ROSLIB.Service({
-      ros: ros as ROSLIB.Ros,
-      name: "/set_pose_seq",
-      serviceType: "flo_core/SetPoseSeq"
-    });
-    setSetSeqSrv(setSeqSrvT);
-
-    const getPoseSrvT = new ROSLIB.Service({
-      ros: ros as ROSLIB.Ros,
-      name: "/get_pose_id",
-      serviceType: "flo_core/GetPoseID"
-    });
-    setGetPoseSrv(getPoseSrvT);
+    //const setSeqSrvT = new ROSLIB.Service({
+    //ros: ros as ROSLIB.Ros,
+    //name: "/set_pose_seq",
+    //serviceType: "flo_core/SetPoseSeq"
+    //});
+    //setSetSeqSrv(setSeqSrvT);
   }, [connected, ros]);
 
   return (
@@ -88,12 +91,13 @@ const SavedSpeech: React.FunctionComponent<SavedSpeechProps> = ({
         margin: "10px"
       }}
     >
+      <h2>Saved Utterances</h2>
       <button
         type="button"
         onClick={(): void => {
           //saveSpeechString();
         }}
-        disabled={speechTarget.fileLocation === ""}
+        disabled={!speechTarget.fileLocation}
       >
         Save
       </button>

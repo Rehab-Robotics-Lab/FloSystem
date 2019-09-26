@@ -144,13 +144,20 @@ const App: React.FunctionComponent = () => {
               setMovesList={setMovesList}
             />
           </div>
-          <div>
+          <div style={{ display: "flex", flexDirection: "row" }}>
             <SpeechContainer
               ros={ros}
               connected={connected}
               speechTarget={speechTarget}
               setSpeechTarget={setSpeechTarget}
               setSpeaking={setSpeaking}
+              speaking={speaking}
+            />
+            <SavedSpeech
+              ros={ros}
+              connected={connected}
+              speechTarget={speechTarget}
+              setSpeechTarget={setSpeechTarget}
               speaking={speaking}
             />
           </div>

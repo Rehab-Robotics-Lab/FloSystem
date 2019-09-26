@@ -293,7 +293,8 @@ class FloDb(object):
             updated_row = db_return.lastrowid
             rospy.loginfo('stored new utterance at id: %i', updated_row)
 
-        return updated_row
+        resp = SetUtteranceResponse(id=updated_row, time=time_length)
+        return resp
 
 
 if __name__ == "__main__":

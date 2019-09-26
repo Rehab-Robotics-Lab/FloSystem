@@ -49,7 +49,7 @@ class FloDb(object):
         rospy.Service('set_pose_seq', SetPoseSeq, self.set_pose_seq)
         rospy.Service('get_pose_seq_id', GetPoseSeqID, self.get_pose_seq_id)
         rospy.Service('search_pose_seq', SearchPoseSeq, self.search_pose_seq)
-        rospy.Service('search_utterace', SearchUtterance,
+        rospy.Service('search_utterance', SearchUtterance,
                       self.search_utterance)
 
         rospy.loginfo('Node up, services ready')

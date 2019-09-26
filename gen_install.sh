@@ -22,6 +22,7 @@ cd -
 ECHO "INSTALLING DEPENDENCIES NOT FOUND IN ROSDEP"
 pip install pyqtgraph --user
 python flo_face/teensy/src/serial_coms/computer/python/serial-coms/setup.py install --user
+pip install mutagen --user
 
 echo "INSTALLING ROSDEP DEPENDENCIES"
 sudo apt install python-rosdep

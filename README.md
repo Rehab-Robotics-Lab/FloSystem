@@ -158,6 +158,23 @@ A few notes:
   you can resolve that by running `pip3 install -U boto3`
   (this should now be a part of the install script, but it is commented out)
 
+#### USB Speaker
+You need to make the usb speaker the default device:
+sudo vim /usr/share/alsa/alsa.conf
+
+change:
+```bash
+defaults.ctl.card 0
+defaults.pcm.card 0
+```
+
+to:
+```bash
+defaults.ctl.card 1
+defaults.pcm.card 1
+```
+
+then restart
 
 ## Some useful tools:
 For monitoring the kobuki, you can use the [kobuki dashboard](http://wiki.ros.org/turtlebot_bringup/Tutorials/indigo/PC%20Bringup).

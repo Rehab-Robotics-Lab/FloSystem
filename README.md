@@ -159,6 +159,8 @@ A few notes:
   (this should now be a part of the install script, but it is commented out)
 
 #### USB Speaker
+
+##### Not sure if this is needed:
 You need to make the usb speaker the default device:
 sudo vim /usr/share/alsa/alsa.conf
 
@@ -220,4 +222,9 @@ cd ~/catkin_ws
 catkin_make clean
 catkin_make
 catkin_make install
-'''
+```
+
+### There is no audio playing
+The first thing to do is test the speaker by running `speaker-test`
+Then hop into Alsa Mixer `alsamixer`, press F6 and select the USB Device.
+You can also set the volume here.

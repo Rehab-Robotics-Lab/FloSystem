@@ -6,7 +6,7 @@ import { runSequence } from "./SequenceRunContainer";
 import { basicBlock } from "../styleDefs/styles";
 
 const armNames = [
-  "left_shoulder_flexionextension",
+  "shoulder_flexionextension",
   "shoulder_abduction",
   "shoulder_rotation",
   "elbow_flexionextension"
@@ -23,13 +23,27 @@ const ArmInput: React.FunctionComponent<ArmInputProps> = ({
   setTarget,
   val
 }) => {
+  const min = -180;
+  const max = 180;
   return (
     <div>
       <label htmlFor="arm_input">
         {name}:
         <input
-          type="text"
+          type="number"
           name="arm_input"
+          style={{ width: "50px" }}
+          min={min}
+          max={max}
+          value={val}
+          onChange={e => {
+            setTarget(parseFloat(e.target.value));
+          }}
+        />
+        <input
+          type="range"
+          min={min}
+          max={max}
           value={val}
           onChange={e => {
             setTarget(parseFloat(e.target.value));

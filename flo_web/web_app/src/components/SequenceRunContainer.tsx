@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import * as ROSLIB from "roslib";
 import { PoseMsg, PoseWrapper } from "./PoseContainer";
 import { SetMoving, SetMovesList } from "../App";
+import { basicBlock } from "../styleDefs/styles";
 
 interface SetTime {
   (id: number, time: number): void;
@@ -262,15 +263,7 @@ const SequenceRunContainer: React.FunctionComponent<
   // need to check that two successive commands don't have the same limb with zero time.
 
   return (
-    <div
-      id="moves-container"
-      style={{
-        backgroundColor: "white",
-        borderRadius: "25px",
-        padding: "10px",
-        margin: "10px"
-      }}
-    >
+    <div id="moves-container" style={basicBlock}>
       <h2>List of moves to make:</h2>
       <div style={{ display: "flex", flexDirection: "column" }}>
         <div style={{ display: "flex", flexDirection: "row" }}>

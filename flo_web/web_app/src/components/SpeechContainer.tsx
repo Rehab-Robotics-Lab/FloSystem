@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
 import { SetSpeechTarget, SetSpeaking, Utterance } from "../App";
+import { basicBlock } from "../styleDefs/styles";
 
 interface SpeechProps {
   ros: ROSLIB.Ros | null;
@@ -69,13 +70,9 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
 
   return (
     <div
-      style={{
-        maxWidth: "300px",
-        backgroundColor: "white",
-        borderRadius: "25px",
-        padding: "10px",
-        margin: "10px"
-      }}
+      style={Object.assign({}, basicBlock, {
+        maxWidth: "300px"
+      })}
     >
       <h2>Speech to Speak</h2>
       <label htmlFor="speechTarget">

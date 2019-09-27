@@ -3,6 +3,7 @@ import * as ROSLIB from "roslib";
 import { PoseMsg, PoseWrapper } from "./PoseContainer";
 import { SetMoving, SetMovesList } from "../App";
 import { runSequence } from "./SequenceRunContainer";
+import { basicBlock } from "../styleDefs/styles";
 
 const armNames = [
   "left_shoulder_flexionextension",
@@ -70,7 +71,7 @@ const MoveToPose: React.FunctionComponent<MoveToPoseProps> = ({
     );
   }
   return (
-    <div>
+    <div style={basicBlock}>
       <h2>Move to a Pose</h2>
       {inputs}
     </div>

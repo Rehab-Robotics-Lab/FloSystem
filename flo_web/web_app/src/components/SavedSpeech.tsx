@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
 import { SetSpeechTarget, Utterance } from "../App";
 import ModalWrapper from "./ModalWrapper";
+import { basicBlock } from "../styleDefs/styles";
 
 const shrinkString = (str: string): string => {
   let ret = str;
@@ -126,13 +127,9 @@ const SavedSpeech: React.FunctionComponent<SavedSpeechProps> = ({
 
   return (
     <div
-      style={{
-        maxWidth: "300px",
-        backgroundColor: "white",
-        borderRadius: "25px",
-        padding: "10px",
-        margin: "10px"
-      }}
+      style={Object.assign({}, basicBlock, {
+        maxWidth: "300px"
+      })}
     >
       <h2>Saved Utterances</h2>
       <button

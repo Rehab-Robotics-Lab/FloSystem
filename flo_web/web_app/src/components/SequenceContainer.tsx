@@ -3,6 +3,7 @@ import * as ROSLIB from "roslib";
 import { SetMovesList, AddToMoveList, genRandID } from "../App";
 import { Move } from "./SequenceRunContainer";
 import ModalWrapper from "./ModalWrapper";
+import { basicBlock } from "../styleDefs/styles";
 
 interface Sequence {
   pose_ids: number[];
@@ -119,13 +120,9 @@ const SequenceContainer: React.FunctionComponent<SequenceContainerProps> = ({
   return (
     <div
       id="sequences-container"
-      style={{
-        maxWidth: "150px",
-        backgroundColor: "white",
-        borderRadius: "25px",
-        padding: "10px",
-        margin: "10px"
-      }}
+      style={Object.assign({}, basicBlock, {
+        maxWidth: "150px"
+      })}
     >
       <h2>Sequences:</h2>
       <button

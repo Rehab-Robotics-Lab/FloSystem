@@ -1,9 +1,9 @@
 address    name                             neutral    min    max   inversion
-1          left_shoulder_flexionextension   767        10     500   1
+1          left_shoulder_flexionextension   765        10     500   1
 2          left_shoulder_abduction          255        250    745   1
-4          left_shoulder_rotation           511        50     900   1
-11         left_elbow_flexionextension      511        405    760   1
+4          left_shoulder_rotation           510        50     900   1
+11         left_elbow_flexionextension      510        405    760   1
 0          right_shoulder_flexionextension   255        10     500   -1
-14         right_shoulder_abduction          767        250    745   -1
-3          right_shoulder_rotation           511        50     900   -1
-5          right_elbow_flexionextension      511        405    760   -1
+14         right_shoulder_abduction          765        250    745   -1
+3          right_shoulder_rotation           510        50     900   -1
+5          right_elbow_flexionextension      510        405    760   -1

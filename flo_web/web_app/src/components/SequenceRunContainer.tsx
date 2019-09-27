@@ -35,7 +35,7 @@ export interface Move {
   key: number;
 }
 
-const runSequence = (
+export const runSequence = (
   MovesList: Move[],
   setMovesList: SetMovesList,
   setMoving: SetMoving,

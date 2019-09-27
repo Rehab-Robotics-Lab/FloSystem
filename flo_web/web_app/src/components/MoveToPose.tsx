@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import * as ROSLIB from "roslib";
 import { PoseMsg, PoseWrapper } from "./PoseContainer";
 import { SetMoving, SetMovesList } from "../App";
-import { runSequence } from "./SequenceRunContainer";
+import { runSequence, Move } from "./SequenceRunContainer";
 import { basicBlock } from "../styleDefs/styles";
 
 const armNames = [
@@ -16,15 +16,17 @@ interface ArmInputProps {
   name: string;
   setTarget: (arg: number) => void;
   val: number;
+  min?: number;
+  max?: number;
 }
 
 const ArmInput: React.FunctionComponent<ArmInputProps> = ({
   name,
   setTarget,
-  val
+  val,
+  min = -180,
+  max = 180
 }) => {
-  const min = -180;
-  const max = 180;
   return (
     <div>
       <label htmlFor="arm_input">
@@ -69,6 +71,8 @@ const MoveToPose: React.FunctionComponent<MoveToPoseProps> = ({
 }) => {
   const numArms = armNames.length;
   const [targetPose, setTargetPose] = useState(new Array(numArms).fill(0));
+  const [arm, setArm] = useState<"left" | "right">("right");
+  const [time, setTime] = useState(2);
 
   const inputs = [];
   for (let idx = 0; idx < numArms; idx += 1) {
@@ -88,6 +92,60 @@ const MoveToPose: React.FunctionComponent<MoveToPoseProps> = ({
     <div style={basicBlock}>
       <h2>Move to a Pose</h2>
       {inputs}
+
+      <label htmlFor="arm-selector">
+        <button
+          name="arm-selector"
+          type="button"
+          onClick={(): void => {
+            setArm(arm === "left" ? "right" : "left");
+          }}
+        >
+          {arm}
+        </button>
+      </label>
+
+      <ArmInput name="time" setTarget={setTime} val={time} />
+
+      <label htmlFor="run">
+        <button
+          name="run"
+          type="button"
+          onClick={(): void => {
+            if (ros === null) {
+              return;
+            }
+
+            const cleanNames = [];
+            let name;
+            for (name in armNames) {
+              cleanNames.push(arm + "_" + name);
+            }
+
+            const movesList: Move[] = [
+              {
+                time: time,
+                pose: {
+                  pose: {
+                    description: "temp pose",
+                    joint_names: armNames,
+                    joint_positions: targetPose
+                  },
+                  id: 0
+                },
+                lr: arm,
+                status: "not-run",
+                key: 0
+              }
+            ];
+
+            runSequence(movesList, (arg: Move[]) => null, setMoving, ros);
+          }}
+          disabled={moving || !connected}
+        >
+          Run
+        </button>
+      </label>
     </div>
   );
 };

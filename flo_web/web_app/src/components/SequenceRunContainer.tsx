@@ -42,8 +42,11 @@ export const runSequence = (
   setMoving: SetMoving,
   ros: ROSLIB.Ros
 ): void => {
+  if (ros === null) {
+    return;
+  }
   const actionClient = new ROSLIB.ActionClient({
-    ros: ros as ROSLIB.Ros,
+    ros: ros,
     serverName: "/move",
     actionName: "flo_humanoid/MoveAction",
     timeout: 1 //Not sure about this value here. needs testing
@@ -303,7 +306,10 @@ const SequenceRunContainer: React.FunctionComponent<
         type="button"
         disabled={!connected || moving || errorList.some(val => val)}
         onClick={(): void => {
-          runSequence(MovesList, setMovesList, setMoving, ros as ROSLIB.Ros);
+          if (ros === null) {
+            return;
+          }
+          runSequence(MovesList, setMovesList, setMoving, ros);
         }}
       >
         Run Sequence

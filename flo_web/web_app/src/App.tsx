@@ -10,6 +10,7 @@ import SequenceContainer from "./components/SequenceContainer";
 import colors from "./styleDefs/colors";
 import SpeechContainer from "./components/SpeechContainer";
 import SavedSpeech from "./components/SavedSpeech";
+import MoveToPose from "./components/MoveToPose";
 
 export function genRandID(): number {
   return Math.round(Math.random() * 10000) + Date.now();
@@ -35,8 +36,14 @@ export interface SetMoving {
   (arg: boolean): void;
 }
 
-export interface SetSpeechString {
-  (arg: string): void;
+export interface Utterance {
+  text: string;
+  metadata: string | null;
+  fileLocation: string | null;
+}
+
+export interface SetSpeechTarget {
+  (arg: Utterance): void;
 }
 
 export interface Speech {
@@ -59,7 +66,11 @@ const App: React.FunctionComponent = () => {
   const [connected, setConnected] = useState(false);
   const [MovesList, setMovesListInternal] = useState(cookies.movesList || []);
   const [moving, setMoving] = useState(false);
-  const [speechString, setSpeechString] = useState("");
+  const [speechTarget, setSpeechTarget] = useState<Utterance>({
+    text: "",
+    metadata: null,
+    fileLocation: null
+  });
   const [speaking, setSpeaking] = useState(false);
 
   // TODO: make this type more specific
@@ -113,6 +124,14 @@ const App: React.FunctionComponent = () => {
           <div className="visualFeeds">
             <URDF ros={ros} connected={connected} />
           </div>
+          <div>
+            <MoveToPose
+              ros={ros}
+              connected={connected}
+              moving={moving}
+              setMoving={setMoving}
+            />
+          </div>
           <div style={{ display: "flex", flexDirection: "row" }}>
             <PoseContainer
               ros={ros}
@@ -134,13 +153,20 @@ const App: React.FunctionComponent = () => {
               setMovesList={setMovesList}
             />
           </div>
-          <div>
+          <div style={{ display: "flex", flexDirection: "row" }}>
             <SpeechContainer
               ros={ros}
               connected={connected}
-              speechString={speechString}
-              setSpeechString={setSpeechString}
+              speechTarget={speechTarget}
+              setSpeechTarget={setSpeechTarget}
               setSpeaking={setSpeaking}
+              speaking={speaking}
+            />
+            <SavedSpeech
+              ros={ros}
+              connected={connected}
+              speechTarget={speechTarget}
+              setSpeechTarget={setSpeechTarget}
               speaking={speaking}
             />
           </div>

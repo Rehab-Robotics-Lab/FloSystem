@@ -14,7 +14,11 @@ from flo_core.msg import Pose
 from flo_core.srv import SetPoseSeq, SetPoseSeqResponse
 from flo_core.srv import GetPoseSeqID, GetPoseSeqIDResponse
 from flo_core.srv import SearchPoseSeq, SearchPoseSeqResponse
+from flo_core.srv import SetUtterance, SetUtteranceResponse
+from flo_core.srv import SearchUtterance, SearchUtteranceResponse
 from flo_core.msg import PoseSeq
+
+import mutagen
 
 from db import DB
 
@@ -47,6 +51,9 @@ class FloDb(object):
         rospy.Service('set_pose_seq', SetPoseSeq, self.set_pose_seq)
         rospy.Service('get_pose_seq_id', GetPoseSeqID, self.get_pose_seq_id)
         rospy.Service('search_pose_seq', SearchPoseSeq, self.search_pose_seq)
+        rospy.Service('search_utterance', SearchUtterance,
+                      self.search_utterance)
+        rospy.Service('set_utterance', SetUtterance, self.set_utterance)
 
         rospy.loginfo('Node up, services ready')
 
@@ -241,6 +248,52 @@ class FloDb(object):
 
             resp.sequences.append(new_pose_seq)
             resp.ids.append(row['id'])
+        return resp
+
+    def search_utterance(self, request):
+        db = DB(self.db_path)  # pylint: disable=invalid-name
+        resp = SearchUtteranceResponse()
+        for row in db.ex('select * from utterances where text like ?',
+                         '%'+request.search+'%'):
+            resp.ids.append(row['id'])
+            resp.texts.append(row['text'])
+            resp.metadatas.append(row['metadata'])
+            resp.length.append(row['length'])
+        return resp
+
+    def set_utterance(self, request):
+        db = DB(self.db_path)  # pylint: disable=invalid-name
+        # Find the length of the utterance:
+        mut_d = mutagen.File(request.filename)
+        time_length = mut_d.info.length
+        if request.id:
+            curs = db.ex('select id from utterances where id = ?', request.id)
+            data = curs.fetchone()
+            if data:
+                db_return = db.ex(
+                    'replace into utterances(id, text, length, metadata) values (?,?,?,?)',
+                    request.id,
+                    request.text,
+                    time_length,
+                    request.metadata
+                )
+                updated_row = request.id
+                rospy.loginfo('updated utterance at id: %i', updated_row)
+            else:
+                rospy.logerr('Attempt to change a non-existant row')
+                raise rospy.ServiceException(
+                    'The selected row does not exist, you cannot update it')
+        else:
+            db_return = db.ex(
+                'insert into utterances(text, length, metadata) values (?,?,?)',
+                request.text,
+                time_length,
+                request.metadata
+            )
+            updated_row = db_return.lastrowid
+            rospy.loginfo('stored new utterance at id: %i', updated_row)
+
+        resp = SetUtteranceResponse(id=updated_row, time=time_length)
         return resp
 
 

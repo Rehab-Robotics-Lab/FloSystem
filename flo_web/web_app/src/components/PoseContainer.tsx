@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
 import ModalWrapper from "./ModalWrapper";
+import { basicBlock } from "../styleDefs/styles";
 
 export interface PoseMsg {
   description: string;
@@ -114,13 +115,9 @@ const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
   return (
     <div
       id="poses-container"
-      style={{
-        maxWidth: "150px",
-        backgroundColor: "white",
-        borderRadius: "25px",
-        padding: "10px",
-        margin: "10px"
-      }}
+      style={Object.assign({}, basicBlock, {
+        maxWidth: "150px"
+      })}
     >
       <h2>Poses:</h2>
       <button

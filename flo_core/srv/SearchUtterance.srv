@@ -1,0 +1,6 @@
+string search
+---
+string[] texts
+uint32[] ids
+string[] metadatas
+float32[] length

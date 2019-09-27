@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import * as ROSLIB from "roslib";
 import colors from "../styleDefs/colors";
 import { AddError, SetConnected } from "../App";
+import { CookiesProvider, useCookies } from "react-cookie";
 
 interface HeaderProps {
   setRos: (ros: ROSLIB.Ros) => any;
@@ -16,8 +17,11 @@ const Header: React.FunctionComponent<HeaderProps> = ({
   connected,
   setConnected
 }) => {
-  const [ipAddr, setIpAddr] = useState(window.location.hostname);
-  const [ipPort, setIpPort] = useState("9090");
+  const [cookies, setCookie] = useCookies(["ipAddr", "ipPort"]);
+  const [ipAddr, setIpAddr] = useState(
+    cookies.ipAddr || window.location.hostname
+  );
+  const [ipPort, setIpPort] = useState(cookies.ipPort || "9090");
 
   const errorWrapper = (err: string) => {
     addError("ROS Connection Error: " + err, "Header");
@@ -54,41 +58,49 @@ const Header: React.FunctionComponent<HeaderProps> = ({
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "stretch",
-        justifyContent: "space-between",
-        backgroundColor: colors.blue.neutral,
-        color: colors.white
-      }}
-    >
-      <h1 style={{ margin: "0px" }}>Flo Control Center</h1>
-      <div>
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="ip_addr">
-            IP Address:
-            <input
-              type="text"
-              name="ip_addr"
-              value={ipAddr}
-              onChange={e => setIpAddr(e.target.value)}
-            />
-          </label>
-          <label htmlFor="ip_port">
-            IP Port:
-            <input
-              type="text"
-              name="ip_port"
-              value={ipPort}
-              onChange={e => setIpPort(e.target.value)}
-            />
-          </label>
-          <input type="submit" value="Connect" disabled={connected} />
-        </form>
-        <b>{connectedString()}</b>
+    <CookiesProvider>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "stretch",
+          justifyContent: "space-between",
+          backgroundColor: colors.blue.neutral,
+          color: colors.white
+        }}
+      >
+        <h1 style={{ margin: "0px" }}>Flo Control Center</h1>
+        <div>
+          <form onSubmit={handleSubmit}>
+            <label htmlFor="ip_addr">
+              IP Address:
+              <input
+                type="text"
+                name="ip_addr"
+                value={ipAddr}
+                onChange={e => {
+                  setCookie("ipAddr", e.target.value);
+                  setIpAddr(e.target.value);
+                }}
+              />
+            </label>
+            <label htmlFor="ip_port">
+              IP Port:
+              <input
+                type="text"
+                name="ip_port"
+                value={ipPort}
+                onChange={e => {
+                  setCookie("ipPort", e.target.value);
+                  setIpPort(e.target.value);
+                }}
+              />
+            </label>
+            <input type="submit" value="Connect" disabled={connected} />
+          </form>
+          <b>{connectedString()}</b>
+        </div>
       </div>
-    </div>
+    </CookiesProvider>
   );
 };
 

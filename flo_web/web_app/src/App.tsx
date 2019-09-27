@@ -10,6 +10,7 @@ import SequenceContainer from "./components/SequenceContainer";
 import colors from "./styleDefs/colors";
 import SpeechContainer from "./components/SpeechContainer";
 import SavedSpeech from "./components/SavedSpeech";
+import MoveToPose from "./components/MoveToPose";
 
 export function genRandID(): number {
   return Math.round(Math.random() * 10000) + Date.now();
@@ -122,6 +123,14 @@ const App: React.FunctionComponent = () => {
         <div className="body" style={{ backgroundColor: colors.gray.dark2 }}>
           <div className="visualFeeds">
             <URDF ros={ros} connected={connected} />
+          </div>
+          <div>
+            <MoveToPose
+              ros={ros}
+              connected={connected}
+              moving={moving}
+              setMoving={setMoving}
+            />
           </div>
           <div style={{ display: "flex", flexDirection: "row" }}>
             <PoseContainer

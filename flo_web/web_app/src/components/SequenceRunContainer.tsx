@@ -35,6 +35,90 @@ export interface Move {
   key: number;
 }
 
+const runSequence = (
+  MovesList: Move[],
+  setMovesList: SetMovesList,
+  setMoving: SetMoving,
+  ros: ROSLIB.Ros
+): void => {
+  const actionClient = new ROSLIB.ActionClient({
+    ros: ros as ROSLIB.Ros,
+    serverName: "/move",
+    actionName: "flo_humanoid/MoveAction",
+    timeout: 1 //Not sure about this value here. needs testing
+  });
+
+  let time = 0;
+
+  // Need to iterate through the move list and do:
+  // - add limb prefix
+  // - calculate the actual target time
+  const targets: Array<ROSLIB.Message> = [];
+  let priorArm = "";
+  MovesList.forEach(move => {
+    if (move.lr === priorArm && move.time === 0) {
+      throw new Error(
+        "There cannot be two arm movements with zero time on the same arm"
+      );
+    }
+    priorArm = move.lr;
+    time += move.time;
+    const names = [...move.pose.pose.joint_names];
+    for (let idx = 0; idx < names.length; idx += 1) {
+      names[idx] = `${move.lr}_${names[idx]}`;
+    }
+    const msg = new ROSLIB.Message({
+      name: names,
+      position: move.pose.pose.joint_positions,
+      target_completion_time: time
+    });
+    targets.push(msg);
+  });
+
+  const goal = new ROSLIB.Goal({
+    actionClient,
+    goalMessage: {
+      targets
+    }
+  });
+
+  //TODO: get this out as an error
+  //goal.on("timeout",fb=>{
+
+  //})
+
+  goal.on("feedback", fb => {
+    const curMove = fb.move_number;
+    const moveListN = [...MovesList];
+    for (let idx = 0; idx < curMove; idx += 1) {
+      moveListN[idx].status = "complete";
+    }
+    moveListN[curMove].status = "moving";
+    setMovesList(moveListN);
+  });
+
+  goal.on("result", res => {
+    setMoving(false);
+    const moveListN = [...MovesList];
+    for (let idx = 0; idx < moveListN.length; idx += 1) {
+      moveListN[idx].status = "none";
+    }
+    setMovesList(moveListN);
+    if (res.completed === false) {
+      //TODO set an error
+    }
+  });
+
+  setMoving(true);
+  const moveListN = [...MovesList];
+  for (let idx = 0; idx < moveListN.length; idx += 1) {
+    moveListN[idx].status = "planned";
+  }
+  setMovesList(moveListN);
+
+  goal.send();
+};
+
 const Move: React.FunctionComponent<MoveProps> = ({
   id,
   pose,
@@ -176,84 +260,6 @@ const SequenceRunContainer: React.FunctionComponent<
   };
 
   // need to check that two successive commands don't have the same limb with zero time.
-  const runSequence = (): void => {
-    const actionClient = new ROSLIB.ActionClient({
-      ros: ros as ROSLIB.Ros,
-      serverName: "/move",
-      actionName: "flo_humanoid/MoveAction",
-      timeout: 1 //Not sure about this value here. needs testing
-    });
-
-    let time = 0;
-
-    // Need to iterate through the move list and do:
-    // - add limb prefix
-    // - calculate the actual target time
-    const targets: Array<ROSLIB.Message> = [];
-    let priorArm = "";
-    MovesList.forEach(move => {
-      if (move.lr === priorArm && move.time === 0) {
-        throw new Error(
-          "There cannot be two arm movements with zero time on the same arm"
-        );
-      }
-      priorArm = move.lr;
-      time += move.time;
-      const names = [...move.pose.pose.joint_names];
-      for (let idx = 0; idx < names.length; idx += 1) {
-        names[idx] = `${move.lr}_${names[idx]}`;
-      }
-      const msg = new ROSLIB.Message({
-        name: names,
-        position: move.pose.pose.joint_positions,
-        target_completion_time: time
-      });
-      targets.push(msg);
-    });
-
-    const goal = new ROSLIB.Goal({
-      actionClient,
-      goalMessage: {
-        targets
-      }
-    });
-
-    //TODO: get this out as an error
-    //goal.on("timeout",fb=>{
-
-    //})
-
-    goal.on("feedback", fb => {
-      const curMove = fb.move_number;
-      const moveListN = [...MovesList];
-      for (let idx = 0; idx < curMove; idx += 1) {
-        moveListN[idx].status = "complete";
-      }
-      moveListN[curMove].status = "moving";
-      setMovesList(moveListN);
-    });
-
-    goal.on("result", res => {
-      setMoving(false);
-      const moveListN = [...MovesList];
-      for (let idx = 0; idx < moveListN.length; idx += 1) {
-        moveListN[idx].status = "none";
-      }
-      setMovesList(moveListN);
-      if (res.completed === false) {
-        //TODO set an error
-      }
-    });
-
-    setMoving(true);
-    const moveListN = [...MovesList];
-    for (let idx = 0; idx < moveListN.length; idx += 1) {
-      moveListN[idx].status = "planned";
-    }
-    setMovesList(moveListN);
-
-    goal.send();
-  };
 
   return (
     <div
@@ -304,7 +310,7 @@ const SequenceRunContainer: React.FunctionComponent<
         type="button"
         disabled={!connected || moving || errorList.some(val => val)}
         onClick={(): void => {
-          runSequence();
+          runSequence(MovesList, setMovesList, setMoving, ros as ROSLIB.Ros);
         }}
       >
         Run Sequence

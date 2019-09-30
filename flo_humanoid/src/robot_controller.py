@@ -328,9 +328,14 @@ class BolideController(object):
         :param command: the command to send, this should be given as a list
         """
         with self.usb_lock:
+            self.ser.flushInput()  # TODO I don't like needing this
             to_send = bytearray([0xff, len(command)+3]+command+[0xfe])
             rospy.loginfo('sending: %s', [hex(s) for s in to_send])
             self.ser.write(to_send)
+            rospy.loginfo('waiting for response')
+            # TODO: make more informative feedback
+            feedback = self.reader.read_feedback(20)
+            rospy.loginfo('feedback: %s', feedback)
 
     def relax_motors(self):
         """relax_motors"""

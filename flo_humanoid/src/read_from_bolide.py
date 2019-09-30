@@ -29,7 +29,8 @@ class BolideReader(object):
 
     commands = {'pos': 0x03, 'current': 0x06, 'torque': 0x07}
 
-    feedback = {'error': 0x00, 'keep_going': 0x01, 'done': 0x02}
+    feedback = {'error': 0x00, 'keep_going': 0x01,
+                'done': 0x02, 'relaxed': 0x03}
 
     motors = {'L-shoulder-flex/exten': 1, 'L-shoulder-abduct': 2,
               'L-med-rot': 4, 'L-elbow-flex/exten': 11, 'R-shoulder-flex/exten': 0, 'R-shoulder-abduction': 14, 'R-shoulder-rotation': 3, 'R-elbow-flex/exten': 5}
@@ -56,10 +57,12 @@ class BolideReader(object):
                     `current`, `torque`
             tries:  The number of serial read attempts before giving up.
         '''
+        # TODO: not sure if flushing the input is a good idea here
         self.ser.flushInput()
         self.ser.write(bytearray([0xFF, 0x04, self.commands[target], 0xfe]))
         ret = ''
         while len(ret) < 1 and tries > 0:
+            # TODO should i actually be waiting for 40 bytes each time?
             ret = self.ser.read(40)
             tries -= 1
             log(1, 'len(ret): {} | ret: {}'.format(len(ret), ret))
@@ -105,53 +108,44 @@ class BolideReader(object):
         return final_joint_pos
 
     def read_feedback(self, tries=5):
-        '''Read data from the bolide robot. Check the header, length,
-        and end. Read either position, current, or torque
+        '''Read feedback from robot. Check the header, length,
+        and end. Expect header, length=0x04, code, tail 
 
         Args:
-            target: the the targeted thing to read. Options are `pos`,
-                    `current`, `torque`
             tries:  The number of serial read attempts before giving up.
         '''
         ret = ''
-        print('starting to look for feedback')
-        while len(ret) < 3 and tries > 0:
-            ret = self.ser.read(1)
+        # print('starting to look for feedback')
+        while len(ret) < 2 and tries > 0:
+            ret = ret+self.ser.read(1)
             tries -= 1
 
         if ret:
-            print([ord(r) for r in ret])
             header = ord(ret[0])
         else:
-            log(3, 'not enough data returned after tries')
-            return
+            return ('local_err', 'not enough data returned after tries. Length of data: {}'.format(len(ret)))
 
         if header != 0xFF:
-            log(3, 'first byte read did not match header: {}'.format(header))
-            return
+            return ('local_err', 'first byte read did not match header: {}'.format(header))
         else:
             good_header = True
-
-        while len(ret) < ord(ret[1]) and tries > 0:
-            print('starting try')
-            ret = ret + self.ser.read(4-len(ret))
-            print('done try with: {}'.format(ret))
+            expected_length = ord(ret[1])
+        while len(ret) < expected_length and tries > 0:
+            ret = ret + self.ser.read(expected_length-len(ret))
             tries -= 1
 
-        len_bit = ord(ret[1])
-        if len_bit != len(ret):
-            log(3, 'wrong length bit sent')
-            return
+        if expected_length != len(ret):
+            return ('local_err', 'wrong length bit sent')
 
         feedback = ord(ret[2])
 
         end = ord(ret[-1])
 
         if end != 0xFE:
-            log(3, 'bad end bit')
-            return
+            return ('local_err', 'bad end bit')
 
-        return [key for key, value in self.feedback.items() if value == feedback]
+        # return [key for key, value in self.feedback.items() if value == feedback]
+        return feedback
 
     def read_battery_voltage(self):
         ''' Read battery voltage, not ready for usage
@@ -160,28 +154,28 @@ class BolideReader(object):
         self.ser.write(bytearray([0xFF, 0x04, 0x08, 0xfe]))
         ret = self.ser.read(6)
         if len(ret) != 6:
-            print('wrong length returned')
+            # print('wrong length returned')
             return
         header = ord(ret[0])
         if header != 0xFF:
-            print('first byte read did not match header: {}'.format(header))
+            # print('first byte read did not match header: {}'.format(header))
             return
         len_bit = ord(ret[1])
         if len_bit != 6:
-            print('wrong length bit sent')
+            # print('wrong length bit sent')
             return
         command = ord(ret[2])
         if not command == 0x08:
-            print('incorrect command type: {}'.format(command))
+            # print('incorrect command type: {}'.format(command))
             return
         end = ord(ret[-1])
         if end != 0xFE:
-            print('bad end bit')
+            # print('bad end bit')
             return
         data = ret[3:-1]
         final_joint_pos = [0]*18
         voltage = ((ord(data[0]) << 8) + ord(data[1]))*0.0124
-        print('{}:{}'.format('battery voltage', voltage))
+        # print('{}:{}'.format('battery voltage', voltage))
         return voltage
 
     def setup_pos_plots(self):
@@ -248,7 +242,7 @@ class BolideReader(object):
 
 if __name__ == "__main__":
     ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=0.2)
-    print('connection established')
+    # print('connection established')
 
     robot = BolideReader(ser)
     robot.setup_pos_plots()

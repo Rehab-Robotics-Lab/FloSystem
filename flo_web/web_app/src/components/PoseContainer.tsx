@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
 import ModalWrapper from "./ModalWrapper";
 import { basicBlock } from "../styleDefs/styles";
+import { JointState } from "../App";
 
 export interface PoseMsg {
   description: string;
@@ -17,13 +18,6 @@ export interface PoseWrapper {
 interface PoseProps {
   pose: PoseWrapper;
   addToMoveList: Function;
-}
-
-interface JointState {
-  name: string[];
-  position: number[];
-  velocity: number[];
-  effort: number[];
 }
 
 interface SearchPoseResp {
@@ -54,21 +48,21 @@ interface PoseContainerProps {
   ros: ROSLIB.Ros | null;
   connected: boolean;
   addToMoveList: Function;
+  pose: JointState | null;
 }
 
 // Takes a parameter ros, which is the connection to ros
 const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
   ros,
   connected,
-  addToMoveList
+  addToMoveList,
+  pose
 }) => {
   const [PosesList, setPosesList] = useState<PoseObj[]>([]);
   const [showSave, setShowSave] = useState(false);
   const [saveLR, setSaveLR] = useState<"left" | "right">("right");
   const [saveID, setSaveID] = useState(0);
   const [saveDescription, setSaveDescription] = useState("");
-  const [pose, setPose] = useState<JointState | null>(null);
-  const [poseListener, setPoseListener] = useState<ROSLIB.Topic | null>(null);
   const [setPoseSrv, setSetPoseSrv] = useState<ROSLIB.Service | null>(null);
 
   // get all of the poses
@@ -90,19 +84,6 @@ const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
       }
       setPosesList(poses);
     });
-
-    // TODO: Figure out how to clean up pose listener
-    // poseListener.unsubscribe();
-    // setPoseListener(null);
-    const poseListenerT = new ROSLIB.Topic({
-      ros: ros as ROSLIB.Ros,
-      name: "joint_states",
-      messageType: "sensor_msgs/JointState"
-    });
-    poseListenerT.subscribe(msg => {
-      setPose(msg as JointState);
-    });
-    setPoseListener(poseListenerT);
 
     const setPoseSrvT = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,

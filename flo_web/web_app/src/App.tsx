@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import { CookiesProvider, useCookies } from "react-cookie";
 import Header from "./components/Header";
@@ -11,6 +11,7 @@ import colors from "./styleDefs/colors";
 import SpeechContainer from "./components/SpeechContainer";
 import SavedSpeech from "./components/SavedSpeech";
 import MoveToPose from "./components/MoveToPose";
+import * as ROSLIB from "roslib";
 
 export function genRandID(): number {
   return Math.round(Math.random() * 10000) + Date.now();
@@ -59,6 +60,13 @@ export interface SetSpeaking {
   (val: boolean): void;
 }
 
+export interface JointState {
+  name: string[];
+  position: number[];
+  velocity: number[];
+  effort: number[];
+}
+
 const App: React.FunctionComponent = () => {
   const [cookies, setCookie] = useCookies(["movesList"]);
   const [ros, setRos] = useState<ROSLIB.Ros | null>(null);
@@ -72,6 +80,8 @@ const App: React.FunctionComponent = () => {
     fileLocation: null
   });
   const [speaking, setSpeaking] = useState(false);
+  const [pose, setPose] = useState<JointState | null>(null);
+  const [poseListener, setPoseListener] = useState<ROSLIB.Topic | null>(null);
 
   // TODO: make this type more specific
   const setMovesList: SetMovesList = arg => {
@@ -111,6 +121,22 @@ const App: React.FunctionComponent = () => {
     setConnected(con);
   };
 
+  useEffect(() => {
+    if (!connected) return;
+    // TODO: Figure out how to clean up pose listener
+    // poseListener.unsubscribe();
+    // setPoseListener(null);
+    const poseListenerT = new ROSLIB.Topic({
+      ros: ros as ROSLIB.Ros,
+      name: "joint_states",
+      messageType: "sensor_msgs/JointState"
+    });
+    poseListenerT.subscribe(msg => {
+      setPose(msg as JointState);
+    });
+    setPoseListener(poseListenerT);
+  }, [connected, ros]);
+
   return (
     <CookiesProvider>
       <div className="App">
@@ -137,6 +163,7 @@ const App: React.FunctionComponent = () => {
               ros={ros}
               connected={connected}
               addToMoveList={addToMoveList}
+              pose={pose}
             />
             <SequenceRunContainer
               ros={ros}

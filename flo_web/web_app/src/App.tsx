@@ -156,6 +156,7 @@ const App: React.FunctionComponent = () => {
               connected={connected}
               moving={moving}
               setMoving={setMoving}
+              pose={pose}
             />
           </div>
           <div style={{ display: "flex", flexDirection: "row" }}>

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import * as ROSLIB from "roslib";
 import { PoseMsg, PoseWrapper } from "./PoseContainer";
-import { SetMoving, SetMovesList } from "../App";
+import { SetMoving, SetMovesList, JointState } from "../App";
 import { runSequence, Move } from "./SequenceRunContainer";
 import { basicBlock } from "../styleDefs/styles";
 
@@ -11,6 +11,27 @@ const armNames = [
   "shoulder_rotation",
   "elbow_flexionextension"
 ];
+
+interface ArmValProps {
+  name: string;
+  val: number;
+  transfer: () => void;
+}
+
+const ArmVal: React.FunctionComponent<ArmValProps> = ({
+  name,
+  val,
+  transfer
+}) => {
+  return (
+    <div>
+      {name}:{val.toFixed(3)}
+      <button type="button" onClick={() => transfer()}>
+        Transfer
+      </button>
+    </div>
+  );
+};
 
 interface ArmInputProps {
   name: string;
@@ -37,6 +58,7 @@ const ArmInput: React.FunctionComponent<ArmInputProps> = ({
           style={{ width: "50px" }}
           min={min}
           max={max}
+          step="any"
           value={val}
           onChange={e => {
             setTarget(parseFloat(e.target.value));
@@ -61,13 +83,15 @@ interface MoveToPoseProps {
   connected: boolean;
   moving: boolean;
   setMoving: SetMoving;
+  pose: JointState | null;
 }
 
 const MoveToPose: React.FunctionComponent<MoveToPoseProps> = ({
   ros,
   connected,
   moving,
-  setMoving
+  setMoving,
+  pose
 }) => {
   const numArms = armNames.length;
   const [targetPose, setTargetPose] = useState(new Array(numArms).fill(0));
@@ -88,9 +112,34 @@ const MoveToPose: React.FunctionComponent<MoveToPoseProps> = ({
       />
     );
   }
+
+  const currentPoses = [];
+  if (pose) {
+    for (let arm of ["right", "left"]) {
+      for (let idx = 0; idx < numArms; idx += 1) {
+        const target = pose.name.findIndex(
+          p => p === arm + "_" + armNames[idx]
+        );
+        const degVal = (pose.position[target] * 180) / Math.PI;
+        currentPoses.push(
+          <ArmVal
+            name={pose.name[target]}
+            val={degVal}
+            transfer={() => {
+              const targetPoseT = [...targetPose];
+              targetPoseT[idx] = degVal;
+              setTargetPose(targetPoseT);
+            }}
+          />
+        );
+      }
+    }
+  }
+
   return (
     <div style={basicBlock}>
       <h2>Move to a Pose</h2>
+      {currentPoses}
       <div>Current poses:</div>
       <div>
         Enter in degrees:

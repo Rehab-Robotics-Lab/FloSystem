@@ -91,61 +91,67 @@ const MoveToPose: React.FunctionComponent<MoveToPoseProps> = ({
   return (
     <div style={basicBlock}>
       <h2>Move to a Pose</h2>
-      {inputs}
-
-      <label htmlFor="arm-selector">
-        <button
-          name="arm-selector"
-          type="button"
-          onClick={(): void => {
-            setArm(arm === "left" ? "right" : "left");
-          }}
-        >
-          {arm}
-        </button>
-      </label>
-
-      <ArmInput name="time" setTarget={setTime} val={time} />
-
-      <label htmlFor="run">
-        <button
-          name="run"
-          type="button"
-          onClick={(): void => {
-            if (ros === null) {
-              return;
-            }
-
-            const cleanNames = [];
-            let name;
-            for (name in armNames) {
-              cleanNames.push(arm + "_" + name);
-            }
-
-            const movesList: Move[] = [
-              {
-                time: time,
-                pose: {
-                  pose: {
-                    description: "temp pose",
-                    joint_names: armNames,
-                    joint_positions: targetPose
-                  },
-                  id: 0
-                },
-                lr: arm,
-                status: "not-run",
-                key: 0
+      <div>Current poses:</div>
+      <div>
+        Enter in degrees:
+        {inputs}
+        <label htmlFor="arm-selector">
+          <button
+            name="arm-selector"
+            type="button"
+            onClick={(): void => {
+              setArm(arm === "left" ? "right" : "left");
+            }}
+          >
+            {arm}
+          </button>
+        </label>
+        <ArmInput name="time" setTarget={setTime} val={time} />
+        <label htmlFor="run">
+          <button
+            name="run"
+            type="button"
+            onClick={(): void => {
+              if (ros === null) {
+                return;
               }
-            ];
 
-            runSequence(movesList, (arg: Move[]) => null, setMoving, ros);
-          }}
-          disabled={moving || !connected}
-        >
-          Run
-        </button>
-      </label>
+              const cleanNames = [];
+              let name;
+              for (name in armNames) {
+                cleanNames.push(arm + "_" + name);
+              }
+
+              const radPose = [];
+              for (let idx = 0; idx < targetPose.length; idx += 1) {
+                radPose[idx] = (targetPose[idx] * Math.PI) / 180;
+              }
+
+              const movesList: Move[] = [
+                {
+                  time: time,
+                  pose: {
+                    pose: {
+                      description: "temp pose",
+                      joint_names: armNames,
+                      joint_positions: radPose
+                    },
+                    id: 0
+                  },
+                  lr: arm,
+                  status: "not-run",
+                  key: 0
+                }
+              ];
+
+              runSequence(movesList, (arg: Move[]) => null, setMoving, ros);
+            }}
+            disabled={moving || !connected}
+          >
+            Run
+          </button>
+        </label>
+      </div>
     </div>
   );
 };

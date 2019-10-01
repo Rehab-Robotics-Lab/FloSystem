@@ -145,7 +145,9 @@ const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
           >
             <option value="0">New Pose</option>
             {PosesList.map(value => (
-              <option value={value.id}>{value.pose.description}</option>
+              <option value={value.id} key={value.id}>
+                {value.pose.description}
+              </option>
             ))}
           </select>
         </label>

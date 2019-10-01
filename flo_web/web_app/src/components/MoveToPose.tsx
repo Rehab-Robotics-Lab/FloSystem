@@ -109,6 +109,7 @@ const MoveToPose: React.FunctionComponent<MoveToPoseProps> = ({
           setTargetPose(targetPoseT);
         }}
         val={targetPose[idx]}
+        key={"input_" + armNames[idx]}
       />
     );
   }
@@ -130,6 +131,7 @@ const MoveToPose: React.FunctionComponent<MoveToPoseProps> = ({
               targetPoseT[idx] = degVal;
               setTargetPose(targetPoseT);
             }}
+            key={"current_" + pose.name[target]}
           />
         );
       }

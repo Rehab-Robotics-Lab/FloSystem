@@ -152,7 +152,11 @@ const SavedSpeech: React.FunctionComponent<SavedSpeechProps> = ({
         }}
       >
         {utterances.map(value => (
-          <UtteranceCont utterance={value} setSpeechTarget={setSpeechTarget} />
+          <UtteranceCont
+            utterance={value}
+            setSpeechTarget={setSpeechTarget}
+            key={value.id}
+          />
         ))}
       </div>
 

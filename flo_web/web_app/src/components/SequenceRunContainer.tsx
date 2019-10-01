@@ -273,11 +273,11 @@ const SequenceRunContainer: React.FunctionComponent<
   const renderedMoves = [];
   for (let index = 0; index < MovesList.length; index += 1) {
     let value = MovesList[index];
-    console.log(index + ":  " + value);
     if (value !== null && value !== undefined) {
       renderedMoves.push(
         <Move
           id={index}
+          key={value.key}
           pose={value.pose}
           lr={value.lr}
           toggleLR={toggleLR}

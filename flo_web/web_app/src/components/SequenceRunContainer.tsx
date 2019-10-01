@@ -4,6 +4,11 @@ import { PoseMsg, PoseWrapper } from "./PoseContainer";
 import { SetMoving, SetMovesList } from "../App";
 import { basicBlock } from "../styleDefs/styles";
 
+const ConsoleLog: React.FunctionComponent = ({ children }) => {
+  console.log(children);
+  return null;
+};
+
 interface SetTime {
   (id: number, time: number): void;
 }
@@ -265,6 +270,45 @@ const SequenceRunContainer: React.FunctionComponent<
 
   // need to check that two successive commands don't have the same limb with zero time.
 
+  const renderedMoves = [];
+  for (let index = 0; index < MovesList.length; index += 1) {
+    let value = MovesList[index];
+    console.log(index + ":  " + value);
+    if (value !== null && value !== undefined) {
+      renderedMoves.push(
+        <Move
+          id={index}
+          pose={value.pose}
+          lr={value.lr}
+          toggleLR={toggleLR}
+          time={value.time}
+          setTime={setTime}
+          moveUp={moveUp}
+          moveDown={moveDown}
+          remove={remove}
+          status={value.status}
+          prior_lr={
+            index === 0 || MovesList[index - 1] === undefined
+              ? ""
+              : MovesList[index - 1].lr
+          }
+          priorTime={
+            index === 0 || MovesList[index - 1] === undefined
+              ? 0
+              : MovesList[index - 1].time
+          }
+          setErrorState={val => {
+            if (val !== errorList[index]) {
+              const errorListT: boolean[] = [...errorList];
+              errorListT[index] = val;
+              setErrorList(errorListT);
+            }
+          }}
+        />
+      );
+    }
+  }
+
   return (
     <div id="moves-container" style={basicBlock}>
       <h2>List of moves to make:</h2>
@@ -277,29 +321,7 @@ const SequenceRunContainer: React.FunctionComponent<
           <div>Down</div>
           <div>Delete</div>
         </div>
-        {MovesList.map((value, index) => (
-          <Move
-            id={index}
-            pose={value.pose}
-            lr={value.lr}
-            toggleLR={toggleLR}
-            time={value.time}
-            setTime={setTime}
-            moveUp={moveUp}
-            moveDown={moveDown}
-            remove={remove}
-            status={value.status}
-            prior_lr={index === 0 ? "" : MovesList[index - 1].lr}
-            priorTime={index === 0 ? 0 : MovesList[index - 1].time}
-            setErrorState={val => {
-              if (val !== errorList[index]) {
-                const errorListT: boolean[] = [...errorList];
-                errorListT[index] = val;
-                setErrorList(errorListT);
-              }
-            }}
-          />
-        ))}
+        {renderedMoves}
       </div>
       <hr />
       <button

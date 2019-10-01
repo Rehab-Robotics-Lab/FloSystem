@@ -409,7 +409,8 @@ class BolideController(object):
             for idx, ttime in enumerate(times):
                 # time is in units of 10ms on the robot. But in sec coming in
                 # TODO: somewhere there should be a check to make sure time is <10 sec
-                ms_time = ttime*1000
+                prior_time = 0 if idx == 0 else times[idx-1]
+                ms_time = (ttime-prior_time)*1000
                 bb, lb = struct.pack('>H', ms_time)
                 bb = (ord(bb))
                 lb = (ord(lb))

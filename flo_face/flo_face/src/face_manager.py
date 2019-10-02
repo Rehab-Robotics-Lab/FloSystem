@@ -40,9 +40,34 @@ class FloFaceManager(object):
         rospy.spin()
 
     def get_face_options(self, request):
+        """ Get and return available faces as represented by the available
+        mouths. 
+
+        Args:
+            request: A blank request to kick off the service
+
+        Returns: The list of faces, as names
+        """
         return GetFaceOptionsResponse(self.mouth_keys)
 
     def set_face(self, request):
+        """Recieve a request to set the face. Load the new mouth and 
+        the eyes into the new state structure and the current mouth 
+        and eyes. If the new face doesn't have the current eye 
+        type/direction, the eyes will be set to their default. 
+        The available eye directions are returned with other 
+        info and the service is returned.
+
+        The new face stat is published
+
+        Args:
+            request: a simple service request with a single
+            field `face` which is the key for the face to set. 
+
+        Returns: A service response with the available eye 
+        directions given the new face, whether the operation
+        succeeded or not and information on what happened. 
+        """
         resp = SetFaceResponse()
         if request.face in self.mouth_keys:
             new_mouth = self.face_data['mouths'][request.face]
@@ -69,9 +94,20 @@ class FloFaceManager(object):
 
     @staticmethod
     def flatten(l):
+        """Flatten out a matrix as a list, unraveling it so that it 
+        can be sent
+
+        Args:
+            l: The list representation of the matrix
+
+        Returns: The flattened list
+        """
         return [item for sublist in l for item in sublist]
 
     def set_eye(self):
+        """Sets the eyes in the new_state structure based on 
+        the current values for the eyes and face. 
+        """
         new_eye_data = self.face_data['eyes'][self.current_eyes]
         if 'left' in new_eye_data[self.eye_direction]:
             self.new_state.left_eye = self.flatten(
@@ -92,6 +128,26 @@ class FloFaceManager(object):
                 new_eye_data[self.eye_direction]['on'])
 
     def set_eye_direction(self, request):
+        """Fiedld a request to set the eye direction, set it
+        and return whether it succeeded. 
+
+        If the requested direction is `default` then that is
+        loaded in and replaced by the actual direction which
+        is the default. Once the eye direction is set, then 
+        the `set_eyes()` function is called to load the 
+        actual data.
+        If the requested direction is `default` then that is
+        loaded in and replaced by the actual direction which
+        is the default. 
+
+        Args:
+            request: a simple service request with a single
+                     field `direction`, a string which
+                     selects the eye direction
+
+        Returns: A service response with whether the service
+                 succeeded and info about that. 
+        """
         resp = SetEyeDirectionResponse()
         new_eye_data = self.face_data['eyes'][self.current_eyes]
         if request.direction in new_eye_data:

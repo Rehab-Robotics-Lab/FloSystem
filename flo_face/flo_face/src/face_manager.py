@@ -4,10 +4,11 @@ import rospy
 import rospkg
 import json
 from flo_face.msg import FaceState
-from flo_face.srv import (GetFaceOptions, GetFaceOptionsResponse, 
+from flo_face.srv import (GetFaceOptions, GetFaceOptionsResponse,
                           SetEyeDirection, SetEyeDirectionResponse,
                           SetFace, SetFaceResponse)
 from os.path import expanduser, join
+
 
 class FloFaceManager(object):
     """handles loading face options, and providing those face options to other 
@@ -18,7 +19,7 @@ class FloFaceManager(object):
         rospy.init_node('face_manager')
         self.rospack = rospkg.RosPack()
         self.face_fn = expanduser(rospy.get_param('face_json',
-        join(self.rospack.get_path('flo_face'),'data','faces.json')))
+                                                  join(self.rospack.get_path('flo_face'), 'data', 'faces.json')))
         with open(self.face_fn) as file:
             self.face_data = json.load(file)
         self.mouth_keys = list(self.face_data['mouths'].keys())
@@ -27,16 +28,20 @@ class FloFaceManager(object):
         self.current_eyes = 'standard'
         self.new_state = FaceState()
 
-        self.state_pub = rospy.Publisher('face_state',FaceState,queue_size=1)
-        self.set_eye_service = rospy.Service('set_eye_direction', SetEyeDirection, self.set_eye_direction)
-        self.set_face_service = rospy.Service('set_face', SetFace, self.set_face)
-        self.options_service = rospy.Service('get_face_options', GetFaceOptions,self.get_face_options)      
-        rospy.loginfo('face manager up')  
+        self.state_pub = rospy.Publisher('face_state', FaceState, queue_size=1)
+        self.set_eye_service = rospy.Service(
+            'set_eye_direction', SetEyeDirection, self.set_eye_direction)
+        self.set_face_service = rospy.Service(
+            'set_face', SetFace, self.set_face)
+        self.options_service = rospy.Service(
+            'get_face_options', GetFaceOptions, self.get_face_options)
+        self.set_face({'face': self.current_mouth})
+        rospy.loginfo('face manager up')
         rospy.spin()
 
     def get_face_options(self, request):
-        return GetFaceOptionsResponse(self.mouth_keys)  
-        
+        return GetFaceOptionsResponse(self.mouth_keys)
+
     def set_face(self, request):
         resp = SetFaceResponse()
         if request.face in self.mouth_keys:
@@ -69,15 +74,22 @@ class FloFaceManager(object):
     def set_eye(self):
         new_eye_data = self.face_data['eyes'][self.current_eyes]
         if 'left' in new_eye_data[self.eye_direction]:
-            self.new_state.left_eye = self.flatten(new_eye_data[self.eye_direction]['left']['on'])
-            self.new_state.right_eye = self.flatten(new_eye_data[self.eye_direction]['right']['on'])
-            self.new_state.eye_width = len(new_eye_data[self.eye_direction]['right']['on'][0])
-            self.new_state.eye_height = len(new_eye_data[self.eye_direction]['right']['on'])
+            self.new_state.left_eye = self.flatten(
+                new_eye_data[self.eye_direction]['left']['on'])
+            self.new_state.right_eye = self.flatten(
+                new_eye_data[self.eye_direction]['right']['on'])
+            self.new_state.eye_width = len(
+                new_eye_data[self.eye_direction]['right']['on'][0])
+            self.new_state.eye_height = len(
+                new_eye_data[self.eye_direction]['right']['on'])
         else:
-            self.new_state.left_eye = self.flatten(new_eye_data[self.eye_direction]['on'])
+            self.new_state.left_eye = self.flatten(
+                new_eye_data[self.eye_direction]['on'])
             self.new_state.right_eye = self.new_state.left_eye
-            self.new_state.eye_width = len(new_eye_data[self.eye_direction]['on'][0])
-            self.new_state.eye_height = len(new_eye_data[self.eye_direction]['on'])            
+            self.new_state.eye_width = len(
+                new_eye_data[self.eye_direction]['on'][0])
+            self.new_state.eye_height = len(
+                new_eye_data[self.eye_direction]['on'])
 
     def set_eye_direction(self, request):
         resp = SetEyeDirectionResponse()

@@ -60,7 +60,7 @@ const SavedFaces: React.FunctionComponent<SavedFacesProps> = ({
       return;
     }
     setFaceSrv.callService(req, res => {
-      setEyeOptions(res);
+      setEyeOptions(res.available_eye_directions);
     });
     //
     // read back response and add to the list

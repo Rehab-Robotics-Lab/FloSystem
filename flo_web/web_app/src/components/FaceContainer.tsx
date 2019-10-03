@@ -4,6 +4,7 @@ import { SetSpeechTarget, Utterance } from "../App";
 import { basicBlock } from "../styleDefs/styles";
 import SavedFaces from "./SavedFaces";
 import CurrentFace from "./CurrentFace";
+import EyeOptionsContainer from "./EyeOptionsContainer";
 
 export interface SetEyeOptions {
   (arg: string[]): void;
@@ -33,6 +34,11 @@ const FaceContainer: React.FunctionComponent<FaceContainerProps> = ({
         setEyeOptions={setEyeOptions}
       />
       <CurrentFace ros={ros} connected={connected} />
+      <EyeOptionsContainer
+        ros={ros}
+        connected={connected}
+        eyeOptions={eyeOptions}
+      />
     </div>
   );
 };

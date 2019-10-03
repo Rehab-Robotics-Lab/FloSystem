@@ -28,6 +28,9 @@ class FaceComs(object):
         self.coms.sendData([0] + self.bytize(msg.mouth))
         self.coms.sendData([1] + self.bytize(msg.right_eye))
         self.coms.sendData([2] + self.bytize(msg.left_eye))
+        self.coms.sendData([3] + self.bytize(msg.mouth_brightness))
+        self.coms.sendData([4] + self.bytize(msg.right_eye_brightness))
+        self.coms.sendData([5] + self.bytize(msg.left_eye_brightness))
 
     def bytize(self, flat_data):
         """Turn data into individual bytes"""

@@ -58,6 +58,7 @@ add_service_files(
   GetFaceOptions.srv
   SetEyeDirection.srv
   SetFace.srv
+  SetFaceBrightness.srv
 )
 
 ## Generate actions in the 'action' folder

@@ -6,7 +6,8 @@ import json
 from flo_face.msg import FaceState
 from flo_face.srv import (GetFaceOptions, GetFaceOptionsResponse,
                           SetEyeDirection, SetEyeDirectionResponse,
-                          SetFace, SetFaceResponse)
+                          SetFace, SetFaceResponse,
+                          SetFaceBrightness, SetFaceBrightnessResponse)
 from os.path import expanduser, join
 
 
@@ -27,6 +28,9 @@ class FloFaceManager(object):
         self.current_mouth = 'standard'
         self.current_eyes = 'standard'
         self.new_state = FaceState()
+        self.new_state.mouth_brightness = 12
+        self.new_state.right_eye_brightness = 12
+        self.new_state.left_eye_brightness = 12
 
         self.state_pub = rospy.Publisher('face_state', FaceState, queue_size=1)
         self.set_eye_service = rospy.Service(
@@ -35,7 +39,9 @@ class FloFaceManager(object):
             'set_face', SetFace, self.set_face)
         self.options_service = rospy.Service(
             'get_face_options', GetFaceOptions, self.get_face_options)
-        self.set_face({'face': self.current_mouth})
+        self.set_brightness_service = rospy.Service(
+            'set_face_brightness', SetFaceBrightness, self.set_brightness)
+        # self.set_face(SetFace(self.current_mouth))
         rospy.loginfo('face manager up')
         rospy.spin()
 
@@ -161,6 +167,33 @@ class FloFaceManager(object):
         else:
             resp.success = False
             resp.info = 'direction cannot be set for this face'
+        return resp
+
+    def set_brightness(self, request):
+        resp = SetFaceBrightnessResponse()
+        if request.value > 15:
+            resp.success = False
+            resp.info = 'value too high'
+        elif request.value < 0:
+            resp.success = False
+            resp.info = 'value too low'
+        elif request.target == 'all':
+            self.new_state.right_eye_brightness = request.value
+            self.new_state.left_eye_brightness = request.value
+            self.new_state.mouth_brightness = request.value
+        elif request.target == 'left_eye':
+            self.new_state.left_eye_brightness = request.value
+        elif request.target == 'right_eye':
+            self.new_state.right_eye_brightness = request.value
+        elif request.target == 'mouth':
+            self.new_state.mouth_brightness = request.value
+        else:
+            resp.success = False
+            resp.info = 'invalid target'
+
+        if resp.success:
+            self.state_pub.publish(self.new_state)
+
         return resp
 
 

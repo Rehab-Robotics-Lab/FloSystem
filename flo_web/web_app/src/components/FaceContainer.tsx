@@ -3,6 +3,7 @@ import * as ROSLIB from "roslib";
 import { SetSpeechTarget, Utterance } from "../App";
 import { basicBlock } from "../styleDefs/styles";
 import SavedFaces from "./SavedFaces";
+import CurrentFace from "./CurrentFace";
 
 export interface SetEyeOptions {
   (arg: string[]): void;
@@ -31,6 +32,7 @@ const FaceContainer: React.FunctionComponent<FaceContainerProps> = ({
         connected={connected}
         setEyeOptions={setEyeOptions}
       />
+      <CurrentFace ros={ros} connected={connected} />
     </div>
   );
 };

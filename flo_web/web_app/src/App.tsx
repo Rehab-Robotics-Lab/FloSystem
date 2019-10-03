@@ -11,6 +11,7 @@ import colors from "./styleDefs/colors";
 import SpeechContainer from "./components/SpeechContainer";
 import SavedSpeech from "./components/SavedSpeech";
 import MoveToPose from "./components/MoveToPose";
+import FaceContainer from "./components/FaceContainer";
 import * as ROSLIB from "roslib";
 
 export function genRandID(): number {
@@ -198,6 +199,7 @@ const App: React.FunctionComponent = () => {
               speaking={speaking}
             />
           </div>
+          <FaceContainer ros={ros} connected={connected} />
           <ErrorDisplay errorList={errorList} />
         </div>
       </div>

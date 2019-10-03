@@ -1,10 +1,9 @@
 <launch>
-    <!--[>Face <]-->
-    <!--<include file="$(find flo_face)/launch/base.launch" />-->
+    <!--Face -->
+    <node name="face_manager" pkg="flo_face" type="face_manager.py" output="screen"/>
 
     <!--Humanoid Robot -->
     <param name="simulate" type="bool" value="True"/>
-    <!--<node name="bolide_interface" pkg="flo_humanoid" type="robot_controller.py" output="screen" />-->
     <node name="bolide_interface" pkg="flo_humanoid" type="robot_controller.py" />
 
     <!--The robot URDF parsing and loading-->

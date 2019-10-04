@@ -381,6 +381,13 @@ void Packet_Error_Feedback(unsigned char CMD_reaction) {
     Serial.write(CMD_reaction);
     Serial.write(packet_tail);
 }
+void Seq_Pos_Feedback(unsigned char Seq){
+    Serial.write(packet_header);
+    Serial.write(seq_number_comp);
+    Serial.write(seq_number_comp);
+    Serial.write(Seq);
+    Serial.write(packet_tail);
+}
 
 
 // SEQUENCE PLAYING CODE:
@@ -398,6 +405,7 @@ void Motion_Editor_Seq_Play(void) {
     for(_i = 0; _i < XYZrobot.poseSize; _i++) XYZrobot.setNextPose(_i+1, poses[pose_index][_i]);
     XYZrobot.interpolateSetup(sequence[SeqPos].time);
     while(XYZrobot.interpolating) XYZrobot.interpolateStep();
+    Seq_Pos_Feedback(SeqPos);
     SeqPos++;
     if(SeqPos == seq_pSeqCnt) {
         SeqPos = 0;

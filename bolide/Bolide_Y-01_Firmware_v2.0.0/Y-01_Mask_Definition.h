@@ -60,5 +60,6 @@
 #define secondary_version_number   0x02
 #define revision_number		   0x08
 
-#endif
+#define seq_number_comp           0x11
 
+#endif

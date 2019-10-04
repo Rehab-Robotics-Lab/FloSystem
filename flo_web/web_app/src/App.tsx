@@ -12,6 +12,7 @@ import SpeechContainer from "./components/SpeechContainer";
 import SavedSpeech from "./components/SavedSpeech";
 import MoveToPose from "./components/MoveToPose";
 import FaceContainer from "./components/FaceContainer";
+import RelaxMotors from "./components/RelaxMotors";
 import * as ROSLIB from "roslib";
 
 export function genRandID(): number {
@@ -150,6 +151,7 @@ const App: React.FunctionComponent = () => {
         <div className="body" style={{ backgroundColor: colors.gray.dark2 }}>
           <div className="visualFeeds">
             <URDF ros={ros} connected={connected} />
+            <RelaxMotors ros={ros} connected={connected} />
           </div>
           <div
             className="controls"

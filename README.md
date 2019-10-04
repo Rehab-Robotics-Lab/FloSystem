@@ -112,7 +112,8 @@ Setup [UDEV Rules to make the face always have the same name](https://unix.stack
        number.
     3. Edit file `/etc/udev/rules.d/99-usb-serial.rules` (create if
        necessary) to have:
-       `SUBSYSTEM=="tty", ATTRS{idVendor}=="XXXX", ATTRS{idProduct}=="XXXX", ATTRS{serial}=="XXXXXXX", SYMLINK+="flo_face", MODE="0666"
+       `SUBSYSTEM=="tty", ATTRS{idVendor}=="XXXX", ATTRS{idProduct}=="XXXX", ATTRS{serial}=="XXXXXXX", SYMLINK+="flo_face", MODE="0666"`
+
         `SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", SYMLINK+="bolide"`
 
     4. Load the rules: `sudo udevadm trigger`

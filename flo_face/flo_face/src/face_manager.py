@@ -4,10 +4,12 @@ import rospy
 import rospkg
 import json
 from flo_face.msg import FaceState
-from flo_face.srv import (GetFaceOptions, GetFaceOptionsResponse, 
+from flo_face.srv import (GetFaceOptions, GetFaceOptionsResponse,
                           SetEyeDirection, SetEyeDirectionResponse,
-                          SetFace, SetFaceResponse)
+                          SetFace, SetFaceResponse,
+                          SetFaceBrightness, SetFaceBrightnessResponse)
 from os.path import expanduser, join
+
 
 class FloFaceManager(object):
     """handles loading face options, and providing those face options to other 
@@ -18,7 +20,7 @@ class FloFaceManager(object):
         rospy.init_node('face_manager')
         self.rospack = rospkg.RosPack()
         self.face_fn = expanduser(rospy.get_param('face_json',
-        join(self.rospack.get_path('flo_face'),'data','faces.json')))
+                                                  join(self.rospack.get_path('flo_face'), 'data', 'faces.json')))
         with open(self.face_fn) as file:
             self.face_data = json.load(file)
         self.mouth_keys = list(self.face_data['mouths'].keys())
@@ -26,18 +28,52 @@ class FloFaceManager(object):
         self.current_mouth = 'standard'
         self.current_eyes = 'standard'
         self.new_state = FaceState()
+        self.new_state.mouth_brightness = 12
+        self.new_state.right_eye_brightness = 12
+        self.new_state.left_eye_brightness = 12
 
-        self.state_pub = rospy.Publisher('face_state',FaceState,queue_size=1)
-        self.set_eye_service = rospy.Service('set_eye_direction', SetEyeDirection, self.set_eye_direction)
-        self.set_face_service = rospy.Service('set_face', SetFace, self.set_face)
-        self.options_service = rospy.Service('get_face_options', GetFaceOptions,self.get_face_options)      
-        rospy.loginfo('face manager up')  
+        self.state_pub = rospy.Publisher('face_state', FaceState, queue_size=1)
+        self.set_eye_service = rospy.Service(
+            'set_eye_direction', SetEyeDirection, self.set_eye_direction)
+        self.set_face_service = rospy.Service(
+            'set_face', SetFace, self.set_face)
+        self.options_service = rospy.Service(
+            'get_face_options', GetFaceOptions, self.get_face_options)
+        self.set_brightness_service = rospy.Service(
+            'set_face_brightness', SetFaceBrightness, self.set_brightness)
+        # self.set_face(SetFace(self.current_mouth))
+        rospy.loginfo('face manager up')
         rospy.spin()
 
     def get_face_options(self, request):
-        return GetFaceOptionsResponse(self.mouth_keys)  
-        
+        """ Get and return available faces as represented by the available
+        mouths. 
+
+        Args:
+            request: A blank request to kick off the service
+
+        Returns: The list of faces, as names
+        """
+        return GetFaceOptionsResponse(self.mouth_keys)
+
     def set_face(self, request):
+        """Recieve a request to set the face. Load the new mouth and 
+        the eyes into the new state structure and the current mouth 
+        and eyes. If the new face doesn't have the current eye 
+        type/direction, the eyes will be set to their default. 
+        The available eye directions are returned with other 
+        info and the service is returned.
+
+        The new face stat is published
+
+        Args:
+            request: a simple service request with a single
+            field `face` which is the key for the face to set. 
+
+        Returns: A service response with the available eye 
+        directions given the new face, whether the operation
+        succeeded or not and information on what happened. 
+        """
         resp = SetFaceResponse()
         if request.face in self.mouth_keys:
             new_mouth = self.face_data['mouths'][request.face]
@@ -64,22 +100,60 @@ class FloFaceManager(object):
 
     @staticmethod
     def flatten(l):
+        """Flatten out a matrix as a list, unraveling it so that it 
+        can be sent
+
+        Args:
+            l: The list representation of the matrix
+
+        Returns: The flattened list
+        """
         return [item for sublist in l for item in sublist]
 
     def set_eye(self):
+        """Sets the eyes in the new_state structure based on 
+        the current values for the eyes and face. 
+        """
         new_eye_data = self.face_data['eyes'][self.current_eyes]
         if 'left' in new_eye_data[self.eye_direction]:
-            self.new_state.left_eye = self.flatten(new_eye_data[self.eye_direction]['left']['on'])
-            self.new_state.right_eye = self.flatten(new_eye_data[self.eye_direction]['right']['on'])
-            self.new_state.eye_width = len(new_eye_data[self.eye_direction]['right']['on'][0])
-            self.new_state.eye_height = len(new_eye_data[self.eye_direction]['right']['on'])
+            self.new_state.left_eye = self.flatten(
+                new_eye_data[self.eye_direction]['left']['on'])
+            self.new_state.right_eye = self.flatten(
+                new_eye_data[self.eye_direction]['right']['on'])
+            self.new_state.eye_width = len(
+                new_eye_data[self.eye_direction]['right']['on'][0])
+            self.new_state.eye_height = len(
+                new_eye_data[self.eye_direction]['right']['on'])
         else:
-            self.new_state.left_eye = self.flatten(new_eye_data[self.eye_direction]['on'])
+            self.new_state.left_eye = self.flatten(
+                new_eye_data[self.eye_direction]['on'])
             self.new_state.right_eye = self.new_state.left_eye
-            self.new_state.eye_width = len(new_eye_data[self.eye_direction]['on'][0])
-            self.new_state.eye_height = len(new_eye_data[self.eye_direction]['on'])            
+            self.new_state.eye_width = len(
+                new_eye_data[self.eye_direction]['on'][0])
+            self.new_state.eye_height = len(
+                new_eye_data[self.eye_direction]['on'])
 
     def set_eye_direction(self, request):
+        """Fiedld a request to set the eye direction, set it
+        and return whether it succeeded. 
+
+        If the requested direction is `default` then that is
+        loaded in and replaced by the actual direction which
+        is the default. Once the eye direction is set, then 
+        the `set_eyes()` function is called to load the 
+        actual data.
+        If the requested direction is `default` then that is
+        loaded in and replaced by the actual direction which
+        is the default. 
+
+        Args:
+            request: a simple service request with a single
+                     field `direction`, a string which
+                     selects the eye direction
+
+        Returns: A service response with whether the service
+                 succeeded and info about that. 
+        """
         resp = SetEyeDirectionResponse()
         new_eye_data = self.face_data['eyes'][self.current_eyes]
         if request.direction in new_eye_data:
@@ -93,6 +167,33 @@ class FloFaceManager(object):
         else:
             resp.success = False
             resp.info = 'direction cannot be set for this face'
+        return resp
+
+    def set_brightness(self, request):
+        resp = SetFaceBrightnessResponse()
+        if request.value > 15:
+            resp.success = False
+            resp.info = 'value too high'
+        elif request.value < 0:
+            resp.success = False
+            resp.info = 'value too low'
+        elif request.target == 'all':
+            self.new_state.right_eye_brightness = request.value
+            self.new_state.left_eye_brightness = request.value
+            self.new_state.mouth_brightness = request.value
+        elif request.target == 'left_eye':
+            self.new_state.left_eye_brightness = request.value
+        elif request.target == 'right_eye':
+            self.new_state.right_eye_brightness = request.value
+        elif request.target == 'mouth':
+            self.new_state.mouth_brightness = request.value
+        else:
+            resp.success = False
+            resp.info = 'invalid target'
+
+        if resp.success:
+            self.state_pub.publish(self.new_state)
+
         return resp
 
 

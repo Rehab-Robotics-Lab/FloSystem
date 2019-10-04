@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
 import { SetSpeechTarget, SetSpeaking, Utterance } from "../App";
+import SavedSpeech from "./SavedSpeech";
 import { basicBlock } from "../styleDefs/styles";
 
 interface SpeechProps {
@@ -71,10 +72,10 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
   return (
     <div
       style={Object.assign({}, basicBlock, {
-        maxWidth: "300px"
+        maxWidth: "200px"
       })}
     >
-      <h2>Speech to Speak</h2>
+      <h2>Speech</h2>
       <label htmlFor="speechTarget">
         String to speak (SSML):
         <input
@@ -110,6 +111,14 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       >
         Clear
       </button>
+
+      <SavedSpeech
+        ros={ros}
+        connected={connected}
+        speechTarget={speechTarget}
+        setSpeechTarget={setSpeechTarget}
+        speaking={speaking}
+      />
     </div>
   );
 };

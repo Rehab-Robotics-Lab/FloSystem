@@ -50,5 +50,12 @@ void process_incoming(char* data, int length){
             reye[i] = (data[1 + i/8] >> (7 - i%8)) & 1;
         }
         floFace.DrawRightEye(reye);
+    }else if(data[0]==3){
+        // valid levels 1-15
+        floFace.SetMouthBrightness(data[1])
+    }else if(data[0]==4){
+        floFace.SetLeftEyeBrightness(data[1])
+    }else if(data[0]==5){
+        floFace.SetRightEyeBrightness(data[1])
     }
 }

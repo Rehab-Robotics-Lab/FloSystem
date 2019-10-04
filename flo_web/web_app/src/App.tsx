@@ -11,6 +11,7 @@ import colors from "./styleDefs/colors";
 import SpeechContainer from "./components/SpeechContainer";
 import SavedSpeech from "./components/SavedSpeech";
 import MoveToPose from "./components/MoveToPose";
+import FaceContainer from "./components/FaceContainer";
 import * as ROSLIB from "roslib";
 
 export function genRandID(): number {
@@ -150,52 +151,60 @@ const App: React.FunctionComponent = () => {
           <div className="visualFeeds">
             <URDF ros={ros} connected={connected} />
           </div>
-          <div>
+          <div
+            className="controls"
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              flexWrap: "wrap",
+              alignItems: "flex-start"
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "wrap"
+              }}
+            >
+              <PoseContainer
+                ros={ros}
+                connected={connected}
+                addToMoveList={addToMoveList}
+                pose={pose}
+              />
+              <SequenceRunContainer
+                ros={ros}
+                connected={connected}
+                MovesList={MovesList}
+                setMovesList={setMovesList}
+                moving={moving}
+                setMoving={setMoving}
+              />
+              <SequenceContainer
+                ros={ros}
+                connected={connected}
+                MovesList={MovesList}
+                setMovesList={setMovesList}
+              />
+            </div>
+            <div style={{ display: "flex", flexDirection: "row" }}>
+              <SpeechContainer
+                ros={ros}
+                connected={connected}
+                speechTarget={speechTarget}
+                setSpeechTarget={setSpeechTarget}
+                setSpeaking={setSpeaking}
+                speaking={speaking}
+              />
+            </div>
+            <FaceContainer ros={ros} connected={connected} />
             <MoveToPose
               ros={ros}
               connected={connected}
               moving={moving}
               setMoving={setMoving}
               pose={pose}
-            />
-          </div>
-          <div style={{ display: "flex", flexDirection: "row" }}>
-            <PoseContainer
-              ros={ros}
-              connected={connected}
-              addToMoveList={addToMoveList}
-              pose={pose}
-            />
-            <SequenceRunContainer
-              ros={ros}
-              connected={connected}
-              MovesList={MovesList}
-              setMovesList={setMovesList}
-              moving={moving}
-              setMoving={setMoving}
-            />
-            <SequenceContainer
-              ros={ros}
-              connected={connected}
-              MovesList={MovesList}
-              setMovesList={setMovesList}
-            />
-          </div>
-          <div style={{ display: "flex", flexDirection: "row" }}>
-            <SpeechContainer
-              ros={ros}
-              connected={connected}
-              speechTarget={speechTarget}
-              setSpeechTarget={setSpeechTarget}
-              setSpeaking={setSpeaking}
-              speaking={speaking}
-            />
-            <SavedSpeech
-              ros={ros}
-              connected={connected}
-              speechTarget={speechTarget}
-              setSpeechTarget={setSpeechTarget}
-              speaking={speaking}
             />
           </div>
           <ErrorDisplay errorList={errorList} />

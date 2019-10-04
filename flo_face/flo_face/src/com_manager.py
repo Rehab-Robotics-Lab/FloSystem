@@ -35,6 +35,11 @@ class FaceComs(object):
     def bytize(self, flat_data):
         """Turn data into individual bytes"""
         # flat_data = flatten(data)
+        try:
+            len(flat_data)
+        except:
+            flat_data = [flat_data]
+
         data_bytes = [0]*int(math.ceil(len(flat_data)/8))
         for i in range(len(data_bytes)):
             for j in range(8):

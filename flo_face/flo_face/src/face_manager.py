@@ -171,6 +171,7 @@ class FloFaceManager(object):
 
     def set_brightness(self, request):
         resp = SetFaceBrightnessResponse()
+        resp.success = True
         if request.value > 15:
             resp.success = False
             resp.info = 'value too high'

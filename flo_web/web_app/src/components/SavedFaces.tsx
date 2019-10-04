@@ -27,6 +27,7 @@ const SavedFace: React.FunctionComponent<SavedFaceProps> = ({
     <button
       type="button"
       disabled={disabled}
+      style={{ wordWrap: "break-word" }}
       onClick={(): void => {
         setFace();
       }}
@@ -90,13 +91,16 @@ const SavedFaces: React.FunctionComponent<SavedFacesProps> = ({
   }, [connected, ros]);
 
   return (
-    <div>
+    <div
+      style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}
+    >
       <h3>Available Faces:</h3>
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          overflow: "auto",
+          overflowY: "auto",
+          width: "auto",
           maxHeight: "400px"
         }}
       >

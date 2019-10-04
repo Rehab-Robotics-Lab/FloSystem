@@ -127,11 +127,14 @@ const SavedSpeech: React.FunctionComponent<SavedSpeechProps> = ({
 
   return (
     <div
-      style={Object.assign({}, basicBlock, {
-        maxWidth: "300px"
-      })}
+      style={{
+        maxWidth: "300px",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column"
+      }}
     >
-      <h2>Saved Utterances</h2>
+      <h3>Saved Utterances</h3>
       <button
         type="button"
         onClick={(): void => {

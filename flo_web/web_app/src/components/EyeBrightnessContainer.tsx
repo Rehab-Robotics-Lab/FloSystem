@@ -64,15 +64,14 @@ const EyeOptionsContainer: React.FunctionComponent<
   }, [connected, ros]);
 
   return (
-    <div
-      style={{ overflow: "hidden", display: "flex", flexDirection: "column" }}
-    >
+    <div>
       <h3>Available Eye Options:</h3>
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          overflowY: "auto"
+          overflow: "auto",
+          maxHeight: "400px"
         }}
       >
         {eyeOptions.map(value => (

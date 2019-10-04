@@ -24,21 +24,39 @@ const FaceContainer: React.FunctionComponent<FaceContainerProps> = ({
   return (
     <div
       style={Object.assign({}, basicBlock, {
-        maxWidth: "300px"
+        maxwidth: "400px"
       })}
     >
       <h2>Faces:</h2>
-      <SavedFaces
-        ros={ros}
-        connected={connected}
-        setEyeOptions={setEyeOptions}
-      />
-      <CurrentFace ros={ros} connected={connected} />
-      <EyeOptionsContainer
-        ros={ros}
-        connected={connected}
-        eyeOptions={eyeOptions}
-      />
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          overflow: "hidden",
+          flex: "1"
+        }}
+      >
+        <SavedFaces
+          ros={ros}
+          connected={connected}
+          setEyeOptions={setEyeOptions}
+        />
+        <div
+          style={{
+            maxWidth: "200px",
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column"
+          }}
+        >
+          <CurrentFace ros={ros} connected={connected} />
+          <EyeOptionsContainer
+            ros={ros}
+            connected={connected}
+            eyeOptions={eyeOptions}
+          />
+        </div>
+      </div>
     </div>
   );
 };

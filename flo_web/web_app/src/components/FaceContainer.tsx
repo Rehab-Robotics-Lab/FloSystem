@@ -5,7 +5,24 @@ import { basicBlock } from "../styleDefs/styles";
 import SavedFaces from "./SavedFaces";
 import CurrentFace from "./CurrentFace";
 import EyeOptionsContainer from "./EyeOptionsContainer";
+import FaceBrightnessSet from "./FaceBrightnessSet";
 
+export interface FaceState {
+  left_eye: boolean[];
+  right_eye: boolean[];
+  eye_width: number;
+  eye_height: number;
+  eye_name: string;
+  left_eye_brightness: number;
+  right_eye_brightness: number;
+
+  mouth: boolean[];
+  mouth_width: number;
+  mouth_height: number;
+  mouth_name: string;
+  mouth_description: string;
+  mouth_brightness: number;
+}
 export interface SetEyeOptions {
   (arg: string[]): void;
 }
@@ -20,6 +37,7 @@ const FaceContainer: React.FunctionComponent<FaceContainerProps> = ({
   connected
 }) => {
   const [eyeOptions, setEyeOptions] = useState<string[]>([]);
+  const [faceState, setFaceState] = useState<FaceState | null>(null);
 
   return (
     <div
@@ -49,7 +67,17 @@ const FaceContainer: React.FunctionComponent<FaceContainerProps> = ({
             flexDirection: "column"
           }}
         >
-          <CurrentFace ros={ros} connected={connected} />
+          <CurrentFace
+            ros={ros}
+            connected={connected}
+            setFaceState={setFaceState}
+            faceState={faceState}
+          />
+          <FaceBrightnessSet
+            ros={ros}
+            connected={connected}
+            faceState={faceState}
+          />
           <EyeOptionsContainer
             ros={ros}
             connected={connected}

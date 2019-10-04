@@ -67,7 +67,7 @@ const EyeOptionsContainer: React.FunctionComponent<
     <div
       style={{ overflow: "hidden", display: "flex", flexDirection: "column" }}
     >
-      <h3>Available Eye Options:</h3>
+      <h3>Eye Options:</h3>
       <div
         style={{
           display: "flex",

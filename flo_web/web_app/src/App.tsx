@@ -95,7 +95,7 @@ const App: React.FunctionComponent = () => {
 
   const addError: AddError = (text, src) => {
     const newError = { text, time: new Date(), src };
-    // setErrorList([...errorList, newError]); TODO: get this back in
+    setErrorList([...errorList, newError]);
   };
 
   // TODO: TS

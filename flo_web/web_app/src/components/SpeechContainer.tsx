@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import * as ROSLIB from "roslib";
 import { SetSpeechTarget, SetSpeaking, Utterance } from "../App";
 import SavedSpeech from "./SavedSpeech";

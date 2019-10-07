@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import * as ROSLIB from "roslib";
-import { PoseMsg, PoseWrapper } from "./PoseContainer";
-import { SetMoving, SetMovesList, JointState } from "../App";
+import { SetMoving, JointState } from "../App";
 import { runSequence, Move } from "./SequenceRunContainer";
 import { basicBlock, inputWithSpace, majorButton } from "../styleDefs/styles";
 

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
 import { SetSpeechTarget, Utterance } from "../App";
 import ModalWrapper from "./ModalWrapper";
-import { basicBlock } from "../styleDefs/styles";
 
 const shrinkString = (str: string): string => {
   let ret = str;
@@ -191,6 +190,15 @@ const SavedSpeech: React.FunctionComponent<SavedSpeechProps> = ({
           }}
         >
           Save
+        </button>
+
+        <button
+          type="button"
+          onClick={(): void => {
+            setShowSave(false);
+          }}
+        >
+          Cancel
         </button>
       </ModalWrapper>
     </div>

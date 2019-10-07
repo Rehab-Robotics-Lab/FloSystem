@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
-import { SetSpeechTarget, Utterance } from "../App";
-import { basicBlock } from "../styleDefs/styles";
 import { SetEyeOptions } from "./FaceContainer";
 
 //Populate these with getfaceoptions.srv

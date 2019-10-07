@@ -32,7 +32,8 @@ class FloFaceManager(object):
         self.new_state.right_eye_brightness = 12
         self.new_state.left_eye_brightness = 12
 
-        self.state_pub = rospy.Publisher('face_state', FaceState, queue_size=1)
+        self.state_pub = rospy.Publisher(
+            'face_state', FaceState, queue_size=1, latch=True)
         self.set_eye_service = rospy.Service(
             'set_eye_direction', SetEyeDirection, self.set_eye_direction)
         self.set_face_service = rospy.Service(

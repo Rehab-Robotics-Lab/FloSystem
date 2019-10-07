@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import * as ROSLIB from "roslib";
-import { SetSpeechTarget, Utterance } from "../App";
 import { basicBlock } from "../styleDefs/styles";
 import SavedFaces from "./SavedFaces";
 import CurrentFace from "./CurrentFace";

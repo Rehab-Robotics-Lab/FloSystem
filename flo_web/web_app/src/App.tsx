@@ -9,7 +9,6 @@ import SequenceRunContainer, { Move } from "./components/SequenceRunContainer";
 import SequenceContainer from "./components/SequenceContainer";
 import colors from "./styleDefs/colors";
 import SpeechContainer from "./components/SpeechContainer";
-import SavedSpeech from "./components/SavedSpeech";
 import MoveToPose from "./components/MoveToPose";
 import FaceContainer from "./components/FaceContainer";
 import RelaxMotors from "./components/RelaxMotors";
@@ -84,7 +83,7 @@ const App: React.FunctionComponent = () => {
   });
   const [speaking, setSpeaking] = useState(false);
   const [pose, setPose] = useState<JointState | null>(null);
-  const [poseListener, setPoseListener] = useState<ROSLIB.Topic | null>(null);
+  //const [poseListener, setPoseListener] = useState<ROSLIB.Topic | null>(null);
 
   // TODO: make this type more specific
   const setMovesList: SetMovesList = arg => {
@@ -96,7 +95,7 @@ const App: React.FunctionComponent = () => {
 
   const addError: AddError = (text, src) => {
     const newError = { text, time: new Date(), src };
-    // setErrorList([...errorList, newError]); TODO: get this back in
+    setErrorList([...errorList, newError]);
   };
 
   // TODO: TS
@@ -137,7 +136,7 @@ const App: React.FunctionComponent = () => {
     poseListenerT.subscribe(msg => {
       setPose(msg as JointState);
     });
-    setPoseListener(poseListenerT);
+    //setPoseListener(poseListenerT);
   }, [connected, ros]);
 
   return (

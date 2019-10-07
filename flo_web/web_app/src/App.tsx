@@ -134,7 +134,10 @@ const App: React.FunctionComponent = () => {
       messageType: "sensor_msgs/JointState"
     });
     poseListenerT.subscribe(msg => {
-      setPose(msg as JointState);
+      const cmsg = msg as JointState;
+      if (cmsg.name.includes("left_shoulder_flexionextension")) {
+        setPose(cmsg);
+      }
     });
     //setPoseListener(poseListenerT);
   }, [connected, ros]);

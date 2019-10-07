@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import * as ROSLIB from "roslib";
 import { FaceState } from "./FaceContainer";
 
@@ -13,11 +13,6 @@ interface MatrixProps {
   pitch: number;
 }
 
-// Apparently there is a problem in the typings for returning
-// an array from a function component:
-// https://github.com/DefinitelyTyped/DefinitelyTyped/issues/20356#issuecomment-336384210
-// best workaround is here:
-// https://stackoverflow.com/questions/46709773/typescript-react-rendering-an-array-from-a-stateless-functional-component
 const Matrix: React.FunctionComponent<MatrixProps> = ({
   x,
   y,
@@ -30,8 +25,6 @@ const Matrix: React.FunctionComponent<MatrixProps> = ({
 }) => {
   const unitWidth = width * elementSize + (width - 1) * pitch;
   const unitHeight = height * elementSize + (height - 1) * pitch;
-  const centerX = unitWidth / 2;
-  const centerY = unitHeight / 2;
   const viewboxString = [0, 0, unitWidth, unitHeight].join(" ");
   const components = [];
   for (let idx = 0; idx < on.length; idx += 1) {
@@ -76,13 +69,10 @@ const CurrentFace: React.FunctionComponent<CurrentFaceProps> = ({
   faceState,
   setFaceState
 }) => {
-  const [faceListener, setFaceListener] = useState<ROSLIB.Topic | null>(null);
+  //const [faceListener, setFaceListener] = useState<ROSLIB.Topic | null>(null);
 
   useEffect(() => {
     if (!connected) return;
-    // TODO: Figure out how to clean up pose listener
-    // poseListener.unsubscribe();
-    // setPoseListener(null);
     const faceListenerT = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "face_state",
@@ -91,8 +81,8 @@ const CurrentFace: React.FunctionComponent<CurrentFaceProps> = ({
     faceListenerT.subscribe(msg => {
       setFaceState(msg as FaceState);
     });
-    setFaceListener(faceListenerT);
-  }, [connected, ros]);
+    //setFaceListener(faceListenerT);
+  }, [connected, ros, setFaceState]);
 
   const faceMatrices = [];
   if (faceState) {

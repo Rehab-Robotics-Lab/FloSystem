@@ -191,6 +191,15 @@ const SavedSpeech: React.FunctionComponent<SavedSpeechProps> = ({
         >
           Save
         </button>
+
+        <button
+          type="button"
+          onClick={(): void => {
+            setShowSave(false);
+          }}
+        >
+          Cancel
+        </button>
       </ModalWrapper>
     </div>
   );

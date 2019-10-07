@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { basicBlock, majorButton } from "../styleDefs/styles";
+import { basicBlock } from "../styleDefs/styles";
 import * as ROSLIB from "roslib";
 
 interface Size {
@@ -33,11 +33,11 @@ interface ActFunc {
   (mouse: Mouse): void;
 }
 
-let print2console: ActFunc = function(mouse: Mouse) {
-  let message: string =
-    "Mouse position: " + mouse.pos_normal.x + "," + mouse.pos_normal.y;
-  console.log(message);
-};
+//let print2console: ActFunc = function(mouse: Mouse) {
+//let message: string =
+//"Mouse position: " + mouse.pos_normal.x + "," + mouse.pos_normal.y;
+//console.log(message);
+//};
 
 //class WebSocketConnection{
 //private socket;
@@ -237,16 +237,79 @@ interface DriveProps {
 // Takes a parameter ros, which is the connection to ros
 const Drive: React.FunctionComponent<DriveProps> = ({ ros, connected }) => {
   const canvasRef = React.useRef(null);
+  const [timer, setTimer] = useState<number | null>(null);
 
   useEffect(() => {
+    if (!connected || !ros) {
+      return;
+    }
+
+    const topic = new ROSLIB.Topic({
+      ros: ros,
+      name: "/keyop_vel_smoother/raw_cmd_vel",
+      messageType: "geometry_msgs/Twist"
+    });
+
+    const publishFunc = (mouse: Mouse) => {
+      let twist = 0;
+      let linear = 0;
+
+      const sendVals = (linear: number, twist: number) => {
+        if (timer) {
+          window.clearTimeout(timer);
+          setTimer(null);
+        }
+
+        const linearMsg = new ROSLIB.Message({
+          x: linear,
+          y: 0,
+          z: 0
+        });
+
+        const angMsg = new ROSLIB.Message({
+          x: 0,
+          y: 0,
+          z: twist
+        });
+
+        const msg = new ROSLIB.Message({
+          linear: linearMsg,
+          angular: angMsg
+        });
+
+        // trying to publish at 10hz
+        //topic.publish(msg);
+        console.log(msg);
+        if (linear !== 0 || twist !== 0) {
+          const tempTimer = window.setTimeout(
+            () => sendVals(linear, twist),
+            95
+          );
+          setTimer(tempTimer);
+        }
+      };
+
+      if (mouse.clicked) {
+        twist = mouse.pos_normal.x / 5;
+        linear = mouse.pos_normal.y / 2;
+        sendVals(linear, twist);
+      }
+    };
+
     const canvas = (canvasRef.current as unknown) as HTMLCanvasElement;
-    let joystick1 = new Joystick(canvas, print2console);
-  }, []);
+    let joystick1 = new Joystick(canvas, publishFunc);
+  }, [ros, connected]);
 
   return (
     <div style={basicBlock}>
       <h2>Drive Robot</h2>
-      <canvas ref={canvasRef} id="joystick1" width="300" height="300"></canvas>
+      <canvas
+        style={{ borderRadius: "5%" }}
+        ref={canvasRef}
+        id="joystick1"
+        width="300"
+        height="300"
+      ></canvas>
     </div>
   );
 };

@@ -4,11 +4,6 @@ import { PoseWrapper } from "./PoseContainer";
 import { SetMoving, SetMovesList } from "../App";
 import { basicBlock, majorButton, buttonContainer } from "../styleDefs/styles";
 
-const ConsoleLog: React.FunctionComponent = ({ children }) => {
-  console.log(children);
-  return null;
-};
-
 interface SetTime {
   (id: number, time: number): void;
 }

@@ -14,6 +14,7 @@ import MoveToPose from "./components/MoveToPose";
 import FaceContainer from "./components/FaceContainer";
 import RelaxMotors from "./components/RelaxMotors";
 import * as ROSLIB from "roslib";
+import Drive from "./components/Drive";
 
 export function genRandID(): number {
   return Math.round(Math.random() * 10000) + Date.now();
@@ -208,6 +209,7 @@ const App: React.FunctionComponent = () => {
               setMoving={setMoving}
               pose={pose}
             />
+            <Drive ros={ros} connected={connected} />
           </div>
           <ErrorDisplay errorList={errorList} />
         </div>

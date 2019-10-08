@@ -237,6 +237,7 @@ interface DriveProps {
 // Takes a parameter ros, which is the connection to ros
 const Drive: React.FunctionComponent<DriveProps> = ({ ros, connected }) => {
   const canvasRef = React.useRef(null);
+  const timer = React.useRef<number | undefined>(undefined);
 
   useEffect(() => {
     if (!connected || !ros) {
@@ -254,6 +255,8 @@ const Drive: React.FunctionComponent<DriveProps> = ({ ros, connected }) => {
       let linear = 0;
 
       const sendVals = (linear: number, twist: number) => {
+        window.clearTimeout(timer.current);
+        timer.current = undefined;
         const linearMsg = new ROSLIB.Message({
           x: linear,
           y: 0,
@@ -273,12 +276,15 @@ const Drive: React.FunctionComponent<DriveProps> = ({ ros, connected }) => {
 
         // trying to publish at 10hz
         topic.publish(msg);
+        timer.current = window.setTimeout(sendVals, 100, linear, twist);
       };
 
       if (mouse.clicked) {
-        twist = mouse.pos_normal.x / 5;
+        twist = -mouse.pos_normal.x;
         linear = mouse.pos_normal.y / 2;
         sendVals(linear, twist);
+      } else {
+        sendVals(0, 0);
       }
     };
 

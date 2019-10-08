@@ -144,7 +144,8 @@ const MoveToPose: React.FunctionComponent<MoveToPoseProps> = ({
   return (
     <div
       style={Object.assign({}, basicBlock, {
-        maxWidth: "none"
+        maxWidth: "none",
+        maxHeight: "auto"
       })}
     >
       <h2>Move to a Pose</h2>

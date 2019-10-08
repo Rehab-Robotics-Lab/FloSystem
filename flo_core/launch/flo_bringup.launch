@@ -28,6 +28,6 @@
 
     <!--Kobuki-->
     <include file="$(find kobuki_node)/launch/minimal.launch" />
-    <include file="$(find flo_core)/launch/safe_keyeop.launch" />
+    <include file="$(find flo_core)/launch/safe_keyop.launch" />
 
 </launch>

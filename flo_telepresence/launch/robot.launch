@@ -1,0 +1,58 @@
+  <launch>
+
+<!--S/N 1: 904412060717-->
+<!--S/N 2: 912322061173-->
+
+  <!--<arg name="serial_no_lower"           default=""/>-->
+  <!--<arg name="serial_no_upper"           default=""/>-->
+  <!--<arg name="json_file_path"      default=""/>-->
+  <!--<arg name="camera"              default="camera"/>-->
+
+  <arg name="depth_width"         value="1280"/>
+  <arg name="depth_height"        value="720"/>
+  <arg name="enable_depth"        value="true"/>
+
+  <!--Don't use sensors we don't have:-->
+  <arg name="enable_fisheye"      value="false"/>
+  <arg name="enable_gyro"         value="false"/>
+  <arg name="enable_accel"        value="false"/>
+
+
+  <!--<arg name="infra_width"        default="1280"/>-->
+  <!--<arg name="infra_height"       default="720"/>-->
+  <!--<arg name="enable_infra1"       default="true"/>-->
+  <!--<arg name="enable_infra2"       default="true"/>-->
+
+  <!--<arg name="color_width"         default="1280"/>-->
+  <!--<arg name="color_height"        default="720"/>-->
+  <!--<arg name="enable_color"        default="true"/>-->
+
+  <!--<arg name="depth_fps"           default="30"/>-->
+  <!--<arg name="infra_fps"           default="30"/>-->
+  <!--<arg name="color_fps"           default="30"/>-->
+
+  <!--<arg name="enable_pointcloud"         default="false"/>-->
+  <!--<arg name="pointcloud_texture_stream" default="RS2_STREAM_COLOR"/>-->
+  <!--<arg name="pointcloud_texture_index"  default="0"/>-->
+
+  <!--<arg name="enable_sync"               default="false"/>-->
+  <!--<arg name="align_depth"               default="false"/>-->
+
+  <!--<arg name="filters"                   default=""/>-->
+  <!--<arg name="clip_distance"             default="-2"/>-->
+  <!--<arg name="linear_accel_cov"          default="0.01"/>-->
+  <!--<arg name="initial_reset"             default="false"/>-->
+  <!--<arg name="unite_imu_method"          default=""/>-->
+  <!--<arg name="topic_odom_in"             default="odom_in"/>-->
+  <!--<arg name="calib_odom_file"           default=""/>-->
+  <!--<arg name="publish_odom_tf"           default="true"/>-->
+  <!--<arg name="allow_no_texture_points"   default="false"/>-->
+
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+        <arg name="depth_width"     value="$(arg depth_width)"/>
+        <arg name="depth_height"    value="$(arg depth_height)"/>
+        <arg name="enable_fisheye"           value="$(arg enable_fisheye)"/>
+        <arg name="enable_gyro"           value="$(arg enable_gyro)"/>
+        <arg name="enable_accel"           value="$(arg enable_accel)"/>
+    </include>
+</launch>

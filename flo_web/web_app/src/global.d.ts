@@ -1,3 +1,7 @@
+declare module "webrtc-adapter"{
+    export type adapter= any;
+}
+
 declare module "ros3d" {
   import * as ROSLIB from "roslib";
   import * as THREE from "three";

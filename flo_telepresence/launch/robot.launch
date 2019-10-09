@@ -1,5 +1,8 @@
   <launch>
 
+<rosparam param="port">9091</rosparam>
+  <node name="webrtc_server" pkg="webrtc_ros" type="webrtc_ros_server_node" />
+
 <!--S/N 1: 904412060717-->
 <!--S/N 2: 912322061173-->
 

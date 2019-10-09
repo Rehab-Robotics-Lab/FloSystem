@@ -9,20 +9,22 @@ interface HeaderProps {
   addError: AddError;
   connected: boolean;
   setConnected: SetConnected;
+  ipAddr: string;
+  ipPort: string;
+  setIpAddr: (arg: string) => void;
+  setIpPort: (arg: string) => void;
 }
 
 const Header: React.FunctionComponent<HeaderProps> = ({
   setRos,
   addError,
   connected,
-  setConnected
+  setConnected,
+  ipAddr,
+  ipPort,
+  setIpAddr,
+  setIpPort
 }) => {
-  const [cookies, setCookie] = useCookies(["ipAddr", "ipPort"]);
-  const [ipAddr, setIpAddr] = useState(
-    cookies.ipAddr || window.location.hostname
-  );
-  const [ipPort, setIpPort] = useState(cookies.ipPort || "9090");
-
   const errorWrapper = (err: string) => {
     addError("ROS Connection Error: " + err, "Header");
   };
@@ -78,7 +80,6 @@ const Header: React.FunctionComponent<HeaderProps> = ({
                 name="ip_addr"
                 value={ipAddr}
                 onChange={e => {
-                  setCookie("ipAddr", e.target.value);
                   setIpAddr(e.target.value);
                 }}
               />
@@ -90,7 +91,6 @@ const Header: React.FunctionComponent<HeaderProps> = ({
                 name="ip_port"
                 value={ipPort}
                 onChange={e => {
-                  setCookie("ipPort", e.target.value);
                   setIpPort(e.target.value);
                 }}
               />

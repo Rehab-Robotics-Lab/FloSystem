@@ -12,6 +12,7 @@ import SpeechContainer from "./components/SpeechContainer";
 import MoveToPose from "./components/MoveToPose";
 import FaceContainer from "./components/FaceContainer";
 import RelaxMotors from "./components/RelaxMotors";
+import Vids from "./components/Vids";
 import * as ROSLIB from "roslib";
 import Drive from "./components/Drive";
 
@@ -70,7 +71,11 @@ export interface JointState {
 }
 
 const App: React.FunctionComponent = () => {
-  const [cookies, setCookie] = useCookies(["movesList"]);
+  const [cookies, setCookie] = useCookies(["movesList", "ipAddr", "ipPort"]);
+  const [ipAddr, setIpAddr] = useState(
+    cookies.ipAddr || window.location.hostname
+  );
+  const [ipPort, setIpPort] = useState(cookies.ipPort || "9090");
   const [ros, setRos] = useState<ROSLIB.Ros | null>(null);
   const [errorList, setErrorList] = useState<Array<ErrorItem>>([]);
   const [connected, setConnected] = useState(false);
@@ -91,6 +96,16 @@ const App: React.FunctionComponent = () => {
       setCookie("movesList", arg);
       setMovesListInternal(arg);
     }
+  };
+
+  const setIpAddrCook = (addr: string) => {
+    setCookie("ipAddr", addr);
+    setIpAddr(addr);
+  };
+
+  const setIpPortCook = (port: string) => {
+    setCookie("ipPort", port);
+    setIpPort(port);
   };
 
   const addError: AddError = (text, src) => {
@@ -150,9 +165,19 @@ const App: React.FunctionComponent = () => {
           addError={addError}
           connected={connected}
           setConnected={setConnectedWrap}
+          ipAddr={ipAddr}
+          ipPort={ipPort}
+          setIpAddr={setIpAddrCook}
+          setIpPort={setIpPortCook}
         />
         <div className="body" style={{ backgroundColor: colors.gray.dark2 }}>
           <div className="visualFeeds">
+            <Vids
+              ros={ros}
+              connected={connected}
+              ipAddr={ipAddr}
+              ipPort={ipPort}
+            />
             <URDF ros={ros} connected={connected} />
             <RelaxMotors ros={ros} connected={connected} />
           </div>

@@ -20,45 +20,90 @@ const Vids: React.FunctionComponent<VidsProps> = ({
   ipAddr,
   ipPort
 }) => {
-  const remoteRef = React.useRef(null);
+  const remoteRefUpper = React.useRef(null);
+  const remoteRefLower = React.useRef(null);
 
   useEffect(() => {
     if (connected) {
-      const connection = WebrtcRos.createConnection(
+      const connection1 = WebrtcRos.createConnection(
         (window.location.protocol === "https:" ? "wss://" : "ws://") +
           ipAddr +
           ":" +
           (parseInt(ipPort) + 1) +
           "/webrtc"
       );
-      connection.onConfigurationNeeded = () => {
-        const remote_stream_config = { video: {}, audio: {} };
-        remote_stream_config.video = {
-          id: "subscribed_video",
-          src: "ros_image:/camera/color/image_raw"
+
+      connection1.onConfigurationNeeded = () => {
+        const remote_stream_config_upper = { video: {}, audio: {} };
+        remote_stream_config_upper.video = {
+          id: "subscribed_video_upper",
+          src: "ros_image:/upper_realsense/color/image_raw"
         };
-        connection.addRemoteStream(remote_stream_config).then((event: any) => {
-          //stream started
-          let remoteVideoElement = remoteRef as any;
-          remoteVideoElement.current.srcObject = event.stream;
-          event.remove.then(function(event: any) {
-            //Remote stream removed
-            remoteVideoElement.srcObject = null;
+
+        connection1
+          .addRemoteStream(remote_stream_config_upper)
+          .then((event: any) => {
+            //stream started
+            let remoteVideoElement = remoteRefUpper as any;
+            remoteVideoElement.current.srcObject = event.stream;
+            event.remove.then(function(event: any) {
+              //Remote stream removed
+              remoteVideoElement.srcObject = null;
+            });
+            //(window as any).remotestream = event.stream;
           });
-          //(window as any).remotestream = event.stream;
-        });
-        connection.sendConfigure();
+        connection1.sendConfigure();
       };
-      connection.connect();
+      connection1.connect();
+
+      const connection2 = WebrtcRos.createConnection(
+        (window.location.protocol === "https:" ? "wss://" : "ws://") +
+          ipAddr +
+          ":" +
+          (parseInt(ipPort) + 1) +
+          "/webrtc"
+      );
+
+      connection2.onConfigurationNeeded = () => {
+        const remote_stream_config_lower = { video: {}, audio: {} };
+        remote_stream_config_lower.video = {
+          id: "subscribed_video_lower",
+          src: "ros_image:/lower_realsense/color/image_raw"
+        };
+
+        connection2
+          .addRemoteStream(remote_stream_config_lower)
+          .then((event: any) => {
+            //stream started
+            let remoteVideoElement = remoteRefLower as any;
+            remoteVideoElement.current.srcObject = event.stream;
+            event.remove.then(function(event: any) {
+              //Remote stream removed
+              remoteVideoElement.srcObject = null;
+            });
+            //(window as any).remotestream = event.stream;
+          });
+        connection2.sendConfigure();
+      };
+      connection2.connect();
     }
   }, [connected, ros]);
   //<script type="text/javascript" src={"/web/adapter.js"} />
   return (
-    <div style={basicBlock}>
+    <div>
       <Helmet>
         <script type="text/javascript" src={"/web/webrtc_ros.js"} />
       </Helmet>
-      <video ref={remoteRef} id="remote-video" autoPlay={true}></video>
+      <video
+        ref={remoteRefUpper}
+        id="remote-video-upper"
+        autoPlay={true}
+      ></video>
+      <video
+        ref={remoteRefLower}
+        id="remote-video-lower"
+        autoPlay={true}
+      ></video>
       <video id="local-video" autoPlay={true} muted={true}></video>
     </div>
   );

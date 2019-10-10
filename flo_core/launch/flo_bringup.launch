@@ -30,4 +30,11 @@
     <include file="$(find kobuki_node)/launch/minimal.launch" />
     <include file="$(find flo_core)/launch/safe_keyop.launch" />
 
+    <!--Realsense-->
+    <include file="$(find flo_telepresence)/launch/realsense.launch" />
+
+    <!--WebRTC-->
+    <include file="$(find flo_telepresence)/launch/webrtc.launch"/>
+
+
 </launch>

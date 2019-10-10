@@ -35,7 +35,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         const remote_stream_config = { video: {}, audio: {} };
         remote_stream_config.video = {
           id: "subscribed_video",
-          src: "ros_image:/videofile/videofile_image_view/output"
+          src: "ros_image:/camera/color/image_raw"
         };
         connection.addRemoteStream(remote_stream_config).then((event: any) => {
           //stream started

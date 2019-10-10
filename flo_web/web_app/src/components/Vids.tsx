@@ -22,6 +22,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
 }) => {
   const remoteRefUpper = React.useRef(null);
   const remoteRefLower = React.useRef(null);
+  const localRef = React.useRef(null);
 
   useEffect(() => {
     if (connected) {
@@ -56,6 +57,33 @@ const Vids: React.FunctionComponent<VidsProps> = ({
             });
             //(window as any).remotestream = event.stream;
           });
+
+        let user_media_config = { video: {}, audio: {} };
+        let local_stream_config = { video: {}, audio: {} };
+        user_media_config.video = true;
+        local_stream_config.video = {
+          dest: "remote_video"
+        };
+        user_media_config.audio = true;
+
+        connection1
+          .addLocalStream(user_media_config, local_stream_config)
+          .then(function(event: any) {
+            console.log(
+              "Local stream added",
+              event,
+              event.stream.getVideoTracks(),
+              event.stream.getAudioTracks()
+            );
+            let localVideoElement = localRef as any;
+            localVideoElement.current.srcObject = event.stream;
+            event.remove.then(function(event: any) {
+              //console.log("Local stream removed", event);
+              localVideoElement.current.srcObject = null;
+            });
+            //window.localstream = event.stream;
+          });
+
         connection1.sendConfigure();
       };
       connection1.connect();
@@ -126,7 +154,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
           style={vidStyle}
         ></video>
         <video
-          ref={remoteRefLower}
+          ref={localRef}
           id="local-video"
           autoPlay={true}
           style={vidStyle}

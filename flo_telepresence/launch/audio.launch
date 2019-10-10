@@ -1,0 +1,6 @@
+<launch>
+    <include file="$(find audio_capture)/launch/capture.launch" >
+        <arg name="ns" value="robot_audio"/>
+    </include>
+
+</launch>

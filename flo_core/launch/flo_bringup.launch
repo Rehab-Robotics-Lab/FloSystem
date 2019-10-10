@@ -36,5 +36,7 @@
     <!--WebRTC-->
     <include file="$(find flo_telepresence)/launch/webrtc.launch"/>
 
+    <!--Audio-->
+    <include file="$(find flo_telepresence)/launch/audio.launch"/>
 
 </launch>

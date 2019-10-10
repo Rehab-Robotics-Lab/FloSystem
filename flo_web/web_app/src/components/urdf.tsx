@@ -19,8 +19,8 @@ const URDF: React.FunctionComponent<URDFProps> = ({ ros, connected }) => {
     // The view window
     const vw = new ROS3D.Viewer({
       divID: "urdf",
-      width: 400,
-      height: 400,
+      width: 300,
+      height: 250,
       antialias: true,
       background: "#f2f2f2", // sets the background color
       alpha: 1, // background transparency

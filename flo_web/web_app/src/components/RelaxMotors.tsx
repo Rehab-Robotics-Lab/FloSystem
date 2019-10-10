@@ -29,7 +29,10 @@ const RelaxMotors: React.FunctionComponent<RelaxMotorsProps> = ({
   };
 
   return (
-    <div style={basicBlock}>
+    <div
+        style={Object.assign({}, majorButton, {
+            width:"100%"
+        })}>
       <button
         type="button"
         disabled={!connected}

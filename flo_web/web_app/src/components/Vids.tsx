@@ -38,7 +38,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         const remote_stream_config_upper = { video: {}, audio: {} };
         remote_stream_config_upper.video = {
           id: "subscribed_video_upper",
-          src: "ros_image:/upper_realsense/color/image_raw"
+            src: "ros_image:/upper_realsense/color/image_raw",
         };
         remote_stream_config_upper.audio = {
           id: "subscribed_audio",
@@ -129,30 +129,22 @@ const Vids: React.FunctionComponent<VidsProps> = ({
   };
 
   return (
-    <div>
+      <>
       <Helmet>
         <script type="text/javascript" src={"/web/webrtc_ros.js"} />
-      </Helmet>
-      <div
-        style={Object.assign({}, basicBlock, {
-          maxWidth: "none",
-          maxHeight: "auto",
-          flexDirection: "row",
-          flexWrap: "wrap"
-        })}
-      >
+      </Helmet>,
         <video
           ref={remoteRefUpper}
           id="remote-video-upper"
           autoPlay={true}
           style={vidStyle}
-        ></video>
+      ></video>,
         <video
           ref={remoteRefLower}
           id="remote-video-lower"
           autoPlay={true}
           style={vidStyle}
-        ></video>
+        ></video>,
         <video
           ref={localRef}
           id="local-video"
@@ -160,8 +152,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
           style={vidStyle}
           muted={true}
         ></video>
-      </div>
-    </div>
+    </>
   );
 };
 

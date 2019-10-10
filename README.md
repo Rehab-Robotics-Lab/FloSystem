@@ -227,5 +227,7 @@ catkin_make install
 
 ### There is no audio playing
 The first thing to do is test the speaker by running `speaker-test`
-Then hop into Alsa Mixer `alsamixer`, press F6 and select the USB Device.
+Then hop into Alsa Mixer `alsamixer`, press F6 and select the USB Device, but this can only change the volume.
+It is also possible that the wrong audio device is selected. To fix that, you will need to select the audio device.
+List the available devics by: `pacmd list-sinks|grep index` and then set the one you want with `pacmd set-default-sink <sink_name|index>`
 You can also set the volume here.

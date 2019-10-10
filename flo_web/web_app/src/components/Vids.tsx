@@ -89,22 +89,46 @@ const Vids: React.FunctionComponent<VidsProps> = ({
     }
   }, [connected, ros]);
   //<script type="text/javascript" src={"/web/adapter.js"} />
+  //
+
+  const vidStyle = {
+    width: "auto",
+    maxWidth: "300px"
+  };
+
   return (
     <div>
       <Helmet>
         <script type="text/javascript" src={"/web/webrtc_ros.js"} />
       </Helmet>
-      <video
-        ref={remoteRefUpper}
-        id="remote-video-upper"
-        autoPlay={true}
-      ></video>
-      <video
-        ref={remoteRefLower}
-        id="remote-video-lower"
-        autoPlay={true}
-      ></video>
-      <video id="local-video" autoPlay={true} muted={true}></video>
+      <div
+        style={Object.assign({}, basicBlock, {
+          maxWidth: "none",
+          maxHeight: "auto",
+          flexDirection: "row",
+          flexWrap: "wrap"
+        })}
+      >
+        <video
+          ref={remoteRefUpper}
+          id="remote-video-upper"
+          autoPlay={true}
+          style={vidStyle}
+        ></video>
+        <video
+          ref={remoteRefLower}
+          id="remote-video-lower"
+          autoPlay={true}
+          style={vidStyle}
+        ></video>
+        <video
+          ref={remoteRefLower}
+          id="local-video"
+          autoPlay={true}
+          style={vidStyle}
+          muted={true}
+        ></video>
+      </div>
     </div>
   );
 };

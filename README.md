@@ -244,3 +244,11 @@ Then hop into Alsa Mixer `alsamixer`, press F6 and select the USB Device, but th
 It is also possible that the wrong audio device is selected. To fix that, you will need to select the audio device.
 List the available devics by: `pacmd list-sinks|grep index` and then set the one you want with `pacmd set-default-sink <sink_name|index>`
 You can also set the volume here.
+
+### Videos don't show up when running
+There are a few possible problems:
+1. things only seem to work in chrome for now, so use that.
+2. You may not have your devices enabled because the source is non-secure. Here is what to do:
+    a. goto: chrome://flags/#unsafely-treat-insecure-origin-as-secure
+    b. fill in with: `http://10.42.0.189:3000,http://10.42.0.189:9090,http://10.42.0.189:9091`
+    c. change to enabled

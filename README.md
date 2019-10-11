@@ -179,6 +179,19 @@ defaults.pcm.card 1
 
 then restart
 
+## Running
+1. ssh into the robot: `ssh nuc-admin@<ip addr>`
+2. open tmux on remote: `tmux`
+3. run roscore: `roscore`
+4. create a new split: <ctrl-b>+<% or ">
+5. run rosmon to launch: `mon launch flo_core flo_bringup.launch --name=central_launch`
+6. open a new split
+7. navigate to web server folder: `cd ~/catkin_ws/src/LilFloSystem/flo_web/web_app`
+8. run webserver without opening browser: `npm robot`
+
+### for development
+for development, you may want to run the browser on your local machine with `npm chrome`
+
 ## Some useful tools:
 For monitoring the kobuki, you can use the [kobuki dashboard](http://wiki.ros.org/turtlebot_bringup/Tutorials/indigo/PC%20Bringup).
 Run: `rqt -s kobuki_dashboard`.

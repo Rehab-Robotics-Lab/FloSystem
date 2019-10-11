@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState, CSSProperties } from "react";
 import { basicBlock } from "../styleDefs/styles";
 import * as ROSLIB from "roslib";
 import { Helmet } from "react-helmet";
@@ -23,22 +23,29 @@ const Vids: React.FunctionComponent<VidsProps> = ({
   const remoteRefUpper = React.useRef(null);
   const remoteRefLower = React.useRef(null);
   const localRef = React.useRef(null);
+  const [localEnable, setLocalEnable] = useState(true);
+  const [upperEnable, setUpperEnable] = useState(true);
+  const [lowerEnable, setLowerEnable] = useState(true);
+  const upperStream = React.useRef(null);
+  const lowerStream = React.useRef(null);
+  const localStream = React.useRef(null);
 
   useEffect(() => {
     if (connected) {
-      const connection1 = WebrtcRos.createConnection(
+      const connectionString =
         (window.location.protocol === "https:" ? "wss://" : "ws://") +
-          ipAddr +
-          ":" +
-          (parseInt(ipPort) + 1) +
-          "/webrtc"
-      );
+        ipAddr +
+        ":" +
+        (parseInt(ipPort) + 1) +
+        "/webrtc";
+
+      const connection1 = WebrtcRos.createConnection(connectionString);
 
       connection1.onConfigurationNeeded = () => {
         const remote_stream_config_upper = { video: {}, audio: {} };
         remote_stream_config_upper.video = {
           id: "subscribed_video_upper",
-            src: "ros_image:/upper_realsense/color/image_raw",
+          src: "ros_image:/upper_realsense/color/image_raw"
         };
         remote_stream_config_upper.audio = {
           id: "subscribed_audio",
@@ -55,6 +62,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
               //Remote stream removed
               remoteVideoElement.srcObject = null;
             });
+            upperStream.current = event.stream;
             //(window as any).remotestream = event.stream;
           });
 
@@ -81,6 +89,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
               //console.log("Local stream removed", event);
               localVideoElement.current.srcObject = null;
             });
+            localStream.current = event.stream;
             //window.localstream = event.stream;
           });
 
@@ -114,6 +123,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
               remoteVideoElement.srcObject = null;
             });
             //(window as any).remotestream = event.stream;
+            lowerStream.current = event.stream;
           });
         connection2.sendConfigure();
       };
@@ -128,23 +138,72 @@ const Vids: React.FunctionComponent<VidsProps> = ({
     maxWidth: "300px"
   };
 
+  const wrapStyle: CSSProperties = {
+    display: "flex",
+    flexDirection: "column"
+  };
+
   return (
-      <>
+    <>
       <Helmet>
         <script type="text/javascript" src={"/web/webrtc_ros.js"} />
-      </Helmet>,
+      </Helmet>
+      <div style={wrapStyle}>
+        <button
+          type="button"
+          onClick={() => {
+            if (upperStream && upperStream.current) {
+              (upperStream!.current! as any)
+                .getTracks()
+                .forEach((track: any) => (track.enabled = !upperEnable));
+              setUpperEnable(!upperEnable);
+            }
+          }}
+        >
+          {upperEnable ? "Disable Upper" : "Enable Upper"}
+        </button>
         <video
           ref={remoteRefUpper}
           id="remote-video-upper"
           autoPlay={true}
           style={vidStyle}
-      ></video>,
+        ></video>
+      </div>
+      <div style={wrapStyle}>
+        <button
+          type="button"
+          onClick={() => {
+            if (lowerStream && lowerStream.current) {
+              (lowerStream!.current! as any)
+                .getTracks()
+                .forEach((track: any) => (track.enabled = !lowerEnable));
+              setLowerEnable(!lowerEnable);
+            }
+          }}
+        >
+          {lowerEnable ? "Disable Lower" : "Enable Lower"}
+        </button>
         <video
           ref={remoteRefLower}
           id="remote-video-lower"
           autoPlay={true}
           style={vidStyle}
-        ></video>,
+        ></video>
+      </div>
+      <div style={wrapStyle}>
+        <button
+          type="button"
+          onClick={() => {
+            if (localStream && localStream.current) {
+              (localStream!.current! as any)
+                .getTracks()
+                .forEach((track: any) => (track.enabled = !localEnable));
+              setLocalEnable(!localEnable);
+            }
+          }}
+        >
+          {localEnable ? "Disable Local" : "Enable Local"}
+        </button>
         <video
           ref={localRef}
           id="local-video"
@@ -152,6 +211,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
           style={vidStyle}
           muted={true}
         ></video>
+      </div>
     </>
   );
 };

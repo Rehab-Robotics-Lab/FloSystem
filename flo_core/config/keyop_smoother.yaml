@@ -1,6 +1,6 @@
 # Mandatory parameters
 speed_lim_v: 0.8
-speed_lim_w: 5.4
+speed_lim_w: 8.0
 
 accel_lim_v: 0.50
 accel_lim_w: 7.0

@@ -12,7 +12,7 @@
     <!--Publishing the robot joint positions instead of just angles-->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
 
-    <!--[>Voice<]-->
+    <!--Voice-->
     <arg name="voice_config_file" default="$(find flo_core)/config/polly.yaml" />
     <include file="$(find tts)/launch/tts_polly.launch" >
         <arg name="config_file" value="$(arg voice_config_file)"/>
@@ -25,5 +25,11 @@
     <!--Database for poses, actions, etc-->
     <rosparam param="database_location">"~/db/flo.db"</rosparam>
     <node name="pose_db_manager" pkg="flo_core" type="flo_db.py"/>
+
+    <!--Realsense & Audio-->
+    <node pkg="rosbag" type="play" name="camera_audio_player" args="/home/mjsobrep/Downloads/realsense_audio.orig.bag"/>
+
+    <!--WebRTC-->
+    <include file="$(find flo_telepresence)/launch/webrtc.launch"/>
 
 </launch>

@@ -60,6 +60,9 @@ class BolideController(object):
         self.joint_publisher = rospy.Publisher(
             'joint_states', JointState, queue_size=1)
 
+        rospy.Subscriber(
+            'motor_commands', String, self.new_control_command)
+
         # that false is autostart. It should always be false
         self.server = actionlib.SimpleActionServer(
             'move', MoveAction, self.move, False)
@@ -320,7 +323,11 @@ class BolideController(object):
 
         :param msg: the message being given
         """
-        self.command_tasks.put(msg)
+        # self.command_tasks.put(msg)
+        if msg.data == "halt":
+            self.send_packet([0x30])
+        elif msg.data == "relax":
+            self.send_packet([0x20])
 
     def send_packet(self, command):
         """send_packet to the robot, add in the packet header and footer.

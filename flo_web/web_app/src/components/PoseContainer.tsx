@@ -228,8 +228,7 @@ const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
         style={{
           display: "flex",
           flexDirection: "column",
-          overflow: "auto",
-          maxHeight: "400px"
+          overflowY: "auto"
         }}
       >
         {PosesList.map(value => (

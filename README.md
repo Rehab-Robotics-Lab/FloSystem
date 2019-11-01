@@ -112,7 +112,8 @@ Setup [UDEV Rules to make the face always have the same name](https://unix.stack
        number.
     3. Edit file `/etc/udev/rules.d/99-usb-serial.rules` (create if
        necessary) to have:
-       `SUBSYSTEM=="tty", ATTRS{idVendor}=="XXXX", ATTRS{idProduct}=="XXXX", ATTRS{serial}=="XXXXXXX", SYMLINK+="flo_face", MODE="0666"
+       `SUBSYSTEM=="tty", ATTRS{idVendor}=="XXXX", ATTRS{idProduct}=="XXXX", ATTRS{serial}=="XXXXXXX", SYMLINK+="flo_face", MODE="0666"`
+
         `SUBSYSTEM=="tty", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", SYMLINK+="bolide"`
 
     4. Load the rules: `sudo udevadm trigger`
@@ -178,6 +179,19 @@ defaults.pcm.card 1
 
 then restart
 
+## Running
+1. ssh into the robot: `ssh nuc-admin@<ip addr>`
+2. open tmux on remote: `tmux`
+3. run roscore: `roscore`
+4. create a new split: <ctrl-b>+<% or ">
+5. run rosmon to launch: `mon launch flo_core flo_bringup.launch --name=central_launch`
+6. open a new split
+7. navigate to web server folder: `cd ~/catkin_ws/src/LilFloSystem/flo_web/web_app`
+8. run webserver without opening browser: `npm robot`
+
+### for development
+for development, you may want to run the browser on your local machine with `npm chrome`
+
 ## Some useful tools:
 For monitoring the kobuki, you can use the [kobuki dashboard](http://wiki.ros.org/turtlebot_bringup/Tutorials/indigo/PC%20Bringup).
 Run: `rqt -s kobuki_dashboard`.
@@ -226,5 +240,7 @@ catkin_make install
 
 ### There is no audio playing
 The first thing to do is test the speaker by running `speaker-test`
-Then hop into Alsa Mixer `alsamixer`, press F6 and select the USB Device.
+Then hop into Alsa Mixer `alsamixer`, press F6 and select the USB Device, but this can only change the volume.
+It is also possible that the wrong audio device is selected. To fix that, you will need to select the audio device.
+List the available devics by: `pacmd list-sinks|grep index` and then set the one you want with `pacmd set-default-sink <sink_name|index>`
 You can also set the volume here.

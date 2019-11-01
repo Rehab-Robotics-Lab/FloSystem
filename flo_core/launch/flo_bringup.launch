@@ -25,4 +25,9 @@
     <!--Database for poses, actions, etc-->
     <rosparam param="database_location">"~/db/flo.db"</rosparam>
     <node name="pose_db_manager" pkg="flo_core" type="flo_db.py"/>
+
+    <!--Kobuki-->
+    <include file="$(find kobuki_node)/launch/minimal.launch" />
+    <include file="$(find flo_core)/launch/safe_keyop.launch" />
+
 </launch>

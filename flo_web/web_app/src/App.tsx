@@ -9,9 +9,11 @@ import SequenceRunContainer, { Move } from "./components/SequenceRunContainer";
 import SequenceContainer from "./components/SequenceContainer";
 import colors from "./styleDefs/colors";
 import SpeechContainer from "./components/SpeechContainer";
-import SavedSpeech from "./components/SavedSpeech";
 import MoveToPose from "./components/MoveToPose";
+import FaceContainer from "./components/FaceContainer";
+import RelaxMotors from "./components/RelaxMotors";
 import * as ROSLIB from "roslib";
+import Drive from "./components/Drive";
 
 export function genRandID(): number {
   return Math.round(Math.random() * 10000) + Date.now();
@@ -81,7 +83,7 @@ const App: React.FunctionComponent = () => {
   });
   const [speaking, setSpeaking] = useState(false);
   const [pose, setPose] = useState<JointState | null>(null);
-  const [poseListener, setPoseListener] = useState<ROSLIB.Topic | null>(null);
+  //const [poseListener, setPoseListener] = useState<ROSLIB.Topic | null>(null);
 
   // TODO: make this type more specific
   const setMovesList: SetMovesList = arg => {
@@ -93,7 +95,7 @@ const App: React.FunctionComponent = () => {
 
   const addError: AddError = (text, src) => {
     const newError = { text, time: new Date(), src };
-    // setErrorList([...errorList, newError]); TODO: get this back in
+    setErrorList([...errorList, newError]);
   };
 
   // TODO: TS
@@ -132,9 +134,12 @@ const App: React.FunctionComponent = () => {
       messageType: "sensor_msgs/JointState"
     });
     poseListenerT.subscribe(msg => {
-      setPose(msg as JointState);
+      const cmsg = msg as JointState;
+      if (cmsg.name.includes("left_shoulder_flexionextension")) {
+        setPose(cmsg);
+      }
     });
-    setPoseListener(poseListenerT);
+    //setPoseListener(poseListenerT);
   }, [connected, ros]);
 
   return (
@@ -149,8 +154,56 @@ const App: React.FunctionComponent = () => {
         <div className="body" style={{ backgroundColor: colors.gray.dark2 }}>
           <div className="visualFeeds">
             <URDF ros={ros} connected={connected} />
+            <RelaxMotors ros={ros} connected={connected} />
           </div>
-          <div>
+          <div
+            className="controls"
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              flexWrap: "wrap",
+              alignItems: "flex-start"
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "wrap"
+              }}
+            >
+              <PoseContainer
+                ros={ros}
+                connected={connected}
+                addToMoveList={addToMoveList}
+                pose={pose}
+              />
+              <SequenceRunContainer
+                ros={ros}
+                connected={connected}
+                MovesList={MovesList}
+                setMovesList={setMovesList}
+                moving={moving}
+                setMoving={setMoving}
+              />
+              <SequenceContainer
+                ros={ros}
+                connected={connected}
+                MovesList={MovesList}
+                setMovesList={setMovesList}
+              />
+            </div>
+            <div style={{ display: "flex", flexDirection: "row" }}>
+              <SpeechContainer
+                ros={ros}
+                connected={connected}
+                speechTarget={speechTarget}
+                setSpeechTarget={setSpeechTarget}
+                setSpeaking={setSpeaking}
+                speaking={speaking}
+              />
+            </div>
+            <FaceContainer ros={ros} connected={connected} />
             <MoveToPose
               ros={ros}
               connected={connected}
@@ -158,45 +211,7 @@ const App: React.FunctionComponent = () => {
               setMoving={setMoving}
               pose={pose}
             />
-          </div>
-          <div style={{ display: "flex", flexDirection: "row" }}>
-            <PoseContainer
-              ros={ros}
-              connected={connected}
-              addToMoveList={addToMoveList}
-              pose={pose}
-            />
-            <SequenceRunContainer
-              ros={ros}
-              connected={connected}
-              MovesList={MovesList}
-              setMovesList={setMovesList}
-              moving={moving}
-              setMoving={setMoving}
-            />
-            <SequenceContainer
-              ros={ros}
-              connected={connected}
-              MovesList={MovesList}
-              setMovesList={setMovesList}
-            />
-          </div>
-          <div style={{ display: "flex", flexDirection: "row" }}>
-            <SpeechContainer
-              ros={ros}
-              connected={connected}
-              speechTarget={speechTarget}
-              setSpeechTarget={setSpeechTarget}
-              setSpeaking={setSpeaking}
-              speaking={speaking}
-            />
-            <SavedSpeech
-              ros={ros}
-              connected={connected}
-              speechTarget={speechTarget}
-              setSpeechTarget={setSpeechTarget}
-              speaking={speaking}
-            />
+            <Drive ros={ros} connected={connected} />
           </div>
           <ErrorDisplay errorList={errorList} />
         </div>

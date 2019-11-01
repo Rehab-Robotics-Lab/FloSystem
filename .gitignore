@@ -58,3 +58,6 @@ mySyncConfig.lua
 
 # python compiled files
 *.pyc
+
+tags.lock
+tags.temp

@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import colors from "../styleDefs/colors";
+import React from "react";
 
 interface ModalWrapperProps {
   show: boolean;

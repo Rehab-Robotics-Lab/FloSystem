@@ -1,13 +1,8 @@
 import React, { useState } from "react";
 import * as ROSLIB from "roslib";
-import { PoseMsg, PoseWrapper } from "./PoseContainer";
+import { PoseWrapper } from "./PoseContainer";
 import { SetMoving, SetMovesList } from "../App";
-import { basicBlock } from "../styleDefs/styles";
-
-const ConsoleLog: React.FunctionComponent = ({ children }) => {
-  console.log(children);
-  return null;
-};
+import { basicBlock, majorButton, buttonContainer } from "../styleDefs/styles";
 
 interface SetTime {
   (id: number, time: number): void;
@@ -146,7 +141,7 @@ const Move: React.FunctionComponent<MoveProps> = ({
   const style: React.CSSProperties = {
     display: "flex",
     flexDirection: "row",
-    flexWrap: "wrap",
+    flexWrap: "nowrap",
     background: id % 2 ? "#bcd2e0" : "white",
     border: "none"
   };
@@ -170,7 +165,9 @@ const Move: React.FunctionComponent<MoveProps> = ({
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <div style={style}>
-        <span style={{ width: "100px" }}>{pose.pose.description}</span>
+        <span style={{ width: "100px", flexShrink: 0 }}>
+          {pose.pose.description}
+        </span>
         <input
           type="number"
           min="0"
@@ -310,9 +307,21 @@ const SequenceRunContainer: React.FunctionComponent<
   }
 
   return (
-    <div id="moves-container" style={basicBlock}>
+    <div
+      id="moves-container"
+      style={Object.assign({}, basicBlock, {
+        flexShrink: 0
+      })}
+    >
       <h2>List of moves to make:</h2>
-      <div style={{ display: "flex", flexDirection: "column" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          overflowY: "auto",
+          overflowX: "hidden"
+        }}
+      >
         <div style={{ display: "flex", flexDirection: "row" }}>
           <div>Pose</div>
           <div>Time from prior (s)</div>
@@ -324,26 +333,29 @@ const SequenceRunContainer: React.FunctionComponent<
         {renderedMoves}
       </div>
       <hr />
-      <button
-        type="button"
-        disabled={!connected || moving || errorList.some(val => val)}
-        onClick={(): void => {
-          if (ros === null) {
-            return;
-          }
-          runSequence(MovesList, setMovesList, setMoving, ros);
-        }}
-      >
-        Run Sequence
-      </button>
-      <button
-        type="button"
-        onClick={(): void => {
-          setMovesList([]);
-        }}
-      >
-        Clear
-      </button>
+      <div style={buttonContainer}>
+        <button
+          type="button"
+          style={majorButton}
+          disabled={!connected || moving || errorList.some(val => val)}
+          onClick={(): void => {
+            if (ros === null) {
+              return;
+            }
+            runSequence(MovesList, setMovesList, setMoving, ros);
+          }}
+        >
+          Run Sequence
+        </button>
+        <button
+          type="button"
+          onClick={(): void => {
+            setMovesList([]);
+          }}
+        >
+          Clear
+        </button>
+      </div>
     </div>
   );
 };

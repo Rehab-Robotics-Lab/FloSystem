@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import * as ROSLIB from "roslib";
-import { PoseMsg, PoseWrapper } from "./PoseContainer";
-import { SetMoving, SetMovesList, JointState } from "../App";
+import { SetMoving, JointState } from "../App";
 import { runSequence, Move } from "./SequenceRunContainer";
-import { basicBlock } from "../styleDefs/styles";
+import { basicBlock, inputWithSpace, majorButton } from "../styleDefs/styles";
 
 const armNames = [
   "shoulder_flexionextension",
@@ -24,11 +23,15 @@ const ArmVal: React.FunctionComponent<ArmValProps> = ({
   transfer
 }) => {
   return (
-    <div>
-      {name}:{val.toFixed(3)}
-      <button type="button" onClick={() => transfer()}>
-        Transfer
-      </button>
+    <div style={inputWithSpace}>
+      <div>
+        {name}: {val.toFixed(3)}
+      </div>
+      <div>
+        <button type="button" onClick={() => transfer()}>
+          Transfer
+        </button>
+      </div>
     </div>
   );
 };
@@ -49,9 +52,9 @@ const ArmInput: React.FunctionComponent<ArmInputProps> = ({
   max = 180
 }) => {
   return (
-    <div>
-      <label htmlFor="arm_input">
-        {name}:
+    <div style={inputWithSpace}>
+      <label htmlFor="arm_input">{name}:</label>
+      <div>
         <input
           type="number"
           name="arm_input"
@@ -73,7 +76,7 @@ const ArmInput: React.FunctionComponent<ArmInputProps> = ({
             setTarget(parseFloat(e.target.value));
           }}
         />
-      </label>
+      </div>
     </div>
   );
 };
@@ -139,69 +142,83 @@ const MoveToPose: React.FunctionComponent<MoveToPoseProps> = ({
   }
 
   return (
-    <div style={basicBlock}>
+    <div
+      style={Object.assign({}, basicBlock, {
+        maxWidth: "none",
+        maxHeight: "auto"
+      })}
+    >
       <h2>Move to a Pose</h2>
-      {currentPoses}
-      <div>Current poses:</div>
-      <div>
-        Enter in degrees:
-        {inputs}
-        <label htmlFor="arm-selector">
-          <button
-            name="arm-selector"
-            type="button"
-            onClick={(): void => {
-              setArm(arm === "left" ? "right" : "left");
-            }}
-          >
-            {arm}
-          </button>
-        </label>
-        <ArmInput name="time" setTarget={setTime} val={time} />
-        <label htmlFor="run">
-          <button
-            name="run"
-            type="button"
-            onClick={(): void => {
-              if (ros === null) {
-                return;
-              }
-
-              const cleanNames = [];
-              let name;
-              for (name in armNames) {
-                cleanNames.push(arm + "_" + name);
-              }
-
-              const radPose = [];
-              for (let idx = 0; idx < targetPose.length; idx += 1) {
-                radPose[idx] = (targetPose[idx] * Math.PI) / 180;
-              }
-
-              const movesList: Move[] = [
-                {
-                  time: time,
-                  pose: {
-                    pose: {
-                      description: "temp pose",
-                      joint_names: armNames,
-                      joint_positions: radPose
-                    },
-                    id: 0
-                  },
-                  lr: arm,
-                  status: "not-run",
-                  key: 0
+      <div style={{ display: "flex", flexWrap: "wrap", flexDirection: "row" }}>
+        <div>
+          <h3>Current Poses:</h3>
+          {currentPoses}
+        </div>
+        <div>
+          <h3>Target Poses</h3>
+          Enter in degrees:
+          <hr />
+          {inputs}
+          <hr />
+          <label htmlFor="arm-selector">
+            <button
+              name="arm-selector"
+              type="button"
+              onClick={(): void => {
+                setArm(arm === "left" ? "right" : "left");
+              }}
+            >
+              {arm}
+            </button>
+          </label>
+          <ArmInput name="time" setTarget={setTime} val={time} />
+          <hr />
+          <label htmlFor="run">
+            <button
+              name="run"
+              type="button"
+              style={majorButton}
+              onClick={(): void => {
+                if (ros === null) {
+                  return;
                 }
-              ];
 
-              runSequence(movesList, (arg: Move[]) => null, setMoving, ros);
-            }}
-            disabled={moving || !connected}
-          >
-            Run
-          </button>
-        </label>
+                const cleanNames = [];
+                let name;
+                for (name in armNames) {
+                  cleanNames.push(arm + "_" + name);
+                }
+
+                const radPose = [];
+                for (let idx = 0; idx < targetPose.length; idx += 1) {
+                  radPose[idx] = (targetPose[idx] * Math.PI) / 180;
+                }
+
+                const movesList: Move[] = [
+                  {
+                    time: time,
+                    pose: {
+                      pose: {
+                        description: "temp pose",
+                        joint_names: armNames,
+                        joint_positions: radPose
+                      },
+                      id: 0
+                    },
+                    lr: arm,
+                    status: "not-run",
+                    key: 0
+                  }
+                ];
+
+                runSequence(movesList, (arg: Move[]) => null, setMoving, ros);
+              }}
+              disabled={moving || !connected}
+            >
+              Run
+            </button>
+          </label>
+        </div>
       </div>
     </div>
   );

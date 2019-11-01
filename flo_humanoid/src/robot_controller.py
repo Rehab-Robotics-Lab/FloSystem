@@ -212,7 +212,7 @@ class BolideController(object):
 
         # ITERATE GIVE FEEDBACK
         while not done:
-            self.get_pose()
+            # self.get_pose()
             if self.server.is_preempt_requested():
                 # I think that this would stop motion?
                 self.upload_sequence([self.current_positions], [0])

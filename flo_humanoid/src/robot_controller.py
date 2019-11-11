@@ -46,6 +46,11 @@ class BolideController(object):
 
     NUM_MOTORS = 18
 
+    commands = {'pos': 0x03, 'current': 0x06, 'torque': 0x07}
+
+    feedback = {'error': 0x00, 'keep_going': 0x01,
+                'done': 0x02, 'relaxed': 0x03}
+
     def __init__(self):
         rospy.init_node('robot_manager')  # , log_level=rospy.DEBUG)
 
@@ -255,11 +260,12 @@ class BolideController(object):
         robot's pose"""
         while not rospy.is_shutdown():
             rospy.logdebug('starting read loop')
-            self.get_pose()
+            self.read_all()
+            self.request_pos()
             self.rate.sleep()
 
 # TODO: a lot of this could be vectorized using np
-    def get_pose(self):
+    def get_pose_sim(self):
         """get the pose of the robot and publish it to the joint state"""
         with self.usb_lock:
             ### Start Simulator ###
@@ -287,31 +293,15 @@ class BolideController(object):
 
                 position = self.sim_current_pose  # if not self.sim_moving else []
             ### End Simulator ###
-            else:
-                try:
-                    position = self.reader.read_data('pos')
-                except serial.SerialException as err:
-                    rospy.logerr('error when reading position: %s', err)
-                    self.connect()
-            if position is None:
-                rospy.logerr('couldn\'t get postion data')
-                return
-            rospy.logdebug('raw position data: %s', position)
-            names = []
-            positions = []
-            for id in self.available_motor_ids:
-                raw_position = position[id]
-                rad_position = (raw_position - int(
-                    self.joint_config[id]['neutral'])) * int(
-                        self.joint_config[id]['inversion'])*2*math.pi/1023
-                names.append(self.joint_config[id]['name'])
-                positions.append(rad_position)
-            new_msg = JointState()
-            new_msg.name = names
-            new_msg.position = positions
-            new_msg.header.stamp = rospy.Time.now()
-            self.joint_publisher.publish(new_msg)
-            self.current_positions = position
+            # else:
+                # try:
+                # position = self.reader.read_data('pos')
+                # except serial.SerialException as err:
+                # rospy.logerr('error when reading position: %s', err)
+                # self.connect()
+            # if position is None:
+                # rospy.logerr('couldn\'t get postion data')
+                # return
 
     def new_joint_command(self, msg):
         """take a new message from the joint command topic and add it to the task queue
@@ -427,7 +417,6 @@ class BolideController(object):
 
     def read(self):
         # while len(ret) < 1 and tries > 0:
-        # TODO should i actually be waiting for 40 bytes each time?
         self.ret = self.ser.read(1)
         # tries -= 1
         # log(1, 'len(ret): {} | ret: {}'.format(len(ret), ret))
@@ -467,6 +456,14 @@ class BolideController(object):
 
         return {'command': command, 'data': data}
 
+    def read_all(self):
+        returns = []
+        while self.ser.inWaiting():
+            ret = self.read()
+            if ret:
+                returns.append(ret)
+        return returns
+
     def calc_pos(self, data):
         final_joint_pos = [0]*18
         for i in range(18):
@@ -482,9 +479,35 @@ class BolideController(object):
         # print('{}:{}'.format(com,final_joint_pos))
         return final_joint_pos
 
-    def read_process(self, command, data):
+    def process_return(self, command, data):
+        if command == self.commands['pos']:
+            position = self.calc_pos(data)
+            rospy.logdebug('raw position data: %s', position)
+            names = []
+            positions = []
+            for id in self.available_motor_ids:
+                raw_position = position[id]
+                rad_position = (raw_position - int(
+                    self.joint_config[id]['neutral'])) * int(
+                        self.joint_config[id]['inversion'])*2*math.pi/1023
+                names.append(self.joint_config[id]['name'])
+                positions.append(rad_position)
+            new_msg = JointState()
+            new_msg.name = names
+            new_msg.position = positions
+            new_msg.header.stamp = rospy.Time.now()
+            self.joint_publisher.publish(new_msg)
+            self.current_positions = position
 
-    def request_pos(self,
+        elif command == self.commands['current']:
+            current = self.calc_current(data)
+
+    def process_return_list(self, returns):
+        for ret in returns:
+            self.process_return(ret['command'], ret['data'])
+
+    def request_pos(self):
+        self.ser.write(bytearray([0xFF, 0x04, self.commands['pos'], 0xfe]))
 
 
 if __name__ == "__main__":

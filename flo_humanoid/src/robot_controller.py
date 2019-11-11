@@ -112,6 +112,8 @@ class BolideController(object):
         self.current_positions = None
         self.motors_initialized = False
 
+        self.ret = ''
+
         self.server.start()
 
         self.read_loop()
@@ -422,6 +424,67 @@ class BolideController(object):
                 bb = (ord(bb))
                 lb = (ord(lb))
                 self.send_packet([self.CMD_SEQ_load_SEQ, idx, bb, lb])
+
+    def read(self):
+        # while len(ret) < 1 and tries > 0:
+        # TODO should i actually be waiting for 40 bytes each time?
+        self.ret = self.ser.read(1)
+        # tries -= 1
+        # log(1, 'len(ret): {} | ret: {}'.format(len(ret), ret))
+        if self.ret:
+            header = ord(self.ret[0])
+        else:
+            # log(3, 'not enough data returned after tries')
+            return
+        if header != 0xFF:
+            # log(3, 'first byte read did not match header: {}'.format(header))
+            self.ret = ''
+            return
+
+        if len(self.ret) < 2:
+            self.ret = self.ret + self.ser.read(1)
+            if len(self.ret) < 2:
+                return
+        len_bit = ord(self.ret[1])
+
+        if len(self.ret) < 3:
+            self.ret = self.ret + self.ser.read(1)
+            if len(self.ret) < 3:
+                return
+        command = ord(self.ret[2])
+
+        self.ret = self.ret + self.ser.read(len_bit-len(self.ret))
+        if len(self.ret) < len_bit:
+            return
+
+        end = ord(self.ret[-1])
+        if end != 0xFE:
+            # log(3, 'bad end bit')
+            self.ret = ''
+            return
+
+        data = self.ret[3:-1]
+
+        return {'command': command, 'data': data}
+
+    def calc_pos(self, data):
+        final_joint_pos = [0]*18
+        for i in range(18):
+            final_joint_pos[i] = (ord(data[2*i]) << 8) + ord(data[2*i + 1])
+        # print('{}:{}'.format(com,final_joint_pos))
+        return final_joint_pos
+
+    def calc_current(self, data):
+        final_joint_pos = [0]*18
+        for i in range(18):
+            final_joint_pos[i] = (ord(data[2*i]) << 8) + ord(data[2*i + 1])
+        final_joint_pos = [fjp / 200.0 for fjp in final_joint_pos]
+        # print('{}:{}'.format(com,final_joint_pos))
+        return final_joint_pos
+
+    def read_process(self, command, data):
+
+    def request_pos(self,
 
 
 if __name__ == "__main__":

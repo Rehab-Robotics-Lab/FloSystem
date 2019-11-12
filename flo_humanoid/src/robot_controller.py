@@ -24,6 +24,36 @@ from read_from_bolide import BolideReader
 
 
 class BolideController(object):
+    """BolideController
+
+    This class interfaces with the bolide hardware. There are a few
+    components to make this work. 
+
+    Pubishes:
+     - joint_states: JointState messages with the current joint state
+
+    Subscribes:
+    - motor_commands: Takes a string command of either `halt` or
+                      `relax` to halt or relax the motors. 
+
+    Actions: 
+    - move: Takes a list of JointTargets, sends it to the robot
+            and begins moving the robot. Feedback is sent back 
+            but is unreliable for now. 
+
+    Parameters:
+    - robot_port: The port on which the robot is connected.
+                  The default value is `dev/bolide`.
+    - robot_joint_config: Where to load the configuration files
+    - simulate: Run the node in simulation mode. 
+
+    The class loads a config file from somewhere specified in 
+    flo_humanoid/config/joints or if specified, whatever is in 
+    robot_joint_config. 
+
+    The system expects to get a response from the bolide for every 
+    packet sent. These aren't really checked right now. 
+    """
 
     CMD_version_read = 0x00
     CMD_init_motor = 0x01
@@ -109,11 +139,12 @@ class BolideController(object):
             self.sim_timer = time.time()
             self.sim_starting_pose = np.zeros(self.NUM_MOTORS)
 
-        self.rate = rospy.Rate(3)
-        self.joint_tasks = Queue.Queue()
-        self.command_tasks = Queue.Queue()
+        self.rate = rospy.Rate(10)
+        self.pos_delay = 0.2
         self.current_positions = None
         self.motors_initialized = False
+        self.state = 'available'
+        self.last_pos_time = 0
 
         self.ret = ''
 
@@ -126,8 +157,6 @@ class BolideController(object):
 
         Will first try to disconect and close the serial connection if it exists
         then re connect.
-
-        TODO: The timeout value should probably be revisted
         """
         with self.usb_lock:
             if not self.simulate:
@@ -153,7 +182,18 @@ class BolideController(object):
                 self.ser.close()
 
     def move(self, goal):
-        done = False
+        """Send a goal to move to the robot. 
+
+        This function just runs through. It handles the processing to figure
+        out how moves line up with the timing and then call the upload for
+        the sequence. 
+
+        Args:
+            goal: A Move.action target
+
+        Returns:
+        """
+        # done = False
         time_start = rospy.get_time()
         completion_times = np.array([])
 
@@ -215,34 +255,6 @@ class BolideController(object):
         self.upload_sequence(poses, unique_times)
         final_goal = poses[-1]
 
-        # ITERATE GIVE FEEDBACK
-        while not done:
-            # self.get_pose()
-            if self.server.is_preempt_requested():
-                # I think that this would stop motion?
-                self.upload_sequence([self.current_positions], [0])
-                result = MoveResult()
-                result.completed = False
-                self.get_pose()
-                result.positional_error = self.error(final_goal)
-                self.server.set_preempted(result, "Movement Preempted")
-                return
-            feedback = MoveFeedback()
-            feedback.time_elapsed = rospy.get_time() - time_start
-            feedback.time_remaining = unique_times[-1] - \
-                feedback.time_elapsed
-            if feedback.time_remaining > 0:
-                feedback.move_number = next(
-                    idx for idx, value in enumerate(completion_times) if value >
-                    feedback.time_elapsed)
-                self.server.publish_feedback(feedback)
-            else:
-                result = MoveResult()
-                result.completed = True
-                result.positional_error = self.error(final_goal)
-                self.server.set_succeeded(result, "Motion complete")
-                done = True
-            self.rate.sleep()
     rospy.logdebug('exiting move function')
 
     def error(self, goal, joint_ids=None):
@@ -259,61 +271,80 @@ class BolideController(object):
         while not rospy.is_shutdown():
             rospy.logdebug('starting read loop')
             self.read_all()
-            self.request_pos()
+            # ITERATE GIVE FEEDBACK
+            while not done:
+                # self.get_pose()
+                if self.server.is_preempt_requested():
+                    # I think that this would stop motion?
+                    self.upload_sequence([self.current_positions], [0])
+                    result = MoveResult()
+                    result.completed = False
+                    # self.get_pose()
+                    result.positional_error = self.error(final_goal)
+                    self.server.set_preempted(result, "Movement Preempted")
+                    return
+                feedback = MoveFeedback()
+                feedback.time_elapsed = rospy.get_time() - time_start
+                feedback.time_remaining = unique_times[-1] - \
+                    feedback.time_elapsed
+                if feedback.time_remaining > 0:
+                    feedback.move_number = next(
+                        idx for idx, value in enumerate(completion_times) if value >
+                        feedback.time_elapsed)
+                    self.server.publish_feedback(feedback)
+                else:
+                    result = MoveResult()
+                    result.completed = True
+                    result.positional_error = self.error(final_goal)
+                    self.server.set_succeeded(result, "Motion complete")
+                    done = True
+            if time.time()-self.last_pos_time < self.pos_delay:
+                self.request_pos()
             self.rate.sleep()
 
 # TODO: a lot of this could be vectorized using np
     def get_pose_sim(self):
         """get the pose of the robot and publish it to the joint state"""
-        with self.usb_lock:
-            ### Start Simulator ###
-            if self.simulate:
-                if self.sim_moving:
-                    cur_time = time.time() - self.sim_timer
-                    if cur_time > self.sim_seq_times[self.sim_seq_length-1]:
-                        self.sim_moving = False
-                    else:
-                        current_move = next(idx for (idx, val) in enumerate(
-                            self.sim_seq_times) if val > cur_time)
-                        if current_move == 0:
-                            percent_complete = cur_time/self.sim_seq_times[0]
-                            for idx in range(len(self.sim_current_pose)):
-                                self.sim_current_pose[idx] = percent_complete * (
-                                    self.sim_seq_poses[0][idx] - self.sim_starting_pose[idx]) + self.sim_starting_pose[idx]
-                        else:
-                            percent_complete = (cur_time-self.sim_seq_times[current_move-1])/(
-                                self.sim_seq_times[current_move]-self.sim_seq_times[current_move-1])
-                            for idx in range(len(self.sim_current_pose)):
-                                self.sim_current_pose[idx] = (percent_complete * (
-                                    self.sim_seq_poses[current_move][idx] -
-                                    self.sim_seq_poses[current_move-1][idx]) +
-                                    self.sim_seq_poses[current_move-1][idx])
+        # with self.usb_lock:
+        ### Start Simulator ###
+        if self.sim_moving:
+            cur_time = time.time() - self.sim_timer
+            if cur_time > self.sim_seq_times[self.sim_seq_length-1]:
+                self.sim_moving = False
+            else:
+                current_move = next(idx for (idx, val) in enumerate(
+                    self.sim_seq_times) if val > cur_time)
+                if current_move == 0:
+                    percent_complete = cur_time/self.sim_seq_times[0]
+                    for idx in range(len(self.sim_current_pose)):
+                        self.sim_current_pose[idx] = percent_complete * (
+                            self.sim_seq_poses[0][idx] - self.sim_starting_pose[idx]) + self.sim_starting_pose[idx]
+                else:
+                    percent_complete = (cur_time-self.sim_seq_times[current_move-1])/(
+                        self.sim_seq_times[current_move]-self.sim_seq_times[current_move-1])
+                    for idx in range(len(self.sim_current_pose)):
+                        self.sim_current_pose[idx] = (percent_complete * (
+                            self.sim_seq_poses[current_move][idx] -
+                            self.sim_seq_poses[current_move-1][idx]) +
+                            self.sim_seq_poses[current_move-1][idx])
 
-                position = self.sim_current_pose  # if not self.sim_moving else []
-            ### End Simulator ###
-            # else:
-                # try:
-                # position = self.reader.read_data('pos')
-                # except serial.SerialException as err:
-                # rospy.logerr('error when reading position: %s', err)
-                # self.connect()
-            # if position is None:
-                # rospy.logerr('couldn\'t get postion data')
-                # return
-
-    def new_joint_command(self, msg):
-        """take a new message from the joint command topic and add it to the task queue
-
-        :param msg: the message that is being passed in that we should parse
-        """
-        self.joint_tasks.put(msg)
+        position = self.sim_current_pose  # if not self.sim_moving else []
+        ### End Simulator ###
+        # else:
+        # try:
+        # position = self.reader.read_data('pos')
+        # except serial.SerialException as err:
+        # rospy.logerr('error when reading position: %s', err)
+        # self.connect()
+        # if position is None:
+        # rospy.logerr('couldn\'t get postion data')
+        # return
 
     def new_control_command(self, msg):
         """take a new control message and add it to the control queue
 
         :param msg: the message being given
         """
-        # self.command_tasks.put(msg)
         if msg.data == "halt":
             self.send_packet([0x30])
         elif msg.data == "relax":
@@ -324,15 +355,21 @@ class BolideController(object):
 
         :param command: the command to send, this should be given as a list
         """
+        self.read_all()
+        returns = False
         with self.usb_lock:
-            self.ser.flushInput()  # TODO I don't like needing this
+            # self.ser.flushInput()  # TODO I don't like needing this
             to_send = bytearray([0xff, len(command)+3]+command+[0xfe])
             rospy.loginfo('sending: %s', [hex(s) for s in to_send])
             self.ser.write(to_send)
             rospy.loginfo('waiting for response')
-            # TODO: make more informative feedback
-            feedback = self.reader.read_feedback(20)
-            rospy.loginfo('feedback: %s', feedback)
+            self.state = 'waiting_for_feedback'
+            returns = self.read_one()
+        return returns
+
+        # TODO: make more informative feedback
+        # feedback = self.reader.read_feedback(20)
+        # rospy.loginfo('feedback: %s', feedback)
 
     def relax_motors(self):
         """relax_motors"""
@@ -452,6 +489,8 @@ class BolideController(object):
 
         data = self.ret[3:-1]
 
+        process_return(command, data)
+
         return {'command': command, 'data': data}
 
     def read_all(self):
@@ -461,6 +500,15 @@ class BolideController(object):
             if ret:
                 returns.append(ret)
         return returns
+
+    def read_one(self, tries=5):
+        while tries:
+            while self.ser.inWaiting():
+                ret = self.read()
+                if ret:
+                    return ret
+            tries -= 1
+            self.rate.sleep()
 
     def calc_pos(self, data):
         final_joint_pos = [0]*18

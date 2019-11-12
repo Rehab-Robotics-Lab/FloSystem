@@ -6,23 +6,21 @@ from __future__ import print_function
 import math
 import os
 import Queue
-import rospy
-import rospkg
-import serial
-import struct
 import time
+import struct
 import threading
+import serial
 import numpy as np
 import numpy.matlib as matlib
-import pdb
+import rospy
+import rospkg
 
 import actionlib
 
 from std_msgs.msg import String
 from sensor_msgs.msg import JointState
-from flo_humanoid.msg import JointTarget
+from flo_humanoid.msg import MoveAction, MoveResult, MoveFeedback
 from read_from_bolide import BolideReader
-from flo_humanoid.msg import MoveAction, MoveGoal, MoveResult, MoveFeedback
 
 
 class BolideController(object):

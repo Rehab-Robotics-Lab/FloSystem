@@ -3,13 +3,14 @@
     <include file="$(find flo_face)/launch/base.launch" />
 
     <!--Humanoid Robot -->
+    <param name="simulate" type="bool" value="False"/>
     <node name="bolide_interface" pkg="flo_humanoid" type="robot_controller.py" />
 
     <!--The robot URDF parsing and loading-->
     <arg name="model" default="$(find flo_humanoid)/urdf/flo.urdf.xacro"/>
     <param name="robot_description" command="$(find xacro)/xacro --inorder $(arg model) " />
     <!--Publishing the robot joint positions instead of just angles-->
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
     <!--Voice-->
     <arg name="voice_config_file" default="$(find flo_core)/config/polly.yaml" />

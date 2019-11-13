@@ -268,11 +268,9 @@ class BolideController(object):
         self.moving_params['unique_times'] = self.moving_params['unique_times'][1:]
         rospy.loginfo(
             'telling robot to go to: \n%s \nat times: \n%s', poses, self.moving_params['unique_times'])
-        self.upload_sequence(poses, self.moving_params['unique_times'])
         self.moving_params['final_goal'] = poses[-1]
         self.seq_num = 0
-
-        rospy.logdebug('exiting move function')
+        self.upload_sequence(poses, self.moving_params['unique_times'])
 
     def error(self, goal, joint_ids=None):
         if joint_ids is None:
@@ -288,7 +286,7 @@ class BolideController(object):
         while not rospy.is_shutdown():
             rospy.logdebug('starting read loop')
             self.read_all()
-            if self.server.new_goal:
+            if self.server.new_goal and not self.awaiting_pos_resp:
                 self.move(self.server.accept_new_goal())
             # ITERATE GIVE FEEDBACK
             if self.moving:
@@ -327,8 +325,8 @@ class BolideController(object):
                     rospy.loginfo('completed motion')
                 else:
                     self.server.publish_feedback(feedback)
-            elif (not self.awaiting_pos_resp
-                  or time.time()-self.last_pos_req > self.pose_waiting_override_delay):
+            elif (not self.server.new_goal and (not self.awaiting_pos_resp
+                                                or time.time()-self.last_pos_req > self.pose_waiting_override_delay)):
                 self.request_pos()
             self.rate.sleep()
         self.cleanup()
@@ -397,8 +395,10 @@ class BolideController(object):
             self.ser.write(to_send)
             rospy.loginfo('waiting for response')
             self.state = 'waiting_for_feedback'
-            returns = self.read_one()
+            returns = self.read_one(tries=15)
             rospy.loginfo('received response: %s', returns)
+        if returns and returns['command'] == self.feedback['error']:
+            raise Exception('There was an error returned by the robot')
         return returns
 
         # TODO: make more informative feedback
@@ -428,7 +428,7 @@ class BolideController(object):
             lb = (ord(lb))
             command[idx*2+2] = bb
             command[idx*2+3] = lb
-        self.send_packet(command)
+        return self.send_packet(command)
 
     def initialize_motors(self):
         """initialize_motors on the robot to prepare for motion.
@@ -449,9 +449,21 @@ class BolideController(object):
             for idx, pose in enumerate(poses):
                 self.sim_seq_poses[idx] = pose
         else:
-            self.send_packet([self.CMD_SEQ_load_PoseCnt, len(poses)])
+            ret = self.send_packet(
+                [self.CMD_SEQ_load_PoseCnt, len(poses)])
+            if not ret['command'] == self.feedback['keep_going']:
+                raise Exception(
+                    'failed to receive proper return when specifying pose count in seq. Received: {}'.format(ret))
             for idx, pose in enumerate(poses):
-                self.upload_pose(idx, pose)
+                ret = self.upload_pose(idx, pose)
+                if idx+1 == len(poses):
+                    if not ret['command'] == self.feedback['done']:
+                        raise Exception(
+                            'did not recieve done response after uploading final pose. Received: {}'.format(ret))
+                else:
+                    if not ret['command'] == self.feedback['keep_going']:
+                        raise Exception(
+                            'did not recieve keep going response after loading pose in sequence. Received: {}'.format(ret))
 
     def upload_sequence(self, poses, times):
         """upload_sequence, uploads the entire set of poses to the robot with
@@ -472,7 +484,10 @@ class BolideController(object):
                 self.sim_seq_times[idx] = ttime
             self.sim_starting_pose = self.sim_current_pose
         else:
-            self.send_packet([self.CMD_SEQ_load_SEQCnt, len(times)])
+            ret = self.send_packet([self.CMD_SEQ_load_SEQCnt, len(times)])
+            if not ret['command'] == self.feedback['keep_going']:
+                raise Exception(
+                    'did not recieve keep going feedback when sending number of poses in sequence. Received: {}'.format(ret))
             for idx, ttime in enumerate(times):
                 # time is in units of 10ms on the robot. But in sec coming in
                 # TODO: somewhere there should be a check to make sure time is <10 sec
@@ -481,8 +496,17 @@ class BolideController(object):
                 bb, lb = struct.pack('>H', ms_time)
                 bb = (ord(bb))
                 lb = (ord(lb))
-                self.send_packet([self.CMD_SEQ_load_SEQ, idx, bb, lb])
+                ret = self.send_packet([self.CMD_SEQ_load_SEQ, idx, bb, lb])
+                if idx+1 == len(times):
+                    if not ret['command'] == self.feedback['done']:
+                        raise Exception(
+                            'Did not get done feedback after loading last sequence comand. Received: {}'.format(ret))
+                else:
+                    if not ret['command'] == self.feedback['keep_going']:
+                        raise Exception(
+                            'Did not get keep going feedback after sending sequence command. Received: {}'.format(ret))
         self.moving = True
+        self.moving_params['time_start'] = 0
         self.seq_num = 0
 
     def read(self):
@@ -592,9 +616,6 @@ class BolideController(object):
             data = ord(data)
             self.seq_num = data + 1
             rospy.loginfo('got seq num: %s', data)
-            if data == 0:  # then the motion just started...
-                # TODO this is not right, this is actually when move 0 has completed
-                self.moving_params['time_start'] = 0
 
     def process_return_list(self, returns):
         for ret in returns:

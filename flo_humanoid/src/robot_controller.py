@@ -111,6 +111,7 @@ class BolideController(object):
         self.joint_config = dict()
         self.available_motor_ids = []
         self.available_motor_names = []
+
         with open(config_fn) as cfile:
             headings = None
             for row in cfile:
@@ -130,7 +131,6 @@ class BolideController(object):
         if self.simulate:
             self.sim_robot_uploaded_commands = Queue.Queue()
             self.sim_current_pose = np.zeros(self.NUM_MOTORS)
-            self.sim_moving = False
             self.sim_motors_stiff = False
             self.sim_seq_poses = np.array([None]*256)
             self.sim_seq_times = np.array([None]*256)
@@ -139,16 +139,19 @@ class BolideController(object):
             self.sim_timer = time.time()
             self.sim_starting_pose = np.zeros(self.NUM_MOTORS)
 
-        self.rate = rospy.Rate(10)
-        self.pos_delay = 0.2
+        self.rate = rospy.Rate(60)
+        self.pose_waiting_override_delay = 1
         self.current_positions = None
         self.motors_initialized = False
         self.state = 'available'
-        self.last_pos_time = 0
+        self.last_pos_req = 0
+        self.awaiting_pos_resp = False
+        self.moving = False
 
         self.ret = ''
 
         self.server.start()
+        rospy.loginfo('started action server for humanoid motion')
 
         self.read_loop()
 
@@ -180,6 +183,7 @@ class BolideController(object):
             with self.usb_lock:
                 self.ser.flush()
                 self.ser.close()
+                rospy.loginfo('closed serial connection')
 
     def move(self, goal):
         """Send a goal to move to the robot. 
@@ -193,6 +197,7 @@ class BolideController(object):
 
         Returns:
         """
+        rospy.loginfo('got new movement action command')
         # done = False
         time_start = rospy.get_time()
         completion_times = np.array([])
@@ -255,7 +260,7 @@ class BolideController(object):
         self.upload_sequence(poses, unique_times)
         final_goal = poses[-1]
 
-    rospy.logdebug('exiting move function')
+        rospy.logdebug('exiting move function')
 
     def error(self, goal, joint_ids=None):
         if joint_ids is None:
@@ -272,7 +277,7 @@ class BolideController(object):
             rospy.logdebug('starting read loop')
             self.read_all()
             # ITERATE GIVE FEEDBACK
-            while not done:
+            if self.moving:
                 # self.get_pose()
                 if self.server.is_preempt_requested():
                     # I think that this would stop motion?
@@ -298,7 +303,8 @@ class BolideController(object):
                     result.positional_error = self.error(final_goal)
                     self.server.set_succeeded(result, "Motion complete")
                     done = True
-            if time.time()-self.last_pos_time < self.pos_delay:
+            elif (not self.awaiting_pos_resp
+                  or time.time()-self.last_pos_req > self.pose_waiting_override_delay):
                 self.request_pos()
             self.rate.sleep()
 
@@ -307,10 +313,10 @@ class BolideController(object):
         """get the pose of the robot and publish it to the joint state"""
         # with self.usb_lock:
         ### Start Simulator ###
-        if self.sim_moving:
+        if self.moving:
             cur_time = time.time() - self.sim_timer
             if cur_time > self.sim_seq_times[self.sim_seq_length-1]:
-                self.sim_moving = False
+                self.moving = False
             else:
                 current_move = next(idx for (idx, val) in enumerate(
                     self.sim_seq_times) if val > cur_time)
@@ -436,7 +442,6 @@ class BolideController(object):
             self.sim_timer = time.time()
             for idx, ttime in enumerate(times):
                 self.sim_seq_times[idx] = ttime
-            self.sim_moving = True
             self.sim_starting_pose = self.sim_current_pose
         else:
             self.send_packet([self.CMD_SEQ_load_SEQCnt, len(times)])
@@ -449,6 +454,7 @@ class BolideController(object):
                 bb = (ord(bb))
                 lb = (ord(lb))
                 self.send_packet([self.CMD_SEQ_load_SEQ, idx, bb, lb])
+        self.moving = True
 
     def read(self):
         # while len(ret) < 1 and tries > 0:
@@ -489,7 +495,7 @@ class BolideController(object):
 
         data = self.ret[3:-1]
 
-        process_return(command, data)
+        self.process_return(command, data)
 
         return {'command': command, 'data': data}
 
@@ -544,6 +550,7 @@ class BolideController(object):
             new_msg.header.stamp = rospy.Time.now()
             self.joint_publisher.publish(new_msg)
             self.current_positions = position
+            self.awaiting_pos_resp = False
 
         elif command == self.commands['current']:
             current = self.calc_current(data)
@@ -553,7 +560,14 @@ class BolideController(object):
             self.process_return(ret['command'], ret['data'])
 
     def request_pos(self):
+        """Send a request to the robot to ask the position of the robot."""
+        if self.awaiting_pos_resp:
+            rospy.logdebug('requesting position, exiting request unanswered')
+        else:
+            rospy.logdebug('requesting position, no existing request')
         self.ser.write(bytearray([0xFF, 0x04, self.commands['pos'], 0xfe]))
+        self.last_pos_req = time.time()
+        self.awaiting_pos_resp = True
 
 
 if __name__ == "__main__":

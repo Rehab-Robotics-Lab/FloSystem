@@ -172,7 +172,8 @@ class BolideController(object):
                     return
             rospy.loginfo('connected to robot')
 
-    def __del__(self):
+    def cleanup(self):
+        rospy.loginfo('shutting down node')
         self.relax_motors()
         self.close_ser()
 
@@ -307,6 +308,7 @@ class BolideController(object):
                   or time.time()-self.last_pos_req > self.pose_waiting_override_delay):
                 self.request_pos()
             self.rate.sleep()
+        self.cleanup()
 
 # TODO: a lot of this could be vectorized using np
     def get_pose_sim(self):

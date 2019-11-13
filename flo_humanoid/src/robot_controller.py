@@ -77,7 +77,7 @@ class BolideController(object):
     commands = {'pos': 0x03, 'current': 0x06, 'torque': 0x07}
 
     feedback = {'error': 0x00, 'keep_going': 0x01,
-                'done': 0x02, 'relaxed': 0x03}
+                'done': 0x02, 'relaxed': 0x04, 'seq_num': 0x11}
 
     def __init__(self):
         rospy.init_node('robot_manager')  # , log_level=rospy.DEBUG)
@@ -98,7 +98,7 @@ class BolideController(object):
 
         # that false is autostart. It should always be false
         self.server = actionlib.SimpleActionServer(
-            'move', MoveAction, self.move, False)
+            'move', MoveAction, None, False)
         # TODO add in an action for relaxing motors?
 
         if not self.simulate:
@@ -152,6 +152,7 @@ class BolideController(object):
         self.moving_params['unique_times'] = []
         self.moving_params['completion_times'] = []
         self.ret = ''
+        self.seq_num = 0
 
         self.server.start()
         rospy.loginfo('started action server for humanoid motion')
@@ -203,7 +204,8 @@ class BolideController(object):
         """
         rospy.loginfo('got new movement action command')
         # done = False
-        self.moving_params['time_start'] = rospy.get_time()
+        if self.simulate:
+            self.moving_params['time_start'] = rospy.get_time()
         self.moving_params['completion_times'] = np.array([])
 
         # SETUP AND SHIP MOVE TO ROBOT
@@ -268,6 +270,7 @@ class BolideController(object):
             'telling robot to go to: \n%s \nat times: \n%s', poses, self.moving_params['unique_times'])
         self.upload_sequence(poses, self.moving_params['unique_times'])
         self.moving_params['final_goal'] = poses[-1]
+        self.seq_num = 0
 
         rospy.logdebug('exiting move function')
 
@@ -285,6 +288,8 @@ class BolideController(object):
         while not rospy.is_shutdown():
             rospy.logdebug('starting read loop')
             self.read_all()
+            if self.server.new_goal:
+                self.move(self.server.accept_new_goal())
             # ITERATE GIVE FEEDBACK
             if self.moving:
                 # self.get_pose()
@@ -300,17 +305,19 @@ class BolideController(object):
                     rospy.loginfo('preempted motion')
                     return
                 feedback = MoveFeedback()
-                feedback.time_elapsed = rospy.get_time(
-                ) - self.moving_params['time_start']
+                feedback.time_elapsed = rospy.get_time() - \
+                    self.moving_params['time_start']
                 feedback.time_remaining = self.moving_params['unique_times'][-1] - \
                     feedback.time_elapsed
-                if feedback.time_remaining > 0:
+                # if feedback.time_remaining > 0:
+                if self.simulate:
                     feedback.move_number = next(
                         idx for idx, value in enumerate(self.moving_params['completion_times']) if value >
                         feedback.time_elapsed)
-                    self.server.publish_feedback(feedback)
-                    rospy.loginfo('published feedback')
                 else:
+                    feedback.move_number = self.seq_num
+                # rospy.loginfo('published feedback')
+                if feedback.move_number == len(self.moving_params['completion_times']):
                     result = MoveResult()
                     result.completed = True
                     result.positional_error = self.error(
@@ -318,6 +325,8 @@ class BolideController(object):
                     self.server.set_succeeded(result, "Motion complete")
                     self.moving = False
                     rospy.loginfo('completed motion')
+                else:
+                    self.server.publish_feedback(feedback)
             elif (not self.awaiting_pos_resp
                   or time.time()-self.last_pos_req > self.pose_waiting_override_delay):
                 self.request_pos()
@@ -389,6 +398,7 @@ class BolideController(object):
             rospy.loginfo('waiting for response')
             self.state = 'waiting_for_feedback'
             returns = self.read_one()
+            rospy.loginfo('received response: %s', returns)
         return returns
 
         # TODO: make more informative feedback
@@ -473,6 +483,7 @@ class BolideController(object):
                 lb = (ord(lb))
                 self.send_packet([self.CMD_SEQ_load_SEQ, idx, bb, lb])
         self.moving = True
+        self.seq_num = 0
 
     def read(self):
         # while len(ret) < 1 and tries > 0:
@@ -486,6 +497,7 @@ class BolideController(object):
             return
         if header != 0xFF:
             # log(3, 'first byte read did not match header: {}'.format(header))
+            rospy.logerr('Incorrect first byte')
             self.ret = ''
             return
 
@@ -508,11 +520,11 @@ class BolideController(object):
         end = ord(self.ret[-1])
         if end != 0xFE:
             # log(3, 'bad end bit')
+            rospy.logerr('incorrect end bit received')
             self.ret = ''
             return
 
         data = self.ret[3:-1]
-
         self.process_return(command, data)
 
         return {'command': command, 'data': data}
@@ -576,9 +588,13 @@ class BolideController(object):
 
         elif command == self.commands['current']:
             current = self.calc_current(data)
-        else:
-            rospy.logerr(
-                'received unsupported command: %s \nwith data: %s', command, data)
+        elif command == self.feedback['seq_num']:
+            data = ord(data)
+            self.seq_num = data + 1
+            rospy.loginfo('got seq num: %s', data)
+            if data == 0:  # then the motion just started...
+                # TODO this is not right, this is actually when move 0 has completed
+                self.moving_params['time_start'] = 0
 
     def process_return_list(self, returns):
         for ret in returns:

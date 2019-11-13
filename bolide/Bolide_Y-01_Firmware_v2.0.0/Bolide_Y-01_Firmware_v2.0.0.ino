@@ -271,14 +271,14 @@ boolean Motion_Editor_Packet_Task(void)
         }
         else if(pCMD == CMD_SEQ_halt) {                 //halt sequence
             seq_trigger = false;
-            Packet_Error_Feedback(0x03);
+            Packet_Error_Feedback(0x04);
             //halt sequence
         }
     }
     else if(pCMD == CMD_SEQ_relax) {                //relax servo
         seq_trigger = false;
         robot_torque_off(); //A1_16_TorqueOff(A1_16_Broadcast_ID);
-        Packet_Error_Feedback(0x03);
+        Packet_Error_Feedback(0x04);
     }
     else{Packet_Error_Feedback(0x00); pLength = 0xFF;}
     return motion_editor_mode;
@@ -383,9 +383,10 @@ void Packet_Error_Feedback(unsigned char CMD_reaction) {
 }
 void Seq_Pos_Feedback(unsigned char Seq){
     Serial.write(packet_header);
-    Serial.write(seq_number_comp);
+    Serial.write(0x05);
     Serial.write(seq_number_comp);
     Serial.write(Seq);
+    /*Serial.write(Seq);*/
     Serial.write(packet_tail);
 }
 

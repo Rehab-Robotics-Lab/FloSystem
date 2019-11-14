@@ -139,7 +139,7 @@ class BolideController(object):
             self.sim_timer = time.time()
             self.sim_starting_pose = np.zeros(self.NUM_MOTORS)
 
-        self.rate = rospy.Rate(60)
+        self.rate = rospy.Rate(20)
         self.pose_waiting_override_delay = 1
         self.current_positions = None
         self.motors_initialized = False
@@ -153,6 +153,8 @@ class BolideController(object):
         self.moving_params['completion_times'] = []
         self.ret = ''
         self.seq_num = 0
+        self.last_feedback = None
+        self.feedback_delay = 1
 
         self.server.start()
         rospy.loginfo('started action server for humanoid motion')
@@ -266,7 +268,7 @@ class BolideController(object):
                 current_move_program_id[motor_id] = end_id
         poses = poses[1:]
         self.moving_params['unique_times'] = self.moving_params['unique_times'][1:]
-        rospy.loginfo(
+        rospy.logdebug(
             'telling robot to go to: \n%s \nat times: \n%s', poses, self.moving_params['unique_times'])
         self.moving_params['final_goal'] = poses[-1]
         self.seq_num = 0
@@ -287,6 +289,7 @@ class BolideController(object):
             rospy.logdebug('starting read loop')
             self.read_all()
             if self.server.new_goal and not self.awaiting_pos_resp:
+                rospy.loginfo('got a new goal')
                 self.move(self.server.accept_new_goal())
             # ITERATE GIVE FEEDBACK
             if self.moving:
@@ -313,7 +316,10 @@ class BolideController(object):
                         idx for idx, value in enumerate(self.moving_params['completion_times']) if value >
                         feedback.time_elapsed)
                 else:
-                    feedback.move_number = self.seq_num
+                    feedback.move_number = (np.where(
+                        self.moving_params['unique_times'][self.seq_num] ==
+                        self.moving_params['completion_times'])[0][-1]) + 1
+                    print(self.seq_num)
                 # rospy.loginfo('published feedback')
                 if feedback.move_number == len(self.moving_params['completion_times']):
                     result = MoveResult()
@@ -323,7 +329,11 @@ class BolideController(object):
                     self.server.set_succeeded(result, "Motion complete")
                     self.moving = False
                     rospy.loginfo('completed motion')
-                else:
+                elif (self.last_feedback is None or
+                        not self.last_feedback.move_number == feedback.move_number or
+                        time.time() - self.last_feedback_time > self.feedback_delay):
+                    self.last_feedback_time = time.time()
+                    self.last_feedback = feedback
                     self.server.publish_feedback(feedback)
             elif (not self.server.new_goal and (not self.awaiting_pos_resp
                                                 or time.time()-self.last_pos_req > self.pose_waiting_override_delay)):
@@ -391,12 +401,12 @@ class BolideController(object):
         with self.usb_lock:
             # self.ser.flushInput()  # TODO I don't like needing this
             to_send = bytearray([0xff, len(command)+3]+command+[0xfe])
-            rospy.loginfo('sending: %s', [hex(s) for s in to_send])
+            rospy.logdebug('sending: %s', [hex(s) for s in to_send])
             self.ser.write(to_send)
-            rospy.loginfo('waiting for response')
+            rospy.logdebug('waiting for response')
             self.state = 'waiting_for_feedback'
             returns = self.read_one(tries=15)
-            rospy.loginfo('received response: %s', returns)
+            rospy.logdebug('received response: %s', returns)
         if returns and returns['command'] == self.feedback['error']:
             raise Exception('There was an error returned by the robot')
         return returns
@@ -614,8 +624,10 @@ class BolideController(object):
             current = self.calc_current(data)
         elif command == self.feedback['seq_num']:
             data = ord(data)
-            self.seq_num = data + 1
+            self.seq_num = data
             rospy.loginfo('got seq num: %s', data)
+        else:
+            print('command: {}, data: {}'.format(command, data))
 
     def process_return_list(self, returns):
         for ret in returns:

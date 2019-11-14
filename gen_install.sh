@@ -30,3 +30,6 @@ sudo apt install python-rosdep
 cd ~/catkin_ws
 rosdep install --from-paths src --ignore-src -r -y
 cd -
+
+## Create a folder for bag files
+mkdir ~/flo_data -p

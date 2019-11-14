@@ -35,6 +35,6 @@
     <!--Rosbag is used for logging almost everything. -->
     <!--I think that it will be prudent to alter what the realsense camera is actually-->
     <!--publishing to change what this looks like-->
-    <node pkg="rosbag" type="record" name="bag_recorder" args="--all --output-prefix=~/flo_data/bagfile"/>
+    <node pkg="rosbag" type="record" name="bag_recorder" args="--all --output-prefix=$(env HOME)/flo_data/bagfile"/>
 
 </launch>

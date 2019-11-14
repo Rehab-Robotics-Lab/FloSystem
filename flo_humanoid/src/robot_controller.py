@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 from __future__ import division
-from __future__ import print_function
 
 import math
 import os
@@ -319,7 +318,6 @@ class BolideController(object):
                     feedback.move_number = (np.where(
                         self.moving_params['unique_times'][self.seq_num] ==
                         self.moving_params['completion_times'])[0][-1]) + 1
-                    print(self.seq_num)
                 # rospy.loginfo('published feedback')
                 if feedback.move_number == len(self.moving_params['completion_times']):
                     result = MoveResult()
@@ -585,7 +583,6 @@ class BolideController(object):
         final_joint_pos = [0]*18
         for i in range(18):
             final_joint_pos[i] = (ord(data[2*i]) << 8) + ord(data[2*i + 1])
-        # print('{}:{}'.format(com,final_joint_pos))
         return final_joint_pos
 
     def calc_current(self, data):
@@ -593,7 +590,6 @@ class BolideController(object):
         for i in range(18):
             final_joint_pos[i] = (ord(data[2*i]) << 8) + ord(data[2*i + 1])
         final_joint_pos = [fjp / 200.0 for fjp in final_joint_pos]
-        # print('{}:{}'.format(com,final_joint_pos))
         return final_joint_pos
 
     def process_return(self, command, data):
@@ -626,8 +622,6 @@ class BolideController(object):
             data = ord(data)
             self.seq_num = data
             rospy.loginfo('got seq num: %s', data)
-        else:
-            print('command: {}, data: {}'.format(command, data))
 
     def process_return_list(self, returns):
         for ret in returns:

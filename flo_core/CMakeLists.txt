@@ -54,6 +54,10 @@ find_package(catkin REQUIRED COMPONENTS
    FILES
    Pose.msg
    PoseSeq.msg
+   GameFeedback.msg
+   GameCommandOptions.msg
+   GameDef.msg
+   GameCommand.msg
  )
 
 ## Generate services in the 'srv' folder

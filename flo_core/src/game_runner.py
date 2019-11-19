@@ -34,7 +34,10 @@ Neccesary Action Servers:
 from enum import Enum
 import json
 import random
-import queue
+try:
+    import queue
+except ImportError:
+    import Queue as queue
 import rospy
 import actionlib
 from tts.msg import SpeechAction, SpeechGoal
@@ -318,6 +321,8 @@ class GameRunner(object):
         command_sent = False
         # each step is a dict with:
         # speach, movement or pose
+        import pdb
+        pdb.set_trace()
         if 'speech' in this_step:
             self.say_plain_text(this_step['speech'])
             command_sent = True

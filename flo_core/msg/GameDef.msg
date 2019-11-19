@@ -1,1 +1,2 @@
-string game_def
+string game_type
+StepDef[] steps

@@ -1,4 +1,35 @@
 #!/usr/bin/env python
+"""Game Runner for the Flo Robot
+
+This module manages the state machine that runs the
+games on the flo robot. It is all accessed by ROS.
+
+Publishers:
+    - /game_runner_feedback : This is feedback on the
+                              state of the game and how
+                              it is progressing. Publishes
+                              messages of type GameFeedback
+    - /game_runner_command_opts: These are the options
+                                 which can be passed to
+                                 the game runner to control
+                                 progress through the game.
+                                 publishes messges of type
+                                 GameCommandOptions
+
+Subscribers:
+    - /game_runner_commands: Takes the commands to control the
+                             game. Accepts messages of type
+                             GameCommand
+    - /game_def: Takes the definition for the game. For right
+                 now this is just a string naming the game.
+                 Will be more robust later. Takes messages
+                 of type GameDef
+
+Neccesary Action Servers:
+    - tts: the speech server from tts-ros
+    - move: the movement server from the flo_humanoid
+
+"""
 
 from enum import Enum
 import json
@@ -9,11 +40,25 @@ import actionlib
 from tts.msg import SpeechAction, SpeechGoal
 from flo_humanoid.msg import MoveAction, MoveGoal, JointTarget
 from flo_core.msg import GameFeedback, GameCommandOptions, GameDef, GameCommand
+from flo_core.srv import GetPoseID, GetPoseIDResponse
+from flo_core.srv import GetPoseSeqID, GetPoseSeqIDResponse
 
 
 class GameRunner(object):
+    """The actual class that orchestrates the games"""
+
+    # pylint: disable=too-many-instance-attributes
+    # having 12 instance attributes is just the way it is for something of this size
     states = Enum(
         'states', 'waiting_for_def game_loaded acting waiting_for_command')
+
+    action_states = Enum('action_states', 'sent active done none')
+
+    congratulate_strings = ['good job', 'that was great', 'well done',
+                            'you are doing really well', 'you are super good at this']
+
+    try_again_strings = ['let''s try that again together',
+                         'see if you can do a bit better', 'how about we give that another try']
 
     def __init__(self):
         rospy.init_node('game_runner')
@@ -33,12 +78,22 @@ class GameRunner(object):
                                             GameFeedback, queue_size=1, latch=True)
         self.command_opts_pub = rospy.Publisher('game_runner_command_opts',
                                                 GameCommandOptions, queue_size=1, latch=True)
+        rospy.loginfo('setup publishers')
 
         ### Subscribers ###
-        self.command_sub = rospy.Subscriber(
+        rospy.Subscriber(
             'game_runner_commands', GameCommand, self.new_command)
-        self.definition_sub = rospy.Subscriber(
+        rospy.Subscriber(
             'game_def', GameDef, self.new_def)
+        rospy.loginfo('setup subscribers')
+
+        ### Services ###
+        rospy.wait_for_service('get_pose_id')
+        self.get_pose_id = rospy.ServiceProxy('get_pose_id', GetPoseID)
+        rospy.wait_for_service('get_pose_seq_id')
+        self.get_pose_seq_id = rospy.ServiceProxy(
+            'get_pose_seq_id', GetPoseSeqID)
+        rospy.loginfo('setup services')
 
         ### Queue's for safe receiving of info ###
         self.command_queue = queue.Queue()
@@ -46,8 +101,8 @@ class GameRunner(object):
 
         ### State Management ###
         self.state = self.states.waiting_for_def
-        self.moving_state = 'none'
-        self.speaking_state = 'none'
+        self.moving_state = self.action_states.none
+        self.speaking_state = self.action_states.none
 
         ### The actions that compose this game ###
         self.actions_list = []
@@ -55,20 +110,33 @@ class GameRunner(object):
         self.command_opts = []
 
         ### Run ###
-        self.rate = rospy.Rate(20)
+        rate = rospy.Rate(20)
+        rospy.loginfo('done with initialization')
         while not rospy.is_shutdown():
             self.loop()
-            self.rate.sleep()
+            rate.sleep()
 
-    def new_def(self, data):
-        self.def_queue.put(data.game_def)
-        rospy.loginfo('added game to definition queue: %s', data.game_def)
+    def new_def(self, msg):
+        """Add a newly received game def to the game def queue.
 
-    def new_command(self, data):
-        self.command_queue.put(data.command)
-        rospy.loginfo('added command to command queue: %s', data.command)
+        Args:
+            msg: The rosmsgs containing the new definition
+        """
+        self.def_queue.put(msg)
+        rospy.loginfo('added game to definition queue: %s', msg.game_type)
+
+    def new_command(self, msg):
+        """Add a newly received command to the command queue
+
+        Args:
+            msg: The rosmsg containing the new command
+        """
+        self.command_queue.put(msg.command)
+        rospy.loginfo('added command to command queue: %s', msg.command)
 
     def loop(self):
+        """Loop through reading all of the queues and taking the
+        necessary actions"""
         # rospy.loginfo('running loop with state: %s', self.state)
         # Load in game definition if present. If there are multiple
         # definitions then only take the most recent one.
@@ -80,19 +148,7 @@ class GameRunner(object):
             except queue.Empty:
                 try_again = False
         if new_def:
-            # if we are loading a new game, we need to get rid of exiting commands
-            self.command_queue = queue.Queue()
-            self.actions_list = []
-            # Eventually we probably want to make this cleaner, but for now I need
-            # to get a demo going, so we will manually load in the games
-            # TODO: pull games out into database or something
-            if new_def == 'simon_says':
-                self.actions_list.append(
-                    {'speech': 'in simon says, I will tell you something to do and show you how to do it. If I say simon says, you should do it with me. If I do not say simon says, you should not do the action. Watch out, I may try to trick you.'})
-                self.set_options(['start'])
-                self.set_state(self.states.game_loaded)
-                self.action_idx = 0
-                rospy.loginfo('ready to play simon says')
+            self.process_def(new_def)
 
         if (self.state == self.states.waiting_for_command
                 or self.state == self.states.game_loaded):
@@ -101,60 +157,173 @@ class GameRunner(object):
                 new_command = self.command_queue.get_nowait()
             except queue.Empty:
                 pass
-            if new_command == 'start':
-                self.start()
-            elif new_command == 'next':
-                self.run_next_step()
-            elif new_command == 'repeat':
-                self.repeat_last_step()
-            elif new_command == 'congratulate':
-                self.congratulate()
-            elif new_command == 'try_again':
-                self.try_again()
+            if new_command in self.command_opts:
+                self.process_command(new_command)
 
-            # there actions should come in similarly to the way that
-            # we see for the movements, where there could be a time
-            # delay or no time delay, could be
-            # games should have three sections:
-            # 1) intro
-            # 2) body
-            # 3) closing
-            # each thing can have a list of options which will can
-            # randomly selected.
-            # games have some parameters:
-            # - randomize body
-            #
+        if (self.state == self.states.acting
+                and (self.moving_state == self.action_states.done
+                     or self.moving_state == self.action_states.none)
+                and (self.speaking_state == self.action_states.done
+                     or self.speaking_state == self.action_states.none)):
+            if self.action_idx+1 == len(self.actions_list):
+                self.set_state(self.states.waiting_for_command)
+                self.set_options(
+                    ['repeat', 'congratulate', 'try_again', 'finish_game'])
+            else:
+                self.state = self.states.waiting_for_command
+                self.set_options(
+                    ['next', 'repeat', 'congratulate', 'try_again', 'quit_game'])
+
+    def process_def(self, new_def):
+        """Process a new game definition
+
+        Args:
+            new_def: the game definition
+        """
+        # if we are loading a new game, we need to get rid of exiting commands
+        self.command_queue = queue.Queue()
+        self.actions_list = []
+        # Eventually we probably want to make this cleaner, but for now I need
+        # to get a demo going, so we will manually load in the games
+        # TODO: pull games out into database or something
+        if new_def.game_type == 'simon_says':
+            self.actions_list.append(
+                {'speech': 'in simon says, I will tell you something to do and show you how to do it. If I say simon says, you should do it with me. If I do not say simon says, you should not do the action. Watch out, I may try to trick you.'})
+            actions_bag = set()
+            for step in new_def.steps:
+                targets = []
+                speech = step.text
+                if step.type == 'pose_left':
+                    pose = self.get_pose_id(step.id)  # type: Pose
+                    targets = [self.construct_joint_target(
+                        pose.joint_names, pose.joint_positions, 2, 'left')]
+                    speech = speech+' with your left hand'
+                if step.type == 'pose_right':
+                    pose = self.get_pose_id(step.id)  # type: Pose
+                    targets = [self.construct_joint_target(
+                        pose.joint_names, pose.joint_positions, 2, 'left')]
+                    speech = speech+' with your right hand'
+                elif step.type == 'move':
+                    sequence = self.get_pose_seq_id(step.id)  # type: PoseSeq
+                    for idx in range(len(sequence.pose_ids)):
+                        pose = self.get_pose_id(sequence.pose_ids[idx])
+                        target = self.construct_joint_target(
+                            pose.joint_names, pose.joint_positions,
+                            sequence.times[idx], sequence.arms[idx])
+                        targets.append(target)
+
+                actions_bag.add(
+                    {'speech': 'simon says '+speech, 'targets': targets})
+                if random.random() > 0.7:  # this is where we add in non-simon says tasks
+                    actions_bag.add(
+                        {'speech': speech, 'targets': targets})
+                not_empty = True
+                while not_empty:
+                    try:
+                        self.actions_list.append(actions_bag.pop())
+                    except KeyError:
+                        not_empty = False
+
+                self.actions_list.append(
+                    {'speech': 'that was a lot of fun, thanks for playing with me'})
+
+            self.set_options(['start'])
+            self.set_state(self.states.game_loaded)
+            self.action_idx = 0
+            rospy.loginfo('ready to play simon says')
+
+    @staticmethod
+    def construct_joint_target(names, joint_positions, time, arm):
+        target = JointTarget()
+        target.name = [arm+'_'+nm for nm in names]
+        target.position = joint_positions
+        target.target_completion_time = time
+        return target
+
+    def process_command(self, new_command):
+        """Process a new command
+
+        Args:
+            new_command: the new command
+        """
+        if new_command == 'start':
+            self.start()
+        elif new_command == 'next':
+            self.run_next_step()
+        elif new_command == 'repeat':
+            self.repeat_last_step()
+        elif new_command == 'congratulate':
+            self.congratulate()
+        elif new_command == 'try_again':
+            self.try_again()
+        elif new_command == 'quit_game':
+            self.quit_game()
+        elif new_command == 'finish_game':
+            self.finish_game()
+
+    def quit_game(self):
+        """Quit the game, which essentially just means to set the
+        state to be waiting for a definition"""
+        self.set_state(self.states.waiting_for_def)
+        self.set_options([])
+
+    def finish_game(self):
+        """Finish the game, which essentially just means to set the
+        state to be waiting for a definition"""
+        self.set_state(self.states.waiting_for_def)
+        self.set_options([])
 
     def set_state(self, state):
+        """Sets the state of the game. This stores both an internal
+        state and publishes the state out as feedback.
+
+        Args:
+            state: The state to set, should be a member of the
+                   states enum.
+        """
         self.state = state
         self.feedback_pub.publish(state.name)
 
+    def say_plain_text(self, to_say):
+        speech_goal = SpeechGoal(
+            text='<speak>'+to_say+'</speak>',
+            metadata=json.dumps({
+                'text_type': 'ssml',
+                'voice_id': 'Ivy'
+            })
+        )
+        self.speech_server.send_goal(
+            speech_goal,
+            done_cb=self.speaking_done,
+            active_cb=self.speaking_active,
+            feedback_cb=self.speaking_feedback
+        )
+        self.speaking_state = self.action_states.sent
+
     def run_step(self, idx):
+        """Runs a specified step, sending out the necessary actions
+        and setting up the callbacks.
+
+        Args:
+            idx: the id of the step to run.
+        """
         this_step = self.actions_list[idx]
+        command_sent = False
         # each step is a dict with:
         # speach, movement or pose
         if 'speech' in this_step:
-            speech_goal = SpeechGoal(
-                text='<speak>'+this_step['speech']+'</speak>',
-                metadata=json.dumps({
-                    'text_type': 'ssml',
-                    'voice_id': 'Ivy'
-                })
-            )
-            self.speech_server.send_goal(
-                speech_goal,
-                done_cb=self.speaking_done,
-                active_cb=self.speaking_active,
-                feedback_cb=self.speaking_feedback)
-            self.speaking_state = 'sent'
+            self.say_plain_text(this_step['speech'])
+            command_sent = True
         if 'move' in this_step:
             move_goal = MoveGoal(this_step['goal'])
             self.move_server.send_goal(
                 move_goal,
                 done_cb=self.moving_done,
                 active_cb=self.moving_active,
-                feedback_cb=self.moving_feedback)
-            self.moving_state = 'sent'
+                feedback_cb=self.moving_feedback
+            )
+            self.moving_state = self.action_states.sent
+            command_sent = True
         if 'pose' in this_step:
             pos_goal = JointTarget()
             pos_goal.name = this_step['pose']['joint_names']
@@ -168,21 +337,28 @@ class GameRunner(object):
                 move_goal,
                 done_cb=self.moving_done,
                 active_cb=self.moving_active,
-                feedback_cb=self.moving_feedback)
-            self.moving_state = 'sent'
-        self.state = self.states.acting
+                feedback_cb=self.moving_feedback
+            )
+            self.moving_state = self.action_states.sent
+            command_sent = True
+        if not command_sent:
+            rospy.logerr(
+                'tried to run a step that did not have any useful info')
+        else:
+            self.set_state(self.states.acting)
+            self.set_options([])
 
     def moving_done(self, terminal_state, result):
-        self.moving_state = 'done'
+        self.moving_state = self.action_states.done
 
     def speaking_done(self, terminal_state, result):
-        self.speaking_state = 'done'
+        self.speaking_state = self.action_states.done
 
     def moving_active(self):
-        self.moving_state = 'moving'
+        self.moving_state = self.action_states.active
 
     def speaking_active(self):
-        self.speaking_state = 'moving'
+        self.speaking_state = self.action_states.active
 
     def moving_feedback(self, feedback):
         pass
@@ -209,62 +385,16 @@ class GameRunner(object):
 
     def congratulate(self):
         rospy.loginfo('saying something congratulatory')
-        speech_goal = SpeechGoal(random.choice(self.congratulate_strings))
-        self.speech_server.send_goal(speech_goal)
+        self.say_plain_text(random.choice(self.congratulate_strings))
+        self.set_state(self.states.acting)
+        self.set_options([])
 
     def try_again(self):
         rospy.loginfo('saying to try again and rerunning last step')
-        speech_goal = SpeechGoal(random.choice(self.try_again_strings))
-        self.speech_server.send_goal(speech_goal)
+        self.say_plain_text(random.choice(self.try_again_strings))
         self.speech_server.wait_for_result()
         self.repeat_last_step()
 
 
 if __name__ == '__main__':
     GameRunner()
-
-# there are two components of a game:
-#  - the definition, ex: simon says game
-#     - some params:
-#         - congratualtory speech: list of congratulatory speech uterances
-#         - corrective speech: list of corrective things
-#     - intro
-#         - ex: say_text: in simon says, I will tell you something to do and show you.
-#                          if I say "simon says" first, then you should do it too. If
-#                          not, then you should stay still. Does that make sense?
-#             - options: yes: continue
-#                        no:  repeat
-#     - body:
-#         turn_def:
-#             -
-
-#             - feedback:
-#                 - next: go to next turn
-#                 - next_good_job: say rand_select($congratulatory_speech), go to next turn
-#                 - gotcha: say "haha, I Didn't say simon says. Gotcha!!"
-#                 - repeat: say "Let's try that again" and go to prior
-#     - exit: That was a lot of fun!!
-
-# Note: all of the game should be computed through on load to allow easy traversal
-
-#  - the parameter definition for this particular run:
-
-    # ex_game = {
-    #     'parameters': {
-    #         'randomize_body': False,
-    #         'body_select_ratio': 1,  # what percentage of the body tasks to run
-    #     },
-    #     'intro': [action sequence ids],
-    #     'body': [action sequence ids],
-    #     'congratulatory_speech': ['good job', 'that was great', 'you are really good at this'],
-    #     'corrective_speech': ['try that again', 'let''s give that another try'],
-    #     'closing': [action sequence ids]
-    # }
-
-    # simple_simon_says_def = {
-    #         'percent_not_simon_says' = 0.2,
-    #         'targets': [
-    #             {'type': 'action', 'def': id},
-    #             {'type': 'pose', 'def': id, 'time': secs},
-    #             {'type': 'action', 'def': id}
-    #             ],

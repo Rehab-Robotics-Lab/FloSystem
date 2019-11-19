@@ -58,6 +58,7 @@ find_package(catkin REQUIRED COMPONENTS
    GameCommandOptions.msg
    GameDef.msg
    GameCommand.msg
+   StepDef.msg
  )
 
 ## Generate services in the 'srv' folder

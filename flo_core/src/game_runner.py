@@ -39,7 +39,7 @@ import rospy
 import actionlib
 from tts.msg import SpeechAction, SpeechGoal
 from flo_humanoid.msg import MoveAction, MoveGoal, JointTarget
-from flo_core.msg import GameFeedback, GameCommandOptions, GameDef, GameCommand
+from flo_core.msg import GameFeedback, GameCommandOptions, GameDef, GameCommand, StepDef
 from flo_core.srv import GetPoseID, GetPoseIDResponse
 from flo_core.srv import GetPoseSeqID, GetPoseSeqIDResponse
 
@@ -189,22 +189,32 @@ class GameRunner(object):
         if new_def.game_type == 'simon_says':
             self.actions_list.append(
                 {'speech': 'in simon says, I will tell you something to do and show you how to do it. If I say simon says, you should do it with me. If I do not say simon says, you should not do the action. Watch out, I may try to trick you.'})
-            actions_bag = set()
+            if not new_def.steps:
+                new_def.steps = [
+                    StepDef(type='move', text='touch your head', id=1),
+                    StepDef(type='move', text='touch your stomach', id=2),
+                    StepDef(type='pose_left', text='raise your left arm', id=5),
+                    StepDef(type='pose_right',
+                            text='raise your right arm', id=5)
+                ]
+
+            actions_bag = []
             for step in new_def.steps:
                 targets = []
                 speech = step.text
                 if step.type == 'pose_left':
-                    pose = self.get_pose_id(step.id)  # type: Pose
+                    pose = self.get_pose_id(step.id).pose  # type: Pose
                     targets = [self.construct_joint_target(
                         pose.joint_names, pose.joint_positions, 2, 'left')]
                     speech = speech+' with your left hand'
                 if step.type == 'pose_right':
-                    pose = self.get_pose_id(step.id)  # type: Pose
+                    pose = self.get_pose_id(step.id).pose  # type: Pose
                     targets = [self.construct_joint_target(
                         pose.joint_names, pose.joint_positions, 2, 'left')]
                     speech = speech+' with your right hand'
                 elif step.type == 'move':
-                    sequence = self.get_pose_seq_id(step.id)  # type: PoseSeq
+                    sequence = self.get_pose_seq_id(
+                        step.id).sequence  # type: PoseSeq
                     for idx in range(len(sequence.pose_ids)):
                         pose = self.get_pose_id(sequence.pose_ids[idx])
                         target = self.construct_joint_target(
@@ -212,17 +222,14 @@ class GameRunner(object):
                             sequence.times[idx], sequence.arms[idx])
                         targets.append(target)
 
-                actions_bag.add(
+                actions_bag.append(
                     {'speech': 'simon says '+speech, 'targets': targets})
                 if random.random() > 0.7:  # this is where we add in non-simon says tasks
-                    actions_bag.add(
+                    actions_bag.append(
                         {'speech': speech, 'targets': targets})
-                not_empty = True
-                while not_empty:
-                    try:
-                        self.actions_list.append(actions_bag.pop())
-                    except KeyError:
-                        not_empty = False
+
+                random.shuffle(actions_bag)
+                self.actions_list += actions_bag
 
                 self.actions_list.append(
                     {'speech': 'that was a lot of fun, thanks for playing with me'})

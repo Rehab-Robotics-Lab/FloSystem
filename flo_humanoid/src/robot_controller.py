@@ -311,9 +311,14 @@ class BolideController(object):
                     feedback.time_elapsed
                 # if feedback.time_remaining > 0:
                 if self.simulate:
-                    feedback.move_number = next(
-                        idx for idx, value in enumerate(self.moving_params['completion_times']) if value >
-                        feedback.time_elapsed)
+                    if feedback.time_elapsed > self.moving_params['completion_times'][-1]:
+                        feedback.move_number = len(
+                            self.moving_params['completion_times'])
+                    else:
+                        feedback.move_number = next(
+                            idx for idx, value in
+                            enumerate(self.moving_params['completion_times']) if value >
+                            feedback.time_elapsed)
                 else:
                     feedback.move_number = (np.where(
                         self.moving_params['unique_times'][self.seq_num] ==

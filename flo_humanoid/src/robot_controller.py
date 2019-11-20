@@ -333,7 +333,7 @@ class BolideController(object):
                     self.moving = False
                     rospy.loginfo('completed motion')
                 elif (self.last_feedback is None or
-                        not self.last_feedback.move_number == feedback.move_number or
+                      not self.last_feedback.move_number == feedback.move_number or
                       rospy.get_time() - self.last_feedback_time > self.feedback_delay):
                     self.last_feedback_time = rospy.get_time()
                     self.last_feedback = feedback

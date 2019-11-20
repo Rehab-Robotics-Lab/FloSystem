@@ -519,7 +519,7 @@ class BolideController(object):
                         raise Exception(
                             'Did not get keep going feedback after sending sequence command. Received: {}'.format(ret))
         self.moving = True
-        self.moving_params['time_start'] = 0
+        self.moving_params['time_start'] = rospy.get_time()
         self.seq_num = 0
 
     def read(self):

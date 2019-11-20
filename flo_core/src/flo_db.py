@@ -219,6 +219,7 @@ class FloDb(object):
         if data:
             resp = GetPoseSeqIDResponse()
             resp.sequence.description = data['description']
+            resp.sequence.pose_ids = json.loads(data['pose_ids'])
             resp.sequence.times = json.loads(data['times'])
             resp.sequence.arms = json.loads(data['arms'])
             resp.sequence.total_time = data['total_time']

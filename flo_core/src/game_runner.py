@@ -209,20 +209,22 @@ class GameRunner(object):
                     pose = self.get_pose_id(step.id).pose  # type: Pose
                     targets = [self.construct_joint_target(
                         pose.joint_names, pose.joint_positions, 2, 'left')]
-                    speech = speech+' with your left hand'
-                if step.type == 'pose_right':
+                    # speech = speech+' with your left hand'
+                elif step.type == 'pose_right':
                     pose = self.get_pose_id(step.id).pose  # type: Pose
                     targets = [self.construct_joint_target(
                         pose.joint_names, pose.joint_positions, 2, 'left')]
-                    speech = speech+' with your right hand'
+                    # speech = speech+' with your right hand'
                 elif step.type == 'move':
                     sequence = self.get_pose_seq_id(
                         step.id).sequence  # type: PoseSeq
+                    time = 0
                     for idx in range(len(sequence.pose_ids)):
-                        pose = self.get_pose_id(sequence.pose_ids[idx])
+                        pose = self.get_pose_id(sequence.pose_ids[idx]).pose
+                        time += sequence.times[idx]
                         target = self.construct_joint_target(
                             pose.joint_names, pose.joint_positions,
-                            sequence.times[idx], sequence.arms[idx])
+                            time, sequence.arms[idx])
                         targets.append(target)
 
                 actions_bag.append(
@@ -231,11 +233,11 @@ class GameRunner(object):
                     actions_bag.append(
                         {'speech': speech, 'targets': targets})
 
-                random.shuffle(actions_bag)
-                self.actions_list += actions_bag
+            random.shuffle(actions_bag)
+            self.actions_list += actions_bag
 
-                self.actions_list.append(
-                    {'speech': 'that was a lot of fun, thanks for playing with me'})
+            self.actions_list.append(
+                {'speech': 'that was a lot of fun, thanks for playing with me'})
 
             self.set_options(['start'])
             self.set_state(self.states.game_loaded)
@@ -321,30 +323,11 @@ class GameRunner(object):
         command_sent = False
         # each step is a dict with:
         # speach, movement or pose
-        import pdb
-        pdb.set_trace()
         if 'speech' in this_step:
             self.say_plain_text(this_step['speech'])
             command_sent = True
-        if 'move' in this_step:
-            move_goal = MoveGoal(this_step['goal'])
-            self.move_server.send_goal(
-                move_goal,
-                done_cb=self.moving_done,
-                active_cb=self.moving_active,
-                feedback_cb=self.moving_feedback
-            )
-            self.moving_state = self.action_states.sent
-            command_sent = True
-        if 'pose' in this_step:
-            pos_goal = JointTarget()
-            pos_goal.name = this_step['pose']['joint_names']
-            pos_goal.position = this_step['pose']['joint_positions']
-            if this_step['pose']['time']:
-                pos_goal.target_completion_time = this_step['pose']['time']
-            else:
-                pos_goal.target_completion_time = 2
-            move_goal = MoveGoal([pos_goal])
+        if 'targets' in this_step:
+            move_goal = MoveGoal(this_step['targets'])
             self.move_server.send_goal(
                 move_goal,
                 done_cb=self.moving_done,

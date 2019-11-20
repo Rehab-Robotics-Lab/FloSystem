@@ -5,7 +5,6 @@ from __future__ import division
 import math
 import os
 import Queue
-import time
 import struct
 import threading
 import serial
@@ -135,7 +134,7 @@ class BolideController(object):
             self.sim_seq_times = np.array([None]*256)
             self.sim_seq_length = 0
             self.sim_num_poses = 0
-            self.sim_timer = time.time()
+            self.sim_timer = rospy.get_time()
             self.sim_starting_pose = np.zeros(self.NUM_MOTORS)
 
         self.rate = rospy.Rate(20)
@@ -154,6 +153,7 @@ class BolideController(object):
         self.seq_num = 0
         self.last_feedback = None
         self.feedback_delay = 1
+        self.last_feedback_time = rospy.get_time()
 
         self.server.start()
         rospy.loginfo('started action server for humanoid motion')
@@ -329,12 +329,12 @@ class BolideController(object):
                     rospy.loginfo('completed motion')
                 elif (self.last_feedback is None or
                         not self.last_feedback.move_number == feedback.move_number or
-                        time.time() - self.last_feedback_time > self.feedback_delay):
-                    self.last_feedback_time = time.time()
+                      rospy.get_time() - self.last_feedback_time > self.feedback_delay):
+                    self.last_feedback_time = rospy.get_time()
                     self.last_feedback = feedback
                     self.server.publish_feedback(feedback)
             elif (not self.server.new_goal and (not self.awaiting_pos_resp
-                                                or time.time()-self.last_pos_req > self.pose_waiting_override_delay)):
+                                                or rospy.get_time()-self.last_pos_req > self.pose_waiting_override_delay)):
                 self.request_pos()
             self.rate.sleep()
         self.cleanup()
@@ -345,7 +345,7 @@ class BolideController(object):
         # with self.usb_lock:
         ### Start Simulator ###
         if self.moving:
-            cur_time = time.time() - self.sim_timer
+            cur_time = rospy.get_time() - self.sim_timer
             if cur_time > self.sim_seq_times[self.sim_seq_length-1]:
                 self.moving = False
             else:
@@ -487,7 +487,7 @@ class BolideController(object):
         self.upload_poses(poses)
         if self.simulate:
             self.sim_seq_length = len(times)
-            self.sim_timer = time.time()
+            self.sim_timer = rospy.get_time()
             for idx, ttime in enumerate(times):
                 self.sim_seq_times[idx] = ttime
             self.sim_starting_pose = self.sim_current_pose
@@ -638,7 +638,7 @@ class BolideController(object):
             self.awaiting_pos_resp = False
         else:
             self.ser.write(bytearray([0xFF, 0x04, self.commands['pos'], 0xfe]))
-            self.last_pos_req = time.time()
+            self.last_pos_req = rospy.get_time()
             self.awaiting_pos_resp = True
 
 

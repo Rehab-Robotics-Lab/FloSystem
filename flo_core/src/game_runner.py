@@ -103,7 +103,7 @@ class GameRunner(object):
         self.def_queue = queue.Queue()
 
         ### State Management ###
-        self.state = self.states.waiting_for_def
+        self.set_state(self.states.waiting_for_def)
         self.moving_state = self.action_states.none
         self.speaking_state = self.action_states.none
 

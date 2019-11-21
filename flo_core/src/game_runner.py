@@ -20,7 +20,7 @@ Subscribers:
     - /game_runner_commands: Takes the commands to control the
                              game. Accepts messages of type
                              GameCommand
-    - /game_def: Takes the definition for the game. For right
+    - /game_runner_def: Takes the definition for the game. For right
                  now this is just a string naming the game.
                  Will be more robust later. Takes messages
                  of type GameDef
@@ -87,7 +87,7 @@ class GameRunner(object):
         rospy.Subscriber(
             'game_runner_commands', GameCommand, self.new_command)
         rospy.Subscriber(
-            'game_def', GameDef, self.new_def)
+            'game_runner_def', GameDef, self.new_def)
         rospy.loginfo('setup subscribers')
 
         ### Services ###

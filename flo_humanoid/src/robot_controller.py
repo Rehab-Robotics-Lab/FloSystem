@@ -311,6 +311,7 @@ class BolideController(object):
                     feedback.time_elapsed
                 # if feedback.time_remaining > 0:
                 if self.simulate:
+                    self.get_pose_sim()
                     if feedback.time_elapsed > self.moving_params['completion_times'][-1]:
                         feedback.move_number = len(
                             self.moving_params['completion_times'])

@@ -8,27 +8,38 @@ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main
 #sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116 This is now out of date?
 sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 sudo apt update -y
-sudo apt install -y ros-kinetic-desktop-full
-source /opt/ros/kinetic/setup.bash
+
+if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==16));then
+    ROS_VERSION="kinetic"
+    else
+    if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==18)); then
+    ROS_VERSION="melodic"
+fi
+fi
+echo "installing for ros version: ${ROS_VERSION}"
+sudo apt install -y ros-${ROS_VERSION}-desktop-full
+source /opt/ros/${ROS_VERSION}/setup.bash
 
 [ ! -d "/etc/ros/rosdep/sources.list.d" ] && sudo rosdep init
 rosdep update
 sudo apt install python-rosinstall python-rosinstall-generator python-wstool build-essential
-cd ~/catkin_ws && catkin_make
-source devel/setup.bash
-cd -
 
 ## Install packages we need:
-ECHO "INSTALLING DEPENDENCIES NOT FOUND IN ROSDEP"
+echo "INSTALLING DEPENDENCIES NOT FOUND IN ROSDEP"
 pip install pyqtgraph --user
 #I think I have replaced this by adding a symlink:
 #python flo_face/teensy/src/serial_coms/computer/python/serial-coms/setup.py install --user
 pip install mutagen --user
 
 echo "INSTALLING ROSDEP DEPENDENCIES"
-sudo apt install python-rosdep
+sudo apt install python-rosdep -y
 cd ~/catkin_ws
 rosdep install --from-paths src --ignore-src -r -y
+cd -
+
+# build it all
+cd ~/catkin_ws && catkin_make
+source devel/setup.bash
 cd -
 
 ## Create a folder for bag files

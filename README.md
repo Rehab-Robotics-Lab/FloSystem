@@ -90,6 +90,9 @@ You then need to use the router to share the Internet through your development m
 You should then be able to connect to the router using the settings setup on the router
 at the beginning from the nuc on the robot
 
+#### SSH-Keys
+You will now need to setup SSH Keys. Just follow [this guide](https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys-on-ubuntu-1804)
+
 ### NUC
 1. Setup Ubuntu
     1. Make sure to connect to a network and update everything

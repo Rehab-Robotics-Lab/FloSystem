@@ -291,7 +291,7 @@ class BolideController(object):
                 rospy.loginfo('got a new goal')
                 self.move(self.server.accept_new_goal())
             # ITERATE GIVE FEEDBACK
-            if self.moving:
+            elif self.moving:
                 # self.get_pose()
                 if self.server.is_preempt_requested():
                     # I think that this would stop motion?
@@ -395,7 +395,7 @@ class BolideController(object):
         elif msg.data == "relax":
             self.send_packet([0x20])
 
-    def send_packet(self, command):
+    def send_packet(self, command,looking_for_pos=False):
         """send_packet to the robot, add in the packet header and footer.
 
         :param command: the command to send, this should be given as a list
@@ -410,6 +410,9 @@ class BolideController(object):
             rospy.logdebug('waiting for response')
             self.state = 'waiting_for_feedback'
             returns = self.read_one(tries=15)
+            if not looking_for_pos:
+                while returns['command'] == self.commands['pos']:
+                    returns = self.read_one(tries=15)
             rospy.logdebug('received response: %s', returns)
         if returns and returns['command'] == self.feedback['error']:
             raise Exception('There was an error returned by the robot')
@@ -635,10 +638,7 @@ class BolideController(object):
 
     def request_pos(self):
         """Send a request to the robot to ask the position of the robot."""
-        if self.awaiting_pos_resp:
-            rospy.logdebug('requesting position, exiting request unanswered')
-        else:
-            rospy.logdebug('requesting position, no existing request')
+        rospy.logdebug('requesting position')
         if self.simulate:
             self.get_pose_sim()
             self.awaiting_pos_resp = False

@@ -29,8 +29,8 @@ void setup()
     AIM_Task_Setup(); // Sets up motor connection
     LED_Setup(); // Turns of LEDs
 
-    Serial.println((String)"Bolide FW Version " + FW_VERSION);
-    Serial.println((String)"Start Playing!!");
+    /*Serial.println((String)"Bolide FW Version " + FW_VERSION);*/
+    /*Serial.println((String)"Start Playing!!");*/
 }
 //========================= Main =======================================
 void loop()
@@ -89,7 +89,7 @@ void eeprom_init(void) {
     if(flag != 0x01)
     {
         // EEPROM INIT
-        Serial.println("EEP INIT");
+        /*Serial.println("EEP INIT");*/
         for(int i = 0; i < 18; i++) {
             eeprom_write_short(EEP_ADDR_ZEROPOINT + (i << 1), 0);
         }

@@ -31,6 +31,9 @@
     <include file="$(find kobuki_node)/launch/minimal.launch" />
     <include file="$(find flo_core)/launch/safe_keyop.launch" />
 
+    <!--Game Runer-->
+    <node name="game_runner" pkg="flo_core" type="game_runner.py"/>
+
     <!--Logging-->
     <!--Rosbag is used for logging almost everything. -->
     <!--I think that it will be prudent to alter what the realsense camera is actually-->

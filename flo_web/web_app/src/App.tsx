@@ -16,6 +16,7 @@ import Vids from "./components/Vids";
 import * as ROSLIB from "roslib";
 import Drive from "./components/Drive";
 import {basicBlock} from "./styleDefs/styles";
+import GameContainer from "./components/GameContainer";
 
 export function genRandID(): number {
   return Math.round(Math.random() * 10000) + Date.now();
@@ -225,6 +226,7 @@ const App: React.FunctionComponent = () => {
                 setMovesList={setMovesList}
               />
             </div>
+            <GameContainer ros={ros} connected={connected} />
             <div style={{ display: "flex", flexDirection: "row" }}>
               <SpeechContainer
                 ros={ros}

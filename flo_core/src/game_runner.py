@@ -34,6 +34,7 @@ Neccesary Action Servers:
 from enum import Enum
 import json
 import random
+from itertools import chain
 try:
     import queue
 except ImportError:
@@ -177,6 +178,40 @@ class GameRunner(object):
                 self.set_options(
                     ['next', 'repeat', 'congratulate', 'try_again', 'quit_game'])
 
+    def process_step(self,step):
+        targets = []
+        speech = step.text
+        step_time = step.time if step.time and step.time > 0 else 2
+        if step.type == 'pose_left':
+            pose = self.get_pose_id(step.id).pose  # type: Pose
+            targets = [self.construct_joint_target(
+                pose.joint_names, pose.joint_positions, step_time, 'right')]
+            # speech = speech+' with your left hand'
+        elif step.type == 'pose_right':
+            pose = self.get_pose_id(step.id).pose  # type: Pose
+            targets = [self.construct_joint_target(
+                pose.joint_names, pose.joint_positions, step_time, 'left')]
+            # speech = speech+' with your right hand'
+        elif step.type == 'pose_both':
+            pose = self.get_pose_id(step.id).pose  # type: Pose
+            targets = [self.construct_joint_target(
+                pose.joint_names, pose.joint_positions, step_time, 'left'),
+                self.construct_joint_target(
+                pose.joint_names, pose.joint_positions, step_time, 'right')]
+            # speech = speech+' with your right hand'
+        elif step.type == 'move':
+            sequence = self.get_pose_seq_id(
+                step.id).sequence  # type: PoseSeq
+            time = 0
+            for idx in range(len(sequence.pose_ids)):
+                pose = self.get_pose_id(sequence.pose_ids[idx]).pose
+                time += sequence.times[idx]
+                target = self.construct_joint_target(
+                    pose.joint_names, pose.joint_positions,
+                    time, sequence.arms[idx])
+                targets.append(target)
+        return targets,speech
+
     def process_def(self, new_def):
         """Process a new game definition
 
@@ -189,9 +224,9 @@ class GameRunner(object):
         # Eventually we probably want to make this cleaner, but for now I need
         # to get a demo going, so we will manually load in the games
         # TODO: pull games out into database or something
-        if new_def.game_type == 'simon_says':
+        if new_def.game_type == 'simon_says': 
             self.actions_list.append(
-                {'speech': 'in simon says, I will tell you something to do and show you how to do it. If I say simon says, you should do it with me. If I do not say simon says, you should not do the action. Watch out, I may try to trick you.'})
+                {'speech': 'in simon says, I will tell you something to do and show you how to do it, mirrored. If I say simon says, you should do it with me. If I do not say simon says, you should not do the action. Watch out, I may try to trick you.'})
             if not new_def.steps:
                 new_def.steps = [
                     StepDef(type='move', text='wave', id=2),
@@ -203,33 +238,12 @@ class GameRunner(object):
                     StepDef(type='pose_left', text='raise your left arm straight out to the side', id=3),
                     StepDef(type='pose_left', text='touch the top of your head with your left hand', id=11),
                     StepDef(type='pose_right', text='touch the top of your head with your right hand', id=11),
+                    StepDef(type='pose_both', text='cover your eyes!', id=16),
                 ]
 
             actions_bag = []
             for step in new_def.steps:
-                targets = []
-                speech = step.text
-                if step.type == 'pose_left':
-                    pose = self.get_pose_id(step.id).pose  # type: Pose
-                    targets = [self.construct_joint_target(
-                        pose.joint_names, pose.joint_positions, 2, 'right')]
-                    # speech = speech+' with your left hand'
-                elif step.type == 'pose_right':
-                    pose = self.get_pose_id(step.id).pose  # type: Pose
-                    targets = [self.construct_joint_target(
-                        pose.joint_names, pose.joint_positions, 2, 'left')]
-                    # speech = speech+' with your right hand'
-                elif step.type == 'move':
-                    sequence = self.get_pose_seq_id(
-                        step.id).sequence  # type: PoseSeq
-                    time = 0
-                    for idx in range(len(sequence.pose_ids)):
-                        pose = self.get_pose_id(sequence.pose_ids[idx]).pose
-                        time += sequence.times[idx]
-                        target = self.construct_joint_target(
-                            pose.joint_names, pose.joint_positions,
-                            time, sequence.arms[idx])
-                        targets.append(target)
+                targets,speech = self.process_step(step)
 
                 actions_bag.append(
                     {'speech': 'simon says '+speech, 'targets': targets})
@@ -243,10 +257,48 @@ class GameRunner(object):
             self.actions_list.append(
                 {'speech': 'that was a lot of fun, thanks for playing with me'})
 
+            t,s = self.process_step(StepDef(type='pose_both', id=1,time=1))
+            neutral = {'speech':s, 'targets':t}
+            self.actions_list = list(chain.from_iterable((neutral,at) for at in self.actions_list))
+
             self.set_options(['start'])
             self.set_state(self.states.game_loaded)
             self.action_idx = 0
             rospy.loginfo('ready to play simon says')
+
+
+
+        if new_def.game_type == 'target_touch': 
+            self.actions_list.append(
+                {'speech': 'in the target touch activity, I will tell you to touch one of the dots on my hands. Each time I extend the hand, you should touch it. We will do 10 touches per dot. No tricks here, just good work!! Let''s start in a ready position'})
+            if not new_def.steps:
+                new_def.steps = [
+                    StepDef(type='pose_left', text='Touch the red dot', id=17, time=.7),
+                    StepDef(type='pose_right', text='Touch the green dot', id=17,time=.7),
+                    StepDef(type='pose_left', text='Touch the yellow dot', id=18,time=.7),
+                    StepDef(type='pose_right', text='Touch the blue dot', id=18,time=.7),
+                ]
+
+            actions_bag = []
+            for step in new_def.steps:
+                targets,speech = self.process_step(step)
+
+                actions_bag.extend([{'speech': speech, 'targets': targets} for x in range(10)])
+
+            random.shuffle(actions_bag)
+            self.actions_list += actions_bag
+
+            self.actions_list.append(
+                {'speech': 'that was hard work, but a lot of fun, thanks for playing with me'})
+
+            t,s = self.process_step(StepDef(type='pose_both', id=1,time=1))
+            neutral = {'speech':s, 'targets':t}
+            self.actions_list = list(chain.from_iterable((neutral,at) for at in self.actions_list))
+
+            self.set_options(['start'])
+            self.set_state(self.states.game_loaded)
+            self.action_idx = 0
+            rospy.loginfo('ready to play target touch')
 
     @staticmethod
     def construct_joint_target(names, joint_positions, time, arm):
@@ -327,7 +379,7 @@ class GameRunner(object):
         command_sent = False
         # each step is a dict with:
         # speach, movement or pose
-        if 'speech' in this_step:
+        if 'speech' in this_step and this_step['speech']!='':
             self.say_plain_text(this_step['speech'])
             command_sent = True
         if 'targets' in this_step:
@@ -380,7 +432,9 @@ class GameRunner(object):
 
     def repeat_last_step(self):
         rospy.loginfo('repeating the last step')
+        self.action_idx -= 1
         self.run_step(self.action_idx)
+        self.command_queue.put('next')
 
     def congratulate(self):
         rospy.loginfo('saying something congratulatory')

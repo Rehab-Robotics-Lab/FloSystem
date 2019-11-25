@@ -30,6 +30,25 @@ const GameCommand: React.FunctionComponent<GameCommandProps> = ({
         )
     }
 
+
+interface GameDefProps{
+    name: string;
+    run: ()=>void;
+    disabled: boolean;
+}
+
+const GameDef: React.FunctionComponent<GameDefProps> = ({
+    name,run,disabled})=>{
+        return (
+      <button type="button" disabled={disabled} onClick={() => {
+          run();
+      }}>
+          {name}
+        </button>
+        )
+    }
+
+
 interface GameContainerProps {
   ros: ROSLIB.Ros | null;
   connected: boolean;
@@ -84,6 +103,23 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
 
   }, [connected, ros]);
 
+    const availableGames = ['simon_says','target_touch'];
+
+        //{availableGames.map(value => (
+            //<GameDef
+            //name={value}
+//disabled={gameFeedback!=='waiting_for_def' || gameDefPub===null}
+                //run={()=>{
+          //let game_def = new ROSLIB.Message({
+              //game_type:{value}
+          //})
+          //if (gameDefPub !==null){
+          //gameDefPub.publish(game_def)
+          //}}}
+            ///>
+
+        //))}
+
   return (
     <div
       style={Object.assign({}, basicBlock, {
@@ -91,6 +127,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
       })}
     >
       <h2>Games:</h2>
+
       <button type="button" disabled={gameFeedback!=='waiting_for_def' || gameDefPub===null} onClick={() => {
 
           let simon_says_def = new ROSLIB.Message({
@@ -101,6 +138,18 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
           }
       }}>
           Simon Says
+        </button>
+
+      <button type="button" disabled={gameFeedback!=='waiting_for_def' || gameDefPub===null} onClick={() => {
+
+          let simon_says_def = new ROSLIB.Message({
+              game_type:'target_touch'
+          })
+          if (gameDefPub !==null){
+          gameDefPub.publish(simon_says_def)
+          }
+      }}>
+          Target Touch
         </button>
 
         {commandOptions.map(value => (

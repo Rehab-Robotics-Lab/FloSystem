@@ -305,7 +305,7 @@ class GameRunner(object):
             text='<speak>'+to_say+'</speak>',
             metadata=json.dumps({
                 'text_type': 'ssml',
-                'voice_id': 'Ivy'
+                'voice_id': 'Salli' #'Justin' #'Ivy'
             })
         )
         self.speech_server.send_goal(

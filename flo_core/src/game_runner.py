@@ -212,12 +212,12 @@ class GameRunner(object):
                 if step.type == 'pose_left':
                     pose = self.get_pose_id(step.id).pose  # type: Pose
                     targets = [self.construct_joint_target(
-                        pose.joint_names, pose.joint_positions, 2, 'left')]
+                        pose.joint_names, pose.joint_positions, 2, 'right')]
                     # speech = speech+' with your left hand'
                 elif step.type == 'pose_right':
                     pose = self.get_pose_id(step.id).pose  # type: Pose
                     targets = [self.construct_joint_target(
-                        pose.joint_names, pose.joint_positions, 2, 'right')]
+                        pose.joint_names, pose.joint_positions, 2, 'left')]
                     # speech = speech+' with your right hand'
                 elif step.type == 'move':
                     sequence = self.get_pose_seq_id(

@@ -33,7 +33,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
 
     let metadata = JSON.stringify({
       text_type: "ssml",
-      voice_id: "Ivy"
+      voice_id: "Salli"
     });
     const goal = new ROSLIB.Goal({
       actionClient,

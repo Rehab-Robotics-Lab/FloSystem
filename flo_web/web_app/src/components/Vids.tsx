@@ -70,7 +70,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         let local_stream_config = { video: {}, audio: {} };
         user_media_config.video = true;
         local_stream_config.video = {
-          dest: "remote_video"
+            dest: "ros_image:remote_video"
         };
         user_media_config.audio = true;
 

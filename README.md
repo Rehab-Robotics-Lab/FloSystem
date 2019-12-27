@@ -68,6 +68,12 @@ function ssh-flo {
 }
 ```
 
+#### Additional install targets
+There are a few things that aren't installed by this script that you may want:
+2. Node, which is needed to develop and run the websever. You can install directly
+   (better for the robot) using `node_install.sh` or with nvm (better for development)
+   using `nvm_install.sh`.
+
 ### Network
 You will need a router to get it all working. There is a Cisco Linksys E1200 that we are
 using. Plug in one of the switching Ethernet ports to the port on your development computer.

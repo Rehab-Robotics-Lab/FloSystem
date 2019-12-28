@@ -191,6 +191,18 @@ defaults.pcm.card 1
 
 then restart
 
+### Getting WebRTC ROS installed
+This will need to happen wherever you are running the webserver:
+1. Clone the dev branch either into the catkin_ws/src folder or somewhere else and link it in for the repo: https://github.com/RobotWebTools/webrtc_ros
+2. Add a file at `webrtc_ros/webrtc` named `CATKIN_IGNORE`, leave it empty
+3. Build the catkin workspace as normal
+4. make sure that at `LilFloSystem/flo_web/web_app/public` you link (`ln -s`) to `~/catkin_ws/src/webrtc_ros/webrtc_ros/web`. This should already be present.
+
+The prior instructions give you the latest version of the package. This is needed
+as the build farm version is not being updated quickly. However if eventually
+the build farm version is used (likely via a rosdep dependency), then the link
+will need to be changed to point to `/opt/ros/<distro name>/share/webrtc_ros/web`
+
 ## Running
 1. ssh into the robot: `ssh nuc-admin@<ip addr>`
 2. open tmux on remote: `tmux`

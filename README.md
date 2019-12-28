@@ -71,6 +71,7 @@ function ssh-flo {
 ### Network
 You will need a router to get it all working. There is a Cisco Linksys E1200 that we are
 using. Plug in one of the switching Ethernet ports to the port on your development computer.
+Note for Ubuntu 18 you may need to run `nm-connnection-editor`.
 Setup with:
 - SSID: flo-net
 - Broadcasting: off

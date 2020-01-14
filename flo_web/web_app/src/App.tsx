@@ -15,8 +15,9 @@ import RelaxMotors from "./components/RelaxMotors";
 import Vids from "./components/Vids";
 import * as ROSLIB from "roslib";
 import Drive from "./components/Drive";
-import {basicBlock} from "./styleDefs/styles";
+import { basicBlock } from "./styleDefs/styles";
 import GameContainer from "./components/GameContainer";
+import SystemMonitor from "./components/SystemMonitor";
 
 export function genRandID(): number {
   return Math.round(Math.random() * 10000) + Date.now();
@@ -173,13 +174,15 @@ const App: React.FunctionComponent = () => {
           setIpPort={setIpPortCook}
         />
         <div className="body" style={{ backgroundColor: colors.gray.dark2 }}>
-          <div className="visualFeeds"
-        style={Object.assign({}, basicBlock, {
-          maxWidth: "none",
-          maxHeight: "auto",
-          flexDirection: "row",
-          flexWrap: "wrap"
-        })}>
+          <div
+            className="visualFeeds"
+            style={Object.assign({}, basicBlock, {
+              maxWidth: "none",
+              maxHeight: "auto",
+              flexDirection: "row",
+              flexWrap: "wrap"
+            })}
+          >
             <Vids
               ros={ros}
               connected={connected}
@@ -188,7 +191,7 @@ const App: React.FunctionComponent = () => {
             />
             <URDF ros={ros} connected={connected} />
           </div>
-            <RelaxMotors ros={ros} connected={connected} />
+          <RelaxMotors ros={ros} connected={connected} />
           <div
             className="controls"
             style={{
@@ -246,6 +249,7 @@ const App: React.FunctionComponent = () => {
               pose={pose}
             />
             <Drive ros={ros} connected={connected} />
+            <SystemMonitor ros={ros} connected={connected} />
           </div>
           <ErrorDisplay errorList={errorList} />
         </div>

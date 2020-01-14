@@ -77,8 +77,26 @@ There are a few things that aren't installed by this script that you may want:
    using `nvm_install.sh`.
 
 ### Network
+Some helpful commands (you will need to install `net-tools` for some):
+- `nmcli device status` tells you what your network devices are doing. `ip link show` does something similar
+- `nmcli connection show` tells you waht networks are on your list (not the same as what is currently available, this is what you have connected to and saved)
+- `nmcli` gives a general overview of net status
+- `ip a` prints out a ton of info with ip and mac addresses
+- `netstat -i` gives a clean print out of how much traffice each adapter is seeing
+- `lspci | egrep -i --color 'network|ethernet'` to get which physical network adapters are available
+- `cat /proc/net/dev` will show the physical cards even those that aren't installed
+- `sudo lshw -class network` gives hardware details
+- `lsusb` will show the installed usb devices
+
+
+#### New Way (USB Stick)
+This is setup using the Panda Wireless PAU09 wireless adapter
+
+
+#### Old Way (Router hooked up through ethernet)
 You will need a router to get it all working. There is a Cisco Linksys E1200 that we are
 using. Plug in one of the switching Ethernet ports to the port on your development computer.
+Note for Ubuntu 18 you may need to run `nm-connnection-editor`.
 Setup with:
 - SSID: flo-net
 - Broadcasting: off
@@ -189,6 +207,18 @@ defaults.pcm.card 1
 ```
 
 then restart
+
+### Getting WebRTC ROS installed
+This will need to happen wherever you are running the webserver:
+1. Clone the dev branch either into the catkin_ws/src folder or somewhere else and link it in for the repo: https://github.com/RobotWebTools/webrtc_ros
+2. Add a file at `webrtc_ros/webrtc` named `CATKIN_IGNORE`, leave it empty
+3. Build the catkin workspace as normal
+4. make sure that at `LilFloSystem/flo_web/web_app/public` you link (`ln -s`) to `~/catkin_ws/src/webrtc_ros/webrtc_ros/web`. This should already be present.
+
+The prior instructions give you the latest version of the package. This is needed
+as the build farm version is not being updated quickly. However if eventually
+the build farm version is used (likely via a rosdep dependency), then the link
+will need to be changed to point to `/opt/ros/<distro name>/share/webrtc_ros/web`
 
 ## Running
 1. ssh into the robot: `ssh nuc-admin@<ip addr>`

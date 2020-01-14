@@ -40,6 +40,14 @@ cd -
 echo "INSTALLING REALSENSE"
 bash realsense_install.sh
 
+echo "Adding updated webrtcros"
+prior=$(pwd)
+cd ~/catkin_ws/src
+git clone https://github.com/RobotWebTools/webrtc_ros.git
+cd webrtc_ros/webrtc
+touch CATKIN_IGNORE
+cd $prior
+
 # build it all
 cd ~/catkin_ws && catkin_make
 source devel/setup.bash

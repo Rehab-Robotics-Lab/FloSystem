@@ -32,4 +32,7 @@
     <!--WebRTC-->
     <include file="$(find flo_telepresence)/launch/webrtc.launch"/>
 
+    <!--System Monitoring-->
+    <node name="system_monitor" pkg="system_monitor" type="stats_publisher.py"/>
+
 </launch>

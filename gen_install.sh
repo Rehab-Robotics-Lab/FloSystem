@@ -38,7 +38,7 @@ rosdep install --from-paths src --ignore-src -r -y
 cd -
 
 echo "INSTALLING REALSENSE"
-. /realsense_install.sh
+bash realsense_install.sh
 
 # build it all
 cd ~/catkin_ws && catkin_make

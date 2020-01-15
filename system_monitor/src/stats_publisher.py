@@ -33,18 +33,18 @@ class StatsPublisher(object):
 
     def read_disk(self,event):
         disk_stats = psutil.disk_usage('/')
-        disk_percent_free = 100-disk_stats.percent 
+        disk_percent_free = 100-disk_stats.percent
         rospy.loginfo('disk has %5.2f%% free', disk_percent_free)
         msg = HDDutil()
-        msg.percent_free = disk_percent_free 
+        msg.percent_free = disk_percent_free
         self.hdd_stats_pub.publish(msg)
 
     def read_mem(self,event):
         mem_stats = psutil.virtual_memory()
-        mem_load = 100 * (mem_stats.total - mem_stats.available)/mem_stats.total 
+        mem_load = 100 * (mem_stats.total - mem_stats.available)/mem_stats.total
         rospy.loginfo('mem percent used: %5.2f%%', mem_load)
         msg = MEMutil()
-        msg.percent_used = mem_load 
+        msg.percent_used = mem_load
         self.mem_stats_pub.publish(msg)
 
     def read_net(self,event):
@@ -59,20 +59,20 @@ class StatsPublisher(object):
             msg.signal_strength = signal_strength
             self.net_stats_pub.publish(msg)
         else:
-            rospy.logerr('could not get network stats')
+            rospy.logdebug('could not get network stats')
 
     @staticmethod
     def get_net_strength():
         try:
-            proc = subprocess.Popen('iwconfig | grep Link', shell=True, 
+            proc = subprocess.Popen('iwconfig | grep Link', shell=True,
                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output, err = proc.communicate()
             if not output:
                 if err:
-                    rospy.logerr('no output recieved while checking net strength, got error:\n%s',err)
+                    rospy.logdebug('no output recieved while checking net strength, got error:\n%s',err)
                 else:
-                    rospy.logerr('no output recieved while checking net strength')
-                
+                    rospy.logdebug('no output recieved while checking net strength')
+
             msg = output.decode('utf-8')
             lqv = re.split('/',re.search('(?<=Link Quality=)[0-9/]*',msg).group(0))
             link_quality = int(lqv[0])/int(lqv[1])

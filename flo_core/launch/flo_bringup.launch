@@ -51,4 +51,7 @@
 
     <!--System Monitoring-->
     <node name="system_monitor" pkg="system_monitor" type="stats_publisher.py"/>
+
+    <!--Screen on Robot-->
+    <node name="robot_screen" pkg="flo_telepresence" type="display.py"/>
 </launch>

@@ -8,5 +8,4 @@ curl -sL https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh -o
 bash install_nvm.sh
 source ~/.profile
 nvm install node
-sudo apt-get install -y nodejs
 cd $prior

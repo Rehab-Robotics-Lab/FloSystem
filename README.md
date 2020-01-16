@@ -70,7 +70,7 @@ function ssh-flo {
 
 #### Additional install targets
 There are a few things that aren't installed by this script that you may want:
-1. AWS CLI, you can see how to install this in the `robot_install.sh` file.
+1. AWS CLI, you can install this with `aws_install.sh`.
    You will need the AWS CLI to use the TTS engine
 2. Node, which is needed to develop and run the websever. You can install directly
    (better for the robot) using `node_install.sh` or with nvm (better for development)

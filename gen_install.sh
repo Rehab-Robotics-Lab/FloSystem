@@ -38,7 +38,7 @@ rosdep install --from-paths src --ignore-src -r -y
 cd -
 
 echo "INSTALLING REALSENSE"
-. /realsense_install.sh
+bash realsense_install.sh
 
 echo "Adding updated webrtcros"
 prior=$(pwd)

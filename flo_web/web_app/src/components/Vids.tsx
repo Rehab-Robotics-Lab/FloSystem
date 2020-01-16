@@ -68,9 +68,11 @@ const Vids: React.FunctionComponent<VidsProps> = ({
 
         let user_media_config = { video: {}, audio: {} };
         let local_stream_config = { video: {}, audio: {} };
-        user_media_config.video = true;
+        user_media_config.video = { width: 800, height: 480 };
         local_stream_config.video = {
-          dest: "ros_image:remote_video"
+          dest: "ros_image:remote_video",
+          width: 848,
+          height: 480
         };
         user_media_config.audio = true;
 

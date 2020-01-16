@@ -24,7 +24,6 @@ tmux send-keys 'pacmd list-sinks|grep index' Enter
 tmux send-keys 'pacmd set-default-sink'
 
 tmux split-window -t flo -h
-tmux send-keys 'DISPLAY=:0 rosrun image_view image_view image:=/remote_video' Enter
 tmux split-window -t flo
 tmux send-keys 'wmctrl -r ':ACTIVE:' -b toggle,fullscreen' Enter
 

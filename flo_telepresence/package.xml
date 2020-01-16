@@ -54,13 +54,11 @@
   <build_depend>sound_play</build_depend>
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>cv_camera</build_depend>
-  <build_depend>image_view</build_depend>
   <build_depend>realsense2_camera</build_depend>
   <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>python-imaging-imagetk</build_depend>
   <build_export_depend>cv_camera</build_export_depend>
-  <build_export_depend>image_view</build_export_depend>
   <build_export_depend>realsense2_camera</build_export_depend>
   <build_export_depend>rospy</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
@@ -69,7 +67,6 @@
   <build_export_depend>audio_common_msgs</build_export_depend>
   <build_export_depend>sound_play</build_export_depend>
   <exec_depend>cv_camera</exec_depend>
-  <exec_depend>image_view</exec_depend>
   <exec_depend>realsense2_camera</exec_depend>
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>

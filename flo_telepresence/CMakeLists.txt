@@ -13,7 +13,6 @@ find_package(catkin REQUIRED COMPONENTS
   audio_common_msgs
   sound_play
   cv_camera
-  image_view
   realsense2_camera
   rospy
   std_msgs
@@ -111,7 +110,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES flo_telepresence
-#  CATKIN_DEPENDS audio_common cv_camera image_view realsense2_camera roslibjs rospy std_msgs
+#  CATKIN_DEPENDS audio_common cv_camera realsense2_camera roslibjs rospy std_msgs
 #  DEPENDS system_lib
 )
 

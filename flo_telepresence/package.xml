@@ -79,6 +79,7 @@
   <exec_depend>sound_play</exec_depend>
   <exec_depend>webrtc_ros</exec_depend>
   <exec_depend>python-imaging-imagetk</exec_depend>
+  <exec_depend>cv_camera</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

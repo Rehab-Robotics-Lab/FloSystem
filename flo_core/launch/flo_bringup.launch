@@ -34,6 +34,9 @@
     <!--Realsense-->
     <include file="$(find flo_telepresence)/launch/realsense.launch" />
 
+    <!--Fisheye Camera-->
+    <include file="$(find flo_telepresence)/launch/fisheye_cam.launch" />
+
     <!--WebRTC-->
     <include file="$(find flo_telepresence)/launch/webrtc.launch"/>
 

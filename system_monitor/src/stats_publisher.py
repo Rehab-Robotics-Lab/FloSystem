@@ -26,7 +26,7 @@ class StatsPublisher(object):
 
     def read_cpu(self,event):
         cpu_load = psutil.cpu_percent(interval=None, percpu=False)
-        rospy.loginfo('cpu load: %5.2f%%',cpu_load)
+        rospy.logdebug('cpu load: %5.2f%%',cpu_load)
         msg = CPUutil()
         msg.percent_utilization = cpu_load
         self.cpu_stats_pub.publish(msg)
@@ -34,7 +34,7 @@ class StatsPublisher(object):
     def read_disk(self,event):
         disk_stats = psutil.disk_usage('/')
         disk_percent_free = 100-disk_stats.percent 
-        rospy.loginfo('disk has %5.2f%% free', disk_percent_free)
+        rospy.logdebug('disk has %5.2f%% free', disk_percent_free)
         msg = HDDutil()
         msg.percent_free = disk_percent_free 
         self.hdd_stats_pub.publish(msg)
@@ -42,7 +42,7 @@ class StatsPublisher(object):
     def read_mem(self,event):
         mem_stats = psutil.virtual_memory()
         mem_load = 100 * (mem_stats.total - mem_stats.available)/mem_stats.total 
-        rospy.loginfo('mem percent used: %5.2f%%', mem_load)
+        rospy.logdebug('mem percent used: %5.2f%%', mem_load)
         msg = MEMutil()
         msg.percent_used = mem_load 
         self.mem_stats_pub.publish(msg)
@@ -52,7 +52,7 @@ class StatsPublisher(object):
         if net_stats:
             link_quality = net_stats['link_quality']
             signal_strength = net_stats['signal_level']
-            rospy.loginfo('Network Signal Strength: %5.2fdb Link Quality: %4.1f%%',
+            rospy.logdebug('Network Signal Strength: %5.2fdb Link Quality: %4.1f%%',
                     signal_strength, link_quality)
             msg = NETstats()
             msg.link_quality = link_quality

@@ -269,6 +269,11 @@ git checkout `git tag | sort -V | grep -P "^\d+\.\d+\.\d+" | tail -1`
 ```
 cd up to catkin_ws and run catkin_make floowed by catkin_make install
 
+It is also possible that you need to update the camera's firmware.
+To do this, open realsense-viewer with the camera connected to a computer with an available
+GUI.
+You will be prompted to update the firmware.
+
 ### Stuff just won't build
 All kinds of things could cause this. The first thing to try it to clean
 the build and reinstall it:

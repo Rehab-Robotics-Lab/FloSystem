@@ -208,6 +208,11 @@ defaults.pcm.card 1
 
 then restart
 
+#### Realsense Cameras
+The realsense cameras seem to hold a lot of settings on board.
+For now, you need to plugin the camera and run `realsense-viewer`.
+For now, set the system to high accuracy with the laser projector set to laser.
+
 ### Getting WebRTC ROS installed
 This will need to happen wherever you are running the webserver:
 1. Clone the dev branch either into the catkin_ws/src folder or somewhere else and link it in for the repo: https://github.com/RobotWebTools/webrtc_ros

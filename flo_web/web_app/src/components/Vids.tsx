@@ -48,7 +48,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         const remote_stream_config_upper = { video: {}, audio: {} };
         remote_stream_config_upper.video = {
           id: "subscribed_video_upper",
-          src: "ros_image:/upper_realsense/color/image_raw"
+          src: "ros_image:/upper_realsense/color/image_web"
         };
         remote_stream_config_upper.audio = {
           id: "subscribed_audio",
@@ -114,7 +114,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         const remote_stream_config_lower = { video: {}, audio: {} };
         remote_stream_config_lower.video = {
           id: "subscribed_video_lower",
-          src: "ros_image:/lower_realsense/color/image_raw"
+          src: "ros_image:/lower_realsense/color/image_web"
         };
 
         connection2
@@ -146,7 +146,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         const remote_stream_config_fish = { video: {}, audio: {} };
         remote_stream_config_fish.video = {
           id: "subscribed_video_fish",
-          src: "ros_image:/fisheye_cam/image_raw"
+          src: "ros_image:/fisheye_cam/image_web"
         };
 
         connection3

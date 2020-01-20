@@ -28,8 +28,8 @@ const Matrix: React.FunctionComponent<MatrixProps> = ({
   const viewboxString = [0, 0, unitWidth, unitHeight].join(" ");
   const components = [];
   for (let idx = 0; idx < on.length; idx += 1) {
-    let row = Math.floor(idx / width);
-    let col = idx % width;
+    const row = Math.floor(idx / width);
+    const col = idx % width;
     const xPos = col * (elementSize + pitch);
     const yPos = row * (elementSize + pitch);
     components.push(
@@ -79,7 +79,9 @@ const CurrentFace: React.FunctionComponent<CurrentFaceProps> = ({
       messageType: "flo_face/FaceState"
     });
     faceListenerT.subscribe(msg => {
-      setFaceState(msg as FaceState);
+      if (msg !== faceState) {
+        setFaceState(msg as FaceState);
+      }
     });
     //setFaceListener(faceListenerT);
   }, [connected, ros, setFaceState]);
@@ -99,6 +101,7 @@ const CurrentFace: React.FunctionComponent<CurrentFaceProps> = ({
         brightness={faceState.right_eye_brightness}
         elementSize={2}
         pitch={1}
+        key={1}
       />,
       <Matrix
         x={-eyeSep}
@@ -109,6 +112,7 @@ const CurrentFace: React.FunctionComponent<CurrentFaceProps> = ({
         brightness={faceState.left_eye_brightness}
         elementSize={2}
         pitch={1}
+        key={2}
       />,
       <Matrix
         x={0}
@@ -119,6 +123,7 @@ const CurrentFace: React.FunctionComponent<CurrentFaceProps> = ({
         brightness={faceState.mouth_brightness}
         elementSize={2}
         pitch={1}
+        key={3}
       />
     ]);
   }

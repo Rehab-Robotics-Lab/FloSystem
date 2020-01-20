@@ -1,0 +1,8 @@
+<launch>
+    <include file="$(find video_stream_opencv)/launch/camera.launch" >
+        <arg name="camera_name" value="fisheye_cam"/>
+        <arg name="video_stream_provider" value="/dev/v4l/by-id/usb-HD_Camera_Manufacturer_USB_2.0_Camera-video-index0"/>
+        <arg name="width" value="1280"/>
+        <arg name="height" value="1024"/>
+    </include>
+</launch>

@@ -34,9 +34,11 @@ interface EyeOptionsContainerProps {
 }
 
 // Takes a parameter ros, which is the connection to ros
-const EyeOptionsContainer: React.FunctionComponent<
-  EyeOptionsContainerProps
-> = ({ ros, connected, eyeOptions }) => {
+const EyeOptionsContainer: React.FunctionComponent<EyeOptionsContainerProps> = ({
+  ros,
+  connected,
+  eyeOptions
+}) => {
   const [
     setEyeDirectionSrv,
     setSeteEyeDirectionSrv

@@ -225,9 +225,14 @@ interface SequenceRunContainerProps {
 }
 
 // Takes a parameter ros, which is the connection to ros
-const SequenceRunContainer: React.FunctionComponent<
-  SequenceRunContainerProps
-> = ({ ros, connected, MovesList, setMovesList, moving, setMoving }) => {
+const SequenceRunContainer: React.FunctionComponent<SequenceRunContainerProps> = ({
+  ros,
+  connected,
+  MovesList,
+  setMovesList,
+  moving,
+  setMoving
+}) => {
   const [errorList, setErrorList] = useState<boolean[]>([]);
   const setTime: SetTime = (id, time) => {
     const moveListN = [...MovesList];

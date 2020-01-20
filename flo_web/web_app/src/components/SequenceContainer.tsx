@@ -42,7 +42,7 @@ const Sequence: React.FunctionComponent<SequenceProps> = ({
           });
           getPoseSrv.callService(req, res => {
             movesListT[idx] = {
-              lr: sequence.seq.arms[idx] as ("left" | "right"),
+              lr: sequence.seq.arms[idx] as "left" | "right",
               pose: { id: poseId, pose: res.pose },
               status: "not-run",
               time: sequence.seq.times[idx],

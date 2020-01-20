@@ -126,6 +126,7 @@ You will now need to setup SSH Keys. Just follow [this guide](https://www.digita
     3. enable ssh: `sudo apt install openssh-server`
 1. Use lsyncd with the configuration file (See section on Developing) to copy files over
 2. ssh into the robot and run the install script (`robot_install.sh`)
+3. add a symlink to make running easier: ssh in and type `ln -s ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh`.
 4. You need to setup read/write privileges for all of the USB devices:
 
 #### Assigning the serial devices to have a fixed addresses
@@ -227,16 +228,14 @@ will need to be changed to point to `/opt/ros/<distro name>/share/webrtc_ros/web
 
 ## Running
 1. ssh into the robot: `ssh nuc-admin@<ip addr>`
-2. open tmux on remote: `tmux`
-3. run roscore: `roscore`
-4. create a new split: <ctrl-b>+<% or ">
-5. run rosmon to launch: `mon launch flo_core flo_bringup.launch --name=central_launch`
-6. open a new split
-7. navigate to web server folder: `cd ~/catkin_ws/src/LilFloSystem/flo_web/web_app`
-8. run webserver without opening browser: `npm robot`
+2. Run the tmux launch script: `./robot_tmux_launcher.sh`
+3. Attach to tmux: `tmux a`
 
 ### for development
-for development, you may want to run the browser on your local machine with `npm chrome`
+There is a simulator you can use under the `flo_core` package: `roslaunch flo_core flo_sim.launch`
+
+You will also need to launch the webserver by going to `flo_web/web_app` and running `npm start`.
+For development, you may want to run the browser on your local machine with `npm chrome`
 
 ## Some useful tools:
 For monitoring the kobuki, you can use the [kobuki dashboard](http://wiki.ros.org/turtlebot_bringup/Tutorials/indigo/PC%20Bringup).

@@ -1,8 +1,4 @@
 #!/bin/sh
-
-set -e
-
-ssh -T nuc-admin@flo-nuc << EOSSH
 tmux new-session -d -s flo
 tmux rename-window startup
 tmux send-keys 'roscore' Enter
@@ -23,11 +19,4 @@ tmux split-window -t flo
 tmux send-keys 'pacmd list-sinks|grep index' Enter
 tmux send-keys 'pacmd set-default-sink'
 
-tmux split-window -t flo -h
-tmux split-window -t flo
-tmux send-keys 'wmctrl -r ':ACTIVE:' -b toggle,fullscreen' Enter
-
 tmux select-window -t flo -n
-EOSSH
-
-ssh nuc-admin@flo-nuc -t tmux attach-session

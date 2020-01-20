@@ -22,13 +22,16 @@ const Vids: React.FunctionComponent<VidsProps> = ({
 }) => {
   const remoteRefUpper = React.useRef(null);
   const remoteRefLower = React.useRef(null);
+  const remoteRefFish = React.useRef(null);
   const localRef = React.useRef(null);
   const [localEnable, setLocalEnable] = useState(true);
   const [upperEnable, setUpperEnable] = useState(true);
   const [lowerEnable, setLowerEnable] = useState(true);
+  const [fishEnable, setFishEnable] = useState(true);
   const upperStream = React.useRef(null);
   const lowerStream = React.useRef(null);
   const localStream = React.useRef(null);
+  const fishStream = React.useRef(null);
 
   useEffect(() => {
     if (connected) {
@@ -130,6 +133,38 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         connection2.sendConfigure();
       };
       connection2.connect();
+
+      const connection3 = WebrtcRos.createConnection(
+        (window.location.protocol === "https:" ? "wss://" : "ws://") +
+          ipAddr +
+          ":" +
+          (parseInt(ipPort) + 1) +
+          "/webrtc"
+      );
+
+      connection3.onConfigurationNeeded = () => {
+        const remote_stream_config_fish = { video: {}, audio: {} };
+        remote_stream_config_fish.video = {
+          id: "subscribed_video_fish",
+          src: "ros_image:/fisheye_cam/image_raw"
+        };
+
+        connection3
+          .addRemoteStream(remote_stream_config_fish)
+          .then((event: any) => {
+            //stream started
+            let remoteVideoElement = remoteRefFish as any;
+            remoteVideoElement.current.srcObject = event.stream;
+            event.remove.then(function(event: any) {
+              //Remote stream removed
+              remoteVideoElement.srcObject = null;
+            });
+            //(window as any).remotestream = event.stream;
+            fishStream.current = event.stream;
+          });
+        connection3.sendConfigure();
+      };
+      connection3.connect();
     }
   }, [connected, ros]);
   //<script type="text/javascript" src={"/web/adapter.js"} />
@@ -188,6 +223,27 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         <video
           ref={remoteRefLower}
           id="remote-video-lower"
+          autoPlay={true}
+          style={vidStyle}
+        ></video>
+      </div>
+      <div style={wrapStyle}>
+        <button
+          type="button"
+          onClick={() => {
+            if (fishStream && fishStream.current) {
+              (fishStream!.current! as any)
+                .getTracks()
+                .forEach((track: any) => (track.enabled = !fishEnable));
+              setFishEnable(!fishEnable);
+            }
+          }}
+        >
+          {fishEnable ? "Disable Fisheye" : "Enable Fisheye"}
+        </button>
+        <video
+          ref={remoteRefFish}
+          id="remote-video-fish"
           autoPlay={true}
           style={vidStyle}
         ></video>

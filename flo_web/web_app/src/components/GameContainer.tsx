@@ -1,23 +1,25 @@
-import React, { useState,useEffect  } from "react";
+import React, { useState, useEffect } from "react";
 import * as ROSLIB from "roslib";
 import { basicBlock } from "../styleDefs/styles";
 
-interface CommandOpts{
-    options: string[];
+interface CommandOpts {
+  options: string[];
 }
 
-interface GameFeedback{
-    feedback: string;
+interface GameFeedback {
+  feedback: string;
 }
 
-interface GameCommandProps{
-    name: string;
-    run:()=>void;
+interface GameCommandProps {
+  name: string;
+  run: () => void;
 }
 
 const GameCommand: React.FunctionComponent<GameCommandProps> = ({
-    name, run})=>{
-        return (
+  name,
+  run
+}) => {
+  return (
     <button
       type="button"
       style={{ wordWrap: "break-word" }}
@@ -27,27 +29,32 @@ const GameCommand: React.FunctionComponent<GameCommandProps> = ({
     >
       {name}
     </button>
-        )
-    }
+  );
+};
 
-
-interface GameDefProps{
-    name: string;
-    run: ()=>void;
-    disabled: boolean;
+interface GameDefProps {
+  name: string;
+  run: () => void;
+  disabled: boolean;
 }
 
 const GameDef: React.FunctionComponent<GameDefProps> = ({
-    name,run,disabled})=>{
-        return (
-      <button type="button" disabled={disabled} onClick={() => {
-          run();
-      }}>
-          {name}
-        </button>
-        )
-    }
-
+  name,
+  run,
+  disabled
+}) => {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={() => {
+        run();
+      }}
+    >
+      {name}
+    </button>
+  );
+};
 
 interface GameContainerProps {
   ros: ROSLIB.Ros | null;
@@ -58,12 +65,12 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
   ros,
   connected
 }) => {
-
-    const [commandOptions, setCommandOptions] = useState<string[]>([]);
-    const [gameFeedback, setGameFeedback] = useState<string>('');
-    const [gameDefPub, setGameDefPub] = useState<ROSLIB.Topic|null>(null);
-    const [gameCommandPub, setGameCommandPub] = useState<ROSLIB.Topic|null>(null);
-
+  const [commandOptions, setCommandOptions] = useState<string[]>([]);
+  const [gameFeedback, setGameFeedback] = useState<string>("");
+  const [gameDefPub, setGameDefPub] = useState<ROSLIB.Topic | null>(null);
+  const [gameCommandPub, setGameCommandPub] = useState<ROSLIB.Topic | null>(
+    null
+  );
 
   useEffect(() => {
     if (!connected) return;
@@ -77,7 +84,6 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
       setCommandOptions((msg as CommandOpts).options);
     });
 
-
     const FeedbackListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "game_runner_feedback",
@@ -87,38 +93,37 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
       setGameFeedback((msg as GameFeedback).feedback);
     });
 
-     const gameDefPubT= new ROSLIB.Topic({
-          ros: ros as ROSLIB.Ros,
-          name: '/game_runner_def',
-          messageType: 'flo_core/GameDef'
-      });
-      setGameDefPub(gameDefPubT);
+    const gameDefPubT = new ROSLIB.Topic({
+      ros: ros as ROSLIB.Ros,
+      name: "/game_runner_def",
+      messageType: "flo_core/GameDef"
+    });
+    setGameDefPub(gameDefPubT);
 
-     const gameCommandPubT= new ROSLIB.Topic({
-          ros: ros as ROSLIB.Ros,
-          name: '/game_runner_commands',
-          messageType: 'flo_core/GameCommand'
-      });
-      setGameCommandPub(gameCommandPubT);
-
+    const gameCommandPubT = new ROSLIB.Topic({
+      ros: ros as ROSLIB.Ros,
+      name: "/game_runner_commands",
+      messageType: "flo_core/GameCommand"
+    });
+    setGameCommandPub(gameCommandPubT);
   }, [connected, ros]);
 
-    const availableGames = ['simon_says','target_touch'];
+  const availableGames = ["simon_says", "target_touch"];
 
-        //{availableGames.map(value => (
-            //<GameDef
-            //name={value}
-//disabled={gameFeedback!=='waiting_for_def' || gameDefPub===null}
-                //run={()=>{
-          //let game_def = new ROSLIB.Message({
-              //game_type:{value}
-          //})
-          //if (gameDefPub !==null){
-          //gameDefPub.publish(game_def)
-          //}}}
-            ///>
+  //{availableGames.map(value => (
+  //<GameDef
+  //name={value}
+  //disabled={gameFeedback!=='waiting_for_def' || gameDefPub===null}
+  //run={()=>{
+  //let game_def = new ROSLIB.Message({
+  //game_type:{value}
+  //})
+  //if (gameDefPub !==null){
+  //gameDefPub.publish(game_def)
+  //}}}
+  ///>
 
-        //))}
+  //))}
 
   return (
     <div
@@ -128,45 +133,50 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
     >
       <h2>Games:</h2>
 
-      <button type="button" disabled={gameFeedback!=='waiting_for_def' || gameDefPub===null} onClick={() => {
-
+      <button
+        type="button"
+        disabled={gameFeedback !== "waiting_for_def" || gameDefPub === null}
+        onClick={() => {
           let simon_says_def = new ROSLIB.Message({
-              game_type:'simon_says'
-          })
-          if (gameDefPub !==null){
-          gameDefPub.publish(simon_says_def)
+            game_type: "simon_says"
+          });
+          if (gameDefPub !== null) {
+            gameDefPub.publish(simon_says_def);
           }
-      }}>
-          Simon Says
-        </button>
+        }}
+      >
+        Simon Says
+      </button>
 
-      <button type="button" disabled={gameFeedback!=='waiting_for_def' || gameDefPub===null} onClick={() => {
-
+      <button
+        type="button"
+        disabled={gameFeedback !== "waiting_for_def" || gameDefPub === null}
+        onClick={() => {
           let simon_says_def = new ROSLIB.Message({
-              game_type:'target_touch'
-          })
-          if (gameDefPub !==null){
-          gameDefPub.publish(simon_says_def)
+            game_type: "target_touch"
+          });
+          if (gameDefPub !== null) {
+            gameDefPub.publish(simon_says_def);
           }
-      }}>
-          Target Touch
-        </button>
+        }}
+      >
+        Target Touch
+      </button>
 
-        {commandOptions.map(value => (
-          <GameCommand
-            name={value}
-            run={() => {
-                let msg = new ROSLIB.Message({
-                        command: value
-                    })
-                if(gameCommandPub !== null){
-             gameCommandPub.publish(msg);
-                }
-              }}
-          />
-        ))}
-
-        </div>
+      {commandOptions.map(value => (
+        <GameCommand
+          name={value}
+          run={() => {
+            let msg = new ROSLIB.Message({
+              command: value
+            });
+            if (gameCommandPub !== null) {
+              gameCommandPub.publish(msg);
+            }
+          }}
+        />
+      ))}
+    </div>
   );
 };
 

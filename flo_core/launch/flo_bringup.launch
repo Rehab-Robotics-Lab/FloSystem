@@ -31,17 +31,6 @@
     <include file="$(find kobuki_node)/launch/minimal.launch" />
     <include file="$(find flo_core)/launch/safe_keyop.launch" />
 
-    <!--Realsense-->
-    <include file="$(find flo_telepresence)/launch/realsense.launch" />
-
-    <!--Fisheye Camera-->
-    <!--<include file="$(find flo_telepresence)/launch/fisheye_cam.launch" />-->
-
-    <!--WebRTC-->
-    <include file="$(find flo_telepresence)/launch/webrtc.launch"/>
-
-    <!--Audio-->
-    <include file="$(find flo_telepresence)/launch/audio.launch"/>
 
     <!--Game Runer-->
     <node name="game_runner" pkg="flo_core" type="game_runner.py"/>
@@ -55,6 +44,6 @@
     <!--System Monitoring-->
     <node name="system_monitor" pkg="system_monitor" type="stats_publisher.py"/>
 
-    <!--Screen on Robot-->
-    <node name="robot_screen" pkg="flo_telepresence" type="display.py"/>
+    <!--Telepresence-->
+    <include file="$(find flo_telepresence)/launch/telepresence.launch" />
 </launch>

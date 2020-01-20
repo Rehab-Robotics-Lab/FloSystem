@@ -1,0 +1,16 @@
+<launch>
+    <!--Realsense-->
+    <include file="$(find flo_telepresence)/launch/realsense.launch" />
+
+    <!--Fisheye Camera-->
+    <include file="$(find flo_telepresence)/launch/vid_stream_opencv.launch" />
+
+    <!--WebRTC-->
+    <include file="$(find flo_telepresence)/launch/webrtc.launch"/>
+
+    <!--Audio-->
+    <include file="$(find flo_telepresence)/launch/audio.launch"/>
+
+    <!--Screen on Robot-->
+    <node name="robot_screen" pkg="flo_telepresence" type="display.py"/>
+    </launch>

@@ -74,7 +74,7 @@ export const runSequence = (
     const msg = new ROSLIB.Message({
       name: names,
       position: move.pose.pose.joint_positions,
-      target_completion_time: time
+      target_completion_time: time // eslint-disable-line
     });
     targets.push(msg);
   });

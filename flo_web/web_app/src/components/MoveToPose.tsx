@@ -28,7 +28,7 @@ const ArmVal: React.FunctionComponent<ArmValProps> = ({
         {name}: {val.toFixed(3)}
       </div>
       <div>
-        <button type="button" onClick={() => transfer()}>
+        <button type="button" onClick={(): void => transfer()}>
           Transfer
         </button>
       </div>
@@ -63,7 +63,7 @@ const ArmInput: React.FunctionComponent<ArmInputProps> = ({
           max={max}
           step="any"
           value={val}
-          onChange={e => {
+          onChange={(e): void => {
             setTarget(parseFloat(e.target.value));
           }}
         />
@@ -72,7 +72,7 @@ const ArmInput: React.FunctionComponent<ArmInputProps> = ({
           min={min}
           max={max}
           value={val}
-          onChange={e => {
+          onChange={(e): void => {
             setTarget(parseFloat(e.target.value));
           }}
         />
@@ -106,7 +106,7 @@ const MoveToPose: React.FunctionComponent<MoveToPoseProps> = ({
     inputs.push(
       <ArmInput
         name={armNames[idx]}
-        setTarget={(arg: number) => {
+        setTarget={(arg: number): void => {
           const targetPoseT = [...targetPose];
           targetPoseT[idx] = arg;
           setTargetPose(targetPoseT);
@@ -119,7 +119,7 @@ const MoveToPose: React.FunctionComponent<MoveToPoseProps> = ({
 
   const currentPoses = [];
   if (pose) {
-    for (let arm of ["right", "left"]) {
+    for (const arm of ["right", "left"]) {
       for (let idx = 0; idx < numArms; idx += 1) {
         const target = pose.name.findIndex(
           p => p === arm + "_" + armNames[idx]
@@ -129,7 +129,7 @@ const MoveToPose: React.FunctionComponent<MoveToPoseProps> = ({
           <ArmVal
             name={pose.name[target]}
             val={degVal}
-            transfer={() => {
+            transfer={(): void => {
               const targetPoseT = [...targetPose];
               targetPoseT[idx] = degVal;
               setTargetPose(targetPoseT);
@@ -200,8 +200,8 @@ const MoveToPose: React.FunctionComponent<MoveToPoseProps> = ({
                     pose: {
                       pose: {
                         description: "temp pose",
-                        joint_names: armNames,
-                        joint_positions: radPose
+                        joint_names: armNames, // eslint-disable-line
+                        joint_positions: radPose // eslint-disable-line
                       },
                       id: 0
                     },
@@ -211,7 +211,7 @@ const MoveToPose: React.FunctionComponent<MoveToPoseProps> = ({
                   }
                 ];
 
-                runSequence(movesList, (arg: Move[]) => null, setMoving, ros);
+                runSequence(movesList, () => null, setMoving, ros);
               }}
               disabled={moving || !connected}
             >

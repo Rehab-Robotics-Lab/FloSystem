@@ -1,5 +1,5 @@
 import React from "react";
-import { basicBlock, majorButton } from "../styleDefs/styles";
+import { majorButton } from "../styleDefs/styles";
 import * as ROSLIB from "roslib";
 
 interface RelaxMotorsProps {
@@ -38,7 +38,7 @@ const RelaxMotors: React.FunctionComponent<RelaxMotorsProps> = ({
         type="button"
         disabled={!connected}
         style={majorButton}
-        onClick={() => relaxMotors()}
+        onClick={(): void => relaxMotors()}
       >
         Relax Motors
       </button>

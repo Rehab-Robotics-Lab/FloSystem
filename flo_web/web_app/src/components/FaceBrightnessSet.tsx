@@ -28,7 +28,9 @@ const FaceBrightnessSet: React.FunctionComponent<FaceBrightnessSetProps> = ({
     if (setBrightnessSrv === null) {
       return;
     }
-    setBrightnessSrv.callService(req, res => {});
+    setBrightnessSrv.callService(req, function() {
+      //do nothing
+    });
   };
 
   useEffect(() => {
@@ -50,7 +52,7 @@ const FaceBrightnessSet: React.FunctionComponent<FaceBrightnessSetProps> = ({
         min="0"
         max="15"
         value={brightness}
-        onChange={e => setBrightness(parseInt(e.target.value))}
+        onChange={(e): void => setBrightness(parseInt(e.target.value))}
       />
     </div>
   );

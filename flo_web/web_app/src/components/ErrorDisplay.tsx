@@ -40,8 +40,8 @@ const ErrorDisplay: React.FunctionComponent<ErrorDisplayProps> = ({
       }}
     >
       <div>
-        {errorList.map(value => (
-          <Error item={value} />
+        {errorList.map((value, idx) => (
+          <Error item={value} key={idx} />
         ))}
       </div>
     </div>

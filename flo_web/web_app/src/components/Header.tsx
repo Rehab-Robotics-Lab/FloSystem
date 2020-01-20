@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import * as ROSLIB from "roslib";
 import colors from "../styleDefs/colors";
 import { AddError, SetConnected } from "../App";
-import { CookiesProvider, useCookies } from "react-cookie";
+import { CookiesProvider } from "react-cookie";
 
 interface HeaderProps {
   setRos: (ros: ROSLIB.Ros) => any;
@@ -25,7 +25,7 @@ const Header: React.FunctionComponent<HeaderProps> = ({
   setIpAddr,
   setIpPort
 }) => {
-  const errorWrapper = (err: string) => {
+  const errorWrapper = (err: string): void => {
     addError("ROS Connection Error: " + err, "Header");
   };
 
@@ -48,13 +48,12 @@ const Header: React.FunctionComponent<HeaderProps> = ({
     setRos(newRosConnection);
   };
 
-  const connectedString = () => {
-    let toReturn;
-    if (!connected) {
-      toReturn = <span style={{ color: "red" }}>Not Connected</span>;
-    }
+  const connectedString = (): JSX.Element => {
+    let toReturn: JSX.Element;
     if (connected) {
       toReturn = <span style={{ color: "green" }}>Connected</span>;
+    } else {
+      toReturn = <span style={{ color: "red" }}>Not Connected</span>;
     }
     return toReturn;
   };
@@ -79,7 +78,7 @@ const Header: React.FunctionComponent<HeaderProps> = ({
                 type="text"
                 name="ip_addr"
                 value={ipAddr}
-                onChange={e => {
+                onChange={(e): void => {
                   setIpAddr(e.target.value);
                 }}
               />
@@ -90,7 +89,7 @@ const Header: React.FunctionComponent<HeaderProps> = ({
                 type="text"
                 name="ip_port"
                 value={ipPort}
-                onChange={e => {
+                onChange={(e): void => {
                   setIpPort(e.target.value);
                 }}
               />

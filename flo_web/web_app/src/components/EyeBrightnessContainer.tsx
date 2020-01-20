@@ -52,7 +52,9 @@ const EyeOptionsContainer: React.FunctionComponent<EyeOptionsContainerProps> = (
     if (setEyeDirectionSrv === null) {
       return;
     }
-    setEyeDirectionSrv.callService(req, res => {});
+    setEyeDirectionSrv.callService(req, function() {
+      //do nothing.
+    });
   };
 
   useEffect(() => {
@@ -80,7 +82,8 @@ const EyeOptionsContainer: React.FunctionComponent<EyeOptionsContainerProps> = (
           <EyeOption
             name={value}
             disabled={!connected}
-            setEyeDirection={() => setEye(value)}
+            setEyeDirection={(): void => setEye(value)}
+            key={value}
           />
         ))}
       </div>

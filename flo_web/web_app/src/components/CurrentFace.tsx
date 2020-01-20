@@ -84,7 +84,7 @@ const CurrentFace: React.FunctionComponent<CurrentFaceProps> = ({
       }
     });
     //setFaceListener(faceListenerT);
-  }, [connected, ros, setFaceState]);
+  }, [connected, ros, setFaceState, faceState]);
 
   const faceMatrices = [];
   if (faceState) {

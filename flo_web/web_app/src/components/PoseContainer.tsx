@@ -34,7 +34,7 @@ const Pose: React.FunctionComponent<PoseProps> = ({ pose, addToMoveList }) => {
   return (
     <button
       type="button"
-      onClick={() => {
+      onClick={(): void => {
         addToMoveList(pose);
       }}
     >
@@ -156,7 +156,7 @@ const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
           <input
             type="text"
             value={saveDescription}
-            onChange={obj => {
+            onChange={(obj): void => {
               setSaveDescription(obj.target.value);
             }}
           />
@@ -165,7 +165,7 @@ const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
         <button
           type="button"
           disabled={!connected || !saveDescription}
-          onClick={() => {
+          onClick={(): void => {
             if (pose === null) {
               return;
             }
@@ -181,8 +181,8 @@ const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
             }
             const newPose = {
               description: saveDescription,
-              joint_names: cleanNames,
-              joint_positions: pos
+              joint_names: cleanNames, // eslint-disable-line
+              joint_positions: pos // eslint-disable-line
             };
             const req = new ROSLIB.ServiceRequest({
               pose: newPose,
@@ -217,7 +217,7 @@ const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
         </button>
         <button
           type="button"
-          onClick={() => {
+          onClick={(): void => {
             setShowSave(false);
           }}
         >

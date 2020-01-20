@@ -18,11 +18,13 @@ interface UtteranceID extends Utterance {
 interface UtteranceProps {
   utterance: UtteranceID;
   setSpeechTarget: SetSpeechTarget;
+  disabled: boolean;
 }
 
 const UtteranceCont: React.FunctionComponent<UtteranceProps> = ({
   utterance,
-  setSpeechTarget
+  setSpeechTarget,
+  disabled
 }) => {
   return (
     <button
@@ -30,6 +32,7 @@ const UtteranceCont: React.FunctionComponent<UtteranceProps> = ({
       onClick={(): void => {
         setSpeechTarget(utterance);
       }}
+      disabled={disabled}
     >
       {shrinkString(utterance.text)}
     </button>
@@ -158,6 +161,7 @@ const SavedSpeech: React.FunctionComponent<SavedSpeechProps> = ({
             utterance={value}
             setSpeechTarget={setSpeechTarget}
             key={value.id}
+            disabled={speaking}
           />
         ))}
       </div>

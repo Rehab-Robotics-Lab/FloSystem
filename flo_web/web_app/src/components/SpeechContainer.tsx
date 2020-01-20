@@ -31,9 +31,9 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       timeout: 1 //Not sure about this value here. needs testing
     });
 
-    let metadata = JSON.stringify({
-      text_type: "ssml",
-      voice_id: "Salli"
+    const metadata = JSON.stringify({
+      text_type: "ssml", // eslint-disable-line
+      voice_id: "Salli" // eslint-disable-line
     });
     const goal = new ROSLIB.Goal({
       actionClient,

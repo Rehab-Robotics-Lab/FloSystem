@@ -191,11 +191,11 @@ const SequenceContainer: React.FunctionComponent<SequenceContainerProps> = ({
             }
 
             const newSeq: Sequence = {
-              pose_ids: poseIds,
+              pose_ids: poseIds, // eslint-disable-line
               times,
               arms,
               description: saveDescription,
-              total_time: totalTime
+              total_time: totalTime // eslint-disable-line
             };
             const req = new ROSLIB.ServiceRequest({
               sequence: newSeq,

@@ -107,6 +107,7 @@ const SavedFaces: React.FunctionComponent<SavedFacesProps> = ({
             name={value}
             setFace={() => setFace(value)}
             disabled={!connected}
+            key={value}
           />
         ))}
       </div>

@@ -15,17 +15,17 @@ interface Pos {
 class Mouse {
   pos: Pos;
   clicked: boolean;
-  readonly pos_normal: Pos;
+  readonly posNormal: Pos;
 
   constructor() {
     this.pos = { x: 0, y: 0 };
-    this.pos_normal = { x: 0, y: 0 };
+    this.posNormal = { x: 0, y: 0 };
     this.clicked = false;
   }
 
-  normalize(center: Pos, factor: number) {
-    this.pos_normal.x = (this.pos.x - center.x) * factor;
-    this.pos_normal.y = -(this.pos.y - center.y) * factor;
+  normalize(center: Pos, factor: number): void {
+    this.posNormal.x = (this.pos.x - center.x) * factor;
+    this.posNormal.y = -(this.pos.y - center.y) * factor;
   }
 }
 
@@ -55,87 +55,87 @@ interface ActFunc {
 class Joystick {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-  private canvas_size: Size;
+  private canvasSize: Size;
   private mouse: Mouse;
-  private act_func: ActFunc;
+  private actFunc: ActFunc;
 
-  private bound_mouse_move: (ev: MouseEvent) => void;
-  private bound_mouse_down: (ev: MouseEvent) => void;
-  private bound_mouse_out: (ev: MouseEvent) => void;
+  private boundMouseMove: (ev: MouseEvent) => void;
+  private boundMouseDown: (ev: MouseEvent) => void;
+  private boundMouseOut: (ev: MouseEvent) => void;
 
-  private bound_touch_move: (ev: TouchEvent) => void;
-  private bound_touch_down: (ev: TouchEvent) => void;
-  private bound_touch_out: (ev: TouchEvent) => void;
+  private boundTouchMove: (ev: TouchEvent) => void;
+  private boundTouchDown: (ev: TouchEvent) => void;
+  private boundTouchOut: (ev: TouchEvent) => void;
 
-  private x_pivot: number;
-  private y_pivot: number;
+  private xPivot: number;
+  private yPivot: number;
 
-  private circle_center: Pos;
-  private circle_radius: number;
+  private circleCenter: Pos;
+  private circleRadius: number;
 
-  constructor(canvas: HTMLCanvasElement, act_func: ActFunc) {
+  constructor(canvas: HTMLCanvasElement, actFunc: ActFunc) {
     this.canvas = canvas;
-    let context2d = this.canvas.getContext("2d");
+    const context2d = this.canvas.getContext("2d");
     this.ctx = context2d as CanvasRenderingContext2D;
     this.mouse = new Mouse();
-    this.act_func = act_func;
-    this.canvas_size = { width: this.canvas.width, height: this.canvas.height };
-    this.circle_center = {
-      x: this.canvas_size.width / 2,
-      y: this.canvas_size.height / 2
+    this.actFunc = actFunc;
+    this.canvasSize = { width: this.canvas.width, height: this.canvas.height };
+    this.circleCenter = {
+      x: this.canvasSize.width / 2,
+      y: this.canvasSize.height / 2
     };
-    this.circle_radius =
-      Math.max(this.canvas_size.height, this.canvas_size.width) * 0.4;
-    this.x_pivot = this.circle_radius * 0.96824583655;
-    this.y_pivot = this.circle_radius / 4;
+    this.circleRadius =
+      Math.max(this.canvasSize.height, this.canvasSize.width) * 0.4;
+    this.xPivot = this.circleRadius * 0.96824583655;
+    this.yPivot = this.circleRadius / 4;
 
-    this.bound_mouse_move = this.mouse_move.bind(this);
-    this.bound_mouse_down = this.mouse_down.bind(this);
-    this.bound_touch_down = this.touch_down.bind(this);
-    this.bound_mouse_out = this.mouse_out.bind(this);
-    this.bound_touch_out = this.touch_out.bind(this);
-    this.bound_touch_move = this.touch_move.bind(this);
+    this.boundMouseMove = this.mouseMove.bind(this);
+    this.boundMouseDown = this.mouseDown.bind(this);
+    this.boundTouchDown = this.touchDown.bind(this);
+    this.boundMouseOut = this.mouseOut.bind(this);
+    this.boundTouchOut = this.touchOut.bind(this);
+    this.boundTouchMove = this.touchMove.bind(this);
 
-    this.draw_background();
+    this.drawBackground();
 
-    canvas.addEventListener("mousedown", this.bound_mouse_down, false);
-    canvas.addEventListener("touchstart", this.bound_touch_down, false);
+    canvas.addEventListener("mousedown", this.boundMouseDown, false);
+    canvas.addEventListener("touchstart", this.boundTouchDown, false);
   }
 
-  get_mouse_pos(evt: MouseEvent) {
-    let rect = this.canvas.getBoundingClientRect();
+  getMousePos(evt: MouseEvent): { x: number; y: number } {
+    const rect = this.canvas.getBoundingClientRect();
     return {
       x: evt.clientX - rect.left,
       y: evt.clientY - rect.top
     };
   }
 
-  draw_background() {
-    this.ctx.clearRect(0, 0, this.canvas_size.width, this.canvas_size.height);
+  drawBackground(): void {
+    this.ctx.clearRect(0, 0, this.canvasSize.width, this.canvasSize.height);
 
     this.ctx.beginPath();
     this.ctx.fillStyle = "#c5cedd";
-    this.ctx.fillRect(0, 0, this.canvas_size.width, this.canvas_size.height);
+    this.ctx.fillRect(0, 0, this.canvasSize.width, this.canvasSize.height);
     this.ctx.stroke();
 
     this.ctx.beginPath();
     this.ctx.strokeStyle = "#a3acba";
     this.ctx.lineWidth = 1;
     this.ctx.moveTo(
-      this.circle_center.x - this.x_pivot,
-      this.circle_center.y + this.y_pivot
+      this.circleCenter.x - this.xPivot,
+      this.circleCenter.y + this.yPivot
     );
     this.ctx.lineTo(
-      this.circle_center.x + this.x_pivot,
-      this.circle_center.y + this.y_pivot
+      this.circleCenter.x + this.xPivot,
+      this.circleCenter.y + this.yPivot
     );
     this.ctx.moveTo(
-      this.circle_center.x - this.x_pivot,
-      this.circle_center.y - this.y_pivot
+      this.circleCenter.x - this.xPivot,
+      this.circleCenter.y - this.yPivot
     );
     this.ctx.lineTo(
-      this.circle_center.x + this.x_pivot,
-      this.circle_center.y - this.y_pivot
+      this.circleCenter.x + this.xPivot,
+      this.circleCenter.y - this.yPivot
     );
     this.ctx.stroke();
 
@@ -143,84 +143,84 @@ class Joystick {
     this.ctx.strokeStyle = "#3d5d91";
     this.ctx.lineWidth = 5;
     this.ctx.arc(
-      this.circle_center.x,
-      this.circle_center.y,
-      this.circle_radius,
+      this.circleCenter.x,
+      this.circleCenter.y,
+      this.circleRadius,
       0,
       2 * Math.PI
     );
     this.ctx.stroke();
   }
 
-  act_on_input(position: Pos) {
+  actOnInput(position: Pos): void {
     this.mouse.pos = position;
     this.mouse.clicked = true;
-    this.draw_background();
+    this.drawBackground();
     if (this.mouse.clicked) {
       this.ctx.beginPath();
       this.ctx.strokeStyle = "#46dbbd";
       this.ctx.lineWidth = 3;
-      this.ctx.moveTo(this.circle_center.x, this.circle_center.y);
+      this.ctx.moveTo(this.circleCenter.x, this.circleCenter.y);
       this.ctx.lineTo(this.mouse.pos.x, this.mouse.pos.y);
       this.ctx.stroke();
     }
-    this.send_data();
+    this.sendData();
   }
 
-  send_data() {
-    this.mouse.normalize(this.circle_center, 1 / this.circle_radius);
-    this.act_func(this.mouse);
+  sendData(): void {
+    this.mouse.normalize(this.circleCenter, 1 / this.circleRadius);
+    this.actFunc(this.mouse);
   }
 
-  act_on_mouse(evt: MouseEvent) {
-    let mouse_pos: Pos = this.get_mouse_pos(evt);
-    this.act_on_input(mouse_pos);
+  actOnMouse(evt: MouseEvent): void {
+    const mousePos: Pos = this.getMousePos(evt);
+    this.actOnInput(mousePos);
   }
 
-  mouse_move(evt: MouseEvent) {
-    this.act_on_mouse(evt);
+  mouseMove(evt: MouseEvent): void {
+    this.actOnMouse(evt);
   }
 
-  mouse_out(evt: MouseEvent) {
+  mouseOut(): void {
     this.mouse.clicked = false;
-    this.send_data();
-    this.draw_background();
-    this.canvas.removeEventListener("mousemove", this.bound_mouse_move, false);
-    this.canvas.removeEventListener("mouseout", this.bound_mouse_out, false);
-    this.canvas.removeEventListener("mouseup", this.bound_mouse_out, false);
+    this.sendData();
+    this.drawBackground();
+    this.canvas.removeEventListener("mousemove", this.boundMouseMove, false);
+    this.canvas.removeEventListener("mouseout", this.boundMouseOut, false);
+    this.canvas.removeEventListener("mouseup", this.boundMouseOut, false);
   }
 
-  mouse_down(evt: MouseEvent) {
-    this.act_on_mouse(evt);
-    this.canvas.addEventListener("mousemove", this.bound_mouse_move, false);
-    this.canvas.addEventListener("mouseout", this.bound_mouse_out, false);
-    this.canvas.addEventListener("mouseup", this.bound_mouse_out, false);
+  mouseDown(evt: MouseEvent): void {
+    this.actOnMouse(evt);
+    this.canvas.addEventListener("mousemove", this.boundMouseMove, false);
+    this.canvas.addEventListener("mouseout", this.boundMouseOut, false);
+    this.canvas.addEventListener("mouseup", this.boundMouseOut, false);
   }
 
-  touch_out(evt: TouchEvent) {
+  touchOut(): void {
     this.mouse.clicked = false;
-    this.send_data();
-    this.draw_background();
-    this.canvas.removeEventListener("touchend", this.bound_touch_out, false);
-    this.canvas.removeEventListener("touchcancel", this.bound_touch_out, false);
-    this.canvas.removeEventListener("touchmove", this.bound_touch_move, false);
+    this.sendData();
+    this.drawBackground();
+    this.canvas.removeEventListener("touchend", this.boundTouchOut, false);
+    this.canvas.removeEventListener("touchcancel", this.boundTouchOut, false);
+    this.canvas.removeEventListener("touchmove", this.boundTouchMove, false);
   }
 
-  touch_move(evt: TouchEvent) {
-    let rect = this.canvas.getBoundingClientRect();
-    let touch: Touch = evt.targetTouches.item(0) as Touch;
-    this.act_on_input({
+  touchMove(evt: TouchEvent): void {
+    const rect = this.canvas.getBoundingClientRect();
+    const touch: Touch = evt.targetTouches.item(0) as Touch;
+    this.actOnInput({
       x: touch.clientX - rect.left,
       y: touch.clientY - rect.top
     });
   }
 
-  touch_down(evt: TouchEvent) {
+  touchDown(evt: TouchEvent): void {
     evt.preventDefault(); //Prevents other touch functions like dragging from kicking in
-    this.touch_move(evt);
-    this.canvas.addEventListener("touchend", this.bound_touch_out, false);
-    this.canvas.addEventListener("touchcancel", this.bound_touch_out, false);
-    this.canvas.addEventListener("touchmove", this.bound_touch_move, false);
+    this.touchMove(evt);
+    this.canvas.addEventListener("touchend", this.boundTouchOut, false);
+    this.canvas.addEventListener("touchcancel", this.boundTouchOut, false);
+    this.canvas.addEventListener("touchmove", this.boundTouchMove, false);
   }
 }
 
@@ -250,11 +250,11 @@ const Drive: React.FunctionComponent<DriveProps> = ({ ros, connected }) => {
       messageType: "geometry_msgs/Twist"
     });
 
-    const publishFunc = (mouse: Mouse) => {
+    const publishFunc = (mouse: Mouse): void => {
       let twist = 0;
       let linear = 0;
 
-      const sendVals = (linear: number, twist: number) => {
+      const sendVals = (linear: number, twist: number): void => {
         window.clearTimeout(timer.current);
         timer.current = undefined;
         const linearMsg = new ROSLIB.Message({
@@ -280,8 +280,8 @@ const Drive: React.FunctionComponent<DriveProps> = ({ ros, connected }) => {
       };
 
       if (mouse.clicked) {
-        twist = -mouse.pos_normal.x;
-        linear = mouse.pos_normal.y / 2;
+        twist = -mouse.posNormal.x;
+        linear = mouse.posNormal.y / 2;
         sendVals(linear, twist);
       } else {
         sendVals(0, 0);
@@ -289,7 +289,7 @@ const Drive: React.FunctionComponent<DriveProps> = ({ ros, connected }) => {
     };
 
     const canvas = (canvasRef.current as unknown) as HTMLCanvasElement;
-    let joystick1 = new Joystick(canvas, publishFunc);
+    const joystick1 = new Joystick(canvas, publishFunc); //eslint-disable-line
   }, [ros, connected]);
 
   return (

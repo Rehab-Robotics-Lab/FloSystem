@@ -1,8 +1,6 @@
-import React, { useEffect, useRef, useState, CSSProperties } from "react";
-import { basicBlock } from "../styleDefs/styles";
+import React, { useEffect, useState, CSSProperties } from "react";
 import * as ROSLIB from "roslib";
 import { Helmet } from "react-helmet";
-import adapter from "webrtc-adapter";
 
 declare var WebrtcRos: any;
 
@@ -44,24 +42,24 @@ const Vids: React.FunctionComponent<VidsProps> = ({
 
       const connection1 = WebrtcRos.createConnection(connectionString);
 
-      connection1.onConfigurationNeeded = () => {
-        const remote_stream_config_upper = { video: {}, audio: {} };
-        remote_stream_config_upper.video = {
+      connection1.onConfigurationNeeded = (): void => {
+        const remoteStreamConfigUpper = { video: {}, audio: {} };
+        remoteStreamConfigUpper.video = {
           id: "subscribed_video_upper",
           src: "ros_image:/upper_realsense/color/image_web"
         };
-        remote_stream_config_upper.audio = {
+        remoteStreamConfigUpper.audio = {
           id: "subscribed_audio",
           src: "local:"
         };
 
         connection1
-          .addRemoteStream(remote_stream_config_upper)
+          .addRemoteStream(remoteStreamConfigUpper)
           .then((event: any) => {
             //stream started
-            let remoteVideoElement = remoteRefUpper as any;
+            const remoteVideoElement = remoteRefUpper as any;
             remoteVideoElement.current.srcObject = event.stream;
-            event.remove.then(function(event: any) {
+            event.remove.then(function() {
               //Remote stream removed
               remoteVideoElement.srcObject = null;
             });
@@ -69,18 +67,18 @@ const Vids: React.FunctionComponent<VidsProps> = ({
             //(window as any).remotestream = event.stream;
           });
 
-        let user_media_config = { video: {}, audio: {} };
-        let local_stream_config = { video: {}, audio: {} };
-        user_media_config.video = { width: 800, height: 480 };
-        local_stream_config.video = {
+        const userMediaConfig = { video: {}, audio: {} };
+        const localStreamConfig = { video: {}, audio: {} };
+        userMediaConfig.video = { width: 800, height: 480 };
+        localStreamConfig.video = {
           dest: "ros_image:remote_video",
           width: 848,
           height: 480
         };
-        user_media_config.audio = true;
+        userMediaConfig.audio = true;
 
         connection1
-          .addLocalStream(user_media_config, local_stream_config)
+          .addLocalStream(userMediaConfig, localStreamConfig)
           .then(function(event: any) {
             console.log(
               "Local stream added",
@@ -88,9 +86,9 @@ const Vids: React.FunctionComponent<VidsProps> = ({
               event.stream.getVideoTracks(),
               event.stream.getAudioTracks()
             );
-            let localVideoElement = localRef as any;
+            const localVideoElement = localRef as any;
             localVideoElement.current.srcObject = event.stream;
-            event.remove.then(function(event: any) {
+            event.remove.then(function() {
               //console.log("Local stream removed", event);
               localVideoElement.current.srcObject = null;
             });
@@ -110,20 +108,20 @@ const Vids: React.FunctionComponent<VidsProps> = ({
           "/webrtc"
       );
 
-      connection2.onConfigurationNeeded = () => {
-        const remote_stream_config_lower = { video: {}, audio: {} };
-        remote_stream_config_lower.video = {
+      connection2.onConfigurationNeeded = (): void => {
+        const remoteStreamConfigLower = { video: {}, audio: {} };
+        remoteStreamConfigLower.video = {
           id: "subscribed_video_lower",
           src: "ros_image:/lower_realsense/color/image_web"
         };
 
         connection2
-          .addRemoteStream(remote_stream_config_lower)
+          .addRemoteStream(remoteStreamConfigLower)
           .then((event: any) => {
             //stream started
-            let remoteVideoElement = remoteRefLower as any;
+            const remoteVideoElement = remoteRefLower as any;
             remoteVideoElement.current.srcObject = event.stream;
-            event.remove.then(function(event: any) {
+            event.remove.then(function() {
               //Remote stream removed
               remoteVideoElement.srcObject = null;
             });
@@ -142,20 +140,20 @@ const Vids: React.FunctionComponent<VidsProps> = ({
           "/webrtc"
       );
 
-      connection3.onConfigurationNeeded = () => {
-        const remote_stream_config_fish = { video: {}, audio: {} };
-        remote_stream_config_fish.video = {
+      connection3.onConfigurationNeeded = (): void => {
+        const remoteStreamConfigFish = { video: {}, audio: {} };
+        remoteStreamConfigFish.video = {
           id: "subscribed_video_fish",
           src: "ros_image:/fisheye_cam/image_web"
         };
 
         connection3
-          .addRemoteStream(remote_stream_config_fish)
+          .addRemoteStream(remoteStreamConfigFish)
           .then((event: any) => {
             //stream started
-            let remoteVideoElement = remoteRefFish as any;
+            const remoteVideoElement = remoteRefFish as any;
             remoteVideoElement.current.srcObject = event.stream;
-            event.remove.then(function(event: any) {
+            event.remove.then(function() {
               //Remote stream removed
               remoteVideoElement.srcObject = null;
             });
@@ -166,7 +164,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
       };
       connection3.connect();
     }
-  }, [connected, ros]);
+  }, [connected, ros, ipAddr, ipPort]);
   //<script type="text/javascript" src={"/web/adapter.js"} />
   //
 
@@ -188,7 +186,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
       <div style={wrapStyle}>
         <button
           type="button"
-          onClick={() => {
+          onClick={(): void => {
             if (upperStream && upperStream.current) {
               (upperStream!.current! as any)
                 .getTracks()
@@ -209,7 +207,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
       <div style={wrapStyle}>
         <button
           type="button"
-          onClick={() => {
+          onClick={(): void => {
             if (lowerStream && lowerStream.current) {
               (lowerStream!.current! as any)
                 .getTracks()
@@ -230,7 +228,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
       <div style={wrapStyle}>
         <button
           type="button"
-          onClick={() => {
+          onClick={(): void => {
             if (fishStream && fishStream.current) {
               (fishStream!.current! as any)
                 .getTracks()
@@ -251,7 +249,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
       <div style={wrapStyle}>
         <button
           type="button"
-          onClick={() => {
+          onClick={(): void => {
             if (localStream && localStream.current) {
               (localStream!.current! as any)
                 .getTracks()

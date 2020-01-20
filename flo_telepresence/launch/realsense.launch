@@ -20,8 +20,8 @@
   <arg name="enable_color"              value="true"/>
   <arg name="color_fps"                 value="30"/>
 
-  <arg name="align_depth"               value="true"/>
-  <arg name="enable_pointcloud"                value="true"/>
+  <arg name="align_depth"               value="false"/>
+  <arg name="enable_pointcloud"         value="false"/>
 
 
   <!--<arg name="infra_width"        default="1280"/>-->

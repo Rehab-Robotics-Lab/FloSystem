@@ -1,40 +1,5 @@
 <launch>
-    <!--Face -->
-    <node name="face_manager" pkg="flo_face" type="face_manager.py" output="screen"/>
-
-    <!--Humanoid Robot -->
-    <param name="simulate" type="bool" value="True"/>
-    <node name="bolide_interface" pkg="flo_humanoid" type="robot_controller.py" />
-
-    <!--The robot URDF parsing and loading-->
-    <arg name="model" default="$(find flo_humanoid)/urdf/flo.urdf.xacro"/>
-    <param name="robot_description" command="$(find xacro)/xacro --inorder $(arg model) " />
-    <!--Publishing the robot joint positions instead of just angles-->
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
-
-    <!--Voice-->
-    <arg name="voice_config_file" default="$(find flo_core)/config/polly.yaml" />
-    <include file="$(find tts)/launch/tts_polly.launch" >
-        <arg name="config_file" value="$(arg voice_config_file)"/>
+    <include file="$(find flo_core)/launch/flo_bringup.launch">
+        <arg name="simulate" value="True" />
     </include>
-
-
-    <!--Rosbridge for web-->
-    <include file="$(find flo_web)/launch/web_app.launch" />
-
-    <!--Database for poses, actions, etc-->
-    <rosparam param="database_location">"~/db/flo.db"</rosparam>
-    <node name="pose_db_manager" pkg="flo_core" type="flo_db.py"/>
-
-    <!--Realsense & Audio-->
-    <node pkg="rosbag" type="play" name="camera_audio_player" args="/home/mjsobrep/Downloads/realsense_audio.orig.bag"/>
-
-    <!--WebRTC-->
-    <include file="$(find flo_telepresence)/launch/webrtc.launch"/>
-
-    <!--System Monitoring-->
-    <node name="system_monitor" pkg="system_monitor" type="stats_publisher.py"/>
-
-    <!--Screen on Robot-->
-    <node name="robot_screen" pkg="flo_telepresence" type="display.py"/>
 </launch>

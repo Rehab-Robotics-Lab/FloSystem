@@ -1,10 +1,14 @@
 <launch>
+    <arg name="simulate" default="False" />
+    <param name="simulate" type="bool" value="$(arg simulate)"/>
+
     <!--Face -->
-    <include file="$(find flo_face)/launch/base.launch" />
+    <include file="$(find flo_face)/launch/base.launch">
+        <arg name="simulate" value="$(arg simulate)"/>
+    </include>
 
     <!--Humanoid Robot -->
-    <param name="simulate" type="bool" value="False"/>
-    <node name="bolide_interface" pkg="flo_humanoid" type="robot_controller.py" />
+    <node name="bolide_interface" pkg="flo_humanoid" type="robot_controller.py"/>
 
     <!--The robot URDF parsing and loading-->
     <arg name="model" default="$(find flo_humanoid)/urdf/flo.urdf.xacro"/>
@@ -28,22 +32,26 @@
     <node name="pose_db_manager" pkg="flo_core" type="flo_db.py"/>
 
     <!--Kobuki-->
-    <include file="$(find kobuki_node)/launch/minimal.launch" />
-    <include file="$(find flo_core)/launch/safe_keyop.launch" />
-
+    <group if="$(eval simulate==False)">
+        <include file="$(find kobuki_node)/launch/minimal.launch" />
+        <include file="$(find flo_core)/launch/safe_keyop.launch" />
+    </group>
 
     <!--Game Runer-->
     <node name="game_runner" pkg="flo_core" type="game_runner.py"/>
 
     <!--Logging-->
-    <!--Rosbag is used for logging almost everything. -->
-    <!--I think that it will be prudent to alter what the realsense camera is actually-->
-    <!--publishing to change what this looks like-->
-    <!--<node pkg="rosbag" type="record" name="bag_recorder" args="--all --output-prefix=$(env HOME)/flo_data/bagfile"/>-->
+    <!--<group if="$(eval simulate==False)">-->
+        <!--Rosbag is used for logging almost everything. -->
+        <!--I think that it will be prudent to alter what the realsense camera is actually-->
+        <!--publishing to change what this looks like-->
+    <!--</group>-->
 
     <!--System Monitoring-->
     <node name="system_monitor" pkg="system_monitor" type="stats_publisher.py"/>
 
     <!--Telepresence-->
-    <include file="$(find flo_telepresence)/launch/telepresence.launch" />
+    <include file="$(find flo_telepresence)/launch/telepresence.launch">
+        <arg name="simulate" value="$(arg simulate)"/>
+    </include>
 </launch>

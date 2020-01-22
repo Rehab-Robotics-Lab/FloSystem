@@ -47,7 +47,7 @@ const GameDef: React.FunctionComponent<GameDefProps> = ({
     <button
       type="button"
       disabled={disabled}
-      onClick={() => {
+      onClick={(): void => {
         run();
       }}
     >
@@ -116,7 +116,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
   //disabled={gameFeedback!=='waiting_for_def' || gameDefPub===null}
   //run={()=>{
   //let game_def = new ROSLIB.Message({
-  //game_type:{value}
+  //gameType:{value}
   //})
   //if (gameDefPub !==null){
   //gameDefPub.publish(game_def)
@@ -136,12 +136,12 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
       <button
         type="button"
         disabled={gameFeedback !== "waiting_for_def" || gameDefPub === null}
-        onClick={() => {
-          let simon_says_def = new ROSLIB.Message({
-            game_type: "simon_says"
+        onClick={(): void => {
+          const simonSaysDef = new ROSLIB.Message({
+            gameType: "simon_says"
           });
           if (gameDefPub !== null) {
-            gameDefPub.publish(simon_says_def);
+            gameDefPub.publish(simonSaysDef);
           }
         }}
       >
@@ -151,12 +151,12 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
       <button
         type="button"
         disabled={gameFeedback !== "waiting_for_def" || gameDefPub === null}
-        onClick={() => {
-          let simon_says_def = new ROSLIB.Message({
-            game_type: "target_touch"
+        onClick={(): void => {
+          const simonSaysDef = new ROSLIB.Message({
+            gameType: "target_touch"
           });
           if (gameDefPub !== null) {
-            gameDefPub.publish(simon_says_def);
+            gameDefPub.publish(simonSaysDef);
           }
         }}
       >
@@ -166,14 +166,15 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
       {commandOptions.map(value => (
         <GameCommand
           name={value}
-          run={() => {
-            let msg = new ROSLIB.Message({
+          run={(): void => {
+            const msg = new ROSLIB.Message({
               command: value
             });
             if (gameCommandPub !== null) {
               gameCommandPub.publish(msg);
             }
           }}
+          key={value}
         />
       ))}
     </div>

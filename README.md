@@ -71,7 +71,8 @@ function ssh-flo {
 #### Additional install targets
 There are a few things that aren't installed by this script that you may want:
 1. AWS CLI, you can install this with `aws_install.sh`.
-   You will need the AWS CLI to use the TTS engine
+   You will need the AWS CLI to use the TTS engine. The install script will ask you
+   for your AWS login info, follow the instructions in [Amazon Polly](#amazon-polly)
 2. Node, which is needed to develop and run the websever. You can install directly
    (better for the robot) using `node_install.sh` or with nvm (better for development)
    using `nvm_install.sh`.

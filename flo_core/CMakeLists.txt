@@ -59,6 +59,7 @@ find_package(catkin REQUIRED COMPONENTS
    GameDef.msg
    GameCommand.msg
    StepDef.msg
+   GameBucket.msg
  )
 
 ## Generate services in the 'srv' folder
@@ -72,6 +73,8 @@ find_package(catkin REQUIRED COMPONENTS
    SetPose.srv
    SearchUtterance.srv
    SetUtterance.srv
+   SetGameBucket.srv
+   GetGameBucketID.srv
  )
 
 ## Generate actions in the 'action' folder

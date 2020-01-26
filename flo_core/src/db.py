@@ -77,3 +77,17 @@ class DB(object):
                     wait_for_prior text,
                     description text
                 );''')
+
+        # name is the name of the sequence, examples: standard_easy, standard_hard, cp_teen, etc
+        # subject is the target subject, for a game that is for any subject, use 0
+        # the targeted_game is the game this is for: simon_says or target_touch
+        # description is a longer description of the game bucket
+        # steps are the actual elements in the bucket, stored as a json array of StepDefs
+        self.ex('''CREATE TABLE IF NOT EXISTS game_buckets (
+                    id integer PRIMARY KEY,
+                    name text,
+                    subject integer,
+                    targeted_game text,
+                    description text,
+                    steps text
+                );''')

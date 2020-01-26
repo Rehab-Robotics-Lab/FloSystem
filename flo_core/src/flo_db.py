@@ -16,7 +16,11 @@ from flo_core.srv import GetPoseSeqID, GetPoseSeqIDResponse
 from flo_core.srv import SearchPoseSeq, SearchPoseSeqResponse
 from flo_core.srv import SetUtterance, SetUtteranceResponse
 from flo_core.srv import SearchUtterance, SearchUtteranceResponse
+from flo_core.srv import SetGameBucket, SetGameBucketResponse
+from flo_core.msg import GameBucket
+from flo_core.srv import GetGameBucketID, GetGameBucketIDResponse
 from flo_core.msg import PoseSeq
+
 
 import mutagen
 
@@ -54,6 +58,7 @@ class FloDb(object):
         rospy.Service('search_utterance', SearchUtterance,
                       self.search_utterance)
         rospy.Service('set_utterance', SetUtterance, self.set_utterance)
+        rospy.Service('set_game_buckent', SetGameBucket, self.set_game_bucket)
 
         rospy.loginfo('Node up, services ready')
 
@@ -295,6 +300,132 @@ class FloDb(object):
             rospy.loginfo('stored new utterance at id: %i', updated_row)
 
         resp = SetUtteranceResponse(id=updated_row, time=time_length)
+        return resp
+
+    def set_game_bucket(self, request):
+        """set a bucket of games in the database
+
+        Args:
+            request: The service request
+
+        Returns:
+            The response.
+        """
+        db = DB(self.db_path)  # pylint: disable=invalid-name
+        game_bucket = request.game
+        steps = game_bucket.steps
+
+        for step in steps:
+            if step.type == 'move':
+                curs = db.ex(
+                    'select id from pose_sequences where id = ?', step.id)
+                data = curs.fetchone()
+                if not data:
+                    raise rospy.ServiceException(
+                        'The pose sequence id: {} does not exist'.format(step.id))
+            elif step.type in ['pose_left', 'pose_right', 'pose_both']:
+                curs = db.ex('select id from poses where id = ?', step.id)
+                data = curs.fetchone()
+                if not data:
+                    raise rospy.ServiceException(
+                        'The pose id: {} does not exist'.format(step.id))
+
+        if game_bucket.targeted_game not in ['simon_says', 'target_touch']:
+            raise rospy.ServiceException('The targeted game type is not valid')
+
+        if request.id:
+            curs = db.ex(
+                'select id from game_buckets where id = ?', request.id)
+            data = curs.fetchone()
+            if data:
+                db_return = db.ex(
+                    'replace into game_buckets('
+                    + 'id, name, subject, targeted_game, description, steps'
+                    + ') values (?,?,?,?,?,?)',
+                    request.id,
+                    game_bucket.name,
+                    game_bucket.subject,
+                    game_bucket.targeted_game,
+                    game_bucket.description,
+                    json.dumps(steps)
+                )
+                updated_row = request.id
+            else:
+                raise rospy.ServiceException(
+                    'The selected row does not exist, you cannot update it')
+        else:
+            db_return = db.ex(
+                'insert into pose_sequences('
+                + 'name, subject, targeted_game, description, steps'
+                + ') values (?,?,?,?,?)',
+                game_bucket.name,
+                game_bucket.subject,
+                game_bucket.targeted_game,
+                game_bucket.description,
+                json.dumps(steps)
+            )
+            updated_row = db_return.lastrowid
+
+        return updated_row
+
+    def get_game_bucket_id(self, request):
+        """Get a game bucket given its id
+
+        Args:
+            request: the service request
+
+        Returns:
+            The service response
+        """
+        db = DB(self.db_path)  # pylint: disable=invalid-name
+        curs = db.ex('select * from game_buckets where id = ?', request.id)
+        data = curs.fetchone()
+        if data:
+            resp = GetGameBucketIDResponse()
+            game_bucket = GameBucket()
+            resp.id = data['id']
+            game_bucket.name = data['name']
+            game_bucket.subject = data['subject']
+            game_bucket.targeted_game = data['targeted_game']
+            game_bucket.description = data['description']
+            game_bucket.steps = json.loads(data['steps'])
+            resp.game_bucket = game_bucket
+            return resp
+        raise rospy.ServiceException('That ID does not exist')
+
+    def search_game_bucket_name_desc(self, request):
+        """Search for a game bucket using both the name and description
+
+        Args:
+            request: the service request
+
+        Returns:
+            The service response
+        """
+        db = DB(self.db_path)  # pylint:disable=invalid-name
+        resp = SearchPoseSeqResponse()
+        for row in db.ex('select * from pose_sequences where description like ?',
+                         '%'+request.search+'%'):
+            new_pose_seq = PoseSeq()
+            new_pose_seq.description = row['description']
+            new_pose_seq.pose_ids = json.loads(row['pose_ids'])
+            new_pose_seq.times = json.loads(row['times'])
+            new_pose_seq.arms = json.loads(row['arms'])
+            new_pose_seq.total_time = row['total_time']
+
+            resp.sequences.append(new_pose_seq)
+            resp.ids.append(row['id'])
+        return resp
+
+    def search_utterance(self, request):
+        db = DB(self.db_path)  # pylint: disable=invalid-name
+        resp = SearchUtteranceResponse()
+        for row in db.ex('select * from utterances where text like ?',
+                         '%'+request.search+'%'):
+            resp.ids.append(row['id'])
+            resp.texts.append(row['text'])
+            resp.metadatas.append(row['metadata'])
+            resp.length.append(row['length'])
         return resp
 
 

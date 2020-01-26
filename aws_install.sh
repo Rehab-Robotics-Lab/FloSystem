@@ -2,6 +2,8 @@
 
 set -e
 
+pip3 install -U boto3
+
 ## Installing AWS CLI
 prior=$(pwd)
 cd ~/Downloads

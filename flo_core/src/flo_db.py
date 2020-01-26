@@ -403,9 +403,9 @@ class FloDb(object):
             The service response
         """
         db = DB(self.db_path)  # pylint:disable=invalid-name
-        resp = SearchPoseSeqResponse()
-        for row in db.ex('select * from pose_sequences where description like ?',
-                         '%'+request.search+'%'):
+        resp = SearchGameBucket()
+        for row in db.ex('select * from game_buckets where (description like ? OR name like ?)',
+                         '%'+request.search+'%', '%'+request.search+'%'):
             new_pose_seq = PoseSeq()
             new_pose_seq.description = row['description']
             new_pose_seq.pose_ids = json.loads(row['pose_ids'])

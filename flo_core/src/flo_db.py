@@ -20,6 +20,7 @@ from flo_core.srv import SetGameBucket
 from flo_core.msg import GameBucket
 from flo_core.srv import GetGameBucketID, GetGameBucketIDResponse
 from flo_core.msg import PoseSeq
+from flo_core.srv import SearchGameBucket, SearchGameBucketResponse
 
 
 import mutagen
@@ -58,7 +59,11 @@ class FloDb(object):
         rospy.Service('search_utterance', SearchUtterance,
                       self.search_utterance)
         rospy.Service('set_utterance', SetUtterance, self.set_utterance)
-        rospy.Service('set_game_buckent', SetGameBucket, self.set_game_bucket)
+        rospy.Service('set_game_bucket', SetGameBucket, self.set_game_bucket)
+        rospy.Service('get_game_bucket_id', GetGameBucketID,
+                      self.get_game_bucket_id)
+        rospy.Service('search_game_bucket_name_desc',
+                      SearchGameBucket, self.search_game_bucket_name_desc)
 
         rospy.loginfo('Node up, services ready')
 
@@ -429,29 +434,19 @@ class FloDb(object):
             The service response
         """
         db = DB(self.db_path)  # pylint:disable=invalid-name
-        resp = SearchGameBucket()
-        for row in db.ex('select * from game_buckets where (description like ? OR name like ?)',
+        resp = SearchGameBucketResponse()
+        for row in db.ex('select * from game_buckets where ('
+                         + 'description like ? OR name like ?)',
                          '%'+request.search+'%', '%'+request.search+'%'):
-            new_pose_seq = PoseSeq()
-            new_pose_seq.description = row['description']
-            new_pose_seq.pose_ids = json.loads(row['pose_ids'])
-            new_pose_seq.times = json.loads(row['times'])
-            new_pose_seq.arms = json.loads(row['arms'])
-            new_pose_seq.total_time = row['total_time']
+            new_game_bucket = GameBucket()
+            new_game_bucket.name = row['name']
+            new_game_bucket.subject = row['subject']
+            new_game_bucket.targeted_game = row['targeted_game']
+            new_game_bucket.description = row['description']
+            new_game_bucket.steps = json.loads(row['steps'])
 
-            resp.sequences.append(new_pose_seq)
+            resp.game_buckets.append(new_game_bucket)
             resp.ids.append(row['id'])
-        return resp
-
-    def search_utterance(self, request):
-        db = DB(self.db_path)  # pylint: disable=invalid-name
-        resp = SearchUtteranceResponse()
-        for row in db.ex('select * from utterances where text like ?',
-                         '%'+request.search+'%'):
-            resp.ids.append(row['id'])
-            resp.texts.append(row['text'])
-            resp.metadatas.append(row['metadata'])
-            resp.length.append(row['length'])
         return resp
 
 

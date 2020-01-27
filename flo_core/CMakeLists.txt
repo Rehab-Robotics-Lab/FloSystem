@@ -75,6 +75,7 @@ find_package(catkin REQUIRED COMPONENTS
    SetUtterance.srv
    SetGameBucket.srv
    GetGameBucketID.srv
+   SearchGameBucket.srv
  )
 
 ## Generate actions in the 'action' folder

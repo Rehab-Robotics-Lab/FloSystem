@@ -79,12 +79,10 @@ const CurrentFace: React.FunctionComponent<CurrentFaceProps> = ({
       messageType: "flo_face/FaceState"
     });
     faceListenerT.subscribe(msg => {
-      if (msg !== faceState) {
-        setFaceState(msg as FaceState);
-      }
+      setFaceState(msg as FaceState);
     });
     //setFaceListener(faceListenerT);
-  }, [connected, ros, setFaceState, faceState]);
+  }, [connected, ros, setFaceState]);
 
   const faceMatrices = [];
   if (faceState) {

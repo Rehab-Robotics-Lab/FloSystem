@@ -1,8 +1,8 @@
 import React from "react";
 import * as ROSLIB from "roslib";
-import { SetSpeechTarget, SetSpeaking, Utterance } from "../App";
+import { SetSpeechTarget, SetSpeaking, Utterance } from "../../App";
 import SavedSpeech from "./SavedSpeech";
-import { basicBlock } from "../styleDefs/styles";
+import { basicBlock } from "../../styleDefs/styles";
 
 interface SpeechProps {
   ros: ROSLIB.Ros | null;
@@ -30,6 +30,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       actionName: "tts/SpeechAction",
       timeout: 1 //Not sure about this value here. needs testing
     });
+    console.log("connected to speech action server");
 
     const metadata = JSON.stringify({
       text_type: "ssml", // eslint-disable-line
@@ -51,6 +52,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
 
     goal.on("feedback", fb => {
       //TODO: implement voice feedback
+      console.log("got feedback on speaking");
     });
 
     goal.on("result", res => {
@@ -60,6 +62,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
         fileLocation: res.response
       });
       setSpeaking(false);
+      console.log("done speaking");
       //TODO do something to handle state of the result response
       // should get a useful response
     });
@@ -67,6 +70,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
     //TODO put an indication that speaking is underway
     setSpeaking(true);
     goal.send();
+    console.log("sent request to speak");
   };
 
   return (

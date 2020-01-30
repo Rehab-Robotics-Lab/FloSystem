@@ -3,14 +3,16 @@ import "./App.css";
 import { CookiesProvider, useCookies } from "react-cookie";
 import Header from "./components/Header";
 import URDF from "./components/urdf";
-import PoseContainer from "./components/PoseContainer";
+import PoseContainer from "./components/seq_pose/PoseContainer";
 import ErrorDisplay, { ErrorItem } from "./components/ErrorDisplay";
-import SequenceRunContainer, { Move } from "./components/SequenceRunContainer";
-import SequenceContainer from "./components/SequenceContainer";
+import SequenceRunContainer, {
+  Move
+} from "./components/seq_pose/SequenceRunContainer";
+import SequenceContainer from "./components/seq_pose/SequenceContainer";
 import colors from "./styleDefs/colors";
-import SpeechContainer from "./components/SpeechContainer";
-import MoveToPose from "./components/MoveToPose";
-import FaceContainer from "./components/FaceContainer";
+import SpeechContainer from "./components/speech/SpeechContainer";
+import MoveToPose from "./components/seq_pose/MoveToPose";
+import FaceContainer from "./components/face/FaceContainer";
 import RelaxMotors from "./components/RelaxMotors";
 import Vids from "./components/Vids";
 import * as ROSLIB from "roslib";

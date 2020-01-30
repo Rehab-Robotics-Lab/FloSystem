@@ -30,7 +30,9 @@ const FaceBrightnessSet: React.FunctionComponent<FaceBrightnessSetProps> = ({
     }
     setBrightnessSrv.callService(req, function() {
       //do nothing
+      console.log("succesfully changed eye brightness");
     });
+    console.log("set eye brightness");
   };
 
   useEffect(() => {
@@ -41,6 +43,7 @@ const FaceBrightnessSet: React.FunctionComponent<FaceBrightnessSetProps> = ({
       serviceType: "flo_face/SetFaceBrightness"
     });
     setSetBrightnessSrv(setBrightnessSrvT);
+    console.log("connected to set eye brightness service");
   }, [connected, ros]);
 
   const brightness = faceState ? faceState.mouth_brightness : 0;

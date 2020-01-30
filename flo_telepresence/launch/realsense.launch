@@ -55,9 +55,6 @@
         <arg name="align_depth"      value="$(arg align_depth)"/>
         <arg name="enable_pointcloud"      value="$(arg enable_pointcloud)"/>
 
-        <arg name="enable_fisheye"   value="false"/>
-        <arg name="enable_fisheye1"  value="false"/>
-        <arg name="enable_fisheye2"  value="false"/>
         <arg name="enable_gyro"      value="false"/>
         <arg name="enable_accel"     value="false"/>
         <arg name="enable_pose"      value="false"/>
@@ -93,9 +90,6 @@
         <arg name="align_depth"      value="$(arg align_depth)"/>
         <arg name="enable_pointcloud"      value="$(arg enable_pointcloud)"/>
 
-        <arg name="enable_fisheye"   value="false"/>
-        <arg name="enable_fisheye1"  value="false"/>
-        <arg name="enable_fisheye2"  value="false"/>
         <arg name="enable_gyro"      value="false"/>
         <arg name="enable_accel"     value="false"/>
         <arg name="enable_pose"      value="false"/>

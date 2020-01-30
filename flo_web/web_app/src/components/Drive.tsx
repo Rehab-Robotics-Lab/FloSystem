@@ -249,6 +249,7 @@ const Drive: React.FunctionComponent<DriveProps> = ({ ros, connected }) => {
       name: "/keyop_vel_smoother/raw_cmd_vel",
       messageType: "geometry_msgs/Twist"
     });
+    console.log("connected to raw command velocity topic");
 
     const publishFunc = (mouse: Mouse): void => {
       let twist = 0;
@@ -277,6 +278,7 @@ const Drive: React.FunctionComponent<DriveProps> = ({ ros, connected }) => {
         // trying to publish at 10hz
         topic.publish(msg);
         timer.current = window.setTimeout(sendVals, 100, linear, twist);
+        //console.log("published target velocity: ", linear, twist); this publishes at 10 Hz, clobers terminal
       };
 
       if (mouse.clicked) {

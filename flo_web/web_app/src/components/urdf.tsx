@@ -21,7 +21,7 @@ const URDF: React.FunctionComponent<URDFProps> = ({ ros, connected }) => {
       divID: "urdf",
       width: 300,
       height: 250,
-      antialias: true,
+      antialias: false,
       background: "#f2f2f2", // sets the background color
       alpha: 1, // background transparency
       cameraPose: { x: 0.2, y: 0.75, z: 0.05 },
@@ -49,9 +49,9 @@ const URDF: React.FunctionComponent<URDFProps> = ({ ros, connected }) => {
     // The connection to move things around, thresholded to prevent too many redraws
     const tfClient = new ROSLIB.TFClient({
       ros: ros as ROSLIB.Ros,
-      angularThres: 0.01,
-      transThres: 0.01,
-      rate: 10.0
+      angularThres: 0.1,
+      transThres: 0.1,
+      rate: 5.0
     });
     console.log("created a new TF client");
 

@@ -1,8 +1,8 @@
 import React from "react";
 import * as ROSLIB from "roslib";
-import { SetSpeechTarget, SetSpeaking, Utterance } from "../App";
+import { SetSpeechTarget, SetSpeaking, Utterance } from "../../App";
 import SavedSpeech from "./SavedSpeech";
-import { basicBlock } from "../styleDefs/styles";
+import { basicBlock } from "../../styleDefs/styles";
 
 interface SpeechProps {
   ros: ROSLIB.Ros | null;

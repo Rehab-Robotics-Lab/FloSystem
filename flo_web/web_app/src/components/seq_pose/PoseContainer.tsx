@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
-import ModalWrapper from "./ModalWrapper";
-import { basicBlock } from "../styleDefs/styles";
-import { JointState } from "../App";
+import ModalWrapper from "../ModalWrapper";
+import { basicBlock } from "../../styleDefs/styles";
+import { JointState } from "../../App";
 
 export interface PoseMsg {
   description: string;

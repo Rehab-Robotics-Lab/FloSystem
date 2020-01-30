@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
-import { SetMovesList, genRandID } from "../App";
+import { SetMovesList, genRandID } from "../../App";
 import { Move } from "./SequenceRunContainer";
-import ModalWrapper from "./ModalWrapper";
-import { basicBlock } from "../styleDefs/styles";
+import ModalWrapper from "../ModalWrapper";
+import { basicBlock } from "../../styleDefs/styles";
 
 interface Sequence {
   pose_ids: number[];

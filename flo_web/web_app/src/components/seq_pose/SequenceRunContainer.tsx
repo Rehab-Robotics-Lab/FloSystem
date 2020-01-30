@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import * as ROSLIB from "roslib";
 import { PoseWrapper } from "./PoseContainer";
-import { SetMoving, SetMovesList } from "../App";
-import { basicBlock, majorButton, buttonContainer } from "../styleDefs/styles";
+import { SetMoving, SetMovesList } from "../../App";
+import {
+  basicBlock,
+  majorButton,
+  buttonContainer
+} from "../../styleDefs/styles";
 
 interface SetTime {
   (id: number, time: number): void;

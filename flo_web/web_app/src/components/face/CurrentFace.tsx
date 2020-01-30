@@ -72,7 +72,10 @@ const CurrentFace: React.FunctionComponent<CurrentFaceProps> = ({
   //const [faceListener, setFaceListener] = useState<ROSLIB.Topic | null>(null);
 
   useEffect(() => {
-    if (!connected) return;
+    if (!connected) {
+      console.log("Not subscribing to topic because not connected");
+      return;
+    }
     const faceListenerT = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "face_state",
@@ -81,6 +84,7 @@ const CurrentFace: React.FunctionComponent<CurrentFaceProps> = ({
     faceListenerT.subscribe(msg => {
       setFaceState(msg as FaceState);
     });
+    console.log("subscribed to face_state");
     //setFaceListener(faceListenerT);
   }, [connected, ros, setFaceState]);
 

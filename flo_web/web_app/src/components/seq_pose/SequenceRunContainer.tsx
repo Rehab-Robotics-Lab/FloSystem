@@ -55,6 +55,7 @@ export const runSequence = (
     actionName: "flo_humanoid/MoveAction",
     timeout: 1 //Not sure about this value here. needs testing
   });
+  console.log("connected to move action action client");
 
   let time = 0;
 
@@ -103,6 +104,7 @@ export const runSequence = (
     }
     moveListN[curMove].status = "moving";
     setMovesList(moveListN);
+    console.log("got move action feedback");
   });
 
   goal.on("result", res => {
@@ -114,7 +116,9 @@ export const runSequence = (
     setMovesList(moveListN);
     if (res.completed === false) {
       //TODO set an error
+      console.error("move is done but did not finish");
     }
+    console.log("movement done");
   });
 
   setMoving(true);
@@ -125,6 +129,7 @@ export const runSequence = (
   setMovesList(moveListN);
 
   goal.send();
+  console.log("sent command to move");
 };
 
 const Move: React.FunctionComponent<MoveProps> = ({

@@ -32,6 +32,7 @@ const URDF: React.FunctionComponent<URDFProps> = ({ ros, connected }) => {
     vw.directionalLight.position.y = 10;
     // vw.directionalLight.castShaddow = true;
     setViewer(vw);
+    console.log("setup urdf viewer");
   }, []);
 
   useEffect(() => {
@@ -39,6 +40,7 @@ const URDF: React.FunctionComponent<URDFProps> = ({ ros, connected }) => {
       if (client && viewer && viewer.scene) {
         viewer.scene.remove(client.urdf);
         setClient(null);
+        console.log("removed urdf viewer");
       }
       return;
     }
@@ -51,6 +53,7 @@ const URDF: React.FunctionComponent<URDFProps> = ({ ros, connected }) => {
       transThres: 0.01,
       rate: 10.0
     });
+    console.log("created a new TF client");
 
     // The URDF Loader and drawer
     if (viewer === null || viewer.scene === null) return;
@@ -61,6 +64,7 @@ const URDF: React.FunctionComponent<URDFProps> = ({ ros, connected }) => {
       rootObject: viewer.scene
       // loader: ROS3D.COLLADA_LOADER2,
     });
+    console.log("created a new URDF viewer");
 
     setClient(clientT);
   }, [connected, client, ros, viewer]);

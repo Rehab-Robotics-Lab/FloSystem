@@ -55,6 +55,7 @@ const EyeOptionsContainer: React.FunctionComponent<EyeOptionsContainerProps> = (
     setEyeDirectionSrv.callService(req, function() {
       //do nothing.
     });
+    console.log("set eye direction");
   };
 
   useEffect(() => {
@@ -65,6 +66,7 @@ const EyeOptionsContainer: React.FunctionComponent<EyeOptionsContainerProps> = (
       serviceType: "flo_face/SetEyeDirection"
     });
     setSeteEyeDirectionSrv(setEyeDirectionSrvT);
+    console.log("connected to set eye direction service");
   }, [connected, ros]);
 
   return (

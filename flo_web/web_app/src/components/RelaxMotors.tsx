@@ -26,6 +26,7 @@ const RelaxMotors: React.FunctionComponent<RelaxMotorsProps> = ({
       data: "relax"
     });
     topic.publish(relax);
+    console.log("sent command to relax motors");
   };
 
   return (

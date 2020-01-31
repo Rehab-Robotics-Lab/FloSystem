@@ -3,23 +3,24 @@
 from __future__ import print_function
 
 import json
-import rospy
 
 from os import path
+import rospy
 
 from flo_core.srv import GetPoseID, GetPoseIDResponse
-from flo_core.srv import SetPose, SetPoseResponse
+from flo_core.srv import SetPose
 from flo_core.srv import SearchPose, SearchPoseResponse
 from flo_core.msg import Pose
-from flo_core.srv import SetPoseSeq, SetPoseSeqResponse
+from flo_core.srv import SetPoseSeq
 from flo_core.srv import GetPoseSeqID, GetPoseSeqIDResponse
 from flo_core.srv import SearchPoseSeq, SearchPoseSeqResponse
 from flo_core.srv import SetUtterance, SetUtteranceResponse
 from flo_core.srv import SearchUtterance, SearchUtteranceResponse
-from flo_core.srv import SetGameBucket, SetGameBucketResponse
+from flo_core.srv import SetGameBucket
 from flo_core.msg import GameBucket
 from flo_core.srv import GetGameBucketID, GetGameBucketIDResponse
 from flo_core.msg import PoseSeq
+from flo_core.srv import SearchGameBucket, SearchGameBucketResponse
 
 
 import mutagen
@@ -58,7 +59,11 @@ class FloDb(object):
         rospy.Service('search_utterance', SearchUtterance,
                       self.search_utterance)
         rospy.Service('set_utterance', SetUtterance, self.set_utterance)
-        rospy.Service('set_game_buckent', SetGameBucket, self.set_game_bucket)
+        rospy.Service('set_game_bucket', SetGameBucket, self.set_game_bucket)
+        rospy.Service('get_game_bucket_id', GetGameBucketID,
+                      self.get_game_bucket_id)
+        rospy.Service('search_game_bucket_name_desc',
+                      SearchGameBucket, self.search_game_bucket_name_desc)
 
         rospy.loginfo('Node up, services ready')
 
@@ -116,15 +121,16 @@ class FloDb(object):
 
     def set_pose(self, request):
         """Set the passed in pose in the database. If the default value for the
-        id of 0 is used, a new entry will be created. If the value of an existing
-        row's id is passed, that row will be replaced with the new data. If
-        a non-zero id is passed which does not exist in the database, an error
-        will be raised.
+        id of 0 is used, a new entry will be created. If the value of an
+        existing row's id is passed, that row will be replaced with the new
+        data. If a non-zero id is passed which does not exist in the database,
+        an error will be raised.
 
         :param request: The SetPose service message request
         """
         db = DB(self.db_path)  # pylint: disable=invalid-name
-        if not len(request.pose.joint_positions) == len(request.pose.joint_names):
+        if not (len(request.pose.joint_positions) ==
+                len(request.pose.joint_names)):
             raise rospy.ServiceException(
                 'the length of the pose values and names are not consistent')
 
@@ -133,7 +139,9 @@ class FloDb(object):
             data = curs.fetchone()
             if data:
                 db_return = db.ex(
-                    'replace into poses(id, description, joint_positions, joint_names) values (?,?,?,?)',
+                    'replace into poses('
+                    + 'id, description, joint_positions, joint_names)'
+                    + 'values (?,?,?,?)',
                     request.id,
                     request.pose.description,
                     json.dumps(request.pose.joint_positions),
@@ -146,7 +154,8 @@ class FloDb(object):
                     'The selected row does not exist, you cannot update it')
         else:
             db_return = db.ex(
-                'insert into poses(description, joint_positions, joint_names) values (?,?,?)',
+                'insert into poses(description, joint_positions, joint_names)'
+                + 'values (?,?,?)',
                 request.pose.description,
                 json.dumps(request.pose.joint_positions),
                 json.dumps(request.pose.joint_names))
@@ -168,8 +177,8 @@ class FloDb(object):
         seq = request.sequence
 
         if not len(seq.pose_ids) == len(seq.times) == len(seq.arms):
-            raise rospy.ServiceException(
-                'the length of the pose ids, times, and arms are not consistent')
+            raise rospy.ServiceException('the length of the pose ids, times, '
+                                         + 'and arms are not consistent')
 
         for pose_id in seq.pose_ids:
             curs = db.ex('select id from poses where id = ?', pose_id)
@@ -184,7 +193,9 @@ class FloDb(object):
             data = curs.fetchone()
             if data:
                 db_return = db.ex(
-                    'replace into pose_sequences(id, times, pose_ids, total_time, arms, description) values (?,?,?,?,?,?)',
+                    'replace into pose_sequences('
+                    + 'id, times, pose_ids, total_time, arms, description) '
+                    + 'values (?,?,?,?,?,?)',
                     request.id,
                     json.dumps(seq.times),
                     json.dumps(seq.pose_ids),
@@ -198,7 +209,8 @@ class FloDb(object):
                     'The selected row does not exist, you cannot update it')
         else:
             db_return = db.ex(
-                'insert into pose_sequences(times, pose_ids, total_time, arms, description) values (?,?,?,?,?)',
+                'insert into pose_sequences(times, pose_ids, total_time, '
+                + 'arms, description) values (?,?,?,?,?)',
                 json.dumps(seq.times),
                 json.dumps(seq.pose_ids),
                 seq.total_time,
@@ -233,7 +245,8 @@ class FloDb(object):
             raise rospy.ServiceException('That ID does not exist')
 
     def search_pose_seq(self, request):
-        """Search for a pose sequence in the database using a string of the description
+        """Search for a pose sequence in the database using a string of the
+        description
 
         Args:
             request: the service request
@@ -243,7 +256,8 @@ class FloDb(object):
         """
         db = DB(self.db_path)  # pylint:disable=invalid-name
         resp = SearchPoseSeqResponse()
-        for row in db.ex('select * from pose_sequences where description like ?',
+        for row in db.ex('select * from pose_sequences where description '
+                         + 'like ?',
                          '%'+request.search+'%'):
             new_pose_seq = PoseSeq()
             new_pose_seq.description = row['description']
@@ -257,6 +271,13 @@ class FloDb(object):
         return resp
 
     def search_utterance(self, request):
+        """Search for an utterance in the database by string
+
+        Args:
+            request: the search utterance request
+
+        Returns: the service response
+        """
         db = DB(self.db_path)  # pylint: disable=invalid-name
         resp = SearchUtteranceResponse()
         for row in db.ex('select * from utterances where text like ?',
@@ -268,6 +289,13 @@ class FloDb(object):
         return resp
 
     def set_utterance(self, request):
+        """Set an utterance by ID
+
+        Args:
+            request: the service request
+
+        Returns: the service response
+        """
         db = DB(self.db_path)  # pylint: disable=invalid-name
         # Find the length of the utterance:
         mut_d = mutagen.File(request.filename)
@@ -277,7 +305,8 @@ class FloDb(object):
             data = curs.fetchone()
             if data:
                 db_return = db.ex(
-                    'replace into utterances(id, text, length, metadata) values (?,?,?,?)',
+                    'replace into utterances(id, text, length, metadata) '
+                    + 'values (?,?,?,?)',
                     request.id,
                     request.text,
                     time_length,
@@ -291,7 +320,8 @@ class FloDb(object):
                     'The selected row does not exist, you cannot update it')
         else:
             db_return = db.ex(
-                'insert into utterances(text, length, metadata) values (?,?,?)',
+                'insert into utterances(text, length, metadata) '
+                + 'values (?,?,?)',
                 request.text,
                 time_length,
                 request.metadata
@@ -322,7 +352,8 @@ class FloDb(object):
                 data = curs.fetchone()
                 if not data:
                     raise rospy.ServiceException(
-                        'The pose sequence id: {} does not exist'.format(step.id))
+                        'The pose sequence id: {} does not exist'.format(
+                            step.id))
             elif step.type in ['pose_left', 'pose_right', 'pose_both']:
                 curs = db.ex('select id from poses where id = ?', step.id)
                 data = curs.fetchone()
@@ -403,29 +434,19 @@ class FloDb(object):
             The service response
         """
         db = DB(self.db_path)  # pylint:disable=invalid-name
-        resp = SearchGameBucket()
-        for row in db.ex('select * from game_buckets where (description like ? OR name like ?)',
+        resp = SearchGameBucketResponse()
+        for row in db.ex('select * from game_buckets where ('
+                         + 'description like ? OR name like ?)',
                          '%'+request.search+'%', '%'+request.search+'%'):
-            new_pose_seq = PoseSeq()
-            new_pose_seq.description = row['description']
-            new_pose_seq.pose_ids = json.loads(row['pose_ids'])
-            new_pose_seq.times = json.loads(row['times'])
-            new_pose_seq.arms = json.loads(row['arms'])
-            new_pose_seq.total_time = row['total_time']
+            new_game_bucket = GameBucket()
+            new_game_bucket.name = row['name']
+            new_game_bucket.subject = row['subject']
+            new_game_bucket.targeted_game = row['targeted_game']
+            new_game_bucket.description = row['description']
+            new_game_bucket.steps = json.loads(row['steps'])
 
-            resp.sequences.append(new_pose_seq)
+            resp.game_buckets.append(new_game_bucket)
             resp.ids.append(row['id'])
-        return resp
-
-    def search_utterance(self, request):
-        db = DB(self.db_path)  # pylint: disable=invalid-name
-        resp = SearchUtteranceResponse()
-        for row in db.ex('select * from utterances where text like ?',
-                         '%'+request.search+'%'):
-            resp.ids.append(row['id'])
-            resp.texts.append(row['text'])
-            resp.metadatas.append(row['metadata'])
-            resp.length.append(row['length'])
         return resp
 
 

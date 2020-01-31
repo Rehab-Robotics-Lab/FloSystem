@@ -60,7 +60,9 @@ const SavedFaces: React.FunctionComponent<SavedFacesProps> = ({
     }
     setFaceSrv.callService(req, res => {
       setEyeOptions(res.available_eye_directions);
+      console.log("received back available eye directions");
     });
+    console.log("requested available eye directions");
     //
     // read back response and add to the list
   };
@@ -73,12 +75,15 @@ const SavedFaces: React.FunctionComponent<SavedFacesProps> = ({
       name: "/get_face_options",
       serviceType: "flo_face/GetFaceOptions"
     });
+    console.log("connected to service to get face options");
 
     const request = new ROSLIB.ServiceRequest({});
 
     getFaceOptions.callService(request, resp => {
       setFaces(resp.faces);
+      console.log("received back available faces");
     });
+    console.log("requested available faces");
 
     const setFaceSrvT = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
@@ -86,6 +91,7 @@ const SavedFaces: React.FunctionComponent<SavedFacesProps> = ({
       serviceType: "flo_face/SetFace"
     });
     setSetFaceSrv(setFaceSrvT);
+    console.log("connected to service to set face");
   }, [connected, ros]);
 
   return (

@@ -63,6 +63,7 @@ const SystemMonitor: React.FunctionComponent<SystemMonitorProps> = ({
     memListener.subscribe(msg => {
       setMem((msg as MEMutilMsg).percent_used);
     });
+    console.log("subscribed to memory utilization topic");
 
     const hddListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
@@ -72,6 +73,7 @@ const SystemMonitor: React.FunctionComponent<SystemMonitorProps> = ({
     hddListener.subscribe(msg => {
       setHdd((msg as HDDutilMsg).percent_free);
     });
+    console.log("subscribed to hard drive stats topic");
 
     const netListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
@@ -82,6 +84,7 @@ const SystemMonitor: React.FunctionComponent<SystemMonitorProps> = ({
       setNetQ((msg as NETstatsMsg).link_quality);
       setNetS((msg as NETstatsMsg).signal_strength);
     });
+    console.log("subscribed to network stats topic");
   }, [connected, ros]);
 
   return (

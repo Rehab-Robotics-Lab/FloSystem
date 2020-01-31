@@ -82,7 +82,9 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
     });
     CommandListener.subscribe(msg => {
       setCommandOptions((msg as CommandOpts).options);
+      console.log("got new command options");
     });
+    console.log("subscribed to command options topic");
 
     const FeedbackListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
@@ -91,7 +93,9 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
     });
     FeedbackListener.subscribe(msg => {
       setGameFeedback((msg as GameFeedback).feedback);
+      console.log("got new game feedback");
     });
+    console.log("subscribed to game feedback topic");
 
     const gameDefPubT = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
@@ -99,6 +103,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
       messageType: "flo_core/GameDef"
     });
     setGameDefPub(gameDefPubT);
+    console.log("connected to publish on game runner definition topic");
 
     const gameCommandPubT = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
@@ -106,6 +111,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
       messageType: "flo_core/GameCommand"
     });
     setGameCommandPub(gameCommandPubT);
+    console.log("connected to publish on game runner commands topic");
   }, [connected, ros]);
 
   const availableGames = ["simon_says", "target_touch"];
@@ -138,10 +144,13 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
         disabled={gameFeedback !== "waiting_for_def" || gameDefPub === null}
         onClick={(): void => {
           const simonSaysDef = new ROSLIB.Message({
-            gameType: "simon_says"
+            game_type: "simon_says" // eslint-disable-line
           });
           if (gameDefPub !== null) {
             gameDefPub.publish(simonSaysDef);
+            console.log("sent command to play simon says");
+          } else {
+            console.error("not able to publish game def");
           }
         }}
       >
@@ -153,10 +162,13 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
         disabled={gameFeedback !== "waiting_for_def" || gameDefPub === null}
         onClick={(): void => {
           const simonSaysDef = new ROSLIB.Message({
-            gameType: "target_touch"
+            game_type: "target_touch" // eslint-disable-line
           });
           if (gameDefPub !== null) {
             gameDefPub.publish(simonSaysDef);
+            console.log("sent command to play target touch");
+          } else {
+            console.error("not able to publish game def");
           }
         }}
       >

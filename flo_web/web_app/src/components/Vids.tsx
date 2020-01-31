@@ -41,6 +41,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         "/webrtc";
 
       const connection1 = WebrtcRos.createConnection(connectionString);
+      console.log("connected to webrtc ros");
 
       connection1.onConfigurationNeeded = (): void => {
         const remoteStreamConfigUpper = { video: {}, audio: {} };

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import * as ROSLIB from "roslib";
-import { basicBlock } from "../styleDefs/styles";
+import { basicBlock } from "../../styleDefs/styles";
 import SavedFaces from "./SavedFaces";
 import CurrentFace from "./CurrentFace";
 import EyeOptionsContainer from "./EyeOptionsContainer";

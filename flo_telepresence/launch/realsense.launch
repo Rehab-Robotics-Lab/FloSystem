@@ -13,12 +13,15 @@
   <arg name="depth_width"               value="1280"/>
   <arg name="depth_height"              value="720"/>
   <arg name="enable_depth"              value="true"/>
-  <arg name="depth_fps"                 value="30"/>
+  <arg name="depth_fps"                 value="15"/>
 
-  <arg name="color_width"               value="1920"/>
-  <arg name="color_height"              value="1080"/>
+    <!--should be 1920:-->
+  <arg name="color_width"               value="1280"/>
+  <!--should be 1080:-->
+  <arg name="color_height"              value="720"/>
   <arg name="enable_color"              value="true"/>
-  <arg name="color_fps"                 value="30"/>
+  <!--Should be 30:-->
+  <arg name="color_fps"                 value="15"/>
 
   <arg name="align_depth"               value="false"/>
   <arg name="enable_pointcloud"         value="false"/>
@@ -55,9 +58,6 @@
         <arg name="align_depth"      value="$(arg align_depth)"/>
         <arg name="enable_pointcloud"      value="$(arg enable_pointcloud)"/>
 
-        <arg name="enable_fisheye"   value="false"/>
-        <arg name="enable_fisheye1"  value="false"/>
-        <arg name="enable_fisheye2"  value="false"/>
         <arg name="enable_gyro"      value="false"/>
         <arg name="enable_accel"     value="false"/>
         <arg name="enable_pose"      value="false"/>
@@ -93,9 +93,6 @@
         <arg name="align_depth"      value="$(arg align_depth)"/>
         <arg name="enable_pointcloud"      value="$(arg enable_pointcloud)"/>
 
-        <arg name="enable_fisheye"   value="false"/>
-        <arg name="enable_fisheye1"  value="false"/>
-        <arg name="enable_fisheye2"  value="false"/>
         <arg name="enable_gyro"      value="false"/>
         <arg name="enable_accel"     value="false"/>
         <arg name="enable_pose"      value="false"/>

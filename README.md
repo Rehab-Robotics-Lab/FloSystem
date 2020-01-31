@@ -300,6 +300,6 @@ You can also set the volume here.
 There are a few possible problems:
 1. things only seem to work in chrome for now, so use that.
 2. You may not have your devices enabled because the source is non-secure. Here is what to do:
-    a. goto: chrome://flags/#unsafely-treat-insecure-origin-as-secure
-    b. fill in with: `http://10.42.0.189:3000,http://10.42.0.189:9090,http://10.42.0.189:9091`
-    c. change to enabled
+   a. goto: chrome://flags/#unsafely-treat-insecure-origin-as-secure
+   b. fill in with: `http://10.42.0.189:5000,http://10.42.0.189:3000,http://10.42.0.189:9090,http://10.42.0.189:9091`
+   c. change to enabled

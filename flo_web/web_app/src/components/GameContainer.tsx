@@ -82,6 +82,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
     });
     CommandListener.subscribe(msg => {
       setCommandOptions((msg as CommandOpts).options);
+      console.log("got new command options");
     });
     console.log("subscribed to command options topic");
 
@@ -92,6 +93,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
     });
     FeedbackListener.subscribe(msg => {
       setGameFeedback((msg as GameFeedback).feedback);
+      console.log("got new game feedback");
     });
     console.log("subscribed to game feedback topic");
 

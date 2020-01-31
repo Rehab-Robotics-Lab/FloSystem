@@ -144,7 +144,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
         disabled={gameFeedback !== "waiting_for_def" || gameDefPub === null}
         onClick={(): void => {
           const simonSaysDef = new ROSLIB.Message({
-            gameType: "simon_says"
+            game_type: "simon_says" // eslint-disable-line
           });
           if (gameDefPub !== null) {
             gameDefPub.publish(simonSaysDef);
@@ -162,7 +162,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
         disabled={gameFeedback !== "waiting_for_def" || gameDefPub === null}
         onClick={(): void => {
           const simonSaysDef = new ROSLIB.Message({
-            gameType: "target_touch"
+            game_type: "target_touch" // eslint-disable-line
           });
           if (gameDefPub !== null) {
             gameDefPub.publish(simonSaysDef);

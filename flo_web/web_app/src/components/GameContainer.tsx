@@ -146,6 +146,9 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
           });
           if (gameDefPub !== null) {
             gameDefPub.publish(simonSaysDef);
+            console.log("sent command to play simon says");
+          } else {
+            console.error("not able to publish game def");
           }
         }}
       >
@@ -161,6 +164,9 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
           });
           if (gameDefPub !== null) {
             gameDefPub.publish(simonSaysDef);
+            console.log("sent command to play target touch");
+          } else {
+            console.error("not able to publish game def");
           }
         }}
       >

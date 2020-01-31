@@ -82,6 +82,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
     });
     CommandListener.subscribe(msg => {
       setCommandOptions((msg as CommandOpts).options);
+      console.log("got new command options");
     });
     console.log("subscribed to command options topic");
 
@@ -92,6 +93,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
     });
     FeedbackListener.subscribe(msg => {
       setGameFeedback((msg as GameFeedback).feedback);
+      console.log("got new game feedback");
     });
     console.log("subscribed to game feedback topic");
 
@@ -142,10 +144,13 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
         disabled={gameFeedback !== "waiting_for_def" || gameDefPub === null}
         onClick={(): void => {
           const simonSaysDef = new ROSLIB.Message({
-            gameType: "simon_says"
+            game_type: "simon_says" // eslint-disable-line
           });
           if (gameDefPub !== null) {
             gameDefPub.publish(simonSaysDef);
+            console.log("sent command to play simon says");
+          } else {
+            console.error("not able to publish game def");
           }
         }}
       >
@@ -157,10 +162,13 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
         disabled={gameFeedback !== "waiting_for_def" || gameDefPub === null}
         onClick={(): void => {
           const simonSaysDef = new ROSLIB.Message({
-            gameType: "target_touch"
+            game_type: "target_touch" // eslint-disable-line
           });
           if (gameDefPub !== null) {
             gameDefPub.publish(simonSaysDef);
+            console.log("sent command to play target touch");
+          } else {
+            console.error("not able to publish game def");
           }
         }}
       >

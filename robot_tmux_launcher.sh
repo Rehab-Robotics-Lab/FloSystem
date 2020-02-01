@@ -7,6 +7,9 @@ tmux split-window -t flo
 tmux send-keys 'mon launch --name=flo_launcher flo_core flo_bringup.launch' Enter
 
 tmux split-window -t flo -h
+tmux send-keys 'htop' Enter
+
+tmux split-window -t flo -h
 
 tmux send-keys 'cd ~/catkin_ws/src/LilFloSystem/flo_web/web_app/src/' Enter
 tmux send-keys 'npm run robot' Enter

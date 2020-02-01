@@ -7,8 +7,8 @@
 <!--S/N 1: 904412060717-->
 <!--S/N 2: 912322061173-->
 
-  <arg name="serial_no_upper"           value="904412060717"/>
-  <arg name="serial_no_lower"           value="912322061173"/>
+  <arg name="serial_no_lower"           value="904412060717"/>
+  <arg name="serial_no_upper"           value="912322061173"/>
 
   <arg name="depth_width"               value="1280"/>
   <arg name="depth_height"              value="720"/>

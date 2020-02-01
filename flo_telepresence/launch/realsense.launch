@@ -26,13 +26,12 @@
   <arg name="align_depth"               value="false"/>
   <arg name="enable_pointcloud"         value="false"/>
 
-
-  <!--<arg name="infra_width"        default="1280"/>-->
-  <!--<arg name="infra_height"       default="720"/>-->
-  <!--<arg name="enable_infra1"       default="true"/>-->
-  <!--<arg name="enable_infra2"       default="true"/>-->
+  <arg name="enable_infra"       value="false"/>
 
   <!--<arg name="enable_sync"               default="false"/>-->
+
+  <!--This seems like a good idea, but when this is done, nothing can connect for a while:-->
+  <arg name="initial_reset"             value="false"/>
 
 
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">
@@ -61,6 +60,11 @@
         <arg name="enable_gyro"      value="false"/>
         <arg name="enable_accel"     value="false"/>
         <arg name="enable_pose"      value="false"/>
+
+        <arg name="enable_infra1"    value="$(arg enable_infra)"/>
+        <arg name="enable_infra2"    value="$(arg enable_infra)"/>
+
+        <arg name="initial_reset"    value="$(arg initial_reset)"/>
     </include>
 
     <group ns="lower_realsense/color">
@@ -96,6 +100,11 @@
         <arg name="enable_gyro"      value="false"/>
         <arg name="enable_accel"     value="false"/>
         <arg name="enable_pose"      value="false"/>
+
+        <arg name="enable_infra1"    value="$(arg enable_infra)"/>
+        <arg name="enable_infra2"    value="$(arg enable_infra)"/>
+
+        <arg name="initial_reset"    value="$(arg initial_reset)"/>
     </include>
     <group ns="upper_realsense/color">
     <node pkg="nodelet" type="nodelet"

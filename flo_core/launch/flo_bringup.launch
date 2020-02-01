@@ -1,5 +1,7 @@
 <launch>
     <arg name="simulate" default="False" />
+    <arg name="record"   default="True" />
+
     <param name="simulate" type="bool" value="$(arg simulate)"/>
 
     <!--Face -->
@@ -40,12 +42,10 @@
     <!--Game Runer-->
     <node name="game_runner" pkg="flo_core" type="game_runner.py"/>
 
-    <!--Logging-->
-    <!--<group if="$(eval simulate==False)">-->
-        <!--Rosbag is used for logging almost everything. -->
-        <!--I think that it will be prudent to alter what the realsense camera is actually-->
-        <!--publishing to change what this looks like-->
-    <!--</group>-->
+     <!--Logging-->
+    <group if="$(eval simulate==False and record==True)">
+        <include file="$(find flo_core)/launch/recording.launch" />
+    </group>
 
     <!--System Monitoring-->
     <node name="system_monitor" pkg="system_monitor" type="stats_publisher.py"/>

@@ -2,7 +2,7 @@
     <arg name="prefix" default="/media/nuc-admin/flo-external/flo_recording"/>
 
         <node pkg="rosbag" type="record" name="lil_flo_bag"
-        args="record -o $(arg prefix)
+        args="record --output-prefix $(arg prefix) --split --duration 1m
 /client_count
 /cmd_vel_mux/active
 /cmd_vel_mux/keyboard_teleop

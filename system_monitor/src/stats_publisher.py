@@ -22,6 +22,8 @@ class StatsPublisher(object):
             'net_stats', NETstats, queue_size=20)
         self.hdd_stats_pub = rospy.Publisher(
             'hdd_stats', HDDutil, queue_size=20)
+        self.hdd_ext_stats_pub = rospy.Publisher(
+            'hdd_ext_stats', HDDutil, queue_size=20)
 
         rospy.Timer(rospy.Duration(1), self.read_cpu)
         rospy.Timer(rospy.Duration(20), self.read_disk)
@@ -43,6 +45,13 @@ class StatsPublisher(object):
         msg = HDDutil()
         msg.percent_free = disk_percent_free
         self.hdd_stats_pub.publish(msg)
+
+        disk_stats = psutil.disk_usage('/media/nuc-admin/flo-external')
+        disk_percent_free = 100-disk_stats.percent
+        rospy.logdebug('external disk has %5.2f%% free', disk_percent_free)
+        msg = HDDutil()
+        msg.percent_free = disk_percent_free
+        self.hdd_ext_stats_pub.publish(msg)
 
     def read_mem(self, event):
         mem_stats = psutil.virtual_memory()
@@ -84,7 +93,7 @@ class StatsPublisher(object):
             msg = output.decode('utf-8')
             lqv = re.split(
                 '/', re.search('(?<=Link Quality=)[0-9/]*', msg).group(0))
-            link_quality = int(lqv[0])/int(lqv[1])
+            link_quality = 100*int(lqv[0])/int(lqv[1])
             signal_level = int(
                 re.search('(?<=Signal level=)[0-9\-]*', msg).group(0))
             return {'link_quality': link_quality, 'signal_level': signal_level}

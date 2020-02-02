@@ -1,8 +1,14 @@
 <launch>
-    <arg name="prefix" default="/media/nuc-admin/flo-external/flo_recording"/>
+    <!--<arg name="prefix" default="/media/nuc-admin/flo-external/flo_recording"/>-->
+    <arg name="prefix" default="~/flo_data/flo_recording"/>
 
         <node pkg="rosbag" type="record" name="lil_flo_bag"
-        args="record --output-prefix $(arg prefix) --split --duration 1m
+        args="record --output-prefix $(arg prefix) --split --duration 1m --lz4
+/lower_realsense/color/image_raw/compressed
+/lower_realsense/depth/image_rect_raw/compressed
+/upper_realsense/color/image_raw/compressed
+/upper_realsense/depth/image_rect_raw/compressed
+/fisheye_cam/image_raw/compressed
 /client_count
 /cmd_vel_mux/active
 /cmd_vel_mux/keyboard_teleop
@@ -16,7 +22,6 @@
 /diagnostics_toplevel_state
 /face_state
 /fisheye_cam/camera_info
-/fisheye_cam/image_raw
 /fisheye_cam/info
 /game_runner_command_opts
 /game_runner_commands
@@ -31,9 +36,7 @@
 /kobuki_safety_controller/enable
 /kobuki_safety_controller/reset
 /lower_realsense/color/camera_info
-/lower_realsense/color/image_raw
 /lower_realsense/depth/camera_info
-/lower_realsense/depth/image_rect_raw
 /lower_realsense/extrinsics/depth_to_color
 /lower_realsense/rgb_camera/parameter_descriptions
 /lower_realsense/rgb_camera/parameter_updates
@@ -91,9 +94,7 @@
 /tts/result
 /tts/status
 /upper_realsense/color/camera_info
-/upper_realsense/color/image_raw
 /upper_realsense/depth/camera_info
-/upper_realsense/depth/image_rect_raw
 /upper_realsense/extrinsics/depth_to_color
 /upper_realsense/rgb_camera/parameter_descriptions
 /upper_realsense/rgb_camera/parameter_updates

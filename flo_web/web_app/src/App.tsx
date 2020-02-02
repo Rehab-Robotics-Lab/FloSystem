@@ -20,6 +20,7 @@ import Drive from "./components/Drive";
 import { basicBlock } from "./styleDefs/styles";
 import GameContainer from "./components/GameContainer";
 import SystemMonitor from "./components/SystemMonitor";
+import GameBuckets from "./components/GameBuckets";
 
 export function genRandID(): number {
   return Math.round(Math.random() * 10000) + Date.now();
@@ -245,6 +246,7 @@ const App: React.FunctionComponent = () => {
                 setMovesList={setMovesList}
               />
             </div>
+            <GameBuckets ros={ros} connected={connected} />
             <MoveToPose
               ros={ros}
               connected={connected}

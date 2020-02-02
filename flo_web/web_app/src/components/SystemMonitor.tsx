@@ -44,7 +44,6 @@ const SystemMonitor: React.FunctionComponent<SystemMonitorProps> = ({
   const [cpu, setCpu] = useReducer(reducer, []);
   const [mem, setMem] = useReducer(reducer, []);
   const [hdd, setHdd] = useReducer(reducer, []);
-  //const [hddE, setHddE] = useReducer(reducer, []);
   const [netQ, setNetQ] = useReducer(reducer, []);
   const [netS, setNetS] = useReducer(reducer, []);
 
@@ -79,16 +78,6 @@ const SystemMonitor: React.FunctionComponent<SystemMonitorProps> = ({
       setHdd((msg as HDDutilMsg).percent_free);
     });
     console.log("subscribed to hard drive stats topic");
-
-    //const hddEListener = new ROSLIB.Topic({
-    //ros: ros as ROSLIB.Ros,
-    //name: "hdd_ext_stats",
-    //messageType: "system_monitor/HDDutil"
-    //});
-    //hddEListener.subscribe(msg => {
-    //setHddE((msg as HDDutilMsg).percent_free);
-    //});
-    //console.log("subscribed to hard drive external stats topic");
 
     const netListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,

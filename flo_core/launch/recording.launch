@@ -1,5 +1,4 @@
 <launch>
-    <!--<arg name="prefix" default="/media/nuc-admin/flo-external/flo_recording"/>-->
     <arg name="prefix" default="~/flo_data/flo_recording"/>
 
         <node pkg="rosbag" type="record" name="lil_flo_bag"

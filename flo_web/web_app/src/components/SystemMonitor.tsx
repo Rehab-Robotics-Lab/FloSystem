@@ -44,7 +44,7 @@ const SystemMonitor: React.FunctionComponent<SystemMonitorProps> = ({
   const [cpu, setCpu] = useReducer(reducer, []);
   const [mem, setMem] = useReducer(reducer, []);
   const [hdd, setHdd] = useReducer(reducer, []);
-  const [hddE, setHddE] = useReducer(reducer, []);
+  //const [hddE, setHddE] = useReducer(reducer, []);
   const [netQ, setNetQ] = useReducer(reducer, []);
   const [netS, setNetS] = useReducer(reducer, []);
 
@@ -80,15 +80,15 @@ const SystemMonitor: React.FunctionComponent<SystemMonitorProps> = ({
     });
     console.log("subscribed to hard drive stats topic");
 
-    const hddEListener = new ROSLIB.Topic({
-      ros: ros as ROSLIB.Ros,
-      name: "hdd_ext_stats",
-      messageType: "system_monitor/HDDutil"
-    });
-    hddEListener.subscribe(msg => {
-      setHddE((msg as HDDutilMsg).percent_free);
-    });
-    console.log("subscribed to hard drive external stats topic");
+    //const hddEListener = new ROSLIB.Topic({
+    //ros: ros as ROSLIB.Ros,
+    //name: "hdd_ext_stats",
+    //messageType: "system_monitor/HDDutil"
+    //});
+    //hddEListener.subscribe(msg => {
+    //setHddE((msg as HDDutilMsg).percent_free);
+    //});
+    //console.log("subscribed to hard drive external stats topic");
 
     const netListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
@@ -138,16 +138,6 @@ const SystemMonitor: React.FunctionComponent<SystemMonitorProps> = ({
             width={gaugeW}
             height={gaugeH}
             label="Hard Drive Utilization"
-            valueFormatter={gaugeF}
-            minMaxLabelStyle={{ visibility: "hidden" }}
-          />
-        </div>
-        <div>
-          <Gauge
-            value={100 - hddE[0]}
-            width={gaugeW}
-            height={gaugeH}
-            label="External Hard Drive Utilization"
             valueFormatter={gaugeF}
             minMaxLabelStyle={{ visibility: "hidden" }}
           />

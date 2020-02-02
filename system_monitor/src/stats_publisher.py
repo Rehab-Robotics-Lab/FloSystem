@@ -46,12 +46,12 @@ class StatsPublisher(object):
         msg.percent_free = disk_percent_free
         self.hdd_stats_pub.publish(msg)
 
-        disk_stats = psutil.disk_usage('/media/nuc-admin/flo-external')
-        disk_percent_free = 100-disk_stats.percent
-        rospy.logdebug('external disk has %5.2f%% free', disk_percent_free)
-        msg = HDDutil()
-        msg.percent_free = disk_percent_free
-        self.hdd_ext_stats_pub.publish(msg)
+        # disk_stats = psutil.disk_usage('/media/nuc-admin/flo-external')
+        # disk_percent_free = 100-disk_stats.percent
+        # rospy.logdebug('external disk has %5.2f%% free', disk_percent_free)
+        # msg = HDDutil()
+        # msg.percent_free = disk_percent_free
+        # self.hdd_ext_stats_pub.publish(msg)
 
     def read_mem(self, event):
         mem_stats = psutil.virtual_memory()

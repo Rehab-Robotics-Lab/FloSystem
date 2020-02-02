@@ -204,6 +204,19 @@ const App: React.FunctionComponent = () => {
               alignItems: "flex-start"
             }}
           >
+            <Drive ros={ros} connected={connected} />
+            <GameContainer ros={ros} connected={connected} />
+            <div style={{ display: "flex", flexDirection: "row" }}>
+              <SpeechContainer
+                ros={ros}
+                connected={connected}
+                speechTarget={speechTarget}
+                setSpeechTarget={setSpeechTarget}
+                setSpeaking={setSpeaking}
+                speaking={speaking}
+              />
+            </div>
+            <FaceContainer ros={ros} connected={connected} />
             <div
               style={{
                 display: "flex",
@@ -232,19 +245,6 @@ const App: React.FunctionComponent = () => {
                 setMovesList={setMovesList}
               />
             </div>
-            <GameContainer ros={ros} connected={connected} />
-            <div style={{ display: "flex", flexDirection: "row" }}>
-              <SpeechContainer
-                ros={ros}
-                connected={connected}
-                speechTarget={speechTarget}
-                setSpeechTarget={setSpeechTarget}
-                setSpeaking={setSpeaking}
-                speaking={speaking}
-              />
-            </div>
-            <FaceContainer ros={ros} connected={connected} />
-            <Drive ros={ros} connected={connected} />
             <MoveToPose
               ros={ros}
               connected={connected}

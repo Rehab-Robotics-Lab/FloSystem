@@ -7,7 +7,7 @@
         <!--Should be 1024:-->
         <arg name="height" value="480"/>
         <!--Should be 30-->
-        <arg name="set_camera_fps" value="10"/>
+        <arg name="set_camera_fps" value="30"/>
     </include>
 
     <group ns="fisheye_cam">

@@ -14,7 +14,7 @@
     <node pkg="nodelet" type="nodelet"
         name="image_web" args="standalone image_proc/resize" >
             <param name="use_scale" type="bool" value="False"/>
-            <param name="width" type="int" value="300"/>
+            <param name="width" type="int" value="320"/>
             <param name="height" type="int" value="240"/>
 
             <remap from="image" to="image_raw"/>

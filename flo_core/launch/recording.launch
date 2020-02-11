@@ -4,9 +4,9 @@
         <node pkg="rosbag" type="record" name="lil_flo_bag"
         args="record --output-prefix $(arg prefix) --split --duration 1m --lz4
 /lower_realsense/color/image_raw/compressed
-/lower_realsense/depth/image_rect_raw/compressedDepth
+/lower_realsense/depth/image_rect_raw
 /upper_realsense/color/image_raw/compressed
-/upper_realsense/depth/image_rect_raw/compressedDepth
+/upper_realsense/depth/image_rect_raw
 /fisheye_cam/image_raw/compressed
 /client_count
 /cmd_vel_mux/active

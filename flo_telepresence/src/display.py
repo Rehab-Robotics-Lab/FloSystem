@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
+import rospy
+from PIL import Image, ImageTk
+import sys
+from sensor_msgs.msg import Image as smImage
+from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
 import cv2
 try:
     import tkinter as tk
 except ImportError:
     import Tkinter as tk
-from PIL import Image, ImageTk
-import sys
-import rospy
-from sensor_msgs.msg import Image as smImage
-from cv_bridge import CvBridge, CvBridgeError
 import Queue
 
 # Screen is 800x480
@@ -39,29 +39,34 @@ class RobotScreen(object):
         self.run_display()
 
     def run_display(self):
-        r = rospy.Rate(120)
+        rate = rospy.Rate(120)
+        img = None
         while not rospy.is_shutdown():
-            try:
-                img = self.image_queue.get(False)
+            empty = False
+            while not empty:
+                try:
+                    img = self.image_queue.get_nowait()
+                except Queue.Empty:
+                    empty = True
+            if img is not None:
                 self.show_frame(img)
-            except Queue.Empty:
-                pass
-            self.window.update_idletasks()
-            self.window.update()
-            r.sleep()
+                self.window.update_idletasks()
+                self.window.update()
+            rate.sleep()
 
     def new_img(self, msg):
         try:
             cv_image = self.bridge.imgmsg_to_cv2(msg, "rgb8")
-        except CvBridgeError as e:
-            rospy.logerr('error converting message to cvmat: %s', e)
-        self.image_queue.put(cv_image)
+        except CvBridgeError as err:
+            rospy.logerr('error converting message to cvmat: %s', err)
+            return
+        res_img = cv2.resize(cv_image, (800, 480))
+        self.image_queue.put(res_img)
 
     def show_frame(self, cv_image):
-        res_img = cv2.resize(cv_image, (800, 480))
         #frame = cv2.flip(frame, 1)
         # cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
-        img = Image.fromarray(res_img)
+        img = Image.fromarray(cv_image)
         imgtk = ImageTk.PhotoImage(master=self.display1, image=img)
         self.display1.imgtk = imgtk  # Shows frame for display 1
         self.display1.configure(image=imgtk)

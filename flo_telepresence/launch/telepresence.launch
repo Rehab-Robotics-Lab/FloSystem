@@ -16,9 +16,10 @@
     </group>
 
     <group if="$(eval simulate==True)">
-        <node name="robot_screen" pkg="image_view" type="image_view">
-            <remap from="image" to="/remote_Video" />
-        </node>
+        <node name="robot_screen" pkg="flo_telepresence" type="display.py"/>
+        <!--<node name="robot_screen" pkg="image_view" type="image_view">-->
+            <!--<remap from="image" to="/remote_Video" />-->
+        <!--</node>-->
         <!--TODO: Add in something to play a bag file on a loop with data from all realsenses and audio-->
     </group>
 

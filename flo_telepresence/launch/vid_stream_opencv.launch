@@ -2,15 +2,19 @@
     <include file="$(find video_stream_opencv)/launch/camera.launch" >
         <arg name="camera_name" value="fisheye_cam"/>
         <arg name="video_stream_provider" value="/dev/v4l/by-id/usb-HD_Camera_Manufacturer_USB_2.0_Camera-video-index0"/>
-        <arg name="width" value="1280"/>
-        <arg name="height" value="1024"/>
+        <!--Should be 1280:-->
+        <arg name="width" value="640"/>
+        <!--Should be 1024:-->
+        <arg name="height" value="480"/>
+        <!--Should be 30-->
+        <arg name="set_camera_fps" value="30"/>
     </include>
 
     <group ns="fisheye_cam">
     <node pkg="nodelet" type="nodelet"
         name="image_web" args="standalone image_proc/resize" >
             <param name="use_scale" type="bool" value="False"/>
-            <param name="width" type="int" value="300"/>
+            <param name="width" type="int" value="320"/>
             <param name="height" type="int" value="240"/>
 
             <remap from="image" to="image_raw"/>

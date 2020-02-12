@@ -28,6 +28,7 @@ Lil'Flo platform.
   - [No audio plays](#broken-audio)
   - [No videos on web](#broken-web-video)
 
+
 ## Setup
 
 The first think to do is to setup your development computer:
@@ -60,6 +61,7 @@ semicolon, but really, why are you using bash?:
 
 This will set the ROS and OS version and also setup a function to get the ip
 address of this macine on different NICs. This should run without problems
+
 
 ```bash
 if (($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==16));then

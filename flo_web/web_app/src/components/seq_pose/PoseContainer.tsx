@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
-import ModalWrapper from "./ModalWrapper";
-import { basicBlock } from "../styleDefs/styles";
-import { JointState } from "../App";
+import ModalWrapper from "../ModalWrapper";
+import { basicBlock } from "../../styleDefs/styles";
+import { JointState } from "../../App";
 
 export interface PoseMsg {
   description: string;
@@ -74,6 +74,7 @@ const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
       name: "/search_pose",
       serviceType: "flo_core/SearchPose"
     });
+    console.log("connected to service to search for poses");
 
     const request = new ROSLIB.ServiceRequest({ search: "" });
 
@@ -83,7 +84,9 @@ const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
         poses.push({ id: resp.ids[i], pose: resp.poses[i] });
       }
       setPosesList(poses);
+      console.log("received pose search result");
     });
+    console.log("searched for pose");
 
     const setPoseSrvT = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
@@ -91,6 +94,7 @@ const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
       serviceType: "flo_core/SetPose"
     });
     setSetPoseSrv(setPoseSrvT);
+    console.log("connected to service to set pose");
   }, [connected, ros]);
 
   return (

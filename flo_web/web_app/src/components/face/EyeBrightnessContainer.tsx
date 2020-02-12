@@ -53,8 +53,9 @@ const EyeOptionsContainer: React.FunctionComponent<EyeOptionsContainerProps> = (
       return;
     }
     setEyeDirectionSrv.callService(req, function() {
-      //do nothing
+      //do nothing.
     });
+    console.log("set eye direction");
   };
 
   useEffect(() => {
@@ -65,18 +66,18 @@ const EyeOptionsContainer: React.FunctionComponent<EyeOptionsContainerProps> = (
       serviceType: "flo_face/SetEyeDirection"
     });
     setSeteEyeDirectionSrv(setEyeDirectionSrvT);
+    console.log("connected to set eye direction service");
   }, [connected, ros]);
 
   return (
-    <div
-      style={{ overflow: "hidden", display: "flex", flexDirection: "column" }}
-    >
-      <h3>Eye Options:</h3>
+    <div>
+      <h3>Available Eye Options:</h3>
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          overflowY: "auto"
+          overflow: "auto",
+          maxHeight: "400px"
         }}
       >
         {eyeOptions.map(value => (

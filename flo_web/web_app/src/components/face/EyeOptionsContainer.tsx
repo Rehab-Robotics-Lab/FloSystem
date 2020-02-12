@@ -41,20 +41,21 @@ const EyeOptionsContainer: React.FunctionComponent<EyeOptionsContainerProps> = (
 }) => {
   const [
     setEyeDirectionSrv,
-    setSeteEyeDirectionSrv
+    setSetEyeDirectionSrv
   ] = useState<ROSLIB.Service | null>(null);
 
   const setEye = (name: string): void => {
     const req = new ROSLIB.ServiceRequest({
       direction: name
     });
-    // send service call to add new utterance
     if (setEyeDirectionSrv === null) {
       return;
     }
     setEyeDirectionSrv.callService(req, function() {
-      //do nothing.
+      //do nothing
+      console.log("succesfully set eye direction");
     });
+    console.log("set eye direction");
   };
 
   useEffect(() => {
@@ -64,18 +65,20 @@ const EyeOptionsContainer: React.FunctionComponent<EyeOptionsContainerProps> = (
       name: "/set_eye_direction",
       serviceType: "flo_face/SetEyeDirection"
     });
-    setSeteEyeDirectionSrv(setEyeDirectionSrvT);
+    setSetEyeDirectionSrv(setEyeDirectionSrvT);
+    console.log("connected to set eye direction service");
   }, [connected, ros]);
 
   return (
-    <div>
-      <h3>Available Eye Options:</h3>
+    <div
+      style={{ overflow: "hidden", display: "flex", flexDirection: "column" }}
+    >
+      <h3>Eye Options:</h3>
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          overflow: "auto",
-          maxHeight: "400px"
+          overflowY: "auto"
         }}
       >
         {eyeOptions.map(value => (

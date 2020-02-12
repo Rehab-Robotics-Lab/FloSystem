@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
-import { SetSpeechTarget, Utterance } from "../App";
-import ModalWrapper from "./ModalWrapper";
+import { SetSpeechTarget, Utterance } from "../../App";
+import ModalWrapper from "../ModalWrapper";
 
 const shrinkString = (str: string): string => {
   let ret = str;
@@ -90,7 +90,9 @@ const SavedSpeech: React.FunctionComponent<SavedSpeechProps> = ({
       }
       setUtterances(utterancesT);
       setSaveID(0);
+      console.log("got response from set utterance service");
     });
+    console.log("sent request to set utterance service");
     //
     // read back response and add to the list
   };
@@ -103,6 +105,7 @@ const SavedSpeech: React.FunctionComponent<SavedSpeechProps> = ({
       name: "/search_utterance",
       serviceType: "flo_core/SearchUtterance"
     });
+    console.log("connected to search utterances service");
 
     const request = new ROSLIB.ServiceRequest({ search: "" });
 
@@ -117,6 +120,7 @@ const SavedSpeech: React.FunctionComponent<SavedSpeechProps> = ({
         });
       }
       setUtterances(utterances);
+      console.log("got response from search utterances service");
     });
 
     const setUtterSrvT = new ROSLIB.Service({
@@ -125,6 +129,7 @@ const SavedSpeech: React.FunctionComponent<SavedSpeechProps> = ({
       serviceType: "flo_core/SetUtterance"
     });
     setSetUtterSrv(setUtterSrvT);
+    console.log("connected to set utterances service");
   }, [connected, ros]);
 
   return (

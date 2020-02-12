@@ -28,3 +28,8 @@ export const buttonContainer: CSSProperties = {
   alignItems: "center",
   justifyContent: "space-evenly"
 };
+
+export const wrapStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column"
+};

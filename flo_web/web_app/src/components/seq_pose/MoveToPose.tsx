@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import * as ROSLIB from "roslib";
-import { SetMoving, JointState } from "../App";
+import { SetMoving, JointState } from "../../App";
 import { runSequence, Move } from "./SequenceRunContainer";
-import { basicBlock, inputWithSpace, majorButton } from "../styleDefs/styles";
+import {
+  basicBlock,
+  inputWithSpace,
+  majorButton
+} from "../../styleDefs/styles";
 
 const armNames = [
   "shoulder_flexionextension",

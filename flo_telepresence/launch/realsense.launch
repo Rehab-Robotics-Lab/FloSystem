@@ -7,29 +7,31 @@
 <!--S/N 1: 904412060717-->
 <!--S/N 2: 912322061173-->
 
-  <arg name="serial_no_upper"           value="904412060717"/>
-  <arg name="serial_no_lower"           value="912322061173"/>
+  <arg name="serial_no_lower"           value="904412060717"/>
+  <arg name="serial_no_upper"           value="912322061173"/>
 
   <arg name="depth_width"               value="1280"/>
   <arg name="depth_height"              value="720"/>
   <arg name="enable_depth"              value="true"/>
   <arg name="depth_fps"                 value="30"/>
 
-  <arg name="color_width"               value="1920"/>
-  <arg name="color_height"              value="1080"/>
+    <!--should be 1920:-->
+  <arg name="color_width"               value="1280"/>
+  <!--should be 1080:-->
+  <arg name="color_height"              value="720"/>
   <arg name="enable_color"              value="true"/>
+  <!--Should be 30:-->
   <arg name="color_fps"                 value="30"/>
 
   <arg name="align_depth"               value="false"/>
   <arg name="enable_pointcloud"         value="false"/>
 
-
-  <!--<arg name="infra_width"        default="1280"/>-->
-  <!--<arg name="infra_height"       default="720"/>-->
-  <!--<arg name="enable_infra1"       default="true"/>-->
-  <!--<arg name="enable_infra2"       default="true"/>-->
+  <arg name="enable_infra"       value="false"/>
 
   <!--<arg name="enable_sync"               default="false"/>-->
+
+  <!--This seems like a good idea, but when this is done, nothing can connect for a while:-->
+  <arg name="initial_reset"             value="false"/>
 
 
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">
@@ -43,8 +45,6 @@
 
         <arg name="infra_width"      value="$(arg depth_width)"/>
         <arg name="infra_height"     value="$(arg depth_height)"/>
-        <arg name="enable_infra1"     value="$(arg enable_depth)"/>
-        <arg name="enable_infra2"     value="$(arg enable_depth)"/>
         <arg name="infra_fps"       value="$(arg depth_fps)"/>
 
         <arg name="color_width"      value="$(arg color_width)"/>
@@ -55,12 +55,14 @@
         <arg name="align_depth"      value="$(arg align_depth)"/>
         <arg name="enable_pointcloud"      value="$(arg enable_pointcloud)"/>
 
-        <arg name="enable_fisheye"   value="false"/>
-        <arg name="enable_fisheye1"  value="false"/>
-        <arg name="enable_fisheye2"  value="false"/>
         <arg name="enable_gyro"      value="false"/>
         <arg name="enable_accel"     value="false"/>
-        <arg name="enable_pose"      value="false"/>
+        <!--<arg name="enable_pose"      value="false"/>-->
+
+        <arg name="enable_infra1"    value="$(arg enable_infra)"/>
+        <arg name="enable_infra2"    value="$(arg enable_infra)"/>
+
+        <arg name="initial_reset"    value="$(arg initial_reset)"/>
     </include>
 
     <group ns="lower_realsense/color">
@@ -93,12 +95,14 @@
         <arg name="align_depth"      value="$(arg align_depth)"/>
         <arg name="enable_pointcloud"      value="$(arg enable_pointcloud)"/>
 
-        <arg name="enable_fisheye"   value="false"/>
-        <arg name="enable_fisheye1"  value="false"/>
-        <arg name="enable_fisheye2"  value="false"/>
         <arg name="enable_gyro"      value="false"/>
         <arg name="enable_accel"     value="false"/>
-        <arg name="enable_pose"      value="false"/>
+        <!--<arg name="enable_pose"      value="false"/>-->
+
+        <arg name="enable_infra1"    value="$(arg enable_infra)"/>
+        <arg name="enable_infra2"    value="$(arg enable_infra)"/>
+
+        <arg name="initial_reset"    value="$(arg initial_reset)"/>
     </include>
     <group ns="upper_realsense/color">
     <node pkg="nodelet" type="nodelet"

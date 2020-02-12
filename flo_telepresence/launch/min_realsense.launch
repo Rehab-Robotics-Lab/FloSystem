@@ -1,0 +1,7 @@
+<launch>
+    <node pkg="nodelet" type="nodelet" name="cust_manager"  args="manager"/>
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+        <arg name="external_manager" value="true"/>
+        <arg name="manager"          value="cust_manager"/>
+    </include>
+</launch>

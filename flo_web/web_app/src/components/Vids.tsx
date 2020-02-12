@@ -1,6 +1,7 @@
 import React, { useEffect, useState, CSSProperties } from "react";
 import * as ROSLIB from "roslib";
 import { Helmet } from "react-helmet";
+import { wrapStyle } from "../styleDefs/styles";
 
 declare var WebrtcRos: any;
 
@@ -41,6 +42,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         "/webrtc";
 
       const connection1 = WebrtcRos.createConnection(connectionString);
+      console.log("connected to webrtc ros");
 
       connection1.onConfigurationNeeded = (): void => {
         const remoteStreamConfigUpper = { video: {}, audio: {} };
@@ -171,11 +173,6 @@ const Vids: React.FunctionComponent<VidsProps> = ({
   const vidStyle = {
     width: "auto",
     maxWidth: "300px"
-  };
-
-  const wrapStyle: CSSProperties = {
-    display: "flex",
-    flexDirection: "column"
   };
 
   return (

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
-import { SetMovesList, genRandID } from "../App";
+import { SetMovesList, genRandID } from "../../App";
 import { Move } from "./SequenceRunContainer";
-import ModalWrapper from "./ModalWrapper";
-import { basicBlock } from "../styleDefs/styles";
+import ModalWrapper from "../ModalWrapper";
+import { basicBlock } from "../../styleDefs/styles";
 
 interface Sequence {
   pose_ids: number[];
@@ -88,6 +88,7 @@ const SequenceContainer: React.FunctionComponent<SequenceContainerProps> = ({
       name: "/search_pose_seq",
       serviceType: "flo_core/SearchPoseSeq"
     });
+    console.log("connected to service to search for a pose sequence");
 
     const request = new ROSLIB.ServiceRequest({ search: "" });
 
@@ -100,7 +101,9 @@ const SequenceContainer: React.FunctionComponent<SequenceContainerProps> = ({
         });
       }
       setSeqList(seqs);
+      console.log("received pose sequences");
     });
+    console.log("searched for all pose sequences");
 
     const setSeqSrvT = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
@@ -108,6 +111,7 @@ const SequenceContainer: React.FunctionComponent<SequenceContainerProps> = ({
       serviceType: "flo_core/SetPoseSeq"
     });
     setSetSeqSrv(setSeqSrvT);
+    console.log("connected to service to set pose sequences");
 
     const getPoseSrvT = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
@@ -115,6 +119,7 @@ const SequenceContainer: React.FunctionComponent<SequenceContainerProps> = ({
       serviceType: "flo_core/GetPoseID"
     });
     setGetPoseSrv(getPoseSrvT);
+    console.log("connected to service to get poses by id");
   }, [connected, ros]);
 
   return (

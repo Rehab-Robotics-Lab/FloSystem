@@ -84,7 +84,7 @@ class StatsPublisher(object):
             msg = output.decode('utf-8')
             lqv = re.split(
                 '/', re.search('(?<=Link Quality=)[0-9/]*', msg).group(0))
-            link_quality = int(lqv[0])/int(lqv[1])
+            link_quality = 100*int(lqv[0])/int(lqv[1])
             signal_level = int(
                 re.search('(?<=Signal level=)[0-9\-]*', msg).group(0))
             return {'link_quality': link_quality, 'signal_level': signal_level}

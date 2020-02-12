@@ -3,14 +3,16 @@ import "./App.css";
 import { CookiesProvider, useCookies } from "react-cookie";
 import Header from "./components/Header";
 import URDF from "./components/urdf";
-import PoseContainer from "./components/PoseContainer";
+import PoseContainer from "./components/seq_pose/PoseContainer";
 import ErrorDisplay, { ErrorItem } from "./components/ErrorDisplay";
-import SequenceRunContainer, { Move } from "./components/SequenceRunContainer";
-import SequenceContainer from "./components/SequenceContainer";
+import SequenceRunContainer, {
+  Move
+} from "./components/seq_pose/SequenceRunContainer";
+import SequenceContainer from "./components/seq_pose/SequenceContainer";
 import colors from "./styleDefs/colors";
-import SpeechContainer from "./components/SpeechContainer";
-import MoveToPose from "./components/MoveToPose";
-import FaceContainer from "./components/FaceContainer";
+import SpeechContainer from "./components/speech/SpeechContainer";
+import MoveToPose from "./components/seq_pose/MoveToPose";
+import FaceContainer from "./components/face/FaceContainer";
 import RelaxMotors from "./components/RelaxMotors";
 import Vids from "./components/Vids";
 import * as ROSLIB from "roslib";
@@ -18,6 +20,7 @@ import Drive from "./components/Drive";
 import { basicBlock } from "./styleDefs/styles";
 import GameContainer from "./components/GameContainer";
 import SystemMonitor from "./components/SystemMonitor";
+import GameBuckets from "./components/GameBuckets";
 
 export function genRandID(): number {
   return Math.round(Math.random() * 10000) + Date.now();
@@ -190,6 +193,7 @@ const App: React.FunctionComponent = () => {
               ipPort={ipPort}
             />
             <URDF ros={ros} connected={connected} />
+            <SystemMonitor ros={ros} connected={connected} />
           </div>
           <RelaxMotors ros={ros} connected={connected} />
           <div
@@ -201,6 +205,19 @@ const App: React.FunctionComponent = () => {
               alignItems: "flex-start"
             }}
           >
+            <Drive ros={ros} connected={connected} />
+            <GameContainer ros={ros} connected={connected} />
+            <div style={{ display: "flex", flexDirection: "row" }}>
+              <SpeechContainer
+                ros={ros}
+                connected={connected}
+                speechTarget={speechTarget}
+                setSpeechTarget={setSpeechTarget}
+                setSpeaking={setSpeaking}
+                speaking={speaking}
+              />
+            </div>
+            <FaceContainer ros={ros} connected={connected} />
             <div
               style={{
                 display: "flex",
@@ -229,18 +246,7 @@ const App: React.FunctionComponent = () => {
                 setMovesList={setMovesList}
               />
             </div>
-            <GameContainer ros={ros} connected={connected} />
-            <div style={{ display: "flex", flexDirection: "row" }}>
-              <SpeechContainer
-                ros={ros}
-                connected={connected}
-                speechTarget={speechTarget}
-                setSpeechTarget={setSpeechTarget}
-                setSpeaking={setSpeaking}
-                speaking={speaking}
-              />
-            </div>
-            <FaceContainer ros={ros} connected={connected} />
+            <GameBuckets ros={ros} connected={connected} />
             <MoveToPose
               ros={ros}
               connected={connected}
@@ -248,8 +254,6 @@ const App: React.FunctionComponent = () => {
               setMoving={setMoving}
               pose={pose}
             />
-            <Drive ros={ros} connected={connected} />
-            <SystemMonitor ros={ros} connected={connected} />
           </div>
           <ErrorDisplay errorList={errorList} />
         </div>

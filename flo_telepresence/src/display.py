@@ -59,10 +59,11 @@ class RobotScreen(object):
             cv_image = self.bridge.imgmsg_to_cv2(msg, "rgb8")
         except CvBridgeError as err:
             rospy.logerr('error converting message to cvmat: %s', err)
+            return
+        res_img = cv2.resize(cv_image, (800, 480))
         self.image_queue.put(cv_image)
 
     def show_frame(self, cv_image):
-        res_img = cv2.resize(cv_image, (800, 480))
         #frame = cv2.flip(frame, 1)
         # cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
         img = Image.fromarray(res_img)

@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
+import rospy
+from PIL import Image, ImageTk
+import sys
+from sensor_msgs.msg import Image as smImage
+from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
 import cv2
 try:
     import tkinter as tk
 except ImportError:
     import Tkinter as tk
-from PIL import Image, ImageTk
-import sys
-import rospy
-from sensor_msgs.msg import Image as smImage
-from cv_bridge import CvBridge, CvBridgeError
 import Queue
 
 # Screen is 800x480
@@ -39,7 +39,7 @@ class RobotScreen(object):
         self.run_display()
 
     def run_display(self):
-        r = rospy.Rate(120)
+        rate = rospy.Rate(120)
         while not rospy.is_shutdown():
             try:
                 img = self.image_queue.get(False)
@@ -48,13 +48,13 @@ class RobotScreen(object):
                 pass
             self.window.update_idletasks()
             self.window.update()
-            r.sleep()
+            rate.sleep()
 
     def new_img(self, msg):
         try:
             cv_image = self.bridge.imgmsg_to_cv2(msg, "rgb8")
-        except CvBridgeError as e:
-            rospy.logerr('error converting message to cvmat: %s', e)
+        except CvBridgeError as err:
+            rospy.logerr('error converting message to cvmat: %s', err)
         self.image_queue.put(cv_image)
 
     def show_frame(self, cv_image):

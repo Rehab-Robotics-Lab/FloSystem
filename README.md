@@ -353,7 +353,7 @@ your work over to the robot.
 
 If you are developing on your local computer without the robot, there is a
 simulator stack that you can use. under the `flo_core` package:
-`roslaunch flo_core flo_sim.launch` You will also need to launch the webserver
+`mon launch flo_core flo_sim.launch`. You will also need to launch the webserver
 by going to `flo_web/web_app` and running `npm start`. For development, you may
 want to run the browser on your local machine with `npm chrome`
 

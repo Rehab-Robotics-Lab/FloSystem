@@ -31,6 +31,11 @@ Lil'Flo platform.
 
 ## Setup
 
+Throughout this setup, we will assume that you are using a clean install of the
+version of linux that is called for. The setup may not tolerate weird tweaks to
+the python version, will not work with conda, and will not work with python
+virtual environments.
+
 The first think to do is to setup your development computer:
 
 ### Dev Computer

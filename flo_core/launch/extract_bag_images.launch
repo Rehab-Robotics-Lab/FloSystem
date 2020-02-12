@@ -1,18 +1,38 @@
 <launch>
   <arg name="target" />
   <node pkg="rosbag" type="play" name="rosbag" required="true" args="$(arg target)"/>
+
+
+<!--LOWER REALSENSE COLOR-->
+  <!--<node name="republish" type="republish" pkg="image_transport" output="screen" args="compressed in:=/lower_realsense/color/image_raw raw out:=/lower_realsense/color/image_raw" />-->
   <!--<node name="extract_lrc" pkg="image_view" type="extract_images" respawn="false" required="true" output="screen" cwd="ROS_HOME">-->
     <!--<remap from="image" to="lower_realsense/color/image_raw"/>-->
   <!--</node>-->
+
+
+
+<!--LOWER REALSENSE DEPTH-->
   <node name="extract_lrd" pkg="image_view" type="extract_images" respawn="false" required="true" output="screen" cwd="ROS_HOME">
     <remap from="image" to="lower_realsense/depth/image_rect_raw"/>
   </node>
+
+
+
+<!--UPPER REALSENSE COLOR-->
   <!--<node name="extract_urc" pkg="image_view" type="extract_images" respawn="false" required="true" output="screen" cwd="ROS_HOME">-->
     <!--<remap from="image" to="upper_realsense/color/image_raw"/>-->
   <!--</node>-->
+
+
+
+<!--UPPER REALSENSE DEPTH-->
   <!--<node name="extract_urd" pkg="image_view" type="extract_images" respawn="false" required="true" output="screen" cwd="ROS_HOME">-->
     <!--<remap from="image" to="upper_realsense/depth/image_rect_raw"/>-->
   <!--</node>-->
+
+
+
+<!--FISHEYE CAMERA-->
   <!--<node name="extract_f" pkg="image_view" type="extract_images" respawn="false" required="true" output="screen" cwd="ROS_HOME">-->
     <!--<remap from="image" to="fisheye_cam/image_raw"/>-->
   <!--</node>-->

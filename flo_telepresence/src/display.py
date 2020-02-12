@@ -40,14 +40,18 @@ class RobotScreen(object):
 
     def run_display(self):
         rate = rospy.Rate(120)
+        img = None
         while not rospy.is_shutdown():
-            try:
-                img = self.image_queue.get(False)
+            empty = False
+            while not empty:
+                try:
+                    img = self.image_queue.get_nowait()
+                except Queue.Empty:
+                    empty = True
+            if img is not None:
                 self.show_frame(img)
-            except Queue.Empty:
-                pass
-            self.window.update_idletasks()
-            self.window.update()
+                self.window.update_idletasks()
+                self.window.update()
             rate.sleep()
 
     def new_img(self, msg):

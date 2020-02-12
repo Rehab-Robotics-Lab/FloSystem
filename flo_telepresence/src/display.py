@@ -61,12 +61,12 @@ class RobotScreen(object):
             rospy.logerr('error converting message to cvmat: %s', err)
             return
         res_img = cv2.resize(cv_image, (800, 480))
-        self.image_queue.put(cv_image)
+        self.image_queue.put(res_img)
 
     def show_frame(self, cv_image):
         #frame = cv2.flip(frame, 1)
         # cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
-        img = Image.fromarray(res_img)
+        img = Image.fromarray(cv_image)
         imgtk = ImageTk.PhotoImage(master=self.display1, image=img)
         self.display1.imgtk = imgtk  # Shows frame for display 1
         self.display1.configure(image=imgtk)

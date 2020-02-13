@@ -99,4 +99,8 @@
 /upper_realsense/rgb_camera/parameter_updates
 "
         />
-        </launch>
+
+    <node pkg="flo_core" type="param_saver.py" name="param_saver">
+        <param name="save_location" value="~/flo_data/"/>
+    </node>
+</launch>

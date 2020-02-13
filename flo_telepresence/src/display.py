@@ -69,6 +69,7 @@ class RobotScreen(object):
         img = Image.fromarray(cv_image)
         imgtk = ImageTk.PhotoImage(master=self.display1, image=img)
         self.display1.imgtk = imgtk  # Shows frame for display 1
+        # This is a very very slow operation:
         self.display1.configure(image=imgtk)
 
 

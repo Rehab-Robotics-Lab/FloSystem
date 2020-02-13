@@ -97,9 +97,35 @@ Some helpful commands (you will need to install `net-tools` for some):
 - `sudo lshw -class network` gives hardware details
 - `lsusb` will show the installed usb devices
 
-#### New Way (USB Stick)
+#### New Way (tp-link AC750)
 
-This is setup using the Panda Wireless PAU09 wireless adapter
+1. Buy a tp-link ac750 travel router (TL-WR902AC)
+2. Plug it into power and se tthe mode switch to share hotspot
+3. Go through the quick setup to connect to something
+4. Set the broadcast network name as flo-net for both 2.4 and 5 Ghz
+5. Set security to WPA2-PSK/AES with password floiscool#01
+6. Under the network tab, click LAN and set the IP Address to 10.42.0.1
+7. Under DHCP set the range to 10.42.0.100 - 10.42.0.199
+8. Under IP & MAC binding, set ARP Binding to be enabled
+9. Click into the ARP List and select the nuc, set it to be bound on 10.42.0.189
+10. Under DHCP/Address Reservation, add the MAC and IP address that you set to bind
+11. click under system tools and change the password
+12. connect everything up.
+
+When you enter somewhere new, you will need to connect to the local network. TO do this:
+
+1. Turn on the router
+2. navigate to 10.42.0.1
+3. select the quick setup and click through to setup
+
+Some thoughts on this:
+
+- Using 5GHz gives better bandwidth, but that isn't always what you want.
+  2.4GHz gives better range. So you might want to use 2.4 GHz instead.
+  To do that, just name the 5ghz connection something else.
+- Using the network share means the chip is doing extra. It might be faster/stronger
+  if it came off of the ethernet.
+- The router can be placed between the robot and laptop, either using wifi or a cable.
 
 #### Old Way (Router hooked up through ethernet)
 

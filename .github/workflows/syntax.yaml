@@ -1,8 +1,7 @@
 name: Check Syntax
 # This workflow is triggered on pushes to the repository.
-on: [push]
-    #pull_request:
-        #types: [synchronize, opened, reopened]
+on: pull_request:
+        types: [synchronize, opened, reopened]
 
 
 jobs:

@@ -7,7 +7,6 @@ on: pull_request:
 jobs:
     lint_python:
         name: Lint Python
-    # This job runs on Linux
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
@@ -29,3 +28,16 @@ jobs:
               #run: |
                   #pip install jedi
                   #pip install python-language-server
+        name: Lint Node
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - name: Setup Node
+              uses: actions/setup-node@v1
+              with:
+                  node-version: 13.x
+            - name: Lint with eslint
+              run: |
+                  cd flo_web/web_app
+                  npm install
+                  eslint src

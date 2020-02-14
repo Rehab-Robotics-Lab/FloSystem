@@ -185,6 +185,14 @@ Some helpful commands (you will need to install `net-tools` for some):
 11. click under system tools and change the password
 12. connect everything up.
 
+It also makes sense to setup for tethered sharing, in the [old way](#old-way):
+
+1. Set switch to AP mode
+2. connect by wifi and navigate to 192.168.0.1
+3. Quick setup set ssid to flo-net and password to floiscool#01
+4. Plug in cable
+5. Rock and roll
+
 When you enter somewhere new, you will need to connect to the local network. TO do this:
 
 1. Turn on the router

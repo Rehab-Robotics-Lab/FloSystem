@@ -58,5 +58,5 @@ jobs:
         run: |
           cd flo_web/web_app
           npm install
-          npm i eslint
+          npm install -g eslint
           eslint src

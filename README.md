@@ -429,6 +429,26 @@ For monitoring the kobuki, you can use the
 [kobuki dashboard](http://wiki.ros.org/turtlebot_bringup/Tutorials/indigo/PC%20Bringup).
 Run: `rqt -s kobuki_dashboard`.
 
+## Getting Data off the Robot:
+
+Once the robot has been used, you will need to get data off of it. There are a
+few options for this:
+
+- Transfer to external media, this is easy and fast, SSH into the robot,
+  plug storage into the front USB3 ports, and use the `mv`
+  (move) or `cp` (copy) commands to move things to the usb drive. You should be
+  able to find your USB drive in the `/media/nuc-admin` folder. The cp command
+  does not provide feedback, an alternative is to use rsync:
+  `rsync -ah --progress <source> <destination>`
+- Use SCP, this is a pain, not at all worth it
+- Use an FTP gui, this works quite well but is limited by network speed, in your
+  FTP gui, set the address as `ftp://flo-nuc` and then copy the data over the
+  network.
+
+All of the data should be stored in the `/home/nuc-admin/flo_data` folder.
+There will be two types of files, rosbag files, 1 per minute of operation,
+and parameter dumps, one from startup and one from shutdown.
+
 ## Things that may break: {#break}
 
 ### The web interface just doesn't do anything {#broken-web}

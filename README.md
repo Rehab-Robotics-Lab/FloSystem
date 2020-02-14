@@ -150,6 +150,7 @@ Some things to keep in mind:
 - You will likely need to add a different robot. You can simply use the ones
   that are above as a template. You will need your common language name for the
   robot and its IP address.
+- `connect_to_robot 0` will connect to your local robot
 
 ### Network
 
@@ -237,10 +238,22 @@ already done:
 You should then be able to connect to the router using the settings setup on the
 router at the beginning from the nuc on the robot
 
-#### SSH-Keys
+#### SSH-Keys, Hosts List, and SSHing in
 
 You will now need to setup SSH Keys. Just follow
 [this guide](https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys-on-ubuntu-1804)
+
+You will probably also want to add the flo robot to your hosts list to make life easier.
+To do that: edit your hosts file: `sudo nvim /etc/hosts` to have the nuc listed.
+Add this: `10.42.0.189 flo-nuc`
+
+You can also create a function in your bashrc that allows easier sshing in:
+
+```bash
+function ssh-flo {
+    ssh nuc-admin@flo-nuc
+}
+```
 
 ### NUC
 

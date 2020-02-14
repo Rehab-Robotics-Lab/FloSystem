@@ -150,6 +150,7 @@ Some things to keep in mind:
 - You will likely need to add a different robot. You can simply use the ones
   that are above as a template. You will need your common language name for the
   robot and its IP address.
+- `connect_to_robot 0` will connect to your local robot
 
 ### Network
 
@@ -237,10 +238,22 @@ already done:
 You should then be able to connect to the router using the settings setup on the
 router at the beginning from the nuc on the robot
 
-#### SSH-Keys
+#### SSH-Keys, Hosts List, and SSHing in
 
 You will now need to setup SSH Keys. Just follow
 [this guide](https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys-on-ubuntu-1804)
+
+You will probably also want to add the flo robot to your hosts list to make life easier.
+To do that: edit your hosts file: `sudo nvim /etc/hosts` to have the nuc listed.
+Add this: `10.42.0.189 flo-nuc`
+
+You can also create a function in your bashrc that allows easier sshing in:
+
+```bash
+function ssh-flo {
+    ssh nuc-admin@flo-nuc
+}
+```
 
 ### NUC
 
@@ -415,6 +428,26 @@ to make this all work on your local computer.
 For monitoring the kobuki, you can use the
 [kobuki dashboard](http://wiki.ros.org/turtlebot_bringup/Tutorials/indigo/PC%20Bringup).
 Run: `rqt -s kobuki_dashboard`.
+
+## Getting Data off the Robot:
+
+Once the robot has been used, you will need to get data off of it. There are a
+few options for this:
+
+- Transfer to external media, this is easy and fast, SSH into the robot,
+  plug storage into the front USB3 ports, and use the `mv`
+  (move) or `cp` (copy) commands to move things to the usb drive. You should be
+  able to find your USB drive in the `/media/nuc-admin` folder. The cp command
+  does not provide feedback, an alternative is to use rsync:
+  `rsync -ah --progress <source> <destination>`
+- Use SCP, this is a pain, not at all worth it
+- Use an FTP gui, this works quite well but is limited by network speed, in your
+  FTP gui, set the address as `ftp://flo-nuc` and then copy the data over the
+  network.
+
+All of the data should be stored in the `/home/nuc-admin/flo_data` folder.
+There will be two types of files, rosbag files, 1 per minute of operation,
+and parameter dumps, one from startup and one from shutdown.
 
 ## Things that may break: {#break}
 

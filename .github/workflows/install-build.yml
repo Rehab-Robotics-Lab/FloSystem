@@ -1,0 +1,35 @@
+name: Install & Build
+
+on:
+  pull_request:
+    types: [synchronize, opened, reopened]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Create Catkin Workspace
+      run: mkdir ~/catkin_ws/src -p
+      
+    - name: Checkout this repo
+      uses: actions/checkout@v2
+      with:
+        path: ~/catkin_ws/src
+
+    - name: Checkout AWS ROS TTS - caching version
+      uses: actions/checkout@v2
+      with:
+        path: ~/catkin_ws/src
+        repository: "https://github.com/mjsobrep/tts-ros1"
+        
+    - name: Checkout WebRTC-ROS - dev version
+      uses: actions/checkout@v2
+      with:
+        path: ~/catkin_ws/src
+        repository: https://github.com/RobotWebTools/webrtc_ros
+        ref: develop
+
+    - name: Run a multi-line script
+      run: bash ~/catkin_ws/src/LilFloSystem/robot_install.sh

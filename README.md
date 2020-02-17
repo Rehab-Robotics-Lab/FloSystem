@@ -1,4 +1,5 @@
 # LilFloSystem
+![Check Syntax](https://github.com/Rehab-Robotics-Lab/LilFloSystem/workflows/Check%20Syntax/badge.svg)
 
 This is the the master repository for all of the Lil'Flo remote control, local
 control, messaging, etc.

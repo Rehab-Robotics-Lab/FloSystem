@@ -32,4 +32,4 @@ jobs:
         ref: develop
 
     - name: Run a multi-line script
-      run: bash ~/catkin_ws/src/LilFloSystem/robot_install.sh
+      run: ls ~/catkin_ws/src/LilFloSystem

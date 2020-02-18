@@ -43,3 +43,6 @@ jobs:
         pwd
         sudo apt install tree
         tree
+
+    - name: Run Install Script
+      run: bash catkin_ws/src/LilFloSystem/gen_install.sh

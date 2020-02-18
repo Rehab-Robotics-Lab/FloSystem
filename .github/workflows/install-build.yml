@@ -14,17 +14,21 @@ jobs:
 
       - name: Checkout this repo
         uses: actions/checkout@v2
+        with:
+          path: LilFloSystem
 
       - name: Checkout AWS ROS TTS - caching version
         uses: actions/checkout@v2
         with:
           repository: mjsobrep/tts-ros1
+          path: tts-ros1
 
       - name: Checkout WebRTC-ROS - dev version
         uses: actions/checkout@v2
         with:
           repository: RobotWebTools/webrtc_ros
           ref: develop
+          path: webrtc_ros
 
       - name: Add catkin_ws to path
         run: |

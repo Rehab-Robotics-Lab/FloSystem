@@ -26,7 +26,7 @@ sudo apt install python-rosinstall python-rosinstall-generator python-wstool bui
 
 ## Install packages we need:
 echo "INSTALLING DEPENDENCIES NOT FOUND IN ROSDEP"
-pip install pyqtgraph --user
+#pip install pyqtgraph --user
 #I think I have replaced this by adding a symlink:
 #python flo_face/teensy/src/serial_coms/computer/python/serial-coms/setup.py install --user
 pip install mutagen --user

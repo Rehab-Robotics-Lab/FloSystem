@@ -6,43 +6,48 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - name: Create Catkin Workspace
-      run: mkdir catkin_ws/src -p
-      
-    - name: Checkout this repo
-      uses: actions/checkout@v2
-      with:
-        path: catkin_ws/src/LilFloSystem
+      - name: Create Catkin Workspace
+        run: mkdir ~/catkin_ws/src -p
 
-    - name: Checkout AWS ROS TTS - caching version
-      uses: actions/checkout@v2
-      with:
-        path: catkin_ws/src/tts-ros1
-        repository: mjsobrep/tts-ros1
-        
-    - name: Checkout WebRTC-ROS - dev version
-      uses: actions/checkout@v2
-      with:
-        path: catkin_ws/src/webrtc_ros
-        repository: RobotWebTools/webrtc_ros
-        ref: develop
-         
-    - name: Add catkin_ws to path
-      run: |
-        echo 'source /opt/ros/kinetic/setup.bash' >> ~/.bashrc
-        echo 'source $GITHUB_WORKSPACE/catkin_ws/devel/setup.bash' >> ~/.bashrc
-        echo 'export ROS_MASTER_URI=http://localhost:11311' >> ~/.bashrc
+      - name: Checkout this repo
+        uses: actions/checkout@v2
 
-    - name: Show where we are
-      run: |
-        ls 
-        pwd
-        sudo apt install tree
-        tree
+      - name: Checkout AWS ROS TTS - caching version
+        uses: actions/checkout@v2
+        with:
+          repository: mjsobrep/tts-ros1
 
-    - name: Run Install Script
-      run: bash catkin_ws/src/LilFloSystem/gen_install.sh
+      - name: Checkout WebRTC-ROS - dev version
+        uses: actions/checkout@v2
+        with:
+          repository: RobotWebTools/webrtc_ros
+          ref: develop
+
+      - name: Add catkin_ws to path
+        run: |
+          echo 'source /opt/ros/kinetic/setup.bash' >> ~/.bashrc
+          echo 'source $GITHUB_WORKSPACE/catkin_ws/devel/setup.bash' >> ~/.bashrc
+          echo 'export ROS_MASTER_URI=http://localhost:11311' >> ~/.bashrc
+
+      - name: Link repos into catkin ws
+        run: |
+          ln -s LilFloSystem ~/catkin_ws/src/
+          ln -s tts-ros1 ~/catkin_ws/src/
+          ln -s webrtc_ros ~/catkin_ws/src
+
+      - name: Prevent all of webrtc dev from building
+        run: touch webrtc_ros/webrtc/CATKIN_IGNORE
+
+      - name: Show where we are
+        run: |
+          ls
+          pwd
+          sudo apt install tree
+          tree
+          tree ~/catkin_ws
+
+      - name: Run Install Script
+        run: bash catkin_ws/src/LilFloSystem/gen_install.sh

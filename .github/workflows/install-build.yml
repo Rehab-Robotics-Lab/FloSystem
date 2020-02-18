@@ -42,16 +42,16 @@ jobs:
           ln -s tts-ros1 ~/catkin_ws/src/
           ln -s webrtc_ros ~/catkin_ws/src
 
-      - name: Show where we are
-        run: |
-          ls
-          pwd
-          sudo apt install tree
-          tree
-          tree ~/catkin_ws
+      #- name: Show where we are
+      #  run: |
+      #    ls
+      #    pwd
+      #    sudo apt install tree
+      #    tree
+      #    tree ~/catkin_ws
 
       - name: Prevent all of webrtc dev from building
         run: touch ./webrtc_ros/webrtc/CATKIN_IGNORE
 
       - name: Run Install Script
-        run: bash catkin_ws/src/LilFloSystem/gen_install.sh
+        run: bash ~/catkin_ws/src/LilFloSystem/gen_install.sh

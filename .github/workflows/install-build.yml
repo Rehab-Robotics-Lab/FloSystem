@@ -37,7 +37,9 @@ jobs:
         echo 'source $GITHUB_WORKSPACE/catkin_ws/devel/setup.bash' >> ~/.bashrc
         echo 'export ROS_MASTER_URI=http://localhost:11311' >> ~/.bashrc
 
-    - name: Run a multi-line script
+    - name: Show where we are
       run: |
         ls 
         pwd
+        sudo apt install tree
+        tree

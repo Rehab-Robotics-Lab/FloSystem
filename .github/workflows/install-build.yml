@@ -39,5 +39,5 @@ jobs:
 
     - name: Run a multi-line script
       run: |
-        ls catkin_ws/src/LilFloSystem
+        ls 
         pwd

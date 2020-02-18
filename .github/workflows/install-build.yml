@@ -38,10 +38,9 @@ jobs:
 
       - name: Link repos into catkin ws
         run: |
-          ln -s LilFloSystem ~/catkin_ws/src/
-          ln -s tts-ros1 ~/catkin_ws/src/
-          ln -s webrtc_ros ~/catkin_ws/src
-
+          ln -s "$GITHUB_WORKSPACE/LilFloSystem" "$HOME/catkin_ws/src/"
+          ln -s "$GITHUB_WORKSPACE/tts-ros1" "$HOME/catkin_ws/src/"
+          ln -s "$GITHUB_WORKSPACE/webrtc_ros" "$HOME/catkin_ws/src/"
       #- name: Show where we are
       #  run: |
       #    ls

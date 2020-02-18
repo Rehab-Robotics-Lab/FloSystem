@@ -20,11 +20,11 @@ sudo apt-get install -y librealsense2-dkms
 sudo apt-get install -y librealsense2-utils
 sudo apt-get install -y librealsense2-dev
 sudo apt-get install -y librealsense2-dbg
-sudo apt install -y ros-${ROS_VERSION}-cv-bridge
-sudo apt install -y ros-${ROS_VERSION}-image-transport
-sudo apt install -y ros-${ROS_VERSION}-tf
-sudo apt install -y ros-${ROS_VERSION}-diagnostic-updater
-sudo apt install -y ros-${ROS_VERSION}-ddynamic-reconfigure
+sudo apt-get install -y ros-${ROS_VERSION}-cv-bridge
+sudo apt-get install -y ros-${ROS_VERSION}-image-transport
+sudo apt-get install -y ros-${ROS_VERSION}-tf
+sudo apt-get install -y ros-${ROS_VERSION}-diagnostic-updater
+sudo apt-get install -y ros-${ROS_VERSION}-ddynamic-reconfigure
 
 prior=$(pwd)
 cd ~/catkin_ws/src

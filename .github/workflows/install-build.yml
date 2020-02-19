@@ -53,5 +53,6 @@ jobs:
         run: touch ./webrtc_ros/webrtc/CATKIN_IGNORE
 
       - name: Run Install Script
-        run: bash gen_install.sh
-        working-directory: ~/catkin_ws/src/LilFloSystem
+        run: |
+          cd "$HOME/catkin_ws/src/LilFloSystem"
+          bash gen_install.sh

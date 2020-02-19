@@ -49,8 +49,8 @@ jobs:
       #    tree
       #    tree ~/catkin_ws
 
-      - name: Prevent all of webrtc dev from building
-        run: touch ./webrtc_ros/webrtc/CATKIN_IGNORE
+      #- name: Prevent all of webrtc dev from building
+      #  run: touch ./webrtc_ros/webrtc/CATKIN_IGNORE
 
       - name: Run Install Script
         run: |

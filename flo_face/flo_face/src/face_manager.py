@@ -1,26 +1,27 @@
 #!/usr/bin/env python
 
+import json
+from os.path import expanduser, join
 import rospy
 import rospkg
-import json
 from flo_face.msg import FaceState
 from flo_face.srv import (GetFaceOptions, GetFaceOptionsResponse,
                           SetEyeDirection, SetEyeDirectionResponse,
                           SetFace, SetFaceResponse,
                           SetFaceBrightness, SetFaceBrightnessResponse)
-from os.path import expanduser, join
 
 
 class FloFaceManager(object):
-    """handles loading face options, and providing those face options to other 
-    nodes. It receives messages with names of faces to use and directions to 
+    """handles loading face options, and providing those face options to other
+    nodes. It receives messages with names of faces to use and directions to
     look, it then broadcasts the current desired state."""
 
     def __init__(self):
         rospy.init_node('face_manager')
         self.rospack = rospkg.RosPack()
-        self.face_fn = expanduser(rospy.get_param('face_json',
-                                                  join(self.rospack.get_path('flo_face'), 'data', 'faces.json')))
+        self.face_fn = expanduser(
+            rospy.get_param('face_json', join(
+                self.rospack.get_path('flo_face'), 'data', 'faces.json')))
         with open(self.face_fn) as file:
             self.face_data = json.load(file)
         self.mouth_keys = list(self.face_data['mouths'].keys())
@@ -46,34 +47,31 @@ class FloFaceManager(object):
         rospy.loginfo('face manager up')
         rospy.spin()
 
-    def get_face_options(self, request):
+    def get_face_options(self, _):
         """ Get and return available faces as represented by the available
-        mouths. 
-
-        Args:
-            request: A blank request to kick off the service
+        mouths.
 
         Returns: The list of faces, as names
         """
         return GetFaceOptionsResponse(self.mouth_keys)
 
     def set_face(self, request):
-        """Recieve a request to set the face. Load the new mouth and 
-        the eyes into the new state structure and the current mouth 
-        and eyes. If the new face doesn't have the current eye 
-        type/direction, the eyes will be set to their default. 
-        The available eye directions are returned with other 
+        """Recieve a request to set the face. Load the new mouth and
+        the eyes into the new state structure and the current mouth
+        and eyes. If the new face doesn't have the current eye
+        type/direction, the eyes will be set to their default.
+        The available eye directions are returned with other
         info and the service is returned.
 
         The new face stat is published
 
         Args:
             request: a simple service request with a single
-            field `face` which is the key for the face to set. 
+            field `face` which is the key for the face to set.
 
-        Returns: A service response with the available eye 
+        Returns: A service response with the available eye
         directions given the new face, whether the operation
-        succeeded or not and information on what happened. 
+        succeeded or not and information on what happened.
         """
         resp = SetFaceResponse()
         if request.face in self.mouth_keys:
@@ -100,20 +98,20 @@ class FloFaceManager(object):
         return resp
 
     @staticmethod
-    def flatten(l):
-        """Flatten out a matrix as a list, unraveling it so that it 
+    def flatten(lst):
+        """Flatten out a matrix as a list, unraveling it so that it
         can be sent
 
         Args:
-            l: The list representation of the matrix
+            lst: The list representation of the matrix
 
         Returns: The flattened list
         """
-        return [item for sublist in l for item in sublist]
+        return [item for sublist in lst for item in sublist]
 
     def set_eye(self):
-        """Sets the eyes in the new_state structure based on 
-        the current values for the eyes and face. 
+        """Sets the eyes in the new_state structure based on
+        the current values for the eyes and face.
         """
         new_eye_data = self.face_data['eyes'][self.current_eyes]
         if 'left' in new_eye_data[self.eye_direction]:
@@ -136,16 +134,16 @@ class FloFaceManager(object):
 
     def set_eye_direction(self, request):
         """Fiedld a request to set the eye direction, set it
-        and return whether it succeeded. 
+        and return whether it succeeded.
 
         If the requested direction is `default` then that is
         loaded in and replaced by the actual direction which
-        is the default. Once the eye direction is set, then 
-        the `set_eyes()` function is called to load the 
+        is the default. Once the eye direction is set, then
+        the `set_eyes()` function is called to load the
         actual data.
         If the requested direction is `default` then that is
         loaded in and replaced by the actual direction which
-        is the default. 
+        is the default.
 
         Args:
             request: a simple service request with a single
@@ -153,7 +151,7 @@ class FloFaceManager(object):
                      selects the eye direction
 
         Returns: A service response with whether the service
-                 succeeded and info about that. 
+                 succeeded and info about that.
         """
         resp = SetEyeDirectionResponse()
         new_eye_data = self.face_data['eyes'][self.current_eyes]
@@ -171,6 +169,13 @@ class FloFaceManager(object):
         return resp
 
     def set_brightness(self, request):
+        """Set the brightness of the LEDs
+
+        Args:
+            request: The service request
+
+        Returns: The service response
+        """
         resp = SetFaceBrightnessResponse()
         resp.success = True
         if request.value > 15:

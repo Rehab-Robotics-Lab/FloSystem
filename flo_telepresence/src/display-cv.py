@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""A module to display the robot screen using opencv"""
 
 import rospy
 import sys
@@ -27,10 +28,10 @@ class RobotScreen(object):
         self.bridge = CvBridge()
         # msg = rospy.wait_for_message("videofile/image_raw", smImage)
         # self.new_img(msg)
-        rospy.Subscriber('/remote_video', smImage, self.new_img)
-        self.run_display()
+        rospy.Subscriber('/remote_video', smImage, self.__new_img)
+        self.__run_display()
 
-    def run_display(self):
+    def __run_display(self):
         rate = rospy.Rate(120)
         img = None
         while not rospy.is_shutdown():
@@ -45,7 +46,7 @@ class RobotScreen(object):
                 cv2.waitKey(1)
             rate.sleep()
 
-    def new_img(self, msg):
+    def __new_img(self, msg):
         try:
             cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
         except CvBridgeError as err:

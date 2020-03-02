@@ -29,7 +29,8 @@ echo "INSTALLING DEPENDENCIES NOT FOUND IN ROSDEP"
 #pip install pyqtgraph --user
 #I think I have replaced this by adding a symlink:
 #python flo_face/teensy/src/serial_coms/computer/python/serial-coms/setup.py install --user
-pip install mutagen --user
+# Mutagen has dropped python 2 support. Last supported version was 1.43.0:
+pip install 'mutagen==1.43.0' --user
 
 echo "INSTALLING ROSDEP DEPENDENCIES"
 sudo apt-get install python-rosdep -y

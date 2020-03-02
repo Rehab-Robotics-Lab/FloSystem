@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+"""This module handles saving parameters from the server to the disk"""
 
 import os.path
 from datetime import datetime
@@ -11,13 +12,13 @@ class ParamSaver(object):
         rospy.init_node('param_saver')
         rospy.loginfo('started ros param saver')
         self.save_loc = rospy.get_param('~save_location')
-        self.save()
+        self.__save()
         rate = rospy.Rate(1)
         while not rospy.is_shutdown():
             rate.sleep()
-        self.save()
+        self.__save()
 
-    def save(self):
+    def __save(self):
         file_name = os.path.expanduser(
             os.path.join(
                 self.save_loc,

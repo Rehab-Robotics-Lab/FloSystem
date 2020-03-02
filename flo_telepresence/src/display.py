@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""A module to display the robot screen using tkinter image"""
 
 import rospy
 from PIL import Image, ImageTk
@@ -35,10 +36,10 @@ class RobotScreen(object):
         self.bridge = CvBridge()
         # msg = rospy.wait_for_message("videofile/image_raw", smImage)
         # self.new_img(msg)
-        rospy.Subscriber('/remote_video', smImage, self.new_img)
-        self.run_display()
+        rospy.Subscriber('/remote_video', smImage, self.__new_img)
+        self.__run_display()
 
-    def run_display(self):
+    def __run_display(self):
         rate = rospy.Rate(120)
         img = None
         while not rospy.is_shutdown():
@@ -49,12 +50,12 @@ class RobotScreen(object):
                 except Queue.Empty:
                     empty = True
             if img is not None:
-                self.show_frame(img)
+                self.__show_frame(img)
                 self.window.update_idletasks()
                 self.window.update()
             rate.sleep()
 
-    def new_img(self, msg):
+    def __new_img(self, msg):
         try:
             cv_image = self.bridge.imgmsg_to_cv2(msg, "rgb8")
         except CvBridgeError as err:
@@ -63,7 +64,7 @@ class RobotScreen(object):
         res_img = cv2.resize(cv_image, (800, 480))
         self.image_queue.put(res_img)
 
-    def show_frame(self, cv_image):
+    def __show_frame(self, cv_image):
         #frame = cv2.flip(frame, 1)
         # cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
         img = Image.fromarray(cv_image)

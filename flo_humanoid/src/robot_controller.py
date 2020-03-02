@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""The core module for controlling the bolide robot"""
 
 from __future__ import division
 
@@ -7,13 +8,13 @@ import os
 import Queue
 import struct
 import threading
+import rospy
+import actionlib
 import serial
 import numpy as np
 import numpy.matlib as matlib
-import rospy
 import rospkg
 
-import actionlib
 
 from std_msgs.msg import String
 from sensor_msgs.msg import JointState
@@ -117,8 +118,7 @@ class BolideController(object):
                     headings = row.split()
                 else:
                     new_data = row.split()
-                    new_data_dict = {key: value for key, value in
-                                     zip(headings, new_data)}
+                    new_data_dict = dict(zip(headings, new_data))
                     this_address = int(new_data_dict['address'])
                     this_name = new_data_dict['name']
                     self.joint_config[this_address] = new_data_dict
@@ -178,6 +178,7 @@ class BolideController(object):
             rospy.loginfo('connected to robot')
 
     def cleanup(self):
+        """cleanup the node and shutdown"""
         rospy.loginfo('shutting down node')
         self.relax_motors()
         self.close_ser()
@@ -268,12 +269,21 @@ class BolideController(object):
         poses = poses[1:]
         self.moving_params['unique_times'] = self.moving_params['unique_times'][1:]
         rospy.logdebug(
-            'telling robot to go to: \n%s \nat times: \n%s', poses, self.moving_params['unique_times'])
+            'telling robot to go to: \n%s \nat times: \n%s',
+            poses, self.moving_params['unique_times'])
         self.moving_params['final_goal'] = poses[-1]
         self.seq_num = 0
         self.upload_sequence(poses, self.moving_params['unique_times'])
 
     def error(self, goal, joint_ids=None):
+        """Calculate the error between a goal an the current position for a set of specified joints.
+
+        Args:
+            goal: The goal to calculate against as a list, indexed by `joint_id`
+            joint_ids: The joints to examine. if `None`, will look at all joints
+
+        Returns: Tht total error in joint space
+        """
         if joint_ids is None:
             joint_ids = self.available_motor_ids
         err = 0
@@ -339,8 +349,9 @@ class BolideController(object):
                     self.last_feedback_time = rospy.get_time()
                     self.last_feedback = feedback
                     self.server.publish_feedback(feedback)
-            elif (not self.server.new_goal and (not self.awaiting_pos_resp
-                                                or rospy.get_time()-self.last_pos_req > self.pose_waiting_override_delay)):
+            elif (not self.server.new_goal
+                  and (not self.awaiting_pos_resp
+                       or rospy.get_time()-self.last_pos_req > self.pose_waiting_override_delay)):
                 self.request_pos()
             self.rate.sleep()
         self.cleanup()
@@ -361,15 +372,16 @@ class BolideController(object):
                     percent_complete = cur_time/self.sim_seq_times[0]
                     for idx in range(len(self.sim_current_pose)):
                         self.sim_current_pose[idx] = percent_complete * (
-                            self.sim_seq_poses[0][idx] - self.sim_starting_pose[idx]) + self.sim_starting_pose[idx]
+                            self.sim_seq_poses[0][idx] -
+                            self.sim_starting_pose[idx]) + self.sim_starting_pose[idx]
                 else:
                     percent_complete = (cur_time-self.sim_seq_times[current_move-1])/(
                         self.sim_seq_times[current_move]-self.sim_seq_times[current_move-1])
                     for idx in range(len(self.sim_current_pose)):
-                        self.sim_current_pose[idx] = (percent_complete * (
-                            self.sim_seq_poses[current_move][idx] -
-                            self.sim_seq_poses[current_move-1][idx]) +
-                            self.sim_seq_poses[current_move-1][idx])
+                        self.sim_current_pose[idx] = (percent_complete *
+                                                      (self.sim_seq_poses[current_move][idx] -
+                                                       self.sim_seq_poses[current_move-1][idx]) +
+                                                      self.sim_seq_poses[current_move-1][idx])
 
         position = self.sim_current_pose  # if not self.sim_moving else []
 
@@ -395,7 +407,7 @@ class BolideController(object):
         elif msg.data == "relax":
             self.send_packet([0x20])
 
-    def send_packet(self, command,looking_for_pos=False):
+    def send_packet(self, command, looking_for_pos=False):
         """send_packet to the robot, add in the packet header and footer.
 
         :param command: the command to send, this should be given as a list
@@ -430,21 +442,21 @@ class BolideController(object):
             self.send_packet([self.CMD_SEQ_relax])
         self.motors_initialized = False
 
-    def upload_pose(self, id, pose):
+    def upload_pose(self, pose_id, pose):
         """upload_pose, send the given pose to the robot to prepare for motion
 
-        :param id: The number of the pose. Supported values are 0-255
+        :param pose_id: The number of the pose. Supported values are 0-255
         :param pose: The actual Pose, an 18 element array
         """
         command = [None] * (self.NUM_MOTORS*2 + 2)
         command[0] = self.CMD_SEQ_load_Pose
-        command[1] = id
+        command[1] = pose_id
         for idx, motor in enumerate(pose):
-            bb, lb = struct.pack('>H', motor)
-            bb = (ord(bb))
-            lb = (ord(lb))
-            command[idx*2+2] = bb
-            command[idx*2+3] = lb
+            big_byte, little_byte = struct.pack('>H', motor)
+            big_byte = (ord(big_byte))
+            little_byte = (ord(little_byte))
+            command[idx*2+2] = big_byte
+            command[idx*2+3] = little_byte
         return self.send_packet(command)
 
     def initialize_motors(self):
@@ -470,17 +482,20 @@ class BolideController(object):
                 [self.CMD_SEQ_load_PoseCnt, len(poses)])
             if not ret['command'] == self.feedback['keep_going']:
                 raise Exception(
-                    'failed to receive proper return when specifying pose count in seq. Received: {}'.format(ret))
+                    'failed to receive proper return when specifying' +
+                    ' pose count in seq. Received: {}'.format(ret))
             for idx, pose in enumerate(poses):
                 ret = self.upload_pose(idx, pose)
                 if idx+1 == len(poses):
                     if not ret['command'] == self.feedback['done']:
                         raise Exception(
-                            'did not recieve done response after uploading final pose. Received: {}'.format(ret))
+                            'did not recieve done response after uploading ' +
+                            'final pose. Received: {}'.format(ret))
                 else:
                     if not ret['command'] == self.feedback['keep_going']:
                         raise Exception(
-                            'did not recieve keep going response after loading pose in sequence. Received: {}'.format(ret))
+                            'did not recieve keep going response after loading ' +
+                            'pose in sequence. Received: {}'.format(ret))
 
     def upload_sequence(self, poses, times):
         """upload_sequence, uploads the entire set of poses to the robot with
@@ -504,24 +519,28 @@ class BolideController(object):
             ret = self.send_packet([self.CMD_SEQ_load_SEQCnt, len(times)])
             if not ret['command'] == self.feedback['keep_going']:
                 raise Exception(
-                    'did not recieve keep going feedback when sending number of poses in sequence. Received: {}'.format(ret))
+                    'did not recieve keep going feedback when sending number of ' +
+                    'poses in sequence. Received: {}'.format(ret))
             for idx, ttime in enumerate(times):
                 # time is in units of 10ms on the robot. But in sec coming in
                 # TODO: somewhere there should be a check to make sure time is <10 sec
                 prior_time = 0 if idx == 0 else times[idx-1]
                 ms_time = (ttime-prior_time)*1000
-                bb, lb = struct.pack('>H', ms_time)
-                bb = (ord(bb))
-                lb = (ord(lb))
-                ret = self.send_packet([self.CMD_SEQ_load_SEQ, idx, bb, lb])
+                big_byte, litte_byte = struct.pack('>H', ms_time)
+                big_byte = (ord(big_byte))
+                litte_byte = (ord(litte_byte))
+                ret = self.send_packet(
+                    [self.CMD_SEQ_load_SEQ, idx, big_byte, litte_byte])
                 if idx+1 == len(times):
                     if not ret['command'] == self.feedback['done']:
                         raise Exception(
-                            'Did not get done feedback after loading last sequence comand. Received: {}'.format(ret))
+                            'Did not get done feedback after loading last sequence ' +
+                            'comand. Received: {}'.format(ret))
                 else:
                     if not ret['command'] == self.feedback['keep_going']:
                         raise Exception(
-                            'Did not get keep going feedback after sending sequence command. Received: {}'.format(ret))
+                            'Did not get keep going feedback after sending ' +
+                            'sequence command. Received: {}'.format(ret))
         self.moving = True
         self.moving_params['time_start'] = rospy.get_time()
         self.seq_num = 0
@@ -571,6 +590,7 @@ class BolideController(object):
         return {'command': command, 'data': data}
 
     def read_all(self):
+        """Read everything in the serial buffer. Do not wait for anything new"""
         returns = []
         if not self.simulate:
             while self.ser.inWaiting():
@@ -580,6 +600,13 @@ class BolideController(object):
         return returns
 
     def read_one(self, tries=5):
+        """Read one byte from the serial line
+
+        Args:
+            tries: The number of times to try to read the one byte
+
+        Returns: What was read
+        """
         while tries:
             while self.ser.inWaiting():
                 ret = self.read()
@@ -588,20 +615,34 @@ class BolideController(object):
             tries -= 1
             self.rate.sleep()
 
-    def calc_pos(self, data):
+    @staticmethod
+    def calc_pos(data):
+        """Calculate the position of the motors
+
+        Args:
+            data: The raw data passed from the robot
+
+        Returns: The position of the motors
+        """
         final_joint_pos = [0]*18
         for i in range(18):
             final_joint_pos[i] = (ord(data[2*i]) << 8) + ord(data[2*i + 1])
         return final_joint_pos
 
-    def calc_current(self, data):
-        final_joint_pos = [0]*18
-        for i in range(18):
-            final_joint_pos[i] = (ord(data[2*i]) << 8) + ord(data[2*i + 1])
-        final_joint_pos = [fjp / 200.0 for fjp in final_joint_pos]
-        return final_joint_pos
+    # def calc_current(self, data):
+    #     final_joint_pos = [0]*18
+    #     for i in range(18):
+    #         final_joint_pos[i] = (ord(data[2*i]) << 8) + ord(data[2*i + 1])
+    #     final_joint_pos = [fjp / 200.0 for fjp in final_joint_pos]
+    #     return final_joint_pos
 
     def process_return(self, command, data):
+        """Process a return data packet from the robot
+
+        Args:
+            command: The type of return
+            data: The data in the return
+        """
         if command == self.commands['pos']:
             if self.simulate:
                 position = data
@@ -610,12 +651,12 @@ class BolideController(object):
             rospy.logdebug('raw position data: %s', position)
             names = []
             positions = []
-            for id in self.available_motor_ids:
-                raw_position = position[id]
+            for motor_id in self.available_motor_ids:
+                raw_position = position[motor_id]
                 rad_position = (raw_position - int(
-                    self.joint_config[id]['neutral'])) * int(
-                        self.joint_config[id]['inversion'])*2*math.pi/1023
-                names.append(self.joint_config[id]['name'])
+                    self.joint_config[motor_id]['neutral'])) * int(
+                        self.joint_config[motor_id]['inversion'])*2*math.pi/1023
+                names.append(self.joint_config[motor_id]['name'])
                 positions.append(rad_position)
             new_msg = JointState()
             new_msg.name = names
@@ -626,13 +667,19 @@ class BolideController(object):
             self.awaiting_pos_resp = False
 
         elif command == self.commands['current']:
-            current = self.calc_current(data)
+            # current = self.calc_current(data)
+            pass
         elif command == self.feedback['seq_num']:
             data = ord(data)
             self.seq_num = data
             rospy.loginfo('got seq num: %s', data)
 
     def process_return_list(self, returns):
+        """Process a list of returns
+
+        Args:
+            returns: The list of returned data
+        """
         for ret in returns:
             self.process_return(ret['command'], ret['data'])
 

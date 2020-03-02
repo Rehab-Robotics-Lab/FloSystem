@@ -46,6 +46,8 @@ from flo_humanoid.msg import MoveAction, MoveGoal, JointTarget
 from flo_core.msg import GameFeedback, GameCommandOptions, GameDef, GameCommand, StepDef
 from flo_core.srv import GetPoseID, GetPoseIDResponse
 from flo_core.srv import GetPoseSeqID, GetPoseSeqIDResponse
+from simon_says import simon_says
+from target_touch import target_touch
 
 
 class GameRunner(object):
@@ -226,104 +228,20 @@ class GameRunner(object):
         # to get a demo going, so we will manually load in the games
         # TODO: pull games out into database or something
         if new_def.game_type == 'simon_says':
-            self.actions_list.append(
-                {'speech': 'in simon says, I will tell you something to do and ' +
-                           'show you how to do it, mirrored. If I say simon says, you ' +
-                           'should do it with me. If I do not say simon says, you should ' +
-                           'not do the action. Watch out, I may try to trick you.'})
-            if not new_def.steps:
-                new_def.steps = [
-                    StepDef(type='move', text='wave', id=2),
-                    StepDef(type='move', text='clap your hands', id=6),
-                    StepDef(type='move', text='disco', id=8),
-                    StepDef(
-                        type='pose_left', text='raise your left arm straight out in front', id=2),
-                    StepDef(
-                        type='pose_right', text='raise your right arm straight out in front', id=2),
-                    StepDef(
-                        type='pose_right',
-                        text='raise your right arm straight out to the side', id=3),
-                    StepDef(
-                        type='pose_left',
-                        text='raise your left arm straight out to the side', id=3),
-                    StepDef(
-                        type='pose_left',
-                        text='touch the top of your head with your left hand', id=11),
-                    StepDef(
-                        type='pose_right',
-                        text='touch the top of your head with your right hand', id=11),
-                    StepDef(type='pose_both', text='cover your eyes!', id=16),
-                ]
+            self.actions_list = simon_says(new_def, self.__process_step)
+        elif new_def.game_type == 'target_touch':
+            self.actions_list = target_touch(new_def, self.__process_step)
 
-            actions_bag = []
-            for step in new_def.steps:
-                targets, speech = self.__process_step(step)
+        targ, spch = self.__process_step(
+            StepDef(type='pose_both', id=1, time=1))
+        neutral = {'speech': spch, 'targets': targ}
+        self.actions_list = list(chain.from_iterable(
+            (neutral, at) for at in self.actions_list))
 
-                actions_bag.append(
-                    {'speech': 'simon says '+speech, 'targets': targets})
-                if random.random() > 0.7:  # this is where we add in non-simon says tasks
-                    actions_bag.append(
-                        {'speech': speech, 'targets': targets})
-
-            random.shuffle(actions_bag)
-            self.actions_list += actions_bag
-
-            self.actions_list.append(
-                {'speech': 'that was a lot of fun, thanks for playing with me'})
-
-            targ, spch = self.__process_step(
-                StepDef(type='pose_both', id=1, time=1))
-            neutral = {'speech': spch, 'targets': targ}
-            self.actions_list = list(chain.from_iterable(
-                (neutral, at) for at in self.actions_list))
-
-            self.__set_options(['start'])
-            self.__set_state(self.states.game_loaded)
-            self.action_idx = 0
-            rospy.loginfo('ready to play simon says')
-
-        if new_def.game_type == 'target_touch':
-            self.actions_list.append(
-                {'speech': 'in the target touch activity, I will tell you to ' +
-                           'touch one of the dots on my hands. Each time I extend ' +
-                           'the hand, you should touch it. We will do 10 touches ' +
-                           'per dot. No tricks here, just good work!! Let\'s start ' +
-                           'in a ready position'})
-            if not new_def.steps:
-                new_def.steps = [
-                    StepDef(type='pose_left',
-                            text='Touch the red dot', id=17, time=.7),
-                    StepDef(type='pose_right',
-                            text='Touch the green dot', id=17, time=.7),
-                    StepDef(type='pose_left',
-                            text='Touch the yellow dot', id=18, time=.7),
-                    StepDef(type='pose_right',
-                            text='Touch the blue dot', id=18, time=.7),
-                ]
-
-            actions_bag = []
-            for step in new_def.steps:
-                targets, speech = self.__process_step(step)
-
-                actions_bag.extend(
-                    [{'speech': speech, 'targets': targets} for x in range(10)])
-
-            random.shuffle(actions_bag)
-            self.actions_list += actions_bag
-
-            self.actions_list.append(
-                {'speech': 'that was hard work, but a lot of fun, thanks for playing with me'})
-
-            targ, spch = self.__process_step(
-                StepDef(type='pose_both', id=1, time=1))
-            neutral = {'speech': spch, 'targets': targ}
-            self.actions_list = list(chain.from_iterable(
-                (neutral, at) for at in self.actions_list))
-
-            self.__set_options(['start'])
-            self.__set_state(self.states.game_loaded)
-            self.action_idx = 0
-            rospy.loginfo('ready to play target touch')
+        self.__set_options(['start'])
+        self.__set_state(self.states.game_loaded)
+        self.action_idx = 0
+        rospy.loginfo('ready to play game')
 
     @staticmethod
     def __construct_joint_target(names, joint_positions, time, arm):

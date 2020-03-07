@@ -1,6 +1,7 @@
 import React, { useEffect, useState, CSSProperties } from "react";
 import * as ROSLIB from "roslib";
 import { Helmet } from "react-helmet";
+import { wrapStyle } from "../styleDefs/styles";
 
 declare var WebrtcRos: any;
 
@@ -70,11 +71,12 @@ const Vids: React.FunctionComponent<VidsProps> = ({
 
         const userMediaConfig = { video: {}, audio: {} };
         const localStreamConfig = { video: {}, audio: {} };
-        userMediaConfig.video = { width: 800, height: 480 };
+        userMediaConfig.video = { width: 800, height: 480, frameRate: 20 };
         localStreamConfig.video = {
           dest: "ros_image:remote_video",
           width: 848,
-          height: 480
+          height: 480,
+          frameRate: 20
         };
         userMediaConfig.audio = true;
 
@@ -172,11 +174,6 @@ const Vids: React.FunctionComponent<VidsProps> = ({
   const vidStyle = {
     width: "auto",
     maxWidth: "300px"
-  };
-
-  const wrapStyle: CSSProperties = {
-    display: "flex",
-    flexDirection: "column"
   };
 
   return (

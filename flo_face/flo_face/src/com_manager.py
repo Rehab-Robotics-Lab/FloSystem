@@ -2,10 +2,10 @@
 
 # must install serial_coms from FLO_HEAD/teensy/src/seserial_coms/computer/python
 
+import math
 import rospy
 # https://github.com/Rehab-Robotics-Lab/serial_coms/tree/master/computer/python/serial_coms
 from serial_coms import SerialCom
-import math
 from flo_face.msg import FaceState
 
 
@@ -41,21 +41,23 @@ class FaceComs(object):
 
         self.past_state = msg
 
-    def bytize(self, flat_data):
+    @staticmethod
+    def bytize(flat_data):
         """Turn data into individual bytes"""
         # flat_data = flatten(data)
         try:
             len(flat_data)
-        except:
+        except TypeError:
             flat_data = [flat_data]
 
         data_bytes = [0]*int(math.ceil(len(flat_data)/8))
-        for i in range(len(data_bytes)):
+        for i, _ in enumerate(data_bytes):
             for j in range(8):
                 data_bytes[i] = data_bytes[i] | (flat_data[i*8 + j] << (7-j))
         return data_bytes
 
-    def data_handler(self, received, *data):
+    @staticmethod
+    def data_handler(*data):
         """Receive information from microcontroller and log it"""
         rospy.logdebug("received as ints:")
         rospy.logdebug(data)

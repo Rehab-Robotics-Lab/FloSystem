@@ -7,7 +7,7 @@ echo "BEGINING ROS INSTALL"
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 #sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116 This is now out of date?
 sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
-sudo apt update -y
+sudo apt-get update -y
 
 if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==16));then
     ROS_VERSION="kinetic"
@@ -17,22 +17,25 @@ if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut 
 fi
 fi
 echo "installing for ros version: ${ROS_VERSION}"
-sudo apt install -y ros-${ROS_VERSION}-desktop-full
+sudo apt-get install -y ros-${ROS_VERSION}-desktop-full
 source /opt/ros/${ROS_VERSION}/setup.bash
+## install rosmon, it would be weird for this to be in one of the packages:
+sudo apt-get install ros-${ROS_VERSION}-rosmon
 
 [ ! -d "/etc/ros/rosdep/sources.list.d" ] && sudo rosdep init
 rosdep update
-sudo apt install python-rosinstall python-rosinstall-generator python-wstool build-essential
+sudo apt-get install python-rosinstall python-rosinstall-generator python-wstool build-essential
 
 ## Install packages we need:
 echo "INSTALLING DEPENDENCIES NOT FOUND IN ROSDEP"
-pip install pyqtgraph --user
+#pip install pyqtgraph --user
 #I think I have replaced this by adding a symlink:
 #python flo_face/teensy/src/serial_coms/computer/python/serial-coms/setup.py install --user
-pip install mutagen --user
+# Mutagen has dropped python 2 support. Last supported version was 1.43.0:
+pip install 'mutagen==1.43.0' --user
 
 echo "INSTALLING ROSDEP DEPENDENCIES"
-sudo apt install python-rosdep -y
+sudo apt-get install python-rosdep -y
 cd ~/catkin_ws
 rosdep install --from-paths src --ignore-src -r -y
 cd -
@@ -43,7 +46,7 @@ bash realsense_install.sh
 echo "Adding updated webrtcros"
 prior=$(pwd)
 cd ~/catkin_ws/src
-git clone https://github.com/RobotWebTools/webrtc_ros.git
+git clone --single-branch --branch develop https://github.com/RobotWebTools/webrtc_ros.git
 cd webrtc_ros/webrtc
 touch CATKIN_IGNORE
 cd $prior

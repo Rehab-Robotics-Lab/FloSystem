@@ -46,6 +46,8 @@ from flo_humanoid.msg import MoveAction, MoveGoal, JointTarget
 from flo_core.msg import GameFeedback, GameCommandOptions, GameDef, GameCommand, StepDef
 from flo_core.srv import GetPoseID, GetPoseIDResponse
 from flo_core.srv import GetPoseSeqID, GetPoseSeqIDResponse
+from simon_says import simon_says
+from target_touch import target_touch
 
 
 class GameRunner(object):
@@ -61,7 +63,7 @@ class GameRunner(object):
     congratulate_strings = ['good job', 'that was great', 'well done',
                             'you are doing really well', 'you are super good at this']
 
-    try_again_strings = ['let''s try that again together',
+    try_again_strings = ['let\'s try that again together',
                          'see if you can do a bit better', 'how about we give that another try']
 
     def __init__(self):
@@ -86,9 +88,9 @@ class GameRunner(object):
 
         ### Subscribers ###
         rospy.Subscriber(
-            'game_runner_commands', GameCommand, self.new_command)
+            'game_runner_commands', GameCommand, self.__new_command)
         rospy.Subscriber(
-            'game_runner_def', GameDef, self.new_def)
+            'game_runner_def', GameDef, self.__new_def)
         rospy.loginfo('setup subscribers')
 
         ### Services ###
@@ -104,9 +106,10 @@ class GameRunner(object):
         self.def_queue = queue.Queue()
 
         ### State Management ###
-        self.set_state(self.states.waiting_for_def)
+        self.__set_state(self.states.waiting_for_def)
         self.moving_state = self.action_states.none
         self.speaking_state = self.action_states.none
+        self.state = self.states.waiting_for_command
 
         ### The actions that compose this game ###
         self.actions_list = []
@@ -117,10 +120,10 @@ class GameRunner(object):
         rate = rospy.Rate(20)
         rospy.loginfo('done with initialization')
         while not rospy.is_shutdown():
-            self.loop()
+            self.__loop()
             rate.sleep()
 
-    def new_def(self, msg):
+    def __new_def(self, msg):
         """Add a newly received game def to the game def queue.
 
         Args:
@@ -129,7 +132,7 @@ class GameRunner(object):
         self.def_queue.put(msg)
         rospy.loginfo('added game to definition queue: %s', msg.game_type)
 
-    def new_command(self, msg):
+    def __new_command(self, msg):
         """Add a newly received command to the command queue
 
         Args:
@@ -138,7 +141,7 @@ class GameRunner(object):
         self.command_queue.put(msg.command)
         rospy.loginfo('added command to command queue: %s', msg.command)
 
-    def loop(self):
+    def __loop(self):
         """Loop through reading all of the queues and taking the
         necessary actions"""
         # rospy.loginfo('running loop with state: %s', self.state)
@@ -152,7 +155,7 @@ class GameRunner(object):
             except queue.Empty:
                 try_again = False
         if new_def:
-            self.process_def(new_def)
+            self.__process_def(new_def)
 
         if (self.state == self.states.waiting_for_command
                 or self.state == self.states.game_loaded):
@@ -162,7 +165,7 @@ class GameRunner(object):
             except queue.Empty:
                 pass
             if new_command in self.command_opts:
-                self.process_command(new_command)
+                self.__process_command(new_command)
 
         if (self.state == self.states.acting
                 and (self.moving_state == self.action_states.done
@@ -170,33 +173,33 @@ class GameRunner(object):
                 and (self.speaking_state == self.action_states.done
                      or self.speaking_state == self.action_states.none)):
             if self.action_idx+1 == len(self.actions_list):
-                self.set_state(self.states.waiting_for_command)
-                self.set_options(
+                self.__set_state(self.states.waiting_for_command)
+                self.__set_options(
                     ['repeat', 'congratulate', 'try_again', 'finish_game'])
             else:
                 self.state = self.states.waiting_for_command
-                self.set_options(
+                self.__set_options(
                     ['next', 'repeat', 'congratulate', 'try_again', 'quit_game'])
 
-    def process_step(self,step):
+    def __process_step(self, step):
         targets = []
         speech = step.text
         step_time = step.time if step.time and step.time > 0 else 2
         if step.type == 'pose_left':
             pose = self.get_pose_id(step.id).pose  # type: Pose
-            targets = [self.construct_joint_target(
+            targets = [self.__construct_joint_target(
                 pose.joint_names, pose.joint_positions, step_time, 'right')]
             # speech = speech+' with your left hand'
         elif step.type == 'pose_right':
             pose = self.get_pose_id(step.id).pose  # type: Pose
-            targets = [self.construct_joint_target(
+            targets = [self.__construct_joint_target(
                 pose.joint_names, pose.joint_positions, step_time, 'left')]
             # speech = speech+' with your right hand'
         elif step.type == 'pose_both':
             pose = self.get_pose_id(step.id).pose  # type: Pose
-            targets = [self.construct_joint_target(
+            targets = [self.__construct_joint_target(
                 pose.joint_names, pose.joint_positions, step_time, 'left'),
-                self.construct_joint_target(
+                self.__construct_joint_target(
                 pose.joint_names, pose.joint_positions, step_time, 'right')]
             # speech = speech+' with your right hand'
         elif step.type == 'move':
@@ -206,13 +209,13 @@ class GameRunner(object):
             for idx in range(len(sequence.pose_ids)):
                 pose = self.get_pose_id(sequence.pose_ids[idx]).pose
                 time += sequence.times[idx]
-                target = self.construct_joint_target(
+                target = self.__construct_joint_target(
                     pose.joint_names, pose.joint_positions,
                     time, sequence.arms[idx])
                 targets.append(target)
-        return targets,speech
+        return targets, speech
 
-    def process_def(self, new_def):
+    def __process_def(self, new_def):
         """Process a new game definition
 
         Args:
@@ -224,124 +227,64 @@ class GameRunner(object):
         # Eventually we probably want to make this cleaner, but for now I need
         # to get a demo going, so we will manually load in the games
         # TODO: pull games out into database or something
-        if new_def.game_type == 'simon_says': 
-            self.actions_list.append(
-                {'speech': 'in simon says, I will tell you something to do and show you how to do it, mirrored. If I say simon says, you should do it with me. If I do not say simon says, you should not do the action. Watch out, I may try to trick you.'})
-            if not new_def.steps:
-                new_def.steps = [
-                    StepDef(type='move', text='wave', id=2),
-                    StepDef(type='move', text='clap your hands', id=6),
-                    StepDef(type='move', text='disco', id=8),
-                    StepDef(type='pose_left', text='raise your left arm straight out in front', id=2),
-                    StepDef(type='pose_right', text='raise your right arm straight out in front', id=2),
-                    StepDef(type='pose_right', text='raise your right arm straight out to the side', id=3),
-                    StepDef(type='pose_left', text='raise your left arm straight out to the side', id=3),
-                    StepDef(type='pose_left', text='touch the top of your head with your left hand', id=11),
-                    StepDef(type='pose_right', text='touch the top of your head with your right hand', id=11),
-                    StepDef(type='pose_both', text='cover your eyes!', id=16),
-                ]
+        if new_def.game_type == 'simon_says':
+            self.actions_list = simon_says(new_def, self.__process_step)
+        elif new_def.game_type == 'target_touch':
+            self.actions_list = target_touch(new_def, self.__process_step)
 
-            actions_bag = []
-            for step in new_def.steps:
-                targets,speech = self.process_step(step)
+        targ, spch = self.__process_step(
+            StepDef(type='pose_both', id=1, time=1))
+        neutral = {'speech': spch, 'targets': targ}
+        self.actions_list = list(chain.from_iterable(
+            (neutral, at) for at in self.actions_list))
 
-                actions_bag.append(
-                    {'speech': 'simon says '+speech, 'targets': targets})
-                if random.random() > 0.7:  # this is where we add in non-simon says tasks
-                    actions_bag.append(
-                        {'speech': speech, 'targets': targets})
-
-            random.shuffle(actions_bag)
-            self.actions_list += actions_bag
-
-            self.actions_list.append(
-                {'speech': 'that was a lot of fun, thanks for playing with me'})
-
-            t,s = self.process_step(StepDef(type='pose_both', id=1,time=1))
-            neutral = {'speech':s, 'targets':t}
-            self.actions_list = list(chain.from_iterable((neutral,at) for at in self.actions_list))
-
-            self.set_options(['start'])
-            self.set_state(self.states.game_loaded)
-            self.action_idx = 0
-            rospy.loginfo('ready to play simon says')
-
-
-
-        if new_def.game_type == 'target_touch': 
-            self.actions_list.append(
-                {'speech': 'in the target touch activity, I will tell you to touch one of the dots on my hands. Each time I extend the hand, you should touch it. We will do 10 touches per dot. No tricks here, just good work!! Let''s start in a ready position'})
-            if not new_def.steps:
-                new_def.steps = [
-                    StepDef(type='pose_left', text='Touch the red dot', id=17, time=.7),
-                    StepDef(type='pose_right', text='Touch the green dot', id=17,time=.7),
-                    StepDef(type='pose_left', text='Touch the yellow dot', id=18,time=.7),
-                    StepDef(type='pose_right', text='Touch the blue dot', id=18,time=.7),
-                ]
-
-            actions_bag = []
-            for step in new_def.steps:
-                targets,speech = self.process_step(step)
-
-                actions_bag.extend([{'speech': speech, 'targets': targets} for x in range(10)])
-
-            random.shuffle(actions_bag)
-            self.actions_list += actions_bag
-
-            self.actions_list.append(
-                {'speech': 'that was hard work, but a lot of fun, thanks for playing with me'})
-
-            t,s = self.process_step(StepDef(type='pose_both', id=1,time=1))
-            neutral = {'speech':s, 'targets':t}
-            self.actions_list = list(chain.from_iterable((neutral,at) for at in self.actions_list))
-
-            self.set_options(['start'])
-            self.set_state(self.states.game_loaded)
-            self.action_idx = 0
-            rospy.loginfo('ready to play target touch')
+        self.__set_options(['start'])
+        self.__set_state(self.states.game_loaded)
+        self.action_idx = 0
+        rospy.loginfo('ready to play game')
 
     @staticmethod
-    def construct_joint_target(names, joint_positions, time, arm):
+    def __construct_joint_target(names, joint_positions, time, arm):
         target = JointTarget()
         target.name = [arm+'_'+nm for nm in names]
         target.position = joint_positions
         target.target_completion_time = time
         return target
 
-    def process_command(self, new_command):
+    def __process_command(self, new_command):
         """Process a new command
 
         Args:
             new_command: the new command
         """
         if new_command == 'start':
-            self.start()
+            self.__start()
         elif new_command == 'next':
-            self.run_next_step()
+            self.__run_next_step()
         elif new_command == 'repeat':
-            self.repeat_last_step()
+            self.__repeat_last_step()
         elif new_command == 'congratulate':
-            self.congratulate()
+            self.__congratulate()
         elif new_command == 'try_again':
-            self.try_again()
+            self.__try_again()
         elif new_command == 'quit_game':
-            self.quit_game()
+            self.__quit_game()
         elif new_command == 'finish_game':
-            self.finish_game()
+            self.__finish_game()
 
-    def quit_game(self):
+    def __quit_game(self):
         """Quit the game, which essentially just means to set the
         state to be waiting for a definition"""
-        self.set_state(self.states.waiting_for_def)
-        self.set_options([])
+        self.__set_state(self.states.waiting_for_def)
+        self.__set_options([])
 
-    def finish_game(self):
+    def __finish_game(self):
         """Finish the game, which essentially just means to set the
         state to be waiting for a definition"""
-        self.set_state(self.states.waiting_for_def)
-        self.set_options([])
+        self.__set_state(self.states.waiting_for_def)
+        self.__set_options([])
 
-    def set_state(self, state):
+    def __set_state(self, state):
         """Sets the state of the game. This stores both an internal
         state and publishes the state out as feedback.
 
@@ -352,23 +295,23 @@ class GameRunner(object):
         self.state = state
         self.feedback_pub.publish(state.name)
 
-    def say_plain_text(self, to_say):
+    def __say_plain_text(self, to_say):
         speech_goal = SpeechGoal(
             text='<speak>'+to_say+'</speak>',
             metadata=json.dumps({
                 'text_type': 'ssml',
-                'voice_id': 'Salli' #'Justin' #'Ivy'
+                'voice_id': 'Salli'  # 'Justin' #'Ivy'
             })
         )
         self.speech_server.send_goal(
             speech_goal,
-            done_cb=self.speaking_done,
-            active_cb=self.speaking_active,
-            feedback_cb=self.speaking_feedback
+            done_cb=self.__speaking_done,
+            active_cb=self.__speaking_active,
+            feedback_cb=self.__speaking_feedback
         )
         self.speaking_state = self.action_states.sent
 
-    def run_step(self, idx):
+    def __run_step(self, idx):
         """Runs a specified step, sending out the necessary actions
         and setting up the callbacks.
 
@@ -379,16 +322,16 @@ class GameRunner(object):
         command_sent = False
         # each step is a dict with:
         # speach, movement or pose
-        if 'speech' in this_step and this_step['speech']!='':
-            self.say_plain_text(this_step['speech'])
+        if 'speech' in this_step and this_step['speech'] != '':
+            self.__say_plain_text(this_step['speech'])
             command_sent = True
         if 'targets' in this_step:
             move_goal = MoveGoal(this_step['targets'])
             self.move_server.send_goal(
                 move_goal,
-                done_cb=self.moving_done,
-                active_cb=self.moving_active,
-                feedback_cb=self.moving_feedback
+                done_cb=self.__moving_done,
+                active_cb=self.__moving_active,
+                feedback_cb=self.__moving_feedback
             )
             self.moving_state = self.action_states.sent
             command_sent = True
@@ -396,57 +339,57 @@ class GameRunner(object):
             rospy.logerr(
                 'tried to run a step that did not have any useful info')
         else:
-            self.set_state(self.states.acting)
-            self.set_options([])
+            self.__set_state(self.states.acting)
+            self.__set_options([])
 
-    def moving_done(self, terminal_state, result):
+    def __moving_done(self, terminal_state, result):
         self.moving_state = self.action_states.done
 
-    def speaking_done(self, terminal_state, result):
+    def __speaking_done(self, terminal_state, result):
         self.speaking_state = self.action_states.done
 
-    def moving_active(self):
+    def __moving_active(self):
         self.moving_state = self.action_states.active
 
-    def speaking_active(self):
+    def __speaking_active(self):
         self.speaking_state = self.action_states.active
 
-    def moving_feedback(self, feedback):
+    def __moving_feedback(self, feedback):
         pass
 
-    def speaking_feedback(self, feedback):
+    def __speaking_feedback(self, feedback):
         pass
 
-    def set_options(self, options):
+    def __set_options(self, options):
         self.command_opts = options
         self.command_opts_pub.publish(options)
 
-    def start(self):
+    def __start(self):
         rospy.loginfo('starting game')
-        self.run_step(0)
+        self.__run_step(0)
 
-    def run_next_step(self):
+    def __run_next_step(self):
         rospy.loginfo('running next step in game')
         self.action_idx += 1
-        self.run_step(self.action_idx)
+        self.__run_step(self.action_idx)
 
-    def repeat_last_step(self):
+    def __repeat_last_step(self):
         rospy.loginfo('repeating the last step')
         self.action_idx -= 1
-        self.run_step(self.action_idx)
+        self.__run_step(self.action_idx)
         self.command_queue.put('next')
 
-    def congratulate(self):
+    def __congratulate(self):
         rospy.loginfo('saying something congratulatory')
-        self.say_plain_text(random.choice(self.congratulate_strings))
-        self.set_state(self.states.acting)
-        self.set_options([])
+        self.__say_plain_text(random.choice(self.congratulate_strings))
+        self.__set_state(self.states.acting)
+        self.__set_options([])
 
-    def try_again(self):
+    def __try_again(self):
         rospy.loginfo('saying to try again and rerunning last step')
-        self.say_plain_text(random.choice(self.try_again_strings))
+        self.__say_plain_text(random.choice(self.try_again_strings))
         self.speech_server.wait_for_result()
-        self.repeat_last_step()
+        self.__repeat_last_step()
 
 
 if __name__ == '__main__':

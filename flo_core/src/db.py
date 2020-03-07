@@ -1,16 +1,20 @@
 #! /usr/bin/env python
+""" DataBase Module
+This module manages the low level components of the DB for the Lil'Flo system
+
+Classes:
+    - DB: The core DB class
+
+"""
 
 from __future__ import print_function
 import sqlite3
-import pdb
-import json
 import os.path
 from os import mkdir
 
 
 class DB(object):
     def __init__(self, db_location):
-        need_to_build = False
         db_location = os.path.expanduser(db_location)
 
         dir_name = os.path.dirname(db_location)
@@ -19,13 +23,22 @@ class DB(object):
 
         try:
             self.conn = sqlite3.connect(db_location)
-        except sqlite3.OperationalError as e:
+        except sqlite3.OperationalError as err:
             print("unable to connect to database at location: {}".format(db_location))
-            print("error: {}".format(e))
+            print("error: {}".format(err))
         self.conn.row_factory = sqlite3.Row
-        self.make_db(db_location)
+        self.__make_db()
 
     def ex(self, command, *args):
+        """execute a command against the databse.
+        Abstracts out the execute command, filling in, commiting, and closing the order
+
+        Args:
+            command: The command to run
+            *args: Any arguments to pass
+
+        Returns: The return from the db
+        """
         # this with statement will auto commit
         with self.conn:
             if args:
@@ -35,15 +48,22 @@ class DB(object):
         return to_return
 
     def drop_table(self, table):
+        """drop_table
+
+        Args:
+            table: the table to drop
+        """
         self.ex('DROP TABLE ?', table)
 
     def con(self):
+        """Return the connection"""
         return self.conn
 
     def __del__(self):
         self.conn.close()
 
-    def make_db(self, db_location):
+    def __make_db(self):
+        """Make the database structure"""
         self.ex('''CREATE TABLE IF NOT EXISTS poses (
                     id integer PRIMARY KEY,
                     description text,

@@ -1,17 +1,12 @@
 #!/usr/bin/env python
-"""A module to display the robot screen using tkinter image"""
+"""A module to display the robot screen using opencv"""
 
 import rospy
-from PIL import Image, ImageTk
 import sys
 from sensor_msgs.msg import Image as smImage
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
 import cv2
-try:
-    import tkinter as tk
-except ImportError:
-    import Tkinter as tk
 import Queue
 
 # Screen is 800x480
@@ -20,12 +15,9 @@ import Queue
 class RobotScreen(object):
 
     def __init__(self):
-        self.window = tk.Tk()  # Makes main window
-        self.window.overrideredirect(True)
-        self.window.wm_attributes("-topmost", True)
-        self.window.geometry("800x480+0+0")
-        self.display1 = tk.Label(self.window)
-        self.display1.grid(row=1, column=0, padx=0, pady=0)  # Display 1
+        self.window = cv2.namedWindow('remote_vid', cv2.WINDOW_NORMAL)
+        cv2.setWindowProperty(
+            'remote_vid', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
         self.image_queue = Queue.Queue()
 
@@ -50,28 +42,18 @@ class RobotScreen(object):
                 except Queue.Empty:
                     empty = True
             if img is not None:
-                self.__show_frame(img)
-                self.window.update_idletasks()
-                self.window.update()
+                cv2.imshow('remote_vid', img)
+                cv2.waitKey(1)
             rate.sleep()
 
     def __new_img(self, msg):
         try:
-            cv_image = self.bridge.imgmsg_to_cv2(msg, "rgb8")
+            cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
         except CvBridgeError as err:
             rospy.logerr('error converting message to cvmat: %s', err)
             return
-        res_img = cv2.resize(cv_image, (800, 480))
-        self.image_queue.put(res_img)
-
-    def __show_frame(self, cv_image):
-        #frame = cv2.flip(frame, 1)
-        # cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
-        img = Image.fromarray(cv_image)
-        imgtk = ImageTk.PhotoImage(master=self.display1, image=img)
-        self.display1.imgtk = imgtk  # Shows frame for display 1
-        # This is a very very slow operation:
-        self.display1.configure(image=imgtk)
+        # res_img = cv2.resize(cv_image, (800, 480))
+        self.image_queue.put(cv_image)
 
 
 if __name__ == '__main__':

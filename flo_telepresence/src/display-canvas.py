@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-"""A module to display the robot screen using tkinter image"""
+"""A module for displaying the robot screen using a tkinter canvas"""
 
+import sys
 import rospy
 from PIL import Image, ImageTk
-import sys
 from sensor_msgs.msg import Image as smImage
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
@@ -24,8 +24,9 @@ class RobotScreen(object):
         self.window.overrideredirect(True)
         self.window.wm_attributes("-topmost", True)
         self.window.geometry("800x480+0+0")
-        self.display1 = tk.Label(self.window)
-        self.display1.grid(row=1, column=0, padx=0, pady=0)  # Display 1
+        self.canvas = tk.Canvas(self.window, width=800, height=480)
+        self.canvas.grid(row=0, column=0, padx=0, pady=0)  # Display 1
+        self.image_on_canvas = None
 
         self.image_queue = Queue.Queue()
 
@@ -68,10 +69,18 @@ class RobotScreen(object):
         #frame = cv2.flip(frame, 1)
         # cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
         img = Image.fromarray(cv_image)
-        imgtk = ImageTk.PhotoImage(master=self.display1, image=img)
-        self.display1.imgtk = imgtk  # Shows frame for display 1
+        imgtk = ImageTk.PhotoImage(master=self.canvas, image=img)
+        self.canvas.imgtk = imgtk
+        if self.image_on_canvas is None:
+            self.image_on_canvas = self.canvas.create_image(
+                0, 0, anchor=tk.NW, image=imgtk)
+            print('setup first image')
+        else:
+            self.canvas.itemconfig(self.image_on_canvas, image=imgtk)
+
+        # self.display1.imgtk = imgtk  # Shows frame for display 1
         # This is a very very slow operation:
-        self.display1.configure(image=imgtk)
+        # self.display1.configure(image=imgtk)
 
 
 if __name__ == '__main__':

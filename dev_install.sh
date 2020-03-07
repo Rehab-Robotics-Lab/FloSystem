@@ -2,6 +2,9 @@
 
 set -e
 
+sudo apt-get update -y && sudo apt-get upgrade -y
+sudo apt-get install lsyncd
+
 mkdir -p ~/catkin_ws/src
 ln -sf ~/Documents/git/LilFloSystem ~/catkin_ws/src/
 ln -sf ~/Documents/git/tts-ros1 ~/catkin_ws/src/

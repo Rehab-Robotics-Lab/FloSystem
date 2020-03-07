@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""A mdoule which allows monitoring and publishing system stats"""
 
 from __future__ import division
 import rospy
@@ -29,14 +30,16 @@ class StatsPublisher(object):
         rospy.Timer(rospy.Duration(2), self.read_net)
         rospy.spin()
 
-    def read_cpu(self, event):
+    def read_cpu(self, _):
+        """Read the current CPU level"""
         cpu_load = psutil.cpu_percent(interval=None, percpu=False)
         rospy.logdebug('cpu load: %5.2f%%', cpu_load)
         msg = CPUutil()
         msg.percent_utilization = cpu_load
         self.cpu_stats_pub.publish(msg)
 
-    def read_disk(self, event):
+    def read_disk(self, _):
+        """Read the current disk utlization"""
         disk_stats = psutil.disk_usage('/')
         disk_percent_free = 100-disk_stats.percent
         rospy.logdebug('disk has %5.2f%% free', disk_percent_free)
@@ -44,7 +47,8 @@ class StatsPublisher(object):
         msg.percent_free = disk_percent_free
         self.hdd_stats_pub.publish(msg)
 
-    def read_mem(self, event):
+    def read_mem(self, _):
+        """Read the current memory utilization"""
         mem_stats = psutil.virtual_memory()
         mem_load = 100 * (mem_stats.total -
                           mem_stats.available)/mem_stats.total
@@ -53,7 +57,8 @@ class StatsPublisher(object):
         msg.percent_used = mem_load
         self.mem_stats_pub.publish(msg)
 
-    def read_net(self, event):
+    def read_net(self, _):
+        """Read the current network status"""
         net_stats = self.get_net_strength()
         if net_stats:
             link_quality = net_stats['link_quality']
@@ -69,6 +74,11 @@ class StatsPublisher(object):
 
     @staticmethod
     def get_net_strength():
+        """Get the network strength
+
+        Return:
+            A dictionary with the fields `link_quality` and `signal_level`
+        """
         try:
             proc = subprocess.Popen('iwconfig | grep Link', shell=True,
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -84,7 +94,7 @@ class StatsPublisher(object):
             msg = output.decode('utf-8')
             lqv = re.split(
                 '/', re.search('(?<=Link Quality=)[0-9/]*', msg).group(0))
-            link_quality = int(lqv[0])/int(lqv[1])
+            link_quality = 100*int(lqv[0])/int(lqv[1])
             signal_level = int(
                 re.search('(?<=Signal level=)[0-9\-]*', msg).group(0))
             return {'link_quality': link_quality, 'signal_level': signal_level}

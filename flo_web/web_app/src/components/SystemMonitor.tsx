@@ -1,13 +1,17 @@
 import React, { useEffect, useReducer } from "react";
 import * as ROSLIB from "roslib";
-import { basicBlock } from "../styleDefs/styles";
+import { basicBlock, wrapStyle } from "../styleDefs/styles";
 import Gauge from "react-svg-gauge";
 
 const statsLength = 20;
-const gaugeW = 150;
-const gaugeH = 75;
+const gaugeW = 90;
+const gaugeH = 65;
 const gaugeF = (n: number): string => {
   return n.toFixed(2).toString();
+};
+
+const gaugeFdb = (n: number): string => {
+  return n.toFixed(2).toString() + " dBm";
 };
 
 interface CPUutilMsg {
@@ -88,43 +92,68 @@ const SystemMonitor: React.FunctionComponent<SystemMonitorProps> = ({
   }, [connected, ros]);
 
   return (
-    <div style={basicBlock}>
+    <div>
       <h2>System Stats</h2>
-      <Gauge
-        value={cpu[0]}
-        width={gaugeW}
-        height={gaugeH}
-        label="CPU Utilization"
-        valueFormatter={gaugeF}
-      />
-      <Gauge
-        value={mem[0]}
-        width={gaugeW}
-        height={gaugeH}
-        label="Memory Utilization"
-        valueFormatter={gaugeF}
-      />
-      <Gauge
-        value={100 - hdd[0]}
-        width={gaugeW}
-        height={gaugeH}
-        label="Hard Drive Utilization"
-        valueFormatter={gaugeF}
-      />
-      <Gauge
-        value={netQ[0]}
-        width={gaugeW}
-        height={gaugeH}
-        label="Network Quality"
-        valueFormatter={gaugeF}
-      />
-      <Gauge
-        value={netS[0]}
-        width={gaugeW}
-        height={gaugeH}
-        label="Network Strength"
-        valueFormatter={gaugeF}
-      />
+      <div
+        style={Object.assign(
+          { maxHeight: "250px", flexWrap: "wrap" },
+          wrapStyle
+        )}
+      >
+        <div>
+          <Gauge
+            value={cpu[0]}
+            width={gaugeW}
+            height={gaugeH}
+            label="CPU Utilization"
+            valueFormatter={gaugeF}
+            minMaxLabelStyle={{ visibility: "hidden" }}
+          />
+        </div>
+
+        <div>
+          <Gauge
+            value={mem[0]}
+            width={gaugeW}
+            height={gaugeH}
+            label="Memory Utilization"
+            valueFormatter={gaugeF}
+            minMaxLabelStyle={{ visibility: "hidden" }}
+          />
+        </div>
+        <div>
+          <Gauge
+            value={100 - hdd[0]}
+            width={gaugeW}
+            height={gaugeH}
+            label="Hard Drive Utilization"
+            valueFormatter={gaugeF}
+            minMaxLabelStyle={{ visibility: "hidden" }}
+          />
+        </div>
+        <div>
+          <Gauge
+            value={netQ[0]}
+            width={gaugeW}
+            height={gaugeH}
+            label="Network Quality"
+            valueFormatter={gaugeF}
+            minMaxLabelStyle={{ visibility: "hidden" }}
+          />
+        </div>
+        <div>
+          <Gauge
+            value={netS[0]}
+            width={gaugeW}
+            height={gaugeH}
+            label="Network Strength"
+            valueFormatter={gaugeFdb}
+            min={-70} //https://codeyarns.com/2017/07/23/dbm-wireless-signal-strength/
+            max={-20}
+            minMaxLabelStyle={{ visibility: "hidden" }}
+          />
+        </div>
+      </div>
     </div>
   );
 };

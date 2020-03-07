@@ -20,6 +20,7 @@ import Drive from "./components/Drive";
 import { basicBlock } from "./styleDefs/styles";
 import GameContainer from "./components/GameContainer";
 import SystemMonitor from "./components/SystemMonitor";
+import GameBuckets from "./components/GameBuckets";
 
 export function genRandID(): number {
   return Math.round(Math.random() * 10000) + Date.now();
@@ -192,6 +193,7 @@ const App: React.FunctionComponent = () => {
               ipPort={ipPort}
             />
             <URDF ros={ros} connected={connected} />
+            <SystemMonitor ros={ros} connected={connected} />
           </div>
           <RelaxMotors ros={ros} connected={connected} />
           <div
@@ -203,6 +205,19 @@ const App: React.FunctionComponent = () => {
               alignItems: "flex-start"
             }}
           >
+            <Drive ros={ros} connected={connected} />
+            <GameContainer ros={ros} connected={connected} />
+            <div style={{ display: "flex", flexDirection: "row" }}>
+              <SpeechContainer
+                ros={ros}
+                connected={connected}
+                speechTarget={speechTarget}
+                setSpeechTarget={setSpeechTarget}
+                setSpeaking={setSpeaking}
+                speaking={speaking}
+              />
+            </div>
+            <FaceContainer ros={ros} connected={connected} />
             <div
               style={{
                 display: "flex",
@@ -231,18 +246,7 @@ const App: React.FunctionComponent = () => {
                 setMovesList={setMovesList}
               />
             </div>
-            <GameContainer ros={ros} connected={connected} />
-            <div style={{ display: "flex", flexDirection: "row" }}>
-              <SpeechContainer
-                ros={ros}
-                connected={connected}
-                speechTarget={speechTarget}
-                setSpeechTarget={setSpeechTarget}
-                setSpeaking={setSpeaking}
-                speaking={speaking}
-              />
-            </div>
-            <FaceContainer ros={ros} connected={connected} />
+            <GameBuckets ros={ros} connected={connected} />
             <MoveToPose
               ros={ros}
               connected={connected}
@@ -250,8 +254,6 @@ const App: React.FunctionComponent = () => {
               setMoving={setMoving}
               pose={pose}
             />
-            <Drive ros={ros} connected={connected} />
-            <SystemMonitor ros={ros} connected={connected} />
           </div>
           <ErrorDisplay errorList={errorList} />
         </div>

@@ -58,7 +58,7 @@ class FloDb(object):
         rospy.Service('search_pose_seq', SearchPoseSeq, self.__search_pose_seq)
         rospy.Service('search_utterance', SearchUtterance,
                       self.__search_utterance)
-        rospy.Service('set_utterance', SetUtterance, self.set_utterance)
+        rospy.Service('set_utterance', SetUtterance, self.__set_utterance)
         rospy.Service('set_game_bucket', SetGameBucket, self.__set_game_bucket)
         rospy.Service('get_game_bucket_id', GetGameBucketID,
                       self.__get_game_bucket_id)
@@ -242,7 +242,7 @@ class FloDb(object):
             return resp
         raise rospy.ServiceException('That ID does not exist')
 
-    def search_pose_seq(self, request):
+    def __search_pose_seq(self, request):
         """Search for a pose sequence in the database using a string of the
         description
 
@@ -289,7 +289,8 @@ class FloDb(object):
     def __set_utterance(self, request):
         """Set an utterance in the Database
 
-        Updates (if given an ID) or creates a new utterance (if not given and ID)
+        Updates (if given an ID) or creates a new utterance
+        (if not given and ID)
         based on the request passed from the action server
 
         Args:

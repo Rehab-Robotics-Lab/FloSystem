@@ -57,13 +57,13 @@ class FloDb(object):
         rospy.Service('get_pose_seq_id', GetPoseSeqID, self.__get_pose_seq_id)
         rospy.Service('search_pose_seq', SearchPoseSeq, self.__search_pose_seq)
         rospy.Service('search_utterance', SearchUtterance,
-                      self.search_utterance)
+                      self.__search_utterance)
         rospy.Service('set_utterance', SetUtterance, self.set_utterance)
-        rospy.Service('set_game_bucket', SetGameBucket, self.set_game_bucket)
+        rospy.Service('set_game_bucket', SetGameBucket, self.__set_game_bucket)
         rospy.Service('get_game_bucket_id', GetGameBucketID,
-                      self.get_game_bucket_id)
+                      self.__get_game_bucket_id)
         rospy.Service('search_game_bucket_name_desc',
-                      SearchGameBucket, self.search_game_bucket_name_desc)
+                      SearchGameBucket, self.__search_game_bucket_name_desc)
 
         rospy.loginfo('Node up, services ready')
 
@@ -333,7 +333,7 @@ class FloDb(object):
         resp = SetUtteranceResponse(id=updated_row, time=time_length)
         return resp
 
-    def set_game_bucket(self, request):
+    def __set_game_bucket(self, request):
         """set a bucket of games in the database
 
         Args:
@@ -400,7 +400,7 @@ class FloDb(object):
 
         return updated_row
 
-    def get_game_bucket_id(self, request):
+    def __get_game_bucket_id(self, request):
         """Get a game bucket given its id
 
         Args:
@@ -425,7 +425,7 @@ class FloDb(object):
             return resp
         raise rospy.ServiceException('That ID does not exist')
 
-    def search_game_bucket_name_desc(self, request):
+    def __search_game_bucket_name_desc(self, request):
         """Search for a game bucket using both the name and description
 
         Args:

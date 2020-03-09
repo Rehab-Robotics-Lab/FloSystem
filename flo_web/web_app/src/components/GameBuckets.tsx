@@ -24,26 +24,16 @@ interface GameBucketsProps {
 
 interface GameStepProps {
   def: StepDef;
-  modify: () => void;
   del: () => void;
 }
 
-const GameStep: React.FunctionComponent<GameStepProps> = ({
-  def,
-  modify,
-  del
-}) => {
+const GameStep: React.FunctionComponent<GameStepProps> = ({ def, del }) => {
   return (
     <div>
-      {def.desc}
-      <button
-        type="button"
-        onClick={(): void => {
-          modify();
-        }}
-      >
-        modify
-      </button>
+      <div>
+        <div>{def.type + ": " + def.desc}</div>
+        <div>{def.time + "/" + def.text}</div>
+      </div>
       <button
         type="button"
         onClick={(): void => {
@@ -148,6 +138,68 @@ const AddGameAction: React.FunctionComponent<AddGameActionProps> = ({
           Sequence
         </button>
 
+        <button
+          type="button"
+          disabled={!connected || actionType == ActionType.leftArm}
+          onClick={(): void => {
+            const searchSeqClient = new ROSLIB.Service({
+              ros: ros as ROSLIB.Ros,
+              name: "/search_pose",
+              serviceType: "flo_core/SearchPose"
+            });
+            console.log("connected to service to search for a pose");
+
+            const request = new ROSLIB.ServiceRequest({ search: "" });
+
+            searchSeqClient.callService(request, resp => {
+              const poses = [];
+              for (let i = 0; i < resp.ids.length; i += 1) {
+                poses.push({
+                  id: resp.ids[i],
+                  description: resp.poses[i].description
+                });
+              }
+              setGameActionOpts(poses);
+              console.log("received pose ");
+            });
+            console.log("searched for all poses");
+            setActionType(ActionType.leftArm);
+          }}
+        >
+          Pose - Left Arm
+        </button>
+
+        <button
+          type="button"
+          disabled={!connected || actionType == ActionType.rightArm}
+          onClick={(): void => {
+            const searchSeqClient = new ROSLIB.Service({
+              ros: ros as ROSLIB.Ros,
+              name: "/search_pose",
+              serviceType: "flo_core/SearchPose"
+            });
+            console.log("connected to service to search for a pose");
+
+            const request = new ROSLIB.ServiceRequest({ search: "" });
+
+            searchSeqClient.callService(request, resp => {
+              const poses = [];
+              for (let i = 0; i < resp.ids.length; i += 1) {
+                poses.push({
+                  id: resp.ids[i],
+                  description: resp.poses[i].description
+                });
+              }
+              setGameActionOpts(poses);
+              console.log("received pose ");
+            });
+            console.log("searched for all poses");
+            setActionType(ActionType.rightArm);
+          }}
+        >
+          Pose - Right Arm
+        </button>
+
         <label htmlFor="toSay">
           To Say:
           <input
@@ -232,7 +284,6 @@ const GameBuckets: React.FunctionComponent<GameBucketsProps> = ({
         {steps.map((value, idx) => (
           <GameStep
             def={value}
-            modify={(): void => {}}
             del={(): void => {
               const stepsT = Array.from(steps);
               stepsT.splice(idx, 1);

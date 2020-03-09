@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import * as ROSLIB from "roslib";
 import { basicBlock } from "../styleDefs/styles";
 import ModalWrapper from "./ModalWrapper";
@@ -8,6 +8,8 @@ interface StepDef {
   text: string;
   id: number;
   time: number;
+  desc: string;
+  key: string;
 }
 
 interface GameAction {
@@ -20,9 +22,43 @@ interface GameBucketsProps {
   connected: boolean;
 }
 
+interface GameStepProps {
+  def: StepDef;
+  modify: () => void;
+  del: () => void;
+}
+
+const GameStep: React.FunctionComponent<GameStepProps> = ({
+  def,
+  modify,
+  del
+}) => {
+  return (
+    <div>
+      {def.desc}
+      <button
+        type="button"
+        onClick={(): void => {
+          modify();
+        }}
+      >
+        modify
+      </button>
+      <button
+        type="button"
+        onClick={(): void => {
+          del();
+        }}
+      >
+        X
+      </button>
+    </div>
+  );
+};
+
 interface GameActionOptProps {
   action: GameAction;
-  setActiveOpt: (index: number) => void;
+  setActiveOpt: () => void;
   active: boolean;
 }
 
@@ -34,7 +70,7 @@ const GameActionOpt: React.FunctionComponent<GameActionOptProps> = ({
   <button
     type="button"
     onClick={(): void => {
-      setActiveOpt(action.id);
+      setActiveOpt();
     }}
     disabled={active}
   >
@@ -52,8 +88,8 @@ interface AddGameActionProps {
 
 enum ActionType {
   seq = "move",
-  left_arm = "pose_left",
-  right_arm = "pose_right",
+  leftArm = "pose_left",
+  rightArm = "pose_right",
   none = "none"
 }
 
@@ -132,12 +168,14 @@ const AddGameAction: React.FunctionComponent<AddGameActionProps> = ({
           />
         </label>
         <div>
-          {gameActionOpts.map(value => (
+          {gameActionOpts.map((value, idx) => (
             <GameActionOpt
               key={actionType + value.id}
               action={value}
-              setActiveOpt={setActiveOpt}
-              active={value.id == activeOpt}
+              setActiveOpt={(): void => {
+                setActiveOpt(idx);
+              }}
+              active={idx == activeOpt}
             />
           ))}
         </div>
@@ -149,12 +187,15 @@ const AddGameAction: React.FunctionComponent<AddGameActionProps> = ({
             activeOpt < 0 ||
             activeOpt >= gameActionOpts.length
           }
-          onClick={() => {
+          onClick={(): void => {
+            const dt = new Date();
             addGameAction({
               type: actionType,
               text: toSay,
               id: activeOpt,
-              time: timeTarget
+              time: timeTarget,
+              desc: gameActionOpts[activeOpt].description,
+              key: actionType + activeOpt + dt.getTime()
             });
           }}
         >
@@ -186,13 +227,29 @@ const GameBuckets: React.FunctionComponent<GameBucketsProps> = ({
         Add Item
       </button>
       <hr />
+
+      <div>
+        {steps.map((value, idx) => (
+          <GameStep
+            def={value}
+            modify={(): void => {}}
+            del={(): void => {
+              const stepsT = Array.from(steps);
+              stepsT.splice(idx, 1);
+              setSteps(stepsT);
+            }}
+            key={value.key}
+          />
+        ))}
+      </div>
+
       <AddGameAction
         ros={ros}
-        addGameAction={(action: StepDef) => {
+        addGameAction={(action: StepDef): void => {
           setSteps([...steps, action]);
           setShowAdd(false);
         }}
-        cancel={() => {
+        cancel={(): void => {
           setShowAdd(false);
         }}
         showAdd={showAdd}

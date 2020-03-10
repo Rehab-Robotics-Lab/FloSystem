@@ -80,8 +80,51 @@ enum ActionType {
   seq = "move",
   leftArm = "pose_left",
   rightArm = "pose_right",
+  bothArms = "pose_both",
+
   none = "none"
 }
+
+const PoseButton: React.FunctionComponent<PoseButtonProps> = ({
+  buttonText,
+  actionType,
+  ros,
+  connected,
+  setGameActionOpts
+}) => {
+  return (
+    <button
+      type="button"
+      disabled={!connected || actionType == ActionType.rightArm}
+      onClick={(): void => {
+        const searchSeqClient = new ROSLIB.Service({
+          ros: ros as ROSLIB.Ros,
+          name: "/search_pose",
+          serviceType: "flo_core/SearchPose"
+        });
+        console.log("connected to service to search for a pose");
+
+        const request = new ROSLIB.ServiceRequest({ search: "" });
+
+        searchSeqClient.callService(request, resp => {
+          const poses = [];
+          for (let i = 0; i < resp.ids.length; i += 1) {
+            poses.push({
+              id: resp.ids[i],
+              description: resp.poses[i].description
+            });
+          }
+          setGameActionOpts(poses);
+          console.log("received pose ");
+        });
+        console.log("searched for all poses");
+        setActionType(ActionType.rightArm);
+      }}
+    >
+      Pose - Right Arm
+    </button>
+  );
+};
 
 const AddGameAction: React.FunctionComponent<AddGameActionProps> = ({
   ros,
@@ -264,12 +307,17 @@ const GameBuckets: React.FunctionComponent<GameBucketsProps> = ({
 }) => {
   const [steps, setSteps] = useState<StepDef[]>([]);
   const [showAdd, setShowAdd] = useState(false);
+  const [saveID, setSaveID] = useState(0);
   return (
     <div style={basicBlock}>
       <h2>GameBuckets</h2>
 
-      <button type="button">Load Bucket</button>
-      <button type="button">Save Bucket</button>
+      <button type="button" onClick={() => {}}>
+        Load Bucket
+      </button>
+      <button type="button" onClick={() => {}}>
+        Save Bucket
+      </button>
       <button
         type="button"
         onClick={(): void => {

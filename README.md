@@ -8,6 +8,8 @@ control, messaging, etc.
 In this README you will find everything you need to work with and develop on the
 Lil'Flo platform.
 
+You may be interested in [papers and posters on the project](https://michaelsobrepera.com/tags/flo)
+
 ## Contents
 
 - [Development Computer Setup](#dev-computer)

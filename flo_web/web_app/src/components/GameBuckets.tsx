@@ -85,17 +85,25 @@ enum ActionType {
   none = "none"
 }
 
+interface PoseButtonProps {
+  buttonText: string;
+  disabled: boolean;
+  ros: ROSLIB.Ros | null;
+  setGameActionOpts: (gas: GameAction[]) => void;
+  setActionType: () => void;
+}
+
 const PoseButton: React.FunctionComponent<PoseButtonProps> = ({
   buttonText,
-  actionType,
+  disabled,
   ros,
-  connected,
-  setGameActionOpts
+  setGameActionOpts,
+  setActionType
 }) => {
   return (
     <button
       type="button"
-      disabled={!connected || actionType == ActionType.rightArm}
+      disabled={disabled}
       onClick={(): void => {
         const searchSeqClient = new ROSLIB.Service({
           ros: ros as ROSLIB.Ros,
@@ -118,10 +126,10 @@ const PoseButton: React.FunctionComponent<PoseButtonProps> = ({
           console.log("received pose ");
         });
         console.log("searched for all poses");
-        setActionType(ActionType.rightArm);
+        setActionType();
       }}
     >
-      Pose - Right Arm
+      {buttonText}
     </button>
   );
 };
@@ -181,67 +189,25 @@ const AddGameAction: React.FunctionComponent<AddGameActionProps> = ({
           Sequence
         </button>
 
-        <button
-          type="button"
-          disabled={!connected || actionType == ActionType.leftArm}
-          onClick={(): void => {
-            const searchSeqClient = new ROSLIB.Service({
-              ros: ros as ROSLIB.Ros,
-              name: "/search_pose",
-              serviceType: "flo_core/SearchPose"
-            });
-            console.log("connected to service to search for a pose");
-
-            const request = new ROSLIB.ServiceRequest({ search: "" });
-
-            searchSeqClient.callService(request, resp => {
-              const poses = [];
-              for (let i = 0; i < resp.ids.length; i += 1) {
-                poses.push({
-                  id: resp.ids[i],
-                  description: resp.poses[i].description
-                });
-              }
-              setGameActionOpts(poses);
-              console.log("received pose ");
-            });
-            console.log("searched for all poses");
-            setActionType(ActionType.leftArm);
-          }}
-        >
-          Pose - Left Arm
-        </button>
-
-        <button
-          type="button"
+        <PoseButton
+          buttonText="Pose - Right Arm"
           disabled={!connected || actionType == ActionType.rightArm}
-          onClick={(): void => {
-            const searchSeqClient = new ROSLIB.Service({
-              ros: ros as ROSLIB.Ros,
-              name: "/search_pose",
-              serviceType: "flo_core/SearchPose"
-            });
-            console.log("connected to service to search for a pose");
-
-            const request = new ROSLIB.ServiceRequest({ search: "" });
-
-            searchSeqClient.callService(request, resp => {
-              const poses = [];
-              for (let i = 0; i < resp.ids.length; i += 1) {
-                poses.push({
-                  id: resp.ids[i],
-                  description: resp.poses[i].description
-                });
-              }
-              setGameActionOpts(poses);
-              console.log("received pose ");
-            });
-            console.log("searched for all poses");
+          ros={ros}
+          setGameActionOpts={setGameActionOpts}
+          setActionType={(): void => {
             setActionType(ActionType.rightArm);
           }}
-        >
-          Pose - Right Arm
-        </button>
+        />
+
+        <PoseButton
+          buttonText="Pose - Left Arm"
+          disabled={!connected || actionType == ActionType.leftArm}
+          ros={ros}
+          setGameActionOpts={setGameActionOpts}
+          setActionType={(): void => {
+            setActionType(ActionType.leftArm);
+          }}
+        />
 
         <label htmlFor="toSay">
           To Say:
@@ -312,10 +278,22 @@ const GameBuckets: React.FunctionComponent<GameBucketsProps> = ({
     <div style={basicBlock}>
       <h2>GameBuckets</h2>
 
-      <button type="button" onClick={() => {}}>
+      <button
+        type="button"
+        onClick={(): void => {
+          //TODO: Implement this
+          console.warn("not implemente");
+        }}
+      >
         Load Bucket
       </button>
-      <button type="button" onClick={() => {}}>
+      <button
+        type="button"
+        onClick={(): void => {
+          //TODO: Implement this
+          console.warn("not implemente");
+        }}
+      >
         Save Bucket
       </button>
       <button

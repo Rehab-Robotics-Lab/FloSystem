@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(flo_core)
+project(flo_core_defs)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -8,11 +8,8 @@ project(flo_core)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  flo_face
-  flo_humanoid
-  flo_telepresence
-  rospy
   std_msgs
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -49,29 +46,29 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
- #add_message_files(
- #  FILES
- #  Pose.msg
- #  PoseSeq.msg
- #  GameFeedback.msg
- #  GameCommandOptions.msg
- #  GameDef.msg
- #  GameCommand.msg
- #  StepDef.msg
- #)
+ add_message_files(
+   FILES
+   Pose.msg
+   PoseSeq.msg
+   GameFeedback.msg
+   GameCommandOptions.msg
+   GameDef.msg
+   GameCommand.msg
+   StepDef.msg
+ )
 
 ## Generate services in the 'srv' folder
- #add_service_files(
- #  FILES
- #  GetPoseID.srv
- #  GetPoseSeqID.srv
- #  SearchPoseSeq.srv
- #  SearchPose.srv
- #  SetPoseSeq.srv
- #  SetPose.srv
- #  SearchUtterance.srv
- #  SetUtterance.srv
- #)
+ add_service_files(
+   FILES
+   GetPoseID.srv
+   GetPoseSeqID.srv
+   SearchPoseSeq.srv
+   SearchPose.srv
+   SetPoseSeq.srv
+   SetPose.srv
+   SearchUtterance.srv
+   SetUtterance.srv
+ )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -81,10 +78,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
- #generate_messages(
- #  DEPENDENCIES
- #  std_msgs
- #)
+ generate_messages(
+   DEPENDENCIES
+   std_msgs
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -118,7 +115,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES flo_core
-  CATKIN_DEPENDS flo_face flo_humanoid flo_telepresence rospy std_msgs
+  CATKIN_DEPENDS  std_msgs
 #  DEPENDS system_lib
 )
 

@@ -1,0 +1,17 @@
+<launch> 
+  <arg name="cloud_input_ns" value="camera" />
+
+  <!-- Nodelet manager for this pipeline -->
+  <node pkg="nodelet" type="nodelet" args="manager"
+        name="record_player_manager" output="screen"/>
+
+  <node pkg="nodelet" type="nodelet" name="cloudify"
+        args="load depth_image_proc/point_cloud_xyzrgb record_player_manager --no-bond">
+    <remap from="/camera/depth_registered/image_rect" to="upper_realsense/depth/image_rect_raw"/>
+    <remap from="/camera/depth_registered/points" to="camera/depth_registered/points"/>
+    <remap from="/camera/rgb/image_rect_color" to="upper_realsense/color/image_raw/compressed"/>
+    <remap from="/camera/rgb/camera_info" to="upper_realsense/color/camera_info"/>
+    <remap from="/camera/rgb/image_raw" to="/upper_realsense/color/image_raw/compressed"/>	
+
+  </node>
+</launch>

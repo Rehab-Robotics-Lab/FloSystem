@@ -18,7 +18,7 @@ import rospkg
 
 from std_msgs.msg import String
 from sensor_msgs.msg import JointState
-from flo_humanoid_def.msg import MoveAction, MoveResult, MoveFeedback
+from flo_humanoid_defs.msg import MoveAction, MoveResult, MoveFeedback
 from read_from_bolide import BolideReader
 
 

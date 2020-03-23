@@ -103,7 +103,7 @@ const SavedSpeech: React.FunctionComponent<SavedSpeechProps> = ({
     const searchUtterances = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/search_utterance",
-      serviceType: "flo_core/SearchUtterance"
+      serviceType: "flo_core_defs/SearchUtterance"
     });
     console.log("connected to search utterances service");
 
@@ -126,7 +126,7 @@ const SavedSpeech: React.FunctionComponent<SavedSpeechProps> = ({
     const setUtterSrvT = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/set_utterance",
-      serviceType: "flo_core/SetUtterance"
+      serviceType: "flo_core_defs/SetUtterance"
     });
     setSetUtterSrv(setUtterSrvT);
     console.log("connected to set utterances service");

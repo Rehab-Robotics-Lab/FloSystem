@@ -40,7 +40,7 @@ const FaceBrightnessSet: React.FunctionComponent<FaceBrightnessSetProps> = ({
     const setBrightnessSrvT = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/set_face_brightness",
-      serviceType: "flo_face/SetFaceBrightness"
+      serviceType: "flo_face_defs/SetFaceBrightness"
     });
     setSetBrightnessSrv(setBrightnessSrvT);
     console.log("connected to set eye brightness service");

@@ -73,7 +73,7 @@ const SavedFaces: React.FunctionComponent<SavedFacesProps> = ({
     const getFaceOptions = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/get_face_options",
-      serviceType: "flo_face/GetFaceOptions"
+      serviceType: "flo_face_defs/GetFaceOptions"
     });
     console.log("connected to service to get face options");
 
@@ -88,7 +88,7 @@ const SavedFaces: React.FunctionComponent<SavedFacesProps> = ({
     const setFaceSrvT = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/set_face",
-      serviceType: "flo_face/SetFace"
+      serviceType: "flo_face_defs/SetFace"
     });
     setSetFaceSrv(setFaceSrvT);
     console.log("connected to service to set face");

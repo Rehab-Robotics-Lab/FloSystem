@@ -72,7 +72,7 @@ const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
     const searchPosesClient = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/search_pose",
-      serviceType: "flo_core/SearchPose"
+      serviceType: "flo_core_defs/SearchPose"
     });
     console.log("connected to service to search for poses");
 
@@ -91,7 +91,7 @@ const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
     const setPoseSrvT = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/set_pose",
-      serviceType: "flo_core/SetPose"
+      serviceType: "flo_core_defs/SetPose"
     });
     setSetPoseSrv(setPoseSrvT);
     console.log("connected to service to set pose");

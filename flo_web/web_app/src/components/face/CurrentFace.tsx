@@ -79,7 +79,7 @@ const CurrentFace: React.FunctionComponent<CurrentFaceProps> = ({
     const faceListenerT = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "face_state",
-      messageType: "flo_face/FaceState"
+      messageType: "flo_face_defs/FaceState"
     });
     faceListenerT.subscribe(msg => {
       setFaceState(msg as FaceState);

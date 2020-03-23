@@ -52,7 +52,7 @@ export const runSequence = (
   const actionClient = new ROSLIB.ActionClient({
     ros: ros,
     serverName: "/move",
-    actionName: "flo_humanoid/MoveAction",
+    actionName: "flo_humanoid_defs/MoveAction",
     timeout: 1 //Not sure about this value here. needs testing
   });
   console.log("connected to move action action client");

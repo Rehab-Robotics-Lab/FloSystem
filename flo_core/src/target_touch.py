@@ -2,7 +2,7 @@
 """A module to generate target touch type games"""
 
 import random
-from flo_core.msg import StepDef
+from flo_core_defs.msg import StepDef
 
 DEFAULT_DEF = [
     StepDef(type='pose_left',

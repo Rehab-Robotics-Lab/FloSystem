@@ -8,11 +8,6 @@ project(flo_core)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  flo_face
-  flo_humanoid
-  flo_telepresence
-  rospy
-  std_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -118,7 +113,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES flo_core
-  CATKIN_DEPENDS flo_face flo_humanoid flo_telepresence rospy std_msgs
+  CATKIN_DEPENDS
 #  DEPENDS system_lib
 )
 

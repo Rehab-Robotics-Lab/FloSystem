@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(flo_humanoid)
+project(flo_humanoid_defs)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -8,7 +8,36 @@ project(flo_humanoid)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  std_msgs
+  message_generation
+  actionlib_msgs
 )
+
+
+################################################
+## Declare ROS messages, services and actions ##
+################################################
+
+## Generate messages in the 'msg' folder
+ add_message_files(
+     FILES
+   JointTarget.msg
+ )
+
+## Generate actions in the 'action' folder
+ add_action_files(
+     DIRECTORY action
+   FILES
+   Move.action
+ )
+
+## Generate added messages and services with any dependencies listed here
+ generate_messages(
+   DEPENDENCIES
+   std_msgs
+   actionlib_msgs
+ )
+
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -17,7 +46,7 @@ catkin_package(
 #  LIBRARIES flo_humanoid
 #  CATKIN_DEPENDS roscpp rospy std_msgs tf
 #  DEPENDS system_lib
-CATKIN_DEPENDS message_runtime actionlib_msgs
+CATKIN_DEPENDS
 )
 
 ###########

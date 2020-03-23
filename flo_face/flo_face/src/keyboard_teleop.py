@@ -6,9 +6,9 @@ import select
 import tty
 import termios
 import rospy
-from flo_face.srv import (GetFaceOptions, GetFaceOptionsResponse,
-                          SetEyeDirection, SetEyeDirectionResponse,
-                          SetFace, SetFaceResponse)
+from flo_face_defs.srv import (GetFaceOptions, GetFaceOptionsResponse,
+                               SetEyeDirection, SetEyeDirectionResponse,
+                               SetFace, SetFaceResponse)
 
 avialiable_commands = ['q', 'w', 'e', 'r', 't', 'a', 's', 'd', 'f', 'g', 'z', 'x',
                             'c', 'v', '1', '2', '3', '4', '5', '6', 'y', 'h', 'b', 'n', '7',

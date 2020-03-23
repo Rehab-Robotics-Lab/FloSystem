@@ -7,16 +7,16 @@ from os import path
 import rospy
 
 
-from flo_core.srv import GetPoseID, GetPoseIDResponse
-from flo_core.srv import SetPose, SetPoseResponse
-from flo_core.srv import SearchPose, SearchPoseResponse
-from flo_core.msg import Pose
-from flo_core.srv import SetPoseSeq, SetPoseSeqResponse
-from flo_core.srv import GetPoseSeqID, GetPoseSeqIDResponse
-from flo_core.srv import SearchPoseSeq, SearchPoseSeqResponse
-from flo_core.srv import SetUtterance, SetUtteranceResponse
-from flo_core.srv import SearchUtterance, SearchUtteranceResponse
-from flo_core.msg import PoseSeq
+from flo_core_defs.srv import GetPoseID, GetPoseIDResponse
+from flo_core_defs.srv import SetPose
+from flo_core_defs.srv import SearchPose, SearchPoseResponse
+from flo_core_defs.msg import Pose
+from flo_core_defs.srv import SetPoseSeq
+from flo_core_defs.srv import GetPoseSeqID, GetPoseSeqIDResponse
+from flo_core_defs.srv import SearchPoseSeq, SearchPoseSeqResponse
+from flo_core_defs.srv import SetUtterance, SetUtteranceResponse
+from flo_core_defs.srv import SearchUtterance, SearchUtteranceResponse
+from flo_core_defs.msg import PoseSeq
 
 import mutagen
 

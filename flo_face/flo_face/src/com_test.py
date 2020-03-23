@@ -3,7 +3,7 @@
 
 import rospy
 import random
-from flo_face.msg import FaceState
+from flo_face_defs.msg import FaceState
 
 rospy.init_node('com_tester')
 rate = rospy.Rate(3)

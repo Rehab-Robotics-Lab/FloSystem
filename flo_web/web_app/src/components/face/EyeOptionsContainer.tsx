@@ -63,7 +63,7 @@ const EyeOptionsContainer: React.FunctionComponent<EyeOptionsContainerProps> = (
     const setEyeDirectionSrvT = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/set_eye_direction",
-      serviceType: "flo_face/SetEyeDirection"
+      serviceType: "flo_face_defs/SetEyeDirection"
     });
     setSetEyeDirectionSrv(setEyeDirectionSrvT);
     console.log("connected to set eye direction service");

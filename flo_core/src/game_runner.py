@@ -42,10 +42,10 @@ except ImportError:
 import rospy
 import actionlib
 from tts.msg import SpeechAction, SpeechGoal
-from flo_humanoid.msg import MoveAction, MoveGoal, JointTarget
-from flo_core.msg import GameFeedback, GameCommandOptions, GameDef, GameCommand, StepDef
-from flo_core.srv import GetPoseID, GetPoseIDResponse
-from flo_core.srv import GetPoseSeqID, GetPoseSeqIDResponse
+from flo_humanoid_defs.msg import MoveAction, MoveGoal, JointTarget
+from flo_core_defs.msg import GameFeedback, GameCommandOptions, GameDef, GameCommand, StepDef
+from flo_core_defs.srv import GetPoseID, GetPoseIDResponse
+from flo_core_defs.srv import GetPoseSeqID, GetPoseSeqIDResponse
 from simon_says import simon_says
 from target_touch import target_touch
 

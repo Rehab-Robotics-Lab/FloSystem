@@ -26,17 +26,18 @@ import rospy
 import actionlib
 from std_msgs.msg import String
 from sensor_msgs.msg import JointState
+
 from flo_humanoid.msg import JointTarget
 
-from flo_core.srv import GetPoseID
-from flo_core.srv import SetPose, SetPoseRequest
-from flo_core.srv import SearchPose
-from flo_core.srv import SetPoseSeq
-from flo_core.srv import GetPoseSeqID
-from flo_core.srv import SearchPoseSeq
-from flo_core.msg import Pose
+from flo_core_defs.srv import GetPoseID
+from flo_core_defs.srv import SetPose, SetPoseRequest
+from flo_core_defs.srv import SearchPose
+from flo_core_defs.srv import SetPoseSeq
+from flo_core_defs.srv import GetPoseSeqID
+from flo_core_defs.srv import SearchPoseSeq
+from flo_core_defs.msg import Pose
 
-from flo_humanoid.msg import MoveAction, MoveGoal, MoveResult, MoveFeedback
+from flo_humanoid_defs.msg import MoveAction, MoveGoal, MoveResult, MoveFeedback
 
 EDITOR = os.environ.get('EDITOR', 'vim')
 

@@ -86,7 +86,7 @@ const SequenceContainer: React.FunctionComponent<SequenceContainerProps> = ({
     const searchSeqClient = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/search_pose_seq",
-      serviceType: "flo_core/SearchPoseSeq"
+      serviceType: "flo_core_defs/SearchPoseSeq"
     });
     console.log("connected to service to search for a pose sequence");
 
@@ -108,7 +108,7 @@ const SequenceContainer: React.FunctionComponent<SequenceContainerProps> = ({
     const setSeqSrvT = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/set_pose_seq",
-      serviceType: "flo_core/SetPoseSeq"
+      serviceType: "flo_core_defs/SetPoseSeq"
     });
     setSetSeqSrv(setSeqSrvT);
     console.log("connected to service to set pose sequences");
@@ -116,7 +116,7 @@ const SequenceContainer: React.FunctionComponent<SequenceContainerProps> = ({
     const getPoseSrvT = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/get_pose_id",
-      serviceType: "flo_core/GetPoseID"
+      serviceType: "flo_core_defs/GetPoseID"
     });
     setGetPoseSrv(getPoseSrvT);
     console.log("connected to service to get poses by id");

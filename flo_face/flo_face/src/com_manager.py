@@ -6,7 +6,7 @@ import math
 import rospy
 # https://github.com/Rehab-Robotics-Lab/serial_coms/tree/master/computer/python/serial_coms
 from serial_coms import SerialCom
-from flo_face.msg import FaceState
+from flo_face_defs.msg import FaceState
 
 
 class FaceComs(object):

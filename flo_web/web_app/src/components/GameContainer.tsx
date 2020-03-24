@@ -78,7 +78,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
     const CommandListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "game_runner_command_opts",
-      messageType: "flo_core/GameCommandOptions"
+      messageType: "flo_core_defs/GameCommandOptions"
     });
     CommandListener.subscribe(msg => {
       setCommandOptions((msg as CommandOpts).options);
@@ -89,7 +89,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
     const FeedbackListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "game_runner_feedback",
-      messageType: "flo_core/GameFeedback"
+      messageType: "flo_core_defs/GameFeedback"
     });
     FeedbackListener.subscribe(msg => {
       setGameFeedback((msg as GameFeedback).feedback);
@@ -100,7 +100,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
     const gameDefPubT = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "/game_runner_def",
-      messageType: "flo_core/GameDef"
+      messageType: "flo_core_defs/GameDef"
     });
     setGameDefPub(gameDefPubT);
     console.log("connected to publish on game runner definition topic");
@@ -108,7 +108,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
     const gameCommandPubT = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "/game_runner_commands",
-      messageType: "flo_core/GameCommand"
+      messageType: "flo_core_defs/GameCommand"
     });
     setGameCommandPub(gameCommandPubT);
     console.log("connected to publish on game runner commands topic");

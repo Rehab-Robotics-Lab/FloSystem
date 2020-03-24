@@ -27,6 +27,7 @@ find_package(catkin REQUIRED COMPONENTS
      Pose.msg
      PoseSeq.msg
      StepDef.msg
+     DBUpdate.msg
  )
 
 ## Generate services in the 'srv' folder

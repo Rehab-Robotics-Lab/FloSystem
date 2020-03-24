@@ -43,7 +43,8 @@ class FloDb(object):
 
         rospy.init_node('db_manager')
 
-        self.db_updates = rospy.Publisher('flo_db_updates', DBUpdate)
+        self.db_updates = rospy.Publisher(
+            'flo_db_updates', DBUpdate, queue_size=10)
 
         self.db_path = rospy.get_param("database_location",
                                        path.expanduser('~/db/flo.db'))

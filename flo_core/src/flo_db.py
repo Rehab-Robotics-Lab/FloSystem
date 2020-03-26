@@ -17,6 +17,7 @@ from flo_core_defs.srv import SearchPoseSeq, SearchPoseSeqResponse
 from flo_core_defs.srv import SetUtterance, SetUtteranceResponse
 from flo_core_defs.srv import SearchUtterance, SearchUtteranceResponse
 from flo_core_defs.msg import PoseSeq
+from flo_core_defs.msg import DBUpdate
 
 import mutagen
 
@@ -41,6 +42,9 @@ class FloDb(object):
         """
 
         rospy.init_node('db_manager')
+
+        self.db_updates = rospy.Publisher(
+            'flo_db_updates', DBUpdate, queue_size=10)
 
         self.db_path = rospy.get_param("database_location",
                                        path.expanduser('~/db/flo.db'))
@@ -118,6 +122,7 @@ class FloDb(object):
         :param request: The SetPose service message request
         """
         db = DB(self.db_path)  # pylint: disable=invalid-name
+        update = DBUpdate()
         if not len(request.pose.joint_positions) == len(request.pose.joint_names):
             raise rospy.ServiceException(
                 'the length of the pose values and names are not consistent')
@@ -135,6 +140,7 @@ class FloDb(object):
                     json.dumps(request.pose.joint_names))
                 updated_row = request.id
                 rospy.loginfo('updated pose at id: %i', updated_row)
+                update.command = DBUpdate.UPDATE
             else:
                 rospy.logerr('Attempt to change a non-existant row')
                 raise rospy.ServiceException(
@@ -147,7 +153,15 @@ class FloDb(object):
                 json.dumps(request.pose.joint_names))
             updated_row = db_return.lastrowid
             rospy.loginfo('stored new pose at id: %i', updated_row)
+            update.command = DBUpdate.CREATE
 
+        update.table = DBUpdate.POSES
+        update.value = json.dumps(
+            {'description': request.pose.description,
+             'joint_positions': request.pose.joint_positions,
+             'joint_names': request.pose.joint_names})
+        self.db_updates.publish(update)
+        update.id = updated_row
         return updated_row
 
     def __set_pose_seq(self, request):
@@ -161,6 +175,7 @@ class FloDb(object):
         """
         db = DB(self.db_path)  # pylint: disable=invalid-name
         seq = request.sequence
+        update = DBUpdate()
 
         if not len(seq.pose_ids) == len(seq.times) == len(seq.arms):
             raise rospy.ServiceException(
@@ -189,6 +204,7 @@ class FloDb(object):
                     seq.description
                 )
                 updated_row = request.id
+                update.command = DBUpdate.UPDATE
             else:
                 raise rospy.ServiceException(
                     'The selected row does not exist, you cannot update it')
@@ -203,6 +219,18 @@ class FloDb(object):
                 seq.description
             )
             updated_row = db_return.lastrowid
+            update.command = DBUpdate.CREATE
+
+        update.id = updated_row
+        update.table = DBUpdate.POSE_SEQUENCES
+        update.value = json.dumps({
+            'times': seq.times,
+            'pose_ids': seq.pose_ids,
+            'total_time': seq.total_time,
+            'arms': seq.arms,
+            'description': seq.description
+        })
+        self.db_updates.publish(update)
 
         return updated_row
 
@@ -282,6 +310,7 @@ class FloDb(object):
         Returns: The action server response
         """
         db = DB(self.db_path)  # pylint: disable=invalid-name
+        update = DBUpdate()
         # Find the length of the utterance:
         mut_d = mutagen.File(request.filename)
         time_length = mut_d.info.length
@@ -298,6 +327,7 @@ class FloDb(object):
                 )
                 updated_row = request.id
                 rospy.loginfo('updated utterance at id: %i', updated_row)
+                update.command = DBUpdate.UPDATE
             else:
                 rospy.logerr('Attempt to change a non-existant row')
                 raise rospy.ServiceException(
@@ -311,7 +341,15 @@ class FloDb(object):
             )
             updated_row = db_return.lastrowid
             rospy.loginfo('stored new utterance at id: %i', updated_row)
+            update.command = DBUpdate.CREATE
 
+        update.id = updated_row
+        update.table = DBUpdate.UTTERANCES
+        update.command = json.dumps({
+            'text': request.text,
+            'length': time_length,
+            'metadata': request.metadata
+        })
         resp = SetUtteranceResponse(id=updated_row, time=time_length)
         return resp
 

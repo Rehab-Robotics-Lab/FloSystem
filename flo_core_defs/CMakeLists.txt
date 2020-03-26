@@ -10,6 +10,7 @@ project(flo_core_defs)
 find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation
+  flo_humanoid_defs
 )
 
 
@@ -23,10 +24,12 @@ find_package(catkin REQUIRED COMPONENTS
      GameCommand.msg
      GameCommandOptions.msg
      GameDef.msg
-     GameFeedback.msg
+     GameState.msg
      Pose.msg
      PoseSeq.msg
      StepDef.msg
+     DBUpdate.msg
+     GameAction.msg
  )
 
 ## Generate services in the 'srv' folder
@@ -47,6 +50,7 @@ find_package(catkin REQUIRED COMPONENTS
  generate_messages(
    DEPENDENCIES
    std_msgs
+   flo_humanoid_defs
  )
 
 

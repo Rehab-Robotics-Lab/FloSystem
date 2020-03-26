@@ -6,8 +6,8 @@ interface CommandOpts {
   options: string[];
 }
 
-interface GameFeedback {
-  feedback: string;
+interface GameState {
+  state: string;
 }
 
 interface GameCommandProps {
@@ -88,11 +88,11 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
 
     const FeedbackListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
-      name: "game_runner_feedback",
-      messageType: "flo_core_defs/GameFeedback"
+      name: "game_runner_state",
+      messageType: "flo_core_defs/GameState"
     });
     FeedbackListener.subscribe(msg => {
-      setGameFeedback((msg as GameFeedback).feedback);
+      setGameFeedback((msg as GameState).state);
       console.log("got new game feedback");
     });
     console.log("subscribed to game feedback topic");

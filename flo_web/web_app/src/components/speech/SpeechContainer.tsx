@@ -1,8 +1,31 @@
-import React from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import * as ROSLIB from "roslib";
 import { SetSpeechTarget, SetSpeaking, Utterance } from "../../App";
 import SavedSpeech from "./SavedSpeech";
 import { basicBlock } from "../../styleDefs/styles";
+
+const utterancesLength = 3;
+
+enum speechStates {
+  UNKNOWN = -1,
+  WAITING = 0,
+  SYNTHESIZING = 1,
+  PLAYING = 2,
+  ERROR = 3
+}
+
+interface TTSState {
+  state: speechStates;
+  text: string;
+}
+
+interface TTSUtterances {
+  text: string;
+}
+
+function reducer(state: string[], newVal: string): string[] {
+  return [newVal].concat(state).slice(0, utterancesLength - 1);
+}
 
 interface SpeechProps {
   ros: ROSLIB.Ros | null;
@@ -22,6 +45,36 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
   setSpeaking,
   speaking
 }) => {
+  const [speechState, setSpeechState] = useState<TTSState>({
+    state: speechStates.UNKNOWN,
+    text: ""
+  });
+  const [utterances, setUtterances] = useReducer(reducer, []);
+
+  useEffect(() => {
+    if (!connected) return;
+
+    const stateListener = new ROSLIB.Topic({
+      ros: ros as ROSLIB.Ros,
+      name: "tts_state",
+      messageType: "flo_core_defs/TTSState"
+    });
+    stateListener.subscribe(msg => {
+      setSpeechState(msg as TTSState);
+    });
+    console.log("subscribed to tts_state");
+
+    const utteranceListener = new ROSLIB.Topic({
+      ros: ros as ROSLIB.Ros,
+      name: "tts_utterances",
+      messageType: "flo_core_defs/TTSUtterances"
+    });
+    utteranceListener.subscribe(msg => {
+      setUtterances((msg as TTSUtterances).text);
+    });
+    console.log("Subscribed to tts_utterances");
+  }, [connected, ros]);
+
   const runSpeech = (): void => {
     setSpeaking(true);
     const actionClient = new ROSLIB.ActionClient({
@@ -80,6 +133,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       })}
     >
       <h2>Speech</h2>
+      <span>state: {speechStates[speechState.state]}</span>
       <label htmlFor="speechTarget">
         String to speak (SSML):
         <input
@@ -123,6 +177,12 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
         setSpeechTarget={setSpeechTarget}
         speaking={speaking}
       />
+      <div>
+        <h3>Recent Utterances</h3>
+        {utterances.map(value => (
+          <div>{value}</div>
+        ))}
+      </div>
     </div>
   );
 };

@@ -30,6 +30,8 @@ find_package(catkin REQUIRED COMPONENTS
      StepDef.msg
      DBUpdate.msg
      GameAction.msg
+     TTSState.msg
+     TTSUtterances.msg
  )
 
 ## Generate services in the 'srv' folder

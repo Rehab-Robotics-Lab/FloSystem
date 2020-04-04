@@ -108,7 +108,7 @@ const PoseButton: React.FunctionComponent<PoseButtonProps> = ({
         const searchSeqClient = new ROSLIB.Service({
           ros: ros as ROSLIB.Ros,
           name: "/search_pose",
-          serviceType: "flo_core/SearchPose"
+          serviceType: "flo_core_defs/SearchPose"
         });
         console.log("connected to service to search for a pose");
 
@@ -165,7 +165,7 @@ const AddGameAction: React.FunctionComponent<AddGameActionProps> = ({
             const searchSeqClient = new ROSLIB.Service({
               ros: ros as ROSLIB.Ros,
               name: "/search_pose_seq",
-              serviceType: "flo_core/SearchPoseSeq"
+              serviceType: "flo_core_defs/SearchPoseSeq"
             });
             console.log("connected to service to search for a pose sequence");
 

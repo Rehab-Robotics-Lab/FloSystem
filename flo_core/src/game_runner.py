@@ -5,16 +5,21 @@ This module manages the state machine that runs the
 games on the flo robot. It is all accessed by ROS.
 
 Publishers:
-    - /game_runner_feedback : This is feedback on the
+    - /game_runner_state : This is feedback on the
                               state of the game and how
                               it is progressing. Publishes
-                              messages of type GameFeedback
+                              messages of type GameState
     - /game_runner_command_opts: These are the options
                                  which can be passed to
                                  the game runner to control
                                  progress through the game.
                                  publishes messges of type
                                  GameCommandOptions
+    - /game_runner_actions: This reports what the game runner
+                            is sending out to have acted on,
+                            both individual speech and full
+                            steps with both speech and joint
+                            targets
 
 Subscribers:
     - /game_runner_commands: Takes the commands to control the
@@ -42,13 +47,13 @@ except ImportError:
 import rospy
 import actionlib
 from tts.msg import SpeechAction, SpeechGoal
-from flo_humanoid.msg import MoveAction, MoveGoal, JointTarget
-from flo_core.msg import GameFeedback, GameCommandOptions, GameDef, GameCommand
-from flo_core.msg import StepDef
-from flo_core.srv import GetPoseID
-from flo_core.srv import GetPoseSeqID
+from flo_humanoid_defs.msg import MoveAction, MoveGoal, JointTarget
+from flo_core_defs.msg import GameState, GameCommandOptions, GameDef, GameCommand, StepDef
+from flo_core_defs.srv import GetPoseID, GetPoseIDResponse
+from flo_core_defs.srv import GetPoseSeqID, GetPoseSeqIDResponse
 from simon_says import simon_says
 from target_touch import target_touch
+from flo_core_defs.msg import GameAction
 
 
 class GameRunner(object):
@@ -83,13 +88,13 @@ class GameRunner(object):
         self.move_server = actionlib.SimpleActionClient('move', MoveAction)
         self.move_server.wait_for_server()
 
-        # -- Publishers -- #
-        self.feedback_pub = rospy.Publisher('game_runner_feedback',
-                                            GameFeedback, queue_size=1,
-                                            latch=True)
+        ### Publishers ###
+        self.feedback_pub = rospy.Publisher('game_runner_state',
+                                            GameState, queue_size=1, latch=True)
         self.command_opts_pub = rospy.Publisher('game_runner_command_opts',
-                                                GameCommandOptions,
-                                                queue_size=1, latch=True)
+                                                GameCommandOptions, queue_size=1, latch=True)
+        self.game_action_pub = rospy.Publisher(
+            'game_runner_actions', GameAction, queue_size=10)
         rospy.loginfo('setup publishers')
 
         # -- Subscribers -- #
@@ -317,6 +322,9 @@ class GameRunner(object):
             feedback_cb=self.__speaking_feedback
         )
         self.speaking_state = self.action_states.sent
+        action = GameAction()
+        action.speech = to_say
+        self.game_action_pub.publish(action)
 
     def __run_step(self, idx):
         """Runs a specified step, sending out the necessary actions
@@ -327,11 +335,14 @@ class GameRunner(object):
         """
         this_step = self.actions_list[idx]
         command_sent = False
+        action = GameAction()
+        action.step_id = idx
         # each step is a dict with:
         # speach, movement or pose
         if 'speech' in this_step and this_step['speech'] != '':
             self.__say_plain_text(this_step['speech'])
             command_sent = True
+            action.speech = this_step['speech']
         if 'targets' in this_step:
             move_goal = MoveGoal(this_step['targets'])
             self.move_server.send_goal(
@@ -342,10 +353,12 @@ class GameRunner(object):
             )
             self.moving_state = self.action_states.sent
             command_sent = True
+            action.targets = this_step['targets']
         if not command_sent:
             rospy.logerr(
                 'tried to run a step that did not have any useful info')
         else:
+            self.game_action_pub.publish(action)
             self.__set_state(self.states.acting)
             self.__set_options([])
 

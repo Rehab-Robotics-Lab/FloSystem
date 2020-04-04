@@ -9,9 +9,9 @@ import random
 import pdb
 import signal
 import rospy
-from flo_face.srv import (GetFaceOptions, GetFaceOptionsResponse,
-                          SetEyeDirection, SetEyeDirectionResponse,
-                          SetFace, SetFaceResponse)
+from flo_face_defs.srv import (GetFaceOptions, GetFaceOptionsResponse,
+                               SetEyeDirection, SetEyeDirectionResponse,
+                               SetFace, SetFaceResponse)
 
 static_mode = 'happy'
 

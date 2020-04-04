@@ -8,6 +8,15 @@ control, messaging, etc.
 In this README you will find everything you need to work with and develop on the
 Lil'Flo platform.
 
+You may be interested in [papers and posters on the project](https://michaelsobrepera.com/tags/flo)
+
+## License:
+Currently all code, documentation, other content, and ideas in this repository is available for you to view. 
+If you would like to use the code, documentation, other content, or ideas in this repository, please reach out to mjsobrep@seas.upenn.edu. 
+
+### Why so restrictive?
+We are waiting on approvals from the owners of the repository (The University of Pennsylvania) to approve a less restrictive license.
+
 ## Contents
 
 - [Development Computer Setup](#dev-computer)

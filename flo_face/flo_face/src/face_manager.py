@@ -4,11 +4,11 @@ import json
 from os.path import expanduser, join
 import rospy
 import rospkg
-from flo_face.msg import FaceState
-from flo_face.srv import (GetFaceOptions, GetFaceOptionsResponse,
-                          SetEyeDirection, SetEyeDirectionResponse,
-                          SetFace, SetFaceResponse,
-                          SetFaceBrightness, SetFaceBrightnessResponse)
+from flo_face_defs.msg import FaceState
+from flo_face_defs.srv import (GetFaceOptions, GetFaceOptionsResponse,
+                               SetEyeDirection, SetEyeDirectionResponse,
+                               SetFace, SetFaceResponse,
+                               SetFaceBrightness, SetFaceBrightnessResponse)
 
 
 class FloFaceManager(object):

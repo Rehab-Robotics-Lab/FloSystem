@@ -25,7 +25,8 @@
 /game_runner_command_opts
 /game_runner_commands
 /game_runner_def
-/game_runner_feedback
+/game_runner_state
+/game_runner_actions
 /hdd_stats
 /joint_states
 /keyop_vel_smoother/parameter_descriptions
@@ -92,11 +93,14 @@
 /tts/goal
 /tts/result
 /tts/status
+/tts_utterances
+/tts_state
 /upper_realsense/color/camera_info
 /upper_realsense/depth/camera_info
 /upper_realsense/extrinsics/depth_to_color
 /upper_realsense/rgb_camera/parameter_descriptions
 /upper_realsense/rgb_camera/parameter_updates
+/flo_db_updates
 "
         />
 

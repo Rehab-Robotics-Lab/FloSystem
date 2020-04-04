@@ -93,6 +93,8 @@
 /tts/goal
 /tts/result
 /tts/status
+/tts_utterances
+/tts_state
 /upper_realsense/color/camera_info
 /upper_realsense/depth/camera_info
 /upper_realsense/extrinsics/depth_to_color

@@ -7,7 +7,7 @@ import bcrypt from "bcrypt";
 import passport from "passport";
 import session from "express-session";
 
-const socketPort = 8089;
+const socketPort = 8080;
 const expressPort = 3008;
 
 // Create a new express application instance
@@ -17,7 +17,7 @@ app.get("/", function (req, res) {
   res.send("Hello World!!!!");
 });
 
-app.listen(expressPort, function () {
+app.listen(expressPort, "0.0.0.0", function () {
   console.log("Example app listening on port " + expressPort);
 });
 
@@ -91,4 +91,4 @@ server.on("listening", () => {
   );
 });
 
-server.listen(8080);
+server.listen(socketPort, "0.0.0.0");

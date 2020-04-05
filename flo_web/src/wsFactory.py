@@ -39,7 +39,6 @@ from rosbridge_library.capabilities.advertise_service import AdvertiseService
 from rosbridge_library.capabilities.subscribe import Subscribe
 from rosbridge_library.capabilities.publish import Publish
 from rosbridge_library.capabilities.advertise import Advertise
-from rosbridge_server.util import get_ephemeral_port
 from wsConnector import RosbridgeWebSocket
 from rosbridge_server import ClientManager
 import rospy
@@ -276,28 +275,25 @@ if __name__ == "__main__":
         # context_factory = None
 
     # For testing purposes, use an ephemeral port if port == 0.
-    if port == 0:
-        rospy.loginfo('Rosbridge WebSocket Picking an ephemeral port')
-        port = get_ephemeral_port()
     # Write the actual port as a param for tests to read.
     rospy.set_param('~actual_port', port)
 
     # uri = '{}://{}:{}'.format(protocol, address, port)
-    uri = 'ws://localhost:8080/host'
+    uri = 'ws://192.168.1.7:8080/host'
     factory = WebSocketClientFactory(uri)
     factory.protocol = RosbridgeWebSocket
 
-    # factory.setProtocolOptions(
-    # perMessageCompressionAccept=handle_compression_offers,
-    # autoPingInterval=ping_interval,
-    # autoPingTimeout=ping_timeout,
-    # )
+    factory.setProtocolOptions(
+        perMessageCompressionAccept=handle_compression_offers,
+        autoPingInterval=ping_interval,
+        autoPingTimeout=ping_timeout,
+    )
 
     connected = False
     while not connected and not rospy.is_shutdown():
         try:
 
-            reactor.connectTCP("localhost", 8080, factory)
+            reactor.connectTCP("192.168.1.7", 8080, factory)
             # listenWS(factory, context_factory)
             rospy.loginfo(
                 'Rosbridge WebSocket server started at {}'.format(uri))

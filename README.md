@@ -19,6 +19,7 @@ We are waiting on approvals from the owners of the repository (The University of
 
 ## Contents
 
+- [WebServer Setup](#webserver-setup)
 - [Development Computer Setup](#dev-computer)
 - [Network Setup](#network)
 - [NUC Setup](#nuc)
@@ -38,6 +39,15 @@ We are waiting on approvals from the owners of the repository (The University of
   - [ROS won't build](#broken-build)
   - [No audio plays](#broken-audio)
   - [No videos on web](#broken-web-video)
+
+## WebServer Setup
+Setting up the webserver is a totally different issue from setting up the robot. 
+Everything runs in docker, so build and deploy that:
+1. From LilFloSystem repo root: `docker build -f flo_web/Dockerfile -t flo-nginx-frontend .`
+2. From LilFloSystem/flo_web/web_server `docker build -t flo-websocket .`
+3. `docker run -p 80:80 flo-nginx-frontend`
+5. Navigate to http://localhost
+ 
 
 ## Setup
 

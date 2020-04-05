@@ -30,9 +30,14 @@ const server = http.createServer();
 const robotWSserver = new WebSocket.Server({ noServer: true });
 const clientWSserver = new WebSocket.Server({ noServer: true });
 
+let robotWS = null;
+let clientWS = null;
+
 robotWSserver.on("connection", (ws, request, client) => {
+  clientWS = ws;
   console.log("client connecting for robot x");
   ws.on("message", (msg) => {
+    robotWS.send(msg);
     console.log("received from robot: %s", msg);
   });
 });
@@ -43,7 +48,9 @@ robotWSserver.on("listening", () => {
 
 clientWSserver.on("connection", (ws, request, client) => {
   console.log("robot y connected");
+  robotWS = ws;
   ws.on("message", (msg) => {
+    clientWS.send(msg);
     console.log("received from client: %s", msg);
   });
 });

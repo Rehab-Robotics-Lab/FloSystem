@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="simulate" default="False"/>
-  <arg name="record" default="True"/>
+  <arg name="record" default="False"/>
   <param name="simulate" type="bool" value="$(arg simulate)"/>
   <!--Face -->
   <include file="$(find flo_face)/launch/base.launch">

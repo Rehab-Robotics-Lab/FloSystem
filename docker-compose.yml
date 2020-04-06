@@ -6,12 +6,22 @@ services:
         ports:
             - "3000:3000"
             - "81:8080"
+        depends_on:
+            - db
     nginx-frontend:
         build:
             context: ./
             dockerfile: ./flo_web/Dockerfile
         ports:
             - "80:80"
+    db:
+        image: postgres:latest
+        ports:
+            - "5432:5432"
+    redis:
+        image: redis:alpine
+        ports:
+            - "6379:6379"
 
     
     

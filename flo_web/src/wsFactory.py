@@ -279,7 +279,7 @@ if __name__ == "__main__":
     rospy.set_param('~actual_port', port)
 
     # uri = '{}://{}:{}'.format(protocol, address, port)
-    uri = 'ws://192.168.1.7:8080/host'
+    uri = 'ws://192.168.1.7:81/host'
     factory = WebSocketClientFactory(uri)
     factory.protocol = RosbridgeWebSocket
 
@@ -293,7 +293,7 @@ if __name__ == "__main__":
     while not connected and not rospy.is_shutdown():
         try:
 
-            reactor.connectTCP("192.168.1.7", 8080, factory)
+            reactor.connectTCP("192.168.1.7", 81, factory)
             # listenWS(factory, context_factory)
             rospy.loginfo(
                 'Rosbridge WebSocket server started at {}'.format(uri))

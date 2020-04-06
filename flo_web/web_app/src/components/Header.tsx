@@ -34,7 +34,7 @@ const Header: React.FunctionComponent<HeaderProps> = ({
     e.preventDefault();
     if (!(ipAddr && ipPort)) return;
     const newRosConnection = new ROSLIB.Ros({
-      url: `ws://${ipAddr}:${ipPort}/robot/1`
+      url: `ws://${ipAddr}:${ipPort}/robot/flo`
       //url: `ws://${ipAddr}:${ipPort}`
       //TODO: Obviously fix this up.
     });

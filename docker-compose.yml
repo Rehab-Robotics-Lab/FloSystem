@@ -1,0 +1,17 @@
+version: "3"
+services:
+    socket-server:
+        build:
+            context: ./flo_web/web_server/
+        ports:
+            - "3000:3000"
+            - "81:8080"
+    nginx-frontend:
+        build:
+            context: ./
+            dockerfile: ./flo_web/Dockerfile
+        ports:
+            - "80:80"
+
+    
+    

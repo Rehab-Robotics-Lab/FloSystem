@@ -47,6 +47,24 @@ Everything runs in docker, so build and deploy that:
 2. From LilFloSystem/flo_web/web_server `docker build -t flo-websocket .`
 3. `docker run -p 80:80 flo-nginx-frontend`
 5. Navigate to http://localhost
+
+### Using docker compose:
+Docker compose is nice because it will build, name, and run all of the necessary 
+images. 
+This is defined in the `docker-compose.yml` file in the root.
+
+1. Go to the root
+2. Run `docker-compose build`
+3. Run `docker-compose up`, Ctrl+c to take down
+    - To put in background run `docker-compose -D up`
+    - To take out of background: `docker-compose down`
+
+### Deploying to Heroku
+Heroku is a nice quick way to deploy. They provide a free hobby dyno to students,
+so using that. The Heroku-Redis and Heroku-Postgres serve the need for in system
+messaging, in system memory, and database. In theory heroku will handle keeping
+those systems safe. 
+
  
 
 ## Setup

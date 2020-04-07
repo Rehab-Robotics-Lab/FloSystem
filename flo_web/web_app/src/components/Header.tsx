@@ -33,8 +33,9 @@ const Header: React.FunctionComponent<HeaderProps> = ({
   const handleSubmit = (e: any) => {
     e.preventDefault();
     if (!(ipAddr && ipPort)) return;
+    const targUrl = `ws://${ipAddr}/robot/flo`;
     const newRosConnection = new ROSLIB.Ros({
-      url: `ws://${ipAddr}:${ipPort}/robot/flo`
+      url: targUrl
       //url: `ws://${ipAddr}:${ipPort}`
       //TODO: Obviously fix this up.
     });
@@ -42,6 +43,7 @@ const Header: React.FunctionComponent<HeaderProps> = ({
       errorWrapper(err);
     });
     newRosConnection.on("connection", () => {
+      console.log("connected to socket at: " + targUrl);
       setConnected(true);
     });
     newRosConnection.on("close", () => {

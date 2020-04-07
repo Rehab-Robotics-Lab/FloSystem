@@ -123,7 +123,7 @@ clientWSserver.on(
             clientWS[client].socket.close();
         }
         if (!(targetRobot in robotWS)) {
-            console.error('Non-existant target robot');
+            console.error('Non-existant target robot: ' + targetRobot);
             ws.close();
             return;
         }
@@ -150,6 +150,7 @@ clientWSserver.on('listening', () => {
 
 server.on('upgrade', (request, socket, head) => {
     const path = url.parse(request.url).pathname;
+    console.log('socket upgrade with path: ' + path);
     if (path === null) {
         socket.close();
         return;
@@ -176,6 +177,10 @@ server.on('upgrade', (request, socket, head) => {
         console.log('invalid websocket enpoint');
         socket.close();
     }
+});
+
+server.on('connect', (req: http.IncomingMessage, socket: any, head: Buffer) => {
+    console.log('connect event');
 });
 
 server.on('listening', () => {

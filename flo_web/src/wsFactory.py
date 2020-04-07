@@ -51,6 +51,7 @@ from autobahn.twisted.websocket import WebSocketServerFactory, listenWS
 from autobahn.twisted.websocket import WebSocketClientFactory
 from autobahn.websocket.compress import (PerMessageDeflateOffer,
                                          PerMessageDeflateOfferAccept)
+from autobahn.twisted.websocket import connectWS
 log.startLogging(sys.stdout)
 
 
@@ -293,7 +294,8 @@ if __name__ == "__main__":
     connected = False
     while not connected and not rospy.is_shutdown():
         try:
-            reactor.connectTCP("192.168.1.7", 443, factory)
+            # reactor.connectTCP("192.168.1.7", 443, factory)
+            connectWS(factory, ssl.ClientContextFactory())
             # TODO: Need to get this ip address to be web address.
             # listenWS(factory, context_factory)
             rospy.loginfo(

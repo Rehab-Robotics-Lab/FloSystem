@@ -26,4 +26,4 @@ RUN npm run build
 # Stage 1, based on Nginx, to have only the compiled app, ready for production with Nginx
 FROM nginx:1.16
 COPY --from=build-web-app /web_app/build/ /usr/share/nginx/html
-COPY ./flo_web/nginx.conf /etc/nginx/conf.d/default.conf
+#COPY ./flo_web/nginx.conf /etc/nginx/conf.d/default.conf

@@ -62,10 +62,10 @@ This is defined in the `docker-compose.yml` file in the root.
 ### SSL certs
 We need ssl certs during local development.
 1. sudo apt install libnss3-tools
-2. Download the latest binary
+2. Download the latest binary for [mkcert](https://github.com/FiloSottile/mkcert)
 3. Change permissions `sudo chmod u+x <name of binary>`
-4. Setup certs reg: `<name of binary: mkcert...> -install`
-5. Make a certs dir in the root of this repo and go into it
+4. Setup certs registry: `<name of binary: mkcert...> -install`
+5. Make a certs dir (named `certs`) in the root of this repo and go into it
 5. Make new certs: `<name of binary: mkcert...> localhost` you can add other options here if you want to simulate a local domain by putting it in your hosts file, add in the 127.0.0.1 or other localhost aliases, etc. You can even use wildcards. NOTE: be very careful with these, they can really really open you up to security holes in your local computer if shared.
 6. rename the certs: `mv localhost-key.pem localhost.key && mv localhost.pem localhost.crt` Of course if your certs are named something else... you get the idea.
 

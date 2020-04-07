@@ -292,7 +292,7 @@ if __name__ == "__main__":
     connected = False
     while not connected and not rospy.is_shutdown():
         try:
-            reactor.connectTCP("192.168.1.7/host", 80, factory)
+            reactor.connectTCP("192.168.1.7", 80, factory)
             # TODO: Need to get this ip address to be web address.
             # listenWS(factory, context_factory)
             rospy.loginfo(

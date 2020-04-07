@@ -152,11 +152,13 @@ server.on('upgrade', (request, socket, head) => {
     const path = url.parse(request.url).pathname;
     console.log('socket upgrade with path: ' + path);
     if (path === null) {
+        console.error('null path');
         socket.close();
         return;
     }
     const pathSplits = path.split('/');
     if (pathSplits.length < 2) {
+        console.error('not enough elements on path');
         socket.close();
         return;
     }

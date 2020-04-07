@@ -33,7 +33,7 @@ const Header: React.FunctionComponent<HeaderProps> = ({
   const handleSubmit = (e: any) => {
     e.preventDefault();
     if (!(ipAddr && ipPort)) return;
-    const targUrl = `ws://${ipAddr}/robot/flo`;
+    const targUrl = `wss://${ipAddr}/robot/flo`;
     const newRosConnection = new ROSLIB.Ros({
       url: targUrl
       //url: `ws://${ipAddr}:${ipPort}`

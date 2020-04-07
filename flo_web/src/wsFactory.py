@@ -280,7 +280,7 @@ if __name__ == "__main__":
     rospy.set_param('~actual_port', port)
 
     # uri = '{}://{}:{}'.format(protocol, address, port)
-    uri = 'wss://192.168.1.7/host/'
+    uri = 'wss://localhost/host/'
     rospy.loginfo('setting factory to connect to %s', uri)
     factory = WebSocketClientFactory(uri)
     factory.protocol = RosbridgeWebSocket

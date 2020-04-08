@@ -3,6 +3,8 @@
         <!--<arg name="port" value="9090"/>-->
     <!--</include>-->
     <node name="rosapi" pkg="rosapi" type="rosapi_node"/>
-    <node name="rosbridge_websocket" pkg="flo_web" type="wsFactory.py"/>
+    <node name="rosbridge_websocket" pkg="flo_web" type="wsFactory.py">
+        <param name="address" value="localhost"/>
+    </node>
     <node name="tf2_web_republisher" pkg="tf2_web_republisher" type="tf2_web_republisher"/>
-    </launch>
+</launch>

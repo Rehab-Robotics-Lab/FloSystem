@@ -283,10 +283,12 @@ if __name__ == "__main__":
 
     # For testing purposes, use an ephemeral port if port == 0.
     # Write the actual port as a param for tests to read.
-    rospy.set_param('~actual_port', port)
+    # rospy.set_param('~actual_port', port)
 
     # uri = '{}://{}:{}'.format(protocol, address, port)
-    uri = 'wss://localhost/host/'
+    # uri = 'wss://localhost/host/'
+    uri = 'wss://{}/host/'.format(address)
+
     rospy.loginfo('setting factory to connect to %s', uri)
     factory = ReconnectingWebSocketClientFactory(uri)
     factory.protocol = RosbridgeWebSocket

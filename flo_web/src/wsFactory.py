@@ -47,6 +47,7 @@ import sys
 from twisted.python import log
 from twisted.internet import reactor, ssl
 from twisted.internet.error import CannotListenError, ReactorNotRunning
+from twisted.internet.protocol import ReconnectingClientFactory
 from autobahn.twisted.websocket import WebSocketServerFactory, listenWS
 from autobahn.twisted.websocket import WebSocketClientFactory
 from autobahn.websocket.compress import (PerMessageDeflateOffer,
@@ -61,6 +62,11 @@ def shutdown_hook():
     except ReactorNotRunning:
         rospy.logwarn("Can't stop the reactor, it wasn't running")
 
+
+class ReconnectingWebSocketClientFactory(ReconnectingClientFactory, WebSocketClientFactory):
+    protocol = RosbridgeWebSocket
+
+    maxDelay = 1
 
 if __name__ == "__main__":
     rospy.init_node("rosbridge_websocket")
@@ -282,7 +288,7 @@ if __name__ == "__main__":
     # uri = '{}://{}:{}'.format(protocol, address, port)
     uri = 'wss://localhost/host/'
     rospy.loginfo('setting factory to connect to %s', uri)
-    factory = WebSocketClientFactory(uri)
+    factory = ReconnectingWebSocketClientFactory(uri)
     factory.protocol = RosbridgeWebSocket
 
     factory.setProtocolOptions(

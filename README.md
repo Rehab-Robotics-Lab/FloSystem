@@ -42,11 +42,43 @@ We are waiting on approvals from the owners of the repository (The University of
 
 ## WebServer Setup
 Setting up the webserver is a totally different issue from setting up the robot. 
-Everything runs in docker, so build and deploy that:
-1. From LilFloSystem repo root: `docker build -f flo_web/Dockerfile -t flo-nginx-frontend .`
-2. From LilFloSystem/flo_web/web_server `docker build -t flo-websocket .`
-3. `docker run -p 80:80 flo-nginx-frontend`
-5. Navigate to http://localhost
+Everything runs in docker. Let's walk through real quickly what is going on:
+When anything outside hits the webserver stack, they are going to route through 
+Nginx, which is listening on both ports 80 and 443. The definition for Nginx depends on the environment, production or development, and is
+defined in `flo_web/nginx-prod.conf` and `flo_web/nginx-dev.conf`
+respectively. In production, Nginx will serve the static front end
+files itself. In development create-react-app (via nodejs) will serve
+them so that the developer has hot reloading. The Nginx docker image
+is defined in `flo_wb/Dockerfile` where the front end is first compiled
+and then added into Nginx.
+
+When in development, the create-react-app runtime is defined in 
+`flo_web/web_app/Dockerfile`. 
+
+For both production and development, the backend socket server runtime
+is defined in `flo_web/web_server/Dockerfile`.
+
+There is a base docker-compose file in the root. This file defines
+the operations during production. There is also a docker-compose
+override file, which defines operations during development. 
+This is done by changing the commands which run in the docker images,
+changing what volumes are mapped to bring in code and config files, 
+and adding in the front end server.
+
+####To run in development: 
+1. Go to the root of this repo
+2. `docker-compose build`
+3. `docker-compose up`
+In theory, you shouldn't have to rebuild for any changes. 
+If you change the Nginx dev config, you will either need
+to go into the Nginx container and restart it or restart
+the entire docker-compose group (ctrl-c; `docker-compose up`)
+
+#### To run in production:
+1. Go to the root of this repo
+2. `docker-compose -f docker-compose.yml up -d`
+   TODO: [add a production def](https://docs.docker.com/compose/extends/#multiple-compose-files) that sets restart rules and stuff.
+3. If you need to take it down, run: `docker-compose down`
 
 ### Using docker compose:
 Docker compose is nice because it will build, name, and run all of the necessary 

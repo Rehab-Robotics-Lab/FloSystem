@@ -87,7 +87,6 @@ Linode is small, easy to use, and affordable.
 4. Clone this repository
 5. Install docker-compose: `apt install docker-compose`
 5. Go into the repo root and run `docker-compose build`
-    9. add `DOCKER_OPTS="--iptables=false"` to `/etc/default/docker`
 
 ### Deploying to Heroku
 Discovered that on heroku, each individual docker image/service needs its own dyno and the way that they talk between each other doesn't work really well. 

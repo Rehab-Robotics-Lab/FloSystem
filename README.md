@@ -69,8 +69,25 @@ We need ssl certs during local development.
 5. Make new certs: `<name of binary: mkcert...> localhost` you can add other options here if you want to simulate a local domain by putting it in your hosts file, add in the 127.0.0.1 or other localhost aliases, etc. You can even use wildcards. NOTE: be very careful with these, they can really really open you up to security holes in your local computer if shared.
 6. rename the certs: `mv localhost-key.pem localhost.key && mv localhost.pem localhost.crt` Of course if your certs are named something else... you get the idea.
 
+### Deploying to Linode
+Linode is small, easy to use, and affordable. 
 
-
+1. Setup a node on linode. The small size should be fine. When setting up, setup an ssh-key to make your life easier. Use the latest Ubuntu LTS.
+2. Setup the A/AAA record to work with your domain name and have your register use the linode domain servers.
+3. Install and setup firewall: 
+    1. `apt install ufw`
+    2. `ufw default allow outgoing`
+    3. `ufw default deny incoming`
+    4. `ufw allow ssh`
+    5. `ufw allow http`
+    6. `ufw allow https`
+    7. `ufw enable`
+    8. Check status with `ufw status`
+4. [Setup unattended updates](https://help.ubuntu.com/lts/serverguide/automatic-updates.html): `apt install unattended-upgrades`
+4. Clone this repository
+5. Install docker-compose: `apt install docker-compose`
+5. Go into the repo root and run `docker-compose build`
+    9. add `DOCKER_OPTS="--iptables=false"` to `/etc/default/docker`
 
 ### Deploying to Heroku
 Discovered that on heroku, each individual docker image/service needs its own dyno and the way that they talk between each other doesn't work really well. 

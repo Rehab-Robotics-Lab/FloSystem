@@ -1,3 +1,9 @@
-nginx-frontend:
-    volumes:
-        - 
+version: "3"
+services:
+    dev-server: 
+        build: 
+            context: ./flo_web/web_app/ 
+        volumes:
+            - ./flo_web/web_app:/usr/src/app
+        ports: 
+            - "3000:3000"

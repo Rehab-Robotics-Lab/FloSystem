@@ -150,27 +150,37 @@ clientWSserver.on(
                 ws.close();
                 return;
             }
-            const name = uuidv4();
-            clients[client].rtcSockets[name] = ws;
-            ws.on('message', (msg: string) => {
-                //TODO: There are race conditions all over like here, the socket could close between the check and the sending
+            const sendToRobot = (
+                target: string,
+                command: string,
+                msg: string,
+            ) => {
                 const robotSock = robots[clients[client].connected].rtcSocket;
+                //TODO: There are race conditions all over like here, the socket could close between the check and the sending
                 if (typeof robotSock === 'undefined') {
                     console.error('webrtc socket to robot is broken');
                     return;
                 }
-                robotSock.send(JSON.stringify({ target: name, msg: msg }));
+
+                robotSock.send(
+                    JSON.stringify({
+                        target: target,
+                        command: command,
+                        msg: msg,
+                    }),
+                );
+            };
+
+            const name = uuidv4();
+            clients[client].rtcSockets[name] = ws;
+            sendToRobot(name, 'open', '');
+
+            ws.on('message', (msg: string) => {
+                sendToRobot(name, 'msg', msg);
             });
 
             ws.on('close', () => {
-                const robotSock = robots[clients[client].connected].rtcSocket;
-                if (typeof robotSock === 'undefined') {
-                    console.error('webrtc socket to robot is broken');
-                    return;
-                }
-                robotSock.send(
-                    JSON.stringify({ target: name, command: 'close' }),
-                );
+                sendToRobot(name, 'close', '');
             });
         } else {
             console.log(

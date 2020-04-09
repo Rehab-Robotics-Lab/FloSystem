@@ -8,46 +8,45 @@ import { v4 as uuidv4 } from 'uuid';
 //import passport from "passport";
 //import session from "express-session";
 
-const socketPort = 8080;
-const expressPort = 3008;
+const socketPort = 8080; // the port that the socker server is exposed on
 
-// Create a new express application instance
-const app: express.Application = express();
+const server = http.createServer(); // The server that will host our sockets
 
-app.get('/', function (req, res) {
-    res.send('Hello World!!!!');
-});
-
-app.listen(expressPort, '0.0.0.0', function () {
-    console.log('Example app listening on port ' + expressPort);
-});
-
-//const server = https.createServer({
-//cert: fs.readFileSync('/path/to/cert.pem'),
-//key: fs.readFileSync('/path/to/key.pem')
-//});
-const server = http.createServer();
-
+//Server for the robots to connect to:
 const robotWSserver = new WebSocket.Server({ noServer: true });
+//Server for the clients/operators to connect to:
 const clientWSserver = new WebSocket.Server({ noServer: true });
 
 interface Robot {
+    // The socket that handles the roslibjs server traffic to the robot
     socket: WebSocket;
+    // The socket that handles webrtc calls, going to a router on the robot
     rtcSocket: WebSocket | undefined;
+    // The id of the client/operator that this robot is connected to, empty string if none.
     connected: string;
+    // The name/id of this robot
     name: string;
 }
 
 interface Client {
+    // The socket that handles the roslibjs traffic to the frontend interface
     socket: WebSocket;
+    // The sockets which are connected from the front end to handle webrtc
+    // calls:
     rtcSockets: Record<string, WebSocket>;
+    // The name/id of this client:
     name: string;
+    // Which robot this client is connected to:
     connected: string;
 }
 
+// The dictionary of all of the connected robots, indexed by their name
 const robots: Record<string, Robot> = {};
+// The dictionary of all of the connected front-end clients, indexed by their name
 const clients: Record<string, Client> = {};
 
+// When a client is being removed, we have to remove the references to it
+// and close its sockets:
 const closeClient = (client: string): void => {
     if (!(client in clients)) {
         console.error('tried to remove non-existant client');
@@ -57,7 +56,7 @@ const closeClient = (client: string): void => {
 
     if (thisClient.connected in robots) {
         // If a client detaches, we will detach the robot and let it reconnect
-        // Need to remove the connected string on the client to rpevent recursion
+        // Need to remove the connected string on the client to prevent recursion
         robots[thisClient.connected].connected = '';
         closeRobot(thisClient.connected);
     }
@@ -68,45 +67,94 @@ const closeClient = (client: string): void => {
     delete clients[client];
 };
 
-const closeRobot = (client: string): void => {
-    if (!(client in robots)) {
+// When a robot is being removed, we need to detach its clients and clean
+// up its sockets:
+const closeRobot = (robot: string): void => {
+    if (!(robot in robots)) {
         console.error('tried to remove a non-existant robot');
         return;
     }
-    const thisClient = robots[client];
+    const thisRobot = robots[robot];
 
-    if (thisClient.connected in clients) {
+    if (thisRobot.connected in clients) {
         // If a robot disapears, we can't keep the client around
-        clients[thisClient.connected].connected = '';
-        closeClient(thisClient.connected);
+        // We remove the reference back here to prevent recursion
+        clients[thisRobot.connected].connected = '';
+        closeClient(thisRobot.connected);
     }
-    thisClient.socket.close();
-    if (thisClient.rtcSocket) {
-        thisClient.rtcSocket.close();
+    thisRobot.socket.close();
+    if (thisRobot.rtcSocket) {
+        thisRobot.rtcSocket.close();
     }
-    delete robots[client];
+    delete robots[robot];
 };
 
 // For connections from robots
 robotWSserver.on(
     'connection',
-    (ws: WebSocket, request: http.IncomingMessage, client: string) => {
-        // check if webrtc connection, if so do something different
-        console.log('Robot ' + client + ' connected');
-        if (client in robots) {
-            closeRobot(client);
+    (ws: WebSocket, request: http.IncomingMessage, robot: string) => {
+        if (request.url === undefined) {
+            ws.close();
+            return;
         }
-        robots[client] = {
-            socket: ws,
-            connected: '',
-            name: client,
-            rtcSocket: undefined,
-        };
-        ws.on('message', (msg) => {
-            if (robots[client].connected in clients) {
-                clients[robots[client].connected].socket.send(msg);
+        const path = url.parse(request.url).pathname;
+        if (path === null) {
+            ws.close();
+            return;
+        }
+        const pathSplits = path.split('/');
+        if (pathSplits.length < 2) {
+            ws.close();
+            return;
+        }
+
+        // check if webrtc connection, if so do something different
+        if (pathSplits.length >= 2 && pathSplits[2] === 'webrtc') {
+            if (!(robot in robots)) {
+                console.error(
+                    'Robot tried to connect webrtc channel before api channel',
+                );
+                return;
             }
-        });
+            console.log('Robot ' + robot + ' conected a new webrtc channel');
+            const sendToClient = (
+                target: string,
+                command: string,
+                msg: string,
+            ) => {
+                if (!(target in clients[robots[robot].connected].rtcSockets)) {
+                    console.error(
+                        'message from robot for a non-existant webrtc connection path',
+                    );
+                    return;
+                }
+                const clientSock =
+                    clients[robots[robot].connected].rtcSockets[target];
+                //TODO: There are race conditions all over like here, the socket could close between the check and the sending
+                if (typeof clientSock === 'undefined') {
+                    console.error('webrtc socket to robot is broken');
+                    return;
+                }
+
+                clientSock.send(msg);
+            };
+        } else {
+            console.log('Robot ' + robot + ' connected');
+            if (robot in robots) {
+                closeRobot(robot);
+            }
+            robots[robot] = {
+                socket: ws,
+                connected: '',
+                name: robot,
+                rtcSocket: undefined,
+            };
+            ws.on('message', (msg) => {
+                if (robots[robot].connected in clients) {
+                    clients[robots[robot].connected].socket.send(msg);
+                }
+            });
+        }
     },
 );
 

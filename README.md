@@ -130,7 +130,7 @@ Linode is small, easy to use, and affordable.
 6. Run `docker pull certbot/certbot`
 6. Setup certificates by running `./init-letsencrypt.sh`
 7. Run `docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d`
-8. Monitor with `docker ps`, `docker stats`
+8. Monitor with `docker ps`, `docker stats`, and `docker-compose logs -f`
 
 ### Deploying to Heroku
 Discovered that on heroku, each individual docker image/service needs its own dyno and the way that they talk between each other doesn't work really well. 

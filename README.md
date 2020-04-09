@@ -408,6 +408,9 @@ function ssh-flo {
    [realsense cameras](#realsense-cameras)
 8. You need to setup [Amazon Polly](#amazon-polly)
 9. You will need to [setup the webrtc ros](#webrtc-ros) code
+10. Add a cron job to automatically startup the system:
+    1. `crontab -e`
+    2. `@reboot (sleep 90; bash ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh)`
 
 #### Assigning the serial devices to have a fixed addresses {#udev}
 

@@ -92,6 +92,7 @@ This is defined in the `docker-compose.yml` file in the root.
     - To take out of background: `docker-compose down`
 
 ### SSL certs
+#### Local
 We need ssl certs during local development.
 1. sudo apt install libnss3-tools
 2. Download the latest binary for [mkcert](https://github.com/FiloSottile/mkcert)
@@ -100,6 +101,13 @@ We need ssl certs during local development.
 5. Make a certs dir (named `certs`) in the root of this repo and go into it
 5. Make new certs: `<name of binary: mkcert...> localhost` you can add other options here if you want to simulate a local domain by putting it in your hosts file, add in the 127.0.0.1 or other localhost aliases, etc. You can even use wildcards. NOTE: be very careful with these, they can really really open you up to security holes in your local computer if shared.
 6. rename the certs: `mv localhost-key.pem localhost.key && mv localhost.pem localhost.crt` Of course if your certs are named something else... you get the idea.
+
+#### Server
+We use certbot to generate certificates automatically. The certbot certificates
+automatically. They expire every so often, so they need to be regularly regenerated.
+We have it run once a week on sunday at 2:30AM eastern to regen certs and
+3:30AM eastern to restart the server and use the new certs. 
+The whole system runs based on a [guide](https://medium.com/@pentacent/nginx-and-lets-encrypt-with-docker-in-less-than-5-minutes-b4b8a60d3a71)
 
 ### Deploying to Linode
 Linode is small, easy to use, and affordable. 
@@ -119,6 +127,7 @@ Linode is small, easy to use, and affordable.
 4. Clone this repository
 5. Install docker-compose: `apt install docker-compose`
 5. Go into the repo root and run `docker-compose build`
+6. Setup certificates by running `./init-letsencrypt.sh`
 
 ### Deploying to Heroku
 Discovered that on heroku, each individual docker image/service needs its own dyno and the way that they talk between each other doesn't work really well. 

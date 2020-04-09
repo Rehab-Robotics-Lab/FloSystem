@@ -34,12 +34,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
 
   useEffect(() => {
     if (connected) {
-      const connectionString =
-        (window.location.protocol === "https:" ? "wss://" : "ws://") +
-        ipAddr +
-        ":" +
-        (parseInt(ipPort) + 1) +
-        "/webrtc";
+      const connectionString = "wss://" + ipAddr + "/webrtc";
 
       const connection1 = WebrtcRos.createConnection(connectionString);
       console.log("connected to webrtc ros");

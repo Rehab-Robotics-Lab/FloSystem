@@ -7,12 +7,14 @@ version: "3"
 #     - Pulling in the nginx config from outside and using the develop instead of the production file
 services:
     nginx:
+        restart: unless-stopped
         volumes:
             - ./certs/certbot/conf:/etc/letsencrypt
             - ./certs/certbot/www:/var/www/certbot
         command: "/bin/sh -c 'while :; do sleep $$(( $$( date -d \"sunday 0700\" +%s ) - $$( date +%s ) )) & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     certbot:
         image: certbot/certbot
+        restart: unless-stopped
         volumes:
             - ./certs/certbot/conf:/etc/letsencrypt
             - ./certs/certbot/www:/var/www/certbot

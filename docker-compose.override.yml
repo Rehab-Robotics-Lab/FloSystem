@@ -1,0 +1,22 @@
+version: "3"
+# This docker compose file makes a few changes that make developing easier.
+# Docker will automatically layer this over the docker-compose.yml base file
+#
+# The changes are 
+#     - the addition of a node server that auto recompiles the front end
+#     - Pulling in the nginx config from outside and using the develop instead of the production file
+services:
+    dev-server: 
+        build: 
+            context: ./flo_web/web_app/ 
+        volumes:
+            - ./flo_web/web_app:/usr/src/app
+        ports: 
+            - "3000:3000"
+    nginx:
+        volumes:
+            - ./flo_web/nginx-dev.conf:/etc/nginx/conf.d/default.conf
+    socket-server:
+        volumes:
+            - ./flo_web/web_server:/usr/src/app
+        command: ["npm", "run" ,"dev"]

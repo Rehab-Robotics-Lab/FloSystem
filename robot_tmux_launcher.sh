@@ -1,11 +1,6 @@
 #!/bin/bash
 
-source /opt/ros/kinetic/setup.bash
-source ~/catkin_ws/devel/setup.bash
-export ROS_MASTER_URI=http://localhost:11311
-function ifip { /sbin/ifconfig $1 | grep "inet addr" | awk -F: '{print $2}' |awk '{print $1}'; }
-export ROS_IP=`ifip wlp58s0`
-export DISPLAY=:0
+source ~/.bashrc
 
 tmux new-session -d -s flo
 tmux rename-window startup

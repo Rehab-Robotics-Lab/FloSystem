@@ -6,7 +6,7 @@ version: "3"
 #     - the addition of a node server that auto recompiles the front end
 #     - Pulling in the nginx config from outside and using the develop instead of the production file
 services:
-    nginx-frontend:
+    nginx:
         volumes:
             - ./certs/certbot/conf:/etc/letsencrypt
             - ./certs/certbot/www:/var/www/certbot

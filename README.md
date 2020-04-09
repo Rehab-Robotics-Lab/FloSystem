@@ -126,7 +126,8 @@ Linode is small, easy to use, and affordable.
 4. [Setup unattended updates](https://help.ubuntu.com/lts/serverguide/automatic-updates.html): `apt install unattended-upgrades`
 4. Clone this repository
 5. Install docker-compose: `apt install docker-compose`
-5. Go into the repo root and run `docker-compose build`
+5. Go into the repo root and run `docker-compose -f docker-compose.yml -f docker-compose.prod.yml build`
+6. Run `docker pull certbot/certbot`
 6. Setup certificates by running `./init-letsencrypt.sh`
 
 ### Deploying to Heroku

@@ -3,7 +3,7 @@ services:
     socket-server:
         build:
             context: ./flo_web/web_server/
-    nginx-frontend:
+    nginx:
         build:
             context: ./
             dockerfile: ./flo_web/Dockerfile

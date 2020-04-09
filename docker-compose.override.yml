@@ -13,7 +13,7 @@ services:
             - ./flo_web/web_app:/usr/src/app
         ports: 
             - "3000:3000"
-    nginx-frontend:
+    nginx:
         volumes:
             - ./flo_web/nginx-dev.conf:/etc/nginx/conf.d/default.conf
     socket-server:

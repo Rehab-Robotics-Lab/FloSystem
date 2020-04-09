@@ -3,12 +3,7 @@ services:
     socket-server:
         build:
             context: ./flo_web/web_server/
-        ports:
-            - "3008:3008"
-            #- "81:8080" Don't want this going out of the local net
-        #depends_on:
-            #- db
-    nginx-frontend:
+    nginx:
         build:
             context: ./
             dockerfile: ./flo_web/Dockerfile
@@ -19,15 +14,3 @@ services:
             - socket-server
         volumes:
             - ./certs:/etc/nginx/certs
-            - ./flo_web/nginx.conf:/etc/nginx/conf.d/default.conf
-    #db:
-        #image: postgres:latest
-        #ports:
-            #- "5432:5432"
-    #redis:
-        #image: redis:alpine
-        #ports:
-            #- "6379:6379"
-
-    
-    

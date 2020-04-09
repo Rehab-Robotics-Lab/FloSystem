@@ -4,7 +4,7 @@
     <!--</include>-->
     <node name="rosapi" pkg="rosapi" type="rosapi_node"/>
     <node name="rosbridge_websocket" pkg="flo_web" type="wsFactory.py">
-        <param name="address" value="localhost"/>
+        <param name="address" value="lilflo.com"/>
     </node>
     <node name="tf2_web_republisher" pkg="tf2_web_republisher" type="tf2_web_republisher"/>
 </launch>

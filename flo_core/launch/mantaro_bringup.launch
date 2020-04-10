@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<launch>
+  <!--System Monitoring-->
+  <node name="system_monitor" pkg="system_monitor" type="stats_publisher.py"/>
+  <!--Audio-->
+  <include file="$(find flo_telepresence)/launch/audio.launch"/>
+  <!--Screen on Robot-->
+  <node name="robot_screen" pkg="flo_telepresence" type="display-cv.py"/>
+  <!--WebRTC-->
+  <node name="webrtc_server" pkg="webrtc_ros" type="webrtc_ros_server_node">
+    <param name="port" value="9091"/>
+    <param name="image_transport" value="compressed"/>
+  </node>
+  <!--Camera-->
+  <node type="raspicam_node" pkg="raspicam_node" name="raspicam_node" output="screen">
+    <param name="private_topics" value="true"/>
+    <param name="camera_frame_id" value="raspicam"/>
+    <param name="enable_raw" value="false"/>
+    <param name="enable_imv" value="false"/>
+    <param name="camera_id" value="0"/>
+    <param name="camera_info_url" value="package://raspicam_node/camera_info/raspicam.yaml"/>
+    <param name="camera_name" value="raspicam"/>
+    <param name="width" value="410"/>
+    <param name="height" value="308"/>
+    <param name="framerate" value="30"/>
+    <param name="exposure_mode" value="antishake"/>
+    <param name="shutter_speed" value="0"/>
+  </node>
+  <node name="republish" type="republish" pkg="image_transport" output="screen" args="compressed in:=/raspicam_node/image raw out:=/raspicam_node/image_raw"/>
+</launch>

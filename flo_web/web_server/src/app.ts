@@ -33,7 +33,7 @@ interface Client {
     socket: WebSocket;
     // The sockets which are connected from the front end to handle webrtc
     // calls:
-    rtcSockets: Record<string, WebSocket>;
+    rtcSockets: Map<string, WebSocket>;
     // The name/id of this client:
     name: string;
     // Which robot this client is connected to:
@@ -41,52 +41,55 @@ interface Client {
 }
 
 // The dictionary of all of the connected robots, indexed by their name
-const robots: Record<string, Robot> = {};
+const robots: Map<string, Robot> = new Map();
 // The dictionary of all of the connected front-end clients, indexed by their name
-const clients: Record<string, Client> = {};
+const clients: Map<string, Client> = new Map();
 
 // When a client is being removed, we have to remove the references to it
 // and close its sockets:
 const closeClient = (client: string): void => {
-    if (!(client in clients)) {
+    const thisClient = clients.get(client);
+    if (thisClient === undefined) {
         console.error('tried to remove non-existant client');
         return;
     }
-    const thisClient = clients[client];
+    const targetRobot = robots.get(thisClient.connected);
 
-    if (thisClient.connected in robots) {
+    if (!(targetRobot === undefined)) {
         // If a client detaches, we will detach the robot and let it reconnect
         // Need to remove the connected string on the client to prevent recursion
-        robots[thisClient.connected].connected = '';
+        targetRobot.connected = '';
         closeRobot(thisClient.connected);
     }
     thisClient.socket.close();
-    for (const key in thisClient.rtcSockets) {
-        thisClient.rtcSockets[key].close();
-    }
-    delete clients[client];
+    thisClient.rtcSockets.forEach((value, key) => {
+        value.close();
+    });
+
+    clients.delete(client);
 };
 
 // When a robot is being removed, we need to detach its clients and clean
 // up its sockets:
 const closeRobot = (robot: string): void => {
-    if (!(robot in robots)) {
+    const thisRobot = robots.get(robot);
+    if (thisRobot === undefined) {
         console.error('tried to remove a non-existant robot');
         return;
     }
-    const thisRobot = robots[robot];
+    const targetClient = clients.get(thisRobot.connected);
 
-    if (thisRobot.connected in clients) {
+    if (targetClient !== undefined) {
         // If a robot disapears, we can't keep the client around
         // We remove the reference back here to prevent recursion
-        clients[thisRobot.connected].connected = '';
+        targetClient.connected = '';
         closeClient(thisRobot.connected);
     }
     thisRobot.socket.close();
     if (thisRobot.rtcSocket) {
         thisRobot.rtcSocket.close();
     }
-    delete robots[robot];
+    robots.delete(robot);
 };
 
 // For connections from robots
@@ -110,28 +113,31 @@ robotWSserver.on(
 
         // check if webrtc connection, if so do something different
         if (pathSplits.length >= 2 && pathSplits[2] === 'webrtc') {
-            if (!(robot in robots)) {
+            const thisRobot = robots.get(robot);
+            if (thisRobot === undefined) {
                 console.error(
-                    'Robot tried to connect webrtc channel before api channel',
+                    'Robot tried to connect webrtc channel before api channel: ' +
+                        robot,
                 );
+                console.log('robots: ' + robots.keys());
                 return;
             }
             console.log('Robot ' + robot + ' conected a new webrtc channel');
+
             const sendToClient = (
                 target: string,
                 command: string,
                 msg: string,
             ) => {
-                if (!(target in clients[robots[robot].connected].rtcSockets)) {
+                const targetClient = clients.get(thisRobot.connected);
+                if (targetClient === undefined) {
                     console.error(
                         'message from robot for a non-existant webrtc connection path',
                     );
                     return;
                 }
-                const clientSock =
-                    clients[robots[robot].connected].rtcSockets[target];
-                //TODO: There are race conditions all over like here, the socket could close between the check and the sending
-                if (typeof clientSock === 'undefined') {
+                const clientSock = targetClient.rtcSockets.get(target);
+                if (clientSock === undefined) {
                     console.error('webrtc socket to robot is broken');
                     return;
                 }
@@ -139,19 +145,24 @@ robotWSserver.on(
                 clientSock.send(msg);
             };
         } else {
-            console.log('Robot ' + robot + ' connected');
-            if (robot in robots) {
+            console.log('-----Robot ' + robot + ' connected');
+            if (robots.has(robot)) {
                 closeRobot(robot);
             }
-            robots[robot] = {
+            robots.set(robot, {
                 socket: ws,
                 connected: '',
                 name: robot,
                 rtcSocket: undefined,
-            };
+            });
+            console.log('robots: ' + robots.keys());
             ws.on('message', (msg) => {
-                if (robots[robot].connected in clients) {
-                    clients[robots[robot].connected].socket.send(msg);
+                const thisRobot = robots.get(robot);
+                if (thisRobot !== undefined) {
+                    const thisClient = clients.get(thisRobot.connected);
+                    if (thisClient !== undefined) {
+                        thisClient.socket.send(msg);
+                    }
                 }
             });
         }
@@ -180,17 +191,24 @@ clientWSserver.on(
             ws.close();
             return;
         }
-        const targetRobot = pathSplits[2];
+        const targetRobotName = pathSplits[2];
+        const targetRobot = robots.get(targetRobotName);
+        const thisClient = clients.get(client);
 
-        if (!(targetRobot in robots)) {
+        if (targetRobot === undefined) {
             console.error('Non-existant target robot: ' + targetRobot);
             ws.close();
             return;
         }
         // check if webrtc connection, if so do something different
         if (pathSplits.length >= 3 && pathSplits[3] === 'webrtc') {
+            if (thisClient === undefined) {
+                console.error('The target client is not defined');
+                ws.close();
+                return;
+            }
             // are we already connected to this robot?
-            if (clients[client].connected !== targetRobot) {
+            if (thisClient.connected !== targetRobotName) {
                 console.error(
                     'tried to connect a webrtc line to ' +
                         'a robot that is not bound to this operator',
@@ -203,9 +221,8 @@ clientWSserver.on(
                 command: string,
                 msg: string,
             ) => {
-                const robotSock = robots[clients[client].connected].rtcSocket;
-                //TODO: There are race conditions all over like here, the socket could close between the check and the sending
-                if (typeof robotSock === 'undefined') {
+                const robotSock = targetRobot.rtcSocket;
+                if (robotSock === undefined) {
                     console.error('webrtc socket to robot is broken');
                     return;
                 }
@@ -220,7 +237,7 @@ clientWSserver.on(
             };
 
             const name = uuidv4();
-            clients[client].rtcSockets[name] = ws;
+            thisClient.rtcSockets.set(name, ws);
             sendToRobot(name, 'open', '');
 
             ws.on('message', (msg: string) => {
@@ -232,30 +249,37 @@ clientWSserver.on(
             });
         } else {
             console.log(
-                'Client ' + client + ' connected seeking robot: ' + targetRobot,
+                'Client ' +
+                    client +
+                    ' connected seeking robot: ' +
+                    targetRobotName,
             );
-            if (client in clients) {
-                clients[client].socket.close();
+            if (thisClient !== undefined) {
+                thisClient.socket.close();
             }
-            if (robots[targetRobot].connected !== '') {
+            if (targetRobot.connected) {
                 console.error('Tried to connected to an already taken robot');
                 ws.close();
                 return;
-            } else {
-                //TODO: get rid of this else statement, the if terminates with a retun
-                clients[client] = {
-                    socket: ws,
-                    connected: '',
-                    name: client,
-                    rtcSockets: {},
-                };
-                //TODO: this is a potential race condition
-                robots[targetRobot].connected = client;
-                clients[client].connected = targetRobot;
             }
+            clients.set(client, {
+                socket: ws,
+                connected: '',
+                name: client,
+                rtcSockets: new Map(),
+            });
+            targetRobot.connected = client;
+            const newClient = clients.get(client);
+            if (newClient === undefined) {
+                console.error(
+                    'Client cannot be found immediately after adding',
+                );
+                return;
+            }
+            newClient.connected = targetRobotName;
 
             ws.on('message', (msg) => {
-                robots[targetRobot].socket.send(msg);
+                targetRobot.socket.send(msg);
             });
         }
     },

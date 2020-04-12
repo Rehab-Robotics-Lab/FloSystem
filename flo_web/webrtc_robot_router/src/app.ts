@@ -160,6 +160,7 @@ const socketPort = 9091;
 const webUri = 'wss://192.168.1.7/host/webrtc'; // process.env.FLO_SERVER_IP; //TODO: bring in as an environment var
 const rtcServer = 'localhost';
 const connections: Record<string, WebSocket> = {};
+const bufferedMsgs: Map<string, [string]> = new Map();
 
 const connection = new ReconnectigWS(webUri);
 
@@ -174,13 +175,13 @@ function sendUp(id: string, command: string, msg: string) {
 connection.onMessage = (msg) => {
     console.log('message received: ' + msg);
     const msgObj = JSON.parse(msg);
+    const id = msgObj['id'];
     const command = msgObj['command'];
 
     if (command === 'open') {
         const ws = new WebSocket(
             'ws://' + rtcServer + ':' + socketPort + '/webrtc',
         );
-        const id = msgObj['id'];
         console.log('opened new local websocket for id: ' + id);
         connections[id] = ws;
         ws.on('message', (msg: string) => {
@@ -190,15 +191,28 @@ connection.onMessage = (msg) => {
             sendUp(id, 'close', '');
         });
         ws.on('open', () => {
-            // We need to let the server know when we have openend the channel
-            // between the robot and the router so that the channel between
-            // the server and the operator can be opened
-            sendUp(id, 'open', '');
+            const thisBuffer = bufferedMsgs.get(id);
+            console.log('ws to roswebrtc opened, exiting bufer: ' + thisBuffer);
+            if (thisBuffer !== undefined) {
+                for (msg of thisBuffer) {
+                    console.log('sending from buffer: ' + msg);
+                    ws.send(msg);
+                }
+            }
         });
     } else if (command === 'msg') {
         const toSend = msgObj['msg'];
         console.log('sending message to roswebrtc: ' + msg);
-        connections[msgObj['id']].send(toSend);
+        if (connections[id].readyState === WebSocket.CONNECTING) {
+            const existingBuffer = bufferedMsgs.get(id);
+            if (existingBuffer === undefined) {
+                bufferedMsgs.set(id, [toSend]);
+            } else {
+                existingBuffer.push(toSend);
+            }
+        } else {
+            connections[msgObj['id']].send(toSend);
+        }
     } else if (command === 'close') {
         const targetID = msgObj['id'];
         console.log('closing ws connection to webrtc ros id: ' + targetID);

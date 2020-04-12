@@ -33,9 +33,8 @@ const Vids: React.FunctionComponent<VidsProps> = ({
   const fishStream = React.useRef(null);
 
   useEffect(() => {
+    const connectionString = "wss://" + ipAddr + "/robot/flo/webrtc";
     if (connected) {
-      const connectionString = "wss://" + ipAddr + "/webrtc";
-
       const connection1 = WebrtcRos.createConnection(connectionString);
       console.log("connected to webrtc ros");
 
@@ -98,13 +97,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
       };
       connection1.connect();
 
-      const connection2 = WebrtcRos.createConnection(
-        (window.location.protocol === "https:" ? "wss://" : "ws://") +
-          ipAddr +
-          ":" +
-          (parseInt(ipPort) + 1) +
-          "/webrtc"
-      );
+      const connection2 = WebrtcRos.createConnection(connectionString);
 
       connection2.onConfigurationNeeded = (): void => {
         const remoteStreamConfigLower = { video: {}, audio: {} };
@@ -130,13 +123,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
       };
       connection2.connect();
 
-      const connection3 = WebrtcRos.createConnection(
-        (window.location.protocol === "https:" ? "wss://" : "ws://") +
-          ipAddr +
-          ":" +
-          (parseInt(ipPort) + 1) +
-          "/webrtc"
-      );
+      const connection3 = WebrtcRos.createConnection(connectionString);
 
       connection3.onConfigurationNeeded = (): void => {
         const remoteStreamConfigFish = { video: {}, audio: {} };

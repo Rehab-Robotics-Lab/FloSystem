@@ -162,9 +162,9 @@ const connections: Record<string, WebSocket> = {};
 
 const connection = new ReconnectigWS(webUri);
 
-function sendUp(target: string, command: string, msg: string) {
+function sendUp(id: string, command: string, msg: string) {
     connection.send({
-        target: target,
+        id: id,
         command: command,
         msg: msg,
     });
@@ -176,19 +176,25 @@ connection.onMessage = (msg) => {
 
     if (command === 'open') {
         const ws = new WebSocket('ws://' + rtcServer + ':' + socketPort);
-        const target = msgObj['target'];
-        connections[target] = ws;
+        const id = msgObj['id'];
+        connections[id] = ws;
         ws.on('message', (msg: string) => {
-            sendUp(target, 'msg', msg);
+            sendUp(id, 'msg', msg);
         });
         ws.on('close', () => {
-            sendUp(target, 'close', '');
+            sendUp(id, 'close', '');
+        });
+        ws.on('open', () => {
+            // We need to let the server know when we have openend the channel
+            // between the robot and the router so that the channel between
+            // the server and the operator can be opened
+            sendUp(id, 'open', '');
         });
     } else if (command === 'msg') {
-        connections[msgObj['target']].send(msgObj['msg']);
+        connections[msgObj['id']].send(msgObj['msg']);
     } else if (command === 'close') {
-        connections[msgObj['target']].close();
-        delete connections[msgObj['target']];
+        connections[msgObj['id']].close();
+        delete connections[msgObj['id']];
     } else {
         console.error('got an invalid command');
     }

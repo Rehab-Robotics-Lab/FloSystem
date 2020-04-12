@@ -45,6 +45,18 @@ class Connection {
             this.connected.socket.send(msg);
         }
     }
+
+    ping() {
+        if (this.connected !== undefined) {
+            this.connected.socket.ping();
+        }
+    }
+
+    pong() {
+        if (this.connected !== undefined) {
+            this.connected.socket.ping();
+        }
+    }
 }
 
 /**

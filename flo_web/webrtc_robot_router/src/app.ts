@@ -52,6 +52,7 @@ class ReconnectigWS {
     pingFreq: number;
     reconnectDelay: number;
     connectionTimeout: number;
+    buffer: string[];
 
     constructor(
         url: string,
@@ -71,6 +72,7 @@ class ReconnectigWS {
         this.pingFreq = pingFreq;
         this.reconnectDelay = reconnectDelay;
         this.connectionTimeout = connectionTimeout;
+        this.buffer = [];
 
         this.connect();
     }
@@ -100,6 +102,9 @@ class ReconnectigWS {
                     this.sock.ping();
                 }
             }, this.pingFreq);
+            for (const msg of this.buffer) {
+                (this.sock as WebSocket).send(msg);
+            }
         });
 
         this.sock.on('error', (err) => {
@@ -152,7 +157,11 @@ class ReconnectigWS {
             return;
         }
         console.log('sending message to server: ' + msg);
-        this.sock.send(msg);
+        if (this.sock.readyState === WebSocket.OPEN) {
+            this.sock.send(msg);
+        } else {
+            this.buffer.push(msg);
+        }
     }
 }
 

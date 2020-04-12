@@ -138,7 +138,7 @@ class Connections {
         target: string,
         webrtc: boolean,
     ) {
-        console.error('not implemented');
+        throw new Error('not implemented');
     }
 }
 
@@ -203,45 +203,37 @@ class RobotConnections extends Connections {
          */
         const sendToOperator = (id: string, msg: string) => {
             if (thisClient.connected === undefined) {
-                console.error(
-                    'message from robot for a non-existant webrtc connection path',
-                );
-                return;
+                throw new Error('the robot does not exist');
             }
             const operatorSock = thisClient.connected.rtcSockets.get(id);
             if (operatorSock === undefined) {
-                console.error('webrtc socket to operator is broken');
-                return;
+                throw new Error('webrtc socket to operator is broken');
             }
 
             operatorSock.send(msg);
         };
         const pingOperator = (id: string) => {
             if (thisClient.connected === undefined) {
-                console.error(
+                throw new Error(
                     'message from robot for a non-existant webrtc connection path',
                 );
-                return;
             }
             const operatorSock = thisClient.connected.rtcSockets.get(id);
             if (operatorSock === undefined) {
-                console.error('webrtc socket to operator is broken');
-                return;
+                throw new Error('webrtc socket to operator is broken');
             }
 
             operatorSock.ping();
         };
         const pongOperator = (id: string) => {
             if (thisClient.connected === undefined) {
-                console.error(
+                throw new Error(
                     'message from robot for a non-existant webrtc connection path',
                 );
-                return;
             }
             const operatorSock = thisClient.connected.rtcSockets.get(id);
             if (operatorSock === undefined) {
-                console.error('webrtc socket to operator is broken');
-                return;
+                throw new Error('webrtc socket to operator is broken');
             }
 
             operatorSock.pong();
@@ -265,10 +257,6 @@ class RobotConnections extends Connections {
             } else if (msgObj.command === 'close') {
                 console.error(
                     'not yet implemented: robot orders a webrtc socket closed',
-                );
-            } else if (msgObj.command === 'open') {
-                console.error(
-                    'not yet implemented, should now allow the channel to the operator to open',
                 );
             } else if (msgObj.command === 'ping') {
                 pingOperator(msgObj.id);
@@ -295,8 +283,7 @@ class RobotConnections extends Connections {
         ws.on('message', (msg) => {
             const thisRobot = this.clients.get(name);
             if (thisRobot === undefined) {
-                console.error('disconnected sockets are talking :o');
-                return;
+                throw new Error('disconnected sockets are talking :o');
             }
             thisRobot.onMessage(msg);
         });
@@ -305,7 +292,7 @@ class RobotConnections extends Connections {
             console.log('the robot data connection closed');
             const thisRobot = this.clients.get(name);
             if (thisRobot === undefined) {
-                console.error('disconnected sockets are talking :o');
+                throw new Error('disconnected sockets are talking :o');
                 return;
             }
             thisRobot.close();
@@ -313,11 +300,15 @@ class RobotConnections extends Connections {
 
         ws.on('ping', () => {
             const thisRobot = this.clients.get(name);
-            thisOperator.ping();
+            if (thisRobot !== undefined) {
+                thisRobot.ping();
+            }
         });
         ws.on('pong', () => {
-            const thisOperator = this.clients.get(name);
-            thisRobot.pong();
+            const thisRobot = this.clients.get(name);
+            if (thisRobot !== undefined) {
+                thisRobot.pong();
+            }
         });
     }
 }
@@ -392,14 +383,13 @@ class OperatorConnections extends Connections {
         // for sending back to the robot
         const sendToRobot = (id: string, command: string, msg: string) => {
             if (thisClient.connected === undefined) {
-                console.error(
+                throw new Error(
                     'message from operator for a non-existant webrtc connection path',
                 );
-                return;
             }
             const robotSock = thisClient.connected.rtcSockets.get('robot');
             if (robotSock === undefined) {
-                console.error('webrtc socket to operataor is broken');
+                throw new Error('webrtc socket to operataor is broken');
                 return;
             }
 
@@ -466,8 +456,7 @@ class OperatorConnections extends Connections {
         ws.on('message', (msg) => {
             const thisOperator = this.clients.get(name);
             if (thisOperator === undefined) {
-                console.error('disconnected sockets are talking :o');
-                return;
+                throw new Error('disconnected sockets are talking :o');
             }
             thisOperator.onMessage(msg);
         });
@@ -476,8 +465,7 @@ class OperatorConnections extends Connections {
             console.log('data connection with the operator closed');
             const thisOperator = this.clients.get(name);
             if (thisOperator === undefined) {
-                console.error('disconnected sockets are talking :o');
-                return;
+                throw new Error('disconnected sockets are talking :o');
             }
             thisOperator.close();
             this.clients.delete(name);
@@ -485,11 +473,15 @@ class OperatorConnections extends Connections {
 
         ws.on('ping', () => {
             const thisOperator = this.clients.get(name);
-            thisOperator.ping();
+            if (thisOperator !== undefined) {
+                thisOperator.ping();
+            }
         });
         ws.on('pong', () => {
             const thisOperator = this.clients.get(name);
-            thisOperator.pong();
+            if (thisOperator !== undefined) {
+                thisOperator.pong();
+            }
         });
     }
 }
@@ -514,8 +506,7 @@ class Server {
     listening() {
         const address = this.server.address();
         if (address === null) {
-            console.error('something very wrong with starting server');
-            return;
+            throw new Error('something very wrong with starting server');
         }
         if (typeof address === 'string') {
             console.log('Socket server listening at: ' + address);

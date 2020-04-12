@@ -151,6 +151,7 @@ class ReconnectigWS {
             console.error('Socket is not connected');
             return;
         }
+        console.log('sending message to server: ' + msg);
         this.sock.send(msg);
     }
 }
@@ -171,12 +172,16 @@ function sendUp(id: string, command: string, msg: string) {
 }
 
 connection.onMessage = (msg) => {
+    console.log('message received: ' + msg);
     const msgObj = JSON.parse(msg);
     const command = msgObj['command'];
 
     if (command === 'open') {
-        const ws = new WebSocket('ws://' + rtcServer + ':' + socketPort);
+        const ws = new WebSocket(
+            'ws://' + rtcServer + ':' + socketPort + '/webrtc',
+        );
         const id = msgObj['id'];
+        console.log('opened new local websocket for id: ' + id);
         connections[id] = ws;
         ws.on('message', (msg: string) => {
             sendUp(id, 'msg', msg);
@@ -191,10 +196,14 @@ connection.onMessage = (msg) => {
             sendUp(id, 'open', '');
         });
     } else if (command === 'msg') {
-        connections[msgObj['id']].send(msgObj['msg']);
+        const toSend = msgObj['msg'];
+        console.log('sending message to roswebrtc: ' + msg);
+        connections[msgObj['id']].send(toSend);
     } else if (command === 'close') {
-        connections[msgObj['id']].close();
-        delete connections[msgObj['id']];
+        const targetID = msgObj['id'];
+        console.log('closing ws connection to webrtc ros id: ' + targetID);
+        connections[targetID].close();
+        delete connections[targetID];
     } else {
         console.error('got an invalid command');
     }

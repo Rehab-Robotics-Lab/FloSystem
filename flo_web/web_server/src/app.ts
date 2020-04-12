@@ -208,6 +208,7 @@ class RobotConnections extends Connections {
         // THe socket with the robot was closed, we should kill the webrtc channel
         ws.on('close', () => {
             const sock = thisClient.rtcSockets.get('robot');
+            console.log('webrtc connection with robot closing');
             if (sock !== undefined) {
                 //sock.close();
                 thisClient.rtcSockets.delete('robot');
@@ -255,6 +256,7 @@ class RobotConnections extends Connections {
         });
 
         ws.on('close', () => {
+            console.log('the robot data connection closed');
             const thisRobot = this.clients.get(name);
             if (thisRobot === undefined) {
                 console.error('disconnected sockets are talking :o');
@@ -346,24 +348,26 @@ class OperatorConnections extends Connections {
                 return;
             }
 
-            robotSock.send(msg);
+            const toSend = JSON.stringify({
+                id: id,
+                command: command,
+                msg: msg,
+            });
+
+            console.log('sending message to robot: ' + toSend);
+            robotSock.send(toSend);
         };
 
         // THe socket with the operator was closed, we need to tell the router to disconnect on its side, close the socket between here and the router, and remove the socket from the list
         ws.on('close', () => {
+            console.log('webrtc socket with the operator closed');
             sendToRobot(id, 'close', '');
             thisClient.rtcSockets.delete(id);
         });
 
         ws.on('message', (msg: string) => {
-            const msgObj = JSON.parse(msg);
-            if (msgObj.command === 'msg') {
-                sendToRobot(id, 'msg', msgObj.msg);
-            } else if (msgObj.command === 'close') {
-                console.error(
-                    'not yet implemented: robot orders a webrtc socket closed',
-                );
-            }
+            console.log('message from webrtc client: ' + msg);
+            sendToRobot(id, 'msg', msg);
         });
     }
 
@@ -407,12 +411,14 @@ class OperatorConnections extends Connections {
         });
 
         ws.on('close', () => {
+            console.log('data connection with the operator closed');
             const thisOperator = this.clients.get(name);
             if (thisOperator === undefined) {
                 console.error('disconnected sockets are talking :o');
                 return;
             }
             thisOperator.close();
+            this.clients.delete(name);
         });
     }
 }

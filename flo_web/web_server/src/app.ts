@@ -204,6 +204,36 @@ class RobotConnections extends Connections {
 
             operatorSock.send(msg);
         };
+        const pingOperator = (id: string) => {
+            if (thisClient.connected === undefined) {
+                console.error(
+                    'message from robot for a non-existant webrtc connection path',
+                );
+                return;
+            }
+            const operatorSock = thisClient.connected.rtcSockets.get(id);
+            if (operatorSock === undefined) {
+                console.error('webrtc socket to operator is broken');
+                return;
+            }
+
+            operatorSock.ping();
+        };
+        const pongOperator = (id: string) => {
+            if (thisClient.connected === undefined) {
+                console.error(
+                    'message from robot for a non-existant webrtc connection path',
+                );
+                return;
+            }
+            const operatorSock = thisClient.connected.rtcSockets.get(id);
+            if (operatorSock === undefined) {
+                console.error('webrtc socket to operator is broken');
+                return;
+            }
+
+            operatorSock.pong();
+        };
 
         // THe socket with the robot was closed, we should kill the webrtc channel
         ws.on('close', () => {
@@ -228,6 +258,10 @@ class RobotConnections extends Connections {
                 console.error(
                     'not yet implemented, should now allow the channel to the operator to open',
                 );
+            } else if (msgObj.command === 'ping') {
+                pingOperator(msgObj.id);
+            } else if (msgObj.command === 'pong') {
+                pongOperator(msgObj.id);
             }
         });
     }
@@ -263,6 +297,15 @@ class RobotConnections extends Connections {
                 return;
             }
             thisRobot.close();
+        });
+
+        ws.on('ping', () => {
+            const thisRobot = this.clients.get(name);
+            thisOperator.ping();
+        });
+        ws.on('pong', () => {
+            const thisOperator = this.clients.get(name);
+            thisRobot.pong();
         });
     }
 }
@@ -369,6 +412,13 @@ class OperatorConnections extends Connections {
             console.log('message from webrtc client: ' + msg);
             sendToRobot(id, 'msg', msg);
         });
+
+        ws.on('ping', () => {
+            sendToRobot(id, 'ping', '');
+        });
+        ws.on('pong', () => {
+            sendToRobot(id, 'pong', '');
+        });
     }
 
     onDataConnection(ws: WebSocket, name: string, target: string) {
@@ -419,6 +469,15 @@ class OperatorConnections extends Connections {
             }
             thisOperator.close();
             this.clients.delete(name);
+        });
+
+        ws.on('ping', () => {
+            const thisOperator = this.clients.get(name);
+            thisOperator.ping();
+        });
+        ws.on('pong', () => {
+            const thisOperator = this.clients.get(name);
+            thisOperator.pong();
         });
     }
 }

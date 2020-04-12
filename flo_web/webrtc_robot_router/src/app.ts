@@ -200,6 +200,12 @@ connection.onMessage = (msg) => {
                 }
             }
         });
+        ws.on('ping', () => {
+            sendUp(id, 'ping', '');
+        });
+        ws.on('pong', () => {
+            sendUp(id, 'ping', '');
+        });
     } else if (command === 'msg') {
         const toSend = msgObj['msg'];
         console.log('sending message to roswebrtc: ' + msg);
@@ -214,10 +220,13 @@ connection.onMessage = (msg) => {
             connections[msgObj['id']].send(toSend);
         }
     } else if (command === 'close') {
-        const targetID = msgObj['id'];
-        console.log('closing ws connection to webrtc ros id: ' + targetID);
-        connections[targetID].close();
-        delete connections[targetID];
+        console.log('closing ws connection to webrtc ros id: ' + id);
+        connections[id].close();
+        delete connections[id];
+    } else if (command === 'ping') {
+        connections[id].ping();
+    } else if (command === 'pong') {
+        connections[id].pong();
     } else {
         console.error('got an invalid command');
     }

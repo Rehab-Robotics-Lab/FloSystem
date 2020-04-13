@@ -1,4 +1,9 @@
-#!/bin/sh
+#!/bin/bash
+
+source ~/.bashrc
+
+export FLO_SERVER_IP="192.168.1.7"
+
 tmux new-session -d -s flo
 tmux rename-window startup
 tmux send-keys 'roscore' Enter
@@ -11,8 +16,9 @@ tmux send-keys 'htop' Enter
 
 tmux split-window -t flo -h
 
-tmux send-keys 'cd ~/catkin_ws/src/LilFloSystem/flo_web/web_app/src/' Enter
-tmux send-keys 'npm run robot' Enter
+tmux send-keys 'cd ~/catkin_ws/src/LilFloSystem/flo_web/webrtc_robot_router/' Enter
+tmux send-keys 'npm run tsc && node ./build/app.js' Enter
+# need to make this use a build version
 
 tmux rotate-window -t flo
 

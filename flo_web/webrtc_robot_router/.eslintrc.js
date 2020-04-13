@@ -19,6 +19,6 @@ module.exports = {
         ecmaVersion: 2018,
         sourceType: 'module',
     },
-    plugins: ['@typescript-eslint', 'prettier'],
-    rules: {},
+    plugins: ['@typescript-eslint', 'eslint-plugin-tsdoc', 'prettier'],
+    rules: { 'tsdoc/syntax': 'warn' },
 };

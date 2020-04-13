@@ -383,15 +383,19 @@ class OperatorConnections extends Connections {
         //       establishing the connection with the operator.
 
         // for sending back to the robot
-        const sendToRobot = (id: string, command: string, msg: string) => {
+        const sendToRobot = (
+            id: string,
+            command: string,
+            msg: string,
+            ws: WebSocket,
+        ) => {
             if (thisClient.connected === undefined) {
-                throw new Error(
-                    'message from operator for a non-existant webrtc connection path',
-                );
+                ws.close();
+                return;
             }
             const robotSock = thisClient.connected.rtcSockets.get('robot');
             if (robotSock === undefined) {
-                throw new Error('webrtc socket to operataor is broken');
+                ws.close();
                 return;
             }
 
@@ -408,20 +412,20 @@ class OperatorConnections extends Connections {
         // THe socket with the operator was closed, we need to tell the router to disconnect on its side, close the socket between here and the router, and remove the socket from the list
         ws.on('close', () => {
             console.log('webrtc socket with the operator closed');
-            sendToRobot(id, 'close', '');
+            sendToRobot(id, 'close', '', ws);
             thisClient.rtcSockets.delete(id);
         });
 
         ws.on('message', (msg: string) => {
             console.log('message from webrtc client: ' + msg);
-            sendToRobot(id, 'msg', msg);
+            sendToRobot(id, 'msg', msg, ws);
         });
 
         ws.on('ping', () => {
-            sendToRobot(id, 'ping', '');
+            sendToRobot(id, 'ping', '', ws);
         });
         ws.on('pong', () => {
-            sendToRobot(id, 'pong', '');
+            sendToRobot(id, 'pong', '', ws);
         });
     }
 

@@ -9,17 +9,10 @@ RUN npm install
 
 COPY ./flo_web/web_app/ /web_app/
 
-# Copy in the webrtc files:
-WORKDIR /git
-RUN git clone https://github.com/RobotWebTools/webrtc_ros.git
-RUN rm /web_app/public/web
-RUN cp -r webrtc_ros/webrtc_ros/web /web_app/public/
-WORKDIR /web_app
-
 # Copy in the flo_humanoid URDF meshes:
-RUN rm /web_app/public/mesh_root/flo_humanoid~master
-RUN mkdir -p /web_app/public/mesh_root/flo_humanoid~master/urdf
-COPY ./flo_humanoid/urdf /web_app/public/mesh_root/flo_humanoid~master/urdf
+RUN rm /web_app/public/mesh_root/flo_humanoid
+RUN mkdir -p /web_app/public/mesh_root/flo_humanoid/urdf
+COPY ./flo_humanoid/urdf /web_app/public/mesh_root/flo_humanoid/urdf
 
 RUN npm run build
 

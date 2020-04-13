@@ -20,9 +20,10 @@ echo "installing for ros version: ${ROS_VERSION}"
 sudo apt-get install -y ros-${ROS_VERSION}-desktop-full
 source /opt/ros/${ROS_VERSION}/setup.bash
 
+sudo apt-get install -y python-rosdep2
 [ ! -d "/etc/ros/rosdep/sources.list.d" ] && sudo rosdep init
 rosdep update
-sudo apt-get install python-rosinstall python-rosinstall-generator python-wstool build-essential
+sudo apt-get install -y python-rosinstall python-rosinstall-generator python-wstool build-essential
 
 ## Install packages we need:
 echo "INSTALLING DEPENDENCIES NOT FOUND IN ROSDEP"
@@ -30,6 +31,7 @@ echo "INSTALLING DEPENDENCIES NOT FOUND IN ROSDEP"
 #I think I have replaced this by adding a symlink:
 #python flo_face/teensy/src/serial_coms/computer/python/serial-coms/setup.py install --user
 # Mutagen has dropped python 2 support. Last supported version was 1.43.0:
+sudo apt-get install -y python-pip
 pip install 'mutagen==1.43.0' --user
 
 echo "INSTALLING ROSDEP DEPENDENCIES"

@@ -408,6 +408,9 @@ function ssh-flo {
    [realsense cameras](#realsense-cameras)
 8. You need to setup [Amazon Polly](#amazon-polly)
 9. You will need to [setup the webrtc ros](#webrtc-ros) code
+10. Add a cron job to automatically startup the system:
+    1. `crontab -e`
+    2. `@reboot (sleep 90; bash ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh)`
 
 #### Assigning the serial devices to have a fixed addresses {#udev}
 
@@ -471,6 +474,28 @@ then restart
 The realsense cameras seem to hold a lot of settings on board. For now, you need
 to plugin the camera and run `realsense-viewer`. For now, set the system to high
 accuracy with the laser projector set to laser.
+
+### Raspberry Pi
+A Raspberry Pi cannot be used for most of this system. And it is not needed when 
+a beffier computer like a NUC is around. However, for running basic teleop a R/Pi
+can be used. The install instructions are the same as the NUC, except you will
+need to install ubuntu mate for raspberry pi armhf version. The realsense stuff
+can't be installed, so be sure to comment that out of `gen_install.sh` before 
+you run it. 
+
+After installation, setting up openssh is a bit harder, update the system, install
+openssh, then reconfigure it with sudo dpkg-reconfigure openssh-server
+
+If you want to use the raspberry Pi camera, then run `sudo raspi-reconfigure` 
+and enable the camera. Then clone the [raspberry pi camera ros](https://github.com/UbiquityRobotics/raspicam_node)
+repo into the `catkin_ws/src` repo and run:
+```bash
+sudo apt install libraspberrypi-dev libraspberrypi0
+rosdep update
+rosdep install --from-paths ~/catkin_ws/src/raspicam_node/ --ignore-src -r -y
+cd ~/catkin_ws
+catkin_make
+```
 
 ### Amazon Polly
 

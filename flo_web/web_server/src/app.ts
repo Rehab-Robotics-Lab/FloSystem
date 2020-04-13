@@ -212,11 +212,10 @@ class RobotConnections extends Connections {
 
             operatorSock.send(msg);
         };
-        const pingOperator = (id: string) => {
+        const pingOperator = (id: string, ws:WebSocket) => {
             if (thisClient.connected === undefined) {
-                throw new Error(
-                    'message from robot for a non-existant webrtc connection path',
-                );
+                ws.send(JSON.stringify({command:'close',id:id,msg:''}))
+                return
             }
             const operatorSock = thisClient.connected.rtcSockets.get(id);
             if (operatorSock === undefined) {
@@ -259,7 +258,7 @@ class RobotConnections extends Connections {
                     'not yet implemented: robot orders a webrtc socket closed',
                 );
             } else if (msgObj.command === 'ping') {
-                pingOperator(msgObj.id);
+                pingOperator(msgObj.id, ws);
             } else if (msgObj.command === 'pong') {
                 pongOperator(msgObj.id);
             }

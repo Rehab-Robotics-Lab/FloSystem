@@ -229,9 +229,17 @@ connection.onMessage = (msg) => {
             connections[msgObj['id']].send(toSend);
         }
     } else if (command === 'close') {
-        console.log('closing ws connection to webrtc ros id: ' + id);
-        connections[id].close();
-        delete connections[id];
+        const thisConnection = connections[id];
+        if (thisConnection !== undefined) {
+            console.log('closing ws connection to webrtc ros id: ' + id);
+            thisConnection.close();
+            delete connections[id];
+        } else {
+            console.log(
+                'ws connectin commanded to close by server, but already closed. ID: ' +
+                    id,
+            );
+        }
     } else if (command === 'ping') {
         connections[id].ping();
     } else if (command === 'pong') {

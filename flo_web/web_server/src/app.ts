@@ -35,7 +35,7 @@ class Connection {
             this.connected.connected = undefined; //prevent recursion
             this.connected.close();
         }
-        this.rtcSockets.forEach((sock) => {
+        this.rtcSockets.forEach(sock => {
             sock.close();
         });
     }
@@ -207,19 +207,21 @@ class RobotConnections extends Connections {
             }
             const operatorSock = thisClient.connected.rtcSockets.get(id);
             if (operatorSock === undefined) {
-                throw new Error('webrtc socket to operator is broken');
+                ws.send(JSON.stringify({ command: 'close', id: id, msg: '' }));
+                return;
             }
 
             operatorSock.send(msg);
         };
-        const pingOperator = (id: string, ws:WebSocket) => {
+        const pingOperator = (id: string, ws: WebSocket) => {
             if (thisClient.connected === undefined) {
-                ws.send(JSON.stringify({command:'close',id:id,msg:''}))
-                return
+                ws.send(JSON.stringify({ command: 'close', id: id, msg: '' }));
+                return;
             }
             const operatorSock = thisClient.connected.rtcSockets.get(id);
             if (operatorSock === undefined) {
-                throw new Error('webrtc socket to operator is broken');
+                ws.send(JSON.stringify({ command: 'close', id: id, msg: '' }));
+                return;
             }
 
             operatorSock.ping();
@@ -232,7 +234,8 @@ class RobotConnections extends Connections {
             }
             const operatorSock = thisClient.connected.rtcSockets.get(id);
             if (operatorSock === undefined) {
-                throw new Error('webrtc socket to operator is broken');
+                ws.send(JSON.stringify({ command: 'close', id: id, msg: '' }));
+                return;
             }
 
             operatorSock.pong();
@@ -279,7 +282,7 @@ class RobotConnections extends Connections {
         this.clients.set(name, new Connection(ws, name));
         console.log('robot ' + name + ' connected data channel');
 
-        ws.on('message', (msg) => {
+        ws.on('message', msg => {
             const thisRobot = this.clients.get(name);
             if (thisRobot === undefined) {
                 throw new Error('disconnected sockets are talking :o');
@@ -452,7 +455,7 @@ class OperatorConnections extends Connections {
         robot.connected = thisConnection;
         thisConnection.connected = robot;
 
-        ws.on('message', (msg) => {
+        ws.on('message', msg => {
             const thisOperator = this.clients.get(name);
             if (thisOperator === undefined) {
                 throw new Error('disconnected sockets are talking :o');
@@ -537,7 +540,7 @@ class Server {
         } else if (urlReturn.originType == 'robot') {
             // For the robots to connect to
             const name = 'flo';
-            this.robots.server.handleUpgrade(request, socket, head, (ws) => {
+            this.robots.server.handleUpgrade(request, socket, head, ws => {
                 this.robots.onConnection(
                     ws,
                     request,
@@ -549,7 +552,7 @@ class Server {
         } else if (urlReturn.originType === 'operator') {
             // For the clients to hook up to a robot
             const name = 'operator1';
-            this.operators.server.handleUpgrade(request, socket, head, (ws) => {
+            this.operators.server.handleUpgrade(request, socket, head, ws => {
                 this.operators.onConnection(
                     ws,
                     request,

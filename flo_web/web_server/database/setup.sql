@@ -16,12 +16,6 @@ create table users(
     user_type int references user_types(id) default 1
 );
 
-insert into users 
-    (first_name, last_name, email, password_hash, user_type)
-    values
-    ('michael', 'sobrepera', 'mjsobrep@seas.upenn.edu', 'badpswd', (select id from user_types where user_type='administrator')),
-    ('nick', 'hu', 'siyaohu@seas.upenn.edu', 'badpswd', (select id from user_types where user_type='standard'));
-
 create table robot_types(
     id serial primary key,
     robot_type text not null unique,
@@ -45,12 +39,6 @@ create table robots(
     last_login timestamptz,
     active_user_id int references users(id)
 );
-
-insert into robots 
-    (robot_name, password_hash, robot_type)
-    values
-    ('lil''flo', 'badpswd', (select id from robot_types where robot_type='lilflo')),
-    ('mantaro', 'badpswd', (select id from robot_types where robot_type='simple'));
 
 create table event_types(
     id serial primary key,
@@ -77,8 +65,8 @@ create table robot_events(
 );
 
 create table robot_permissions(
-    id serial primary key,
     robot_id int references robots(id) not null, 
-    user_id int references users(id) not null
+    user_id int references users(id) not null,
+    primary key (user_id, robot_id)
 );
         

@@ -9,6 +9,7 @@ export default router;
 
 const saltRounds = 10;
 
+// get api/robots/<id> Ex: api/robots/4
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
     const { rows } = await db.query('SELECT * FROM robots WHERE id = $1', [id]);

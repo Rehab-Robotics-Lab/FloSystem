@@ -18,8 +18,8 @@ router.get('/:id', async (req, res) => {
 });
 
 router.post('/register', async (req, res) => {
-    const { first_name, last_name, email, password } = req.body;
-    let password_hash;
+    const { firstName, lastName, email, password } = req.body;
+    let passwordHash;
     const validEmail = EmailValidator.validate(email);
     if (!validEmail) {
         res.status(400).json({
@@ -28,12 +28,12 @@ router.post('/register', async (req, res) => {
         return;
     }
 
-    if (first_name === undefined) {
+    if (firstName === undefined) {
         res.status(400).json({ error: 'you must provide a first name' });
         return;
     }
 
-    if (last_name === undefined) {
+    if (lastName === undefined) {
         res.status(400).json({ error: 'you must provide a last name' });
         return;
     }
@@ -47,7 +47,7 @@ router.post('/register', async (req, res) => {
 
     try {
         const salt = await bcrypt.genSalt(saltRounds);
-        password_hash = await bcrypt.hash(password, salt);
+        passwordHash = await bcrypt.hash(password, salt);
     } catch (e) {
         console.log('error when hashing new password: ' + e);
         res.status(500).json({ error: 'error when hashing new password' });
@@ -56,7 +56,7 @@ router.post('/register', async (req, res) => {
     try {
         await db.query(
             'insert into users (first_name, last_name, email, password_hash) values ($1, $2, $3, $4)',
-            [first_name, last_name, email, password_hash],
+            [firstName, lastName, email, passwordHash],
         );
     } catch (e) {
         if (e.code === '23505') {

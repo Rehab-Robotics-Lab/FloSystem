@@ -12,13 +12,6 @@ import mountRoutes from './routes';
 //import passport from "passport";
 //import session from "express-session";
 
-//default pg.client() or pg.pool() connect values:
-//PGHOST='localhost'
-//PGUSER=process.env.USER
-//PGDATABASE=process.env.USER
-//PGPASSWORD=null
-//PGPORT=5432
-
 const apiPort = 3030;
 const app = express();
 // Parse the string in the requests into json:
@@ -517,7 +510,6 @@ class Server {
         this.robots = new RobotConnections();
         this.operators = new OperatorConnections(this.robots);
         this.server.on('listening', () => this.listening());
-        this.server.on('connect', () => this.connect());
         this.server.on('upgrade', (request, socket, head) =>
             this.upgrade(request, socket, head),
         );
@@ -541,18 +533,14 @@ class Server {
         }
     }
 
-    connect() {
-        console.log('connect event');
-    }
-
     upgrade(
         request: http.IncomingMessage,
         socket: net.Socket,
         head: Buffer,
     ): void {
         console.log('upgrade request');
+        console.log(request.headers);
         const urlReturn = parseUrl(request.url);
-
         // TODO: handle logins here
         if (urlReturn === undefined) {
             socket.destroy();

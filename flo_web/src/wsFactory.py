@@ -68,6 +68,7 @@ class ReconnectingWebSocketClientFactory(ReconnectingClientFactory, WebSocketCli
 
     maxDelay = 1
 
+
 if __name__ == "__main__":
     rospy.init_node("rosbridge_websocket")
 
@@ -292,6 +293,7 @@ if __name__ == "__main__":
     rospy.loginfo('setting factory to connect to %s', uri)
     factory = ReconnectingWebSocketClientFactory(uri)
     factory.protocol = RosbridgeWebSocket
+    factory.headers = {'mycustheader': 'mjs'}
 
     factory.setProtocolOptions(
         perMessageCompressionAccept=handle_compression_offers,

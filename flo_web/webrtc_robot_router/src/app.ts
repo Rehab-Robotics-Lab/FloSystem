@@ -83,7 +83,7 @@ class ReconnectigWS {
         if (this.sock !== undefined) {
             this.sock.removeAllListeners();
         }
-        this.sock = new WebSocket(this.url);
+        this.sock = new WebSocket(this.url,{headers:{password:'badpass'}});
 
         if (this.pingTimer !== undefined) {
             clearInterval(this.pingTimer);

@@ -20,5 +20,6 @@ COPY . .
 RUN npm run tsc
 
 EXPOSE 8080
+EXPOSE 3030
 
 CMD ["node", "build/app.js"]

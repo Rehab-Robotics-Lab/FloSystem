@@ -1,13 +1,35 @@
 // lib/app.ts
 import express from 'express';
+import bodyParser from 'body-parser';
 import http from 'http';
 import WebSocket from 'ws';
 import url from 'url';
 import { v4 as uuidv4 } from 'uuid';
 import net from 'net';
-//import bcrypt from "bcrypt";
+import pg from 'pg';
+import bcrypt from 'bcrypt';
+import mountRoutes from './routes';
 //import passport from "passport";
 //import session from "express-session";
+
+//default pg.client() or pg.pool() connect values:
+//PGHOST='localhost'
+//PGUSER=process.env.USER
+//PGDATABASE=process.env.USER
+//PGPASSWORD=null
+//PGPORT=5432
+
+const apiPort = 3030;
+const app = express();
+// Parse the string in the requests into json:
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+// Load in our routes:
+mountRoutes(app);
+// start server:
+app.listen(apiPort, () => {
+    console.log('API server running on port: ' + apiPort);
+});
 
 /**
  * A connection between the server and an external client (either an operator or the robot).
@@ -212,10 +234,10 @@ class RobotConnections extends Connections {
 
             operatorSock.send(msg);
         };
-        const pingOperator = (id: string, ws:WebSocket) => {
+        const pingOperator = (id: string, ws: WebSocket) => {
             if (thisClient.connected === undefined) {
-                ws.send(JSON.stringify({command:'close',id:id,msg:''}))
-                return
+                ws.send(JSON.stringify({ command: 'close', id: id, msg: '' }));
+                return;
             }
             const operatorSock = thisClient.connected.rtcSockets.get(id);
             if (operatorSock === undefined) {

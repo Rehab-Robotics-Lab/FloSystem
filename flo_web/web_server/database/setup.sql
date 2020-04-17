@@ -12,7 +12,6 @@ create table users(
     last_name text not null,
     email text not null unique,
     password_hash text not null,
-    last_login timestamptz,
     user_type int references user_types(id) default 1
 );
 
@@ -36,7 +35,6 @@ create table robots(
     battery int,
     robot_type int references robot_types(id) not null,
     connected boolean not null default false,
-    last_login timestamptz,
     active_user_id int references users(id)
 );
 

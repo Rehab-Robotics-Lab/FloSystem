@@ -12,7 +12,7 @@ services:
         volumes:
             - ./flo_web/web_app:/usr/src/app
         ports: 
-            - "3000:3000"
+            - "3030:3030"
     nginx:
         volumes:
             - ./flo_web/nginx-dev.conf:/etc/nginx/conf.d/default.conf
@@ -20,3 +20,9 @@ services:
         volumes:
             - ./flo_web/web_server:/usr/src/app
         command: ["npm", "run" ,"dev"]
+    postgres:
+        environment:
+            - POSTGRES_PASSWORD=docker
+            - POSTGRES_DB=flodb
+        ports:
+            - 5432:5432

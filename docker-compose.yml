@@ -14,3 +14,7 @@ services:
             - socket-server
         volumes:
             - ./certs:/etc/nginx/certs
+    postgres:
+        image: postgres
+        volumes:
+            - $HOME/docker/volumes/postgres:/var/lib/postgresql/data

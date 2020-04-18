@@ -19,28 +19,38 @@ router.get('/:id', async (req, res) => {
 
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
-    console.log('em: ' + email + '  pswd: ' + password);
     try {
         const {
             rows,
-        } = await db.query('select password_hash from users where email=$1', [
-            email,
-        ]);
+        } = await db.query(
+            'select password_hash, id from users where email=$1',
+            [email],
+        );
         const passwordHash = rows[0]['password_hash'];
         const validPassword = await bcrypt.compare(password, passwordHash);
-        console.log('valid: ' + validPassword);
         if (!validPassword) {
             res.status(401).json({ error: 'invalid password' });
             return;
         }
+        req.session!.userId = rows[0]['id'];
+        res.status(200).json({ success: 'succesfully logged in' });
+        return;
     } catch {
         res.status(401).json({ error: 'error logging in' });
         return;
     }
-    console.log('succesful login');
-    res.status(200).json({ success: 'succesfully logged in' });
-    return;
-    // TODO set session details for logged in user!!
+});
+
+router.post('/logout', async (req, res) => {
+    req.session!.destroy((err) => {
+        res.clearCookie('connect.sid');
+
+        if (err) {
+            res.status(500).json({ error: 'something went wrong' });
+            return;
+        }
+        res.status(200).json({ success: 'logged out' });
+    });
 });
 
 router.post('/register', async (req, res) => {
@@ -75,7 +85,6 @@ router.post('/register', async (req, res) => {
         const salt = await bcrypt.genSalt(saltRounds);
         passwordHash = await bcrypt.hash(password, salt);
     } catch (e) {
-        console.log('error when hashing new password: ' + e);
         res.status(500).json({ error: 'error when hashing new password' });
         return;
     }

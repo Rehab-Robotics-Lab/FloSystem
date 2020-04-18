@@ -3,6 +3,9 @@ services:
     socket-server:
         build:
             context: ./flo_web/web_server/
+        depends_on:
+            - postgres
+            - session-store
     nginx:
         build:
             context: ./
@@ -18,3 +21,6 @@ services:
         image: postgres
         volumes:
             - $HOME/docker/volumes/postgres:/var/lib/postgresql/data
+    session-store:
+        image: redis
+

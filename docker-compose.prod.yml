@@ -22,4 +22,5 @@ services:
         # ^ would use something better, but the container has busybox for its interpreter
     postgres:
         restart: unless-stopped
-
+    session-store:
+        restart: unless-stopped

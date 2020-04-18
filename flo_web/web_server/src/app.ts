@@ -10,11 +10,38 @@ import pg from 'pg';
 import bcrypt from 'bcrypt';
 import mountRoutes from './routes';
 import * as db from './db';
+
+import redis from 'redis';
+import session from 'express-session';
+import connectRedis from 'connect-redis';
 //import passport from "passport";
 //import session from "express-session";
 
 const apiPort = 3030;
 const app = express();
+
+app.set('trust proxy', 1); // allows us to use nginx with secure cookie in sessions
+// TODO: test if we need this.
+
+const RedisStore = connectRedis(session);
+
+const sessionStore = new RedisStore({
+    client: redis.createClient({ host: 'session-store', port: 6379 }),
+});
+
+app.use(
+    session({
+        secret: 'secret',
+        store: sessionStore,
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            secure: true,
+            maxAge: 1000 * 60 * 60 * 48, // 48 hours
+        },
+    }),
+);
+
 // Parse the string in the requests into json:
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

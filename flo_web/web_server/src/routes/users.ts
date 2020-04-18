@@ -17,6 +17,32 @@ router.get('/:id', async (req, res) => {
     res.status(200).json(rows[0]);
 });
 
+router.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+    console.log('em: ' + email + '  pswd: ' + password);
+    try {
+        const {
+            rows,
+        } = await db.query('select password_hash from users where email=$1', [
+            email,
+        ]);
+        const passwordHash = rows[0]['password_hash'];
+        const validPassword = await bcrypt.compare(password, passwordHash);
+        console.log('valid: ' + validPassword);
+        if (!validPassword) {
+            res.status(401).json({ error: 'invalid password' });
+            return;
+        }
+    } catch {
+        res.status(401).json({ error: 'error logging in' });
+        return;
+    }
+    console.log('succesful login');
+    res.status(200).json({ success: 'succesfully logged in' });
+    return;
+    // TODO set session details for logged in user!!
+});
+
 router.post('/register', async (req, res) => {
     const { firstName, lastName, email, password } = req.body;
     let passwordHash;

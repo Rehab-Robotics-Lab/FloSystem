@@ -83,7 +83,15 @@ class ReconnectigWS {
         if (this.sock !== undefined) {
             this.sock.removeAllListeners();
         }
-        this.sock = new WebSocket(this.url,{headers:{password:'badpass'}});
+        const robotName = process.env['ROBOT_NAME'];
+        const robotPassword = process.env['ROBOT_PASSWORD'];
+        console.log('connecting with name: ' + robotName);
+        this.sock = new WebSocket(this.url, {
+            headers: {
+                robotName: robotName,
+                robotPassword: robotPassword,
+            },
+        });
 
         if (this.pingTimer !== undefined) {
             clearInterval(this.pingTimer);
@@ -136,7 +144,7 @@ class ReconnectigWS {
     }
 
     heartbeat() {
-        console.log('hearbeat');
+        //console.log('hearbeat');
         if (this.timeout !== undefined) {
             clearTimeout(this.timeout);
             this.timeout = undefined;

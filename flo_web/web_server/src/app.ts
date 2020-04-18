@@ -9,6 +9,7 @@ import net from 'net';
 import pg from 'pg';
 import bcrypt from 'bcrypt';
 import mountRoutes from './routes';
+import * as db from './db';
 //import passport from "passport";
 //import session from "express-session";
 
@@ -533,25 +534,46 @@ class Server {
         }
     }
 
-    upgrade(
+    async upgrade(
         request: http.IncomingMessage,
         socket: net.Socket,
         head: Buffer,
-    ): void {
+    ) {
         console.log('upgrade request');
-        console.log(request.headers);
         const urlReturn = parseUrl(request.url);
         // TODO: handle logins here
         if (urlReturn === undefined) {
             socket.destroy();
         } else if (urlReturn.originType == 'robot') {
             // For the robots to connect to
-            const name = 'flo';
+            const name = request.headers['robotname'];
+            const password = request.headers['robotpassword'];
+            let validPassword = false;
+            try {
+                const {
+                    rows,
+                } = await db.query(
+                    'select password_hash from robots where robot_name=$1',
+                    [name],
+                );
+                validPassword = await bcrypt.compare(
+                    password,
+                    rows[0]['password_hash'],
+                );
+            } catch {
+                socket.destroy();
+                return;
+            }
+
+            if (!validPassword) {
+                socket.destroy();
+                return;
+            }
             this.robots.server.handleUpgrade(request, socket, head, (ws) => {
                 this.robots.onConnection(
                     ws,
                     request,
-                    name,
+                    name as string,
                     urlReturn.target,
                     urlReturn.webrtc,
                 );

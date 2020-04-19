@@ -16,6 +16,8 @@ services:
     nginx:
         volumes:
             - ./flo_web/nginx-dev.conf:/etc/nginx/conf.d/default.conf
+        depends_on:
+            - dev-server
     socket-server:
         volumes:
             - ./flo_web/web_server:/usr/src/app

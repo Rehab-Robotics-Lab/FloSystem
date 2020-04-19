@@ -9,6 +9,8 @@ services:
     dev-server: 
         build: 
             context: ./flo_web/web_app/ 
+        environment:
+            - CI=true
         volumes:
             - ./flo_web/web_app:/usr/src/app
     nginx:

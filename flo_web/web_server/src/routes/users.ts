@@ -2,6 +2,7 @@ import Router from 'express-promise-router';
 import * as db from '../db';
 import bcrypt from 'bcrypt';
 import * as EmailValidator from 'email-validator';
+import express from 'express';
 // create a new express-promise-router
 // this has the same API as the normal express router except
 // it allows you to use async functions as route handlers
@@ -11,19 +12,37 @@ export default router;
 
 const saltRounds = 10;
 
+const checkLoggedIn: express.RequestHandler = (req, res, next) => {
+    if (req.session!.userID === undefined) {
+        res.status(400).json({ error: 'you are not logged in' });
+        return;
+    }
+    next();
+};
+
+const checkLoggedOut: express.RequestHandler = (req, res, next) => {
+    if (req.session!.userID !== undefined) {
+        res.status(400).json({ error: 'you are already logged in' });
+        return;
+    }
+    next();
+};
+
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
     const { rows } = await db.query('SELECT * FROM users WHERE id = $1', [id]);
     res.status(200).json(rows[0]);
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', checkLoggedOut, async (req, res) => {
     const { email, password } = req.body;
     try {
         const {
             rows,
         } = await db.query(
-            'select password_hash, id from users where email=$1',
+            'select password_hash, u.id, ut.user_type  from users u' +
+                ' inner join user_types ut on u.user_type =ut.id' +
+                ' where email =$1',
             [email],
         );
         const passwordHash = rows[0]['password_hash'];
@@ -32,7 +51,8 @@ router.post('/login', async (req, res) => {
             res.status(401).json({ error: 'invalid password' });
             return;
         }
-        req.session!.userId = rows[0]['id'];
+        req.session!.userID = rows[0]['id'];
+        req.session!.userType = rows[0]['user_type'];
         res.status(200).json({ success: 'succesfully logged in' });
         return;
     } catch {
@@ -41,7 +61,7 @@ router.post('/login', async (req, res) => {
     }
 });
 
-router.post('/logout', async (req, res) => {
+router.post('/logout', checkLoggedIn, async (req, res) => {
     req.session!.destroy((err) => {
         res.clearCookie('connect.sid');
 
@@ -53,7 +73,7 @@ router.post('/logout', async (req, res) => {
     });
 });
 
-router.post('/register', async (req, res) => {
+router.post('/register', checkLoggedOut, async (req, res) => {
     const { firstName, lastName, email, password } = req.body;
     let passwordHash;
     const validEmail = EmailValidator.validate(email);

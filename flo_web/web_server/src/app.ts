@@ -19,6 +19,7 @@ import connectRedis from 'connect-redis';
 
 const apiPort = 3030;
 const app = express();
+const sessionSecret = process.env.sessionsecret || 'secret';
 
 app.set('trust proxy', 1); // allows us to use nginx with secure cookie in sessions
 // TODO: test if we need this.
@@ -31,7 +32,7 @@ const sessionStore = new RedisStore({
 
 app.use(
     session({
-        secret: 'secret',
+        secret: sessionSecret,
         store: sessionStore,
         resave: false,
         saveUninitialized: false,

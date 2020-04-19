@@ -3,6 +3,7 @@ import * as db from '../db';
 import bcrypt from 'bcrypt';
 import * as EmailValidator from 'email-validator';
 import express from 'express';
+import crypto from 'crypto';
 // create a new express-promise-router
 // this has the same API as the normal express router except
 // it allows you to use async functions as route handlers
@@ -28,11 +29,17 @@ const checkLoggedOut: express.RequestHandler = (req, res, next) => {
     next();
 };
 
-router.get('/:id', async (req, res) => {
-    const { id } = req.params;
-    const { rows } = await db.query('SELECT * FROM users WHERE id = $1', [id]);
-    res.status(200).json(rows[0]);
-});
+const checkAdmin: express.RequestHandler = (req, res, next) => {
+    if (req.session!.userID === undefined) {
+        res.status(400).json({ error: 'you are not logged in' });
+        return;
+    }
+    if (req.session!.userType !== 'administrator') {
+        res.status(400).json({ error: 'you are not authorized' });
+        return;
+    }
+    next();
+};
 
 router.post('/login', checkLoggedOut, async (req, res) => {
     const { email, password } = req.body;
@@ -122,4 +129,54 @@ router.post('/register', checkLoggedOut, async (req, res) => {
     }
 
     res.status(200).json({ success: 'added user to system' });
+});
+
+router.post('/change-password', checkLoggedIn, async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    try {
+        const {
+            rows,
+        } = await db.query('select password_hash from users where id =$1', [
+            req.session!.userID,
+        ]);
+        const passwordHash = rows[0]['password_hash'];
+        const validPassword = await bcrypt.compare(oldPassword, passwordHash);
+        if (!validPassword) {
+            res.status(401).json({ error: 'invalid password' });
+            return;
+        }
+        const salt = await bcrypt.genSalt(saltRounds);
+        const newPasswordHash = await bcrypt.hash(newPassword, salt);
+        await db.query('update users set password_hash =$1 where id=$2', [
+            newPasswordHash,
+            req.session!.userID,
+        ]);
+        res.status(200).json({ success: 'Password succesfully changed' });
+    } catch {
+        res.status(500).json({
+            error: 'there was an error while changing password',
+        });
+    }
+});
+
+router.post('/reset-password', checkAdmin, async (req, res) => {
+    const { email } = req.body;
+    try {
+        const passwordHex = await crypto.randomBytes(12);
+        const password = passwordHex.toString('hex');
+        const salt = await bcrypt.genSalt(saltRounds);
+        const newPasswordHash = await bcrypt.hash(password, salt);
+        await db.query('update users set password_hash =$1 where email=$2', [
+            newPasswordHash,
+            email,
+        ]);
+        res.status(200).json({
+            success: 'Password succesfully changed',
+            newPassword: password,
+        });
+    } catch {
+        res.status(500).json({
+            error: 'there was an error while changing password',
+        });
+    }
 });

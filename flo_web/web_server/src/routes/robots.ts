@@ -95,7 +95,21 @@ router.get('/:id', async (req, res) => {
     res.send(rows[0]);
 });
 
-router.get('/', async (req, res) => {
-    const { rows } = await db.query('select * from robots', []);
-    res.send(rows);
+router.get('/', checkLoggedIn, async (req, res) => {
+    const userID = req.session!.userID;
+    try {
+        const {
+            rows,
+        } = await db.query(
+            'select r.robot_name, r.connected , r.battery, r.active_user_id, u2.first_name active_user_first, u2.last_name active_user_last from users u ' +
+                'inner join robot_permissions rp on rp.user_id=u.id ' +
+                'inner join robots r on r.id=rp.robot_id ' +
+                'left join users u2 on u2.id = r.active_user_id ' +
+                'where u.id = $1;',
+            [userID],
+        );
+        res.status(200).json(rows);
+    } catch {
+        res.status(500).json({ error: 'error running queries' });
+    }
 });

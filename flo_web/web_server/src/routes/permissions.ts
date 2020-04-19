@@ -36,3 +36,27 @@ router.post('/add', checkAdmin, async (req, res) => {
         email: email,
     });
 });
+
+router.post('/remove', checkAdmin, async (req, res) => {
+    const { robotName, email } = req.body;
+
+    try {
+        const { rows } = await db.query(
+            'delete from robot_permissions ' +
+                'where ' +
+                'robot_id =(select id from robots where robot_name=$1) and ' +
+                'user_id=(select id from users where email = $2)',
+            [robotName, email],
+        );
+    } catch (e) {
+        res.status(400).json({
+            error: e,
+        });
+        return;
+    }
+    res.status(200).json({
+        success: 'removed permissions',
+        robotName: robotName,
+        email: email,
+    });
+});

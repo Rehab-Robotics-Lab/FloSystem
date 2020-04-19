@@ -13,7 +13,7 @@ export default router;
 
 const saltRounds = 10;
 
-const checkLoggedIn: express.RequestHandler = (req, res, next) => {
+export const checkLoggedIn: express.RequestHandler = (req, res, next) => {
     if (req.session!.userID === undefined) {
         res.status(400).json({ error: 'you are not logged in' });
         return;
@@ -29,7 +29,7 @@ const checkLoggedOut: express.RequestHandler = (req, res, next) => {
     next();
 };
 
-const checkAdmin: express.RequestHandler = (req, res, next) => {
+export const checkAdmin: express.RequestHandler = (req, res, next) => {
     if (req.session!.userID === undefined) {
         res.status(400).json({ error: 'you are not logged in' });
         return;

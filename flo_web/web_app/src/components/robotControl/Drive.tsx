@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { basicBlock } from "../styleDefs/styles";
+import { basicBlock } from "../../styleDefs/styles";
 import * as ROSLIB from "roslib";
 
 interface Size {

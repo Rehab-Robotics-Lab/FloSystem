@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
-import { SetSpeechTarget, Utterance } from "../../App";
+import { SetSpeechTarget, Utterance } from "../../robotController";
 import ModalWrapper from "../ModalWrapper";
 
 const shrinkString = (str: string): string => {

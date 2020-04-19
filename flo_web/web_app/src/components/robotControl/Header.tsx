@@ -1,7 +1,7 @@
 import React from "react";
 import * as ROSLIB from "roslib";
-import colors from "../styleDefs/colors";
-import { AddError, SetConnected } from "../App";
+import colors from "../../styleDefs/colors";
+import { AddError, SetConnected } from "../robotController";
 import { CookiesProvider } from "react-cookie";
 
 interface HeaderProps {

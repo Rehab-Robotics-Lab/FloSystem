@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer } from "react";
 import * as ROSLIB from "roslib";
-import { basicBlock, wrapStyle } from "../styleDefs/styles";
+import { basicBlock, wrapStyle } from "../../styleDefs/styles";
 import Gauge from "react-svg-gauge";
 
 const statsLength = 20;

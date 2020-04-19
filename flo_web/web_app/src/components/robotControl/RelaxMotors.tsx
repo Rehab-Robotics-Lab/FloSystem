@@ -1,5 +1,5 @@
 import React from "react";
-import { majorButton } from "../styleDefs/styles";
+import { majorButton } from "../../styleDefs/styles";
 import * as ROSLIB from "roslib";
 
 interface RelaxMotorsProps {

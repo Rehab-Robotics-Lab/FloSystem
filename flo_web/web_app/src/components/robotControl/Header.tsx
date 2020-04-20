@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import * as ROSLIB from "roslib";
 import colors from "../../styleDefs/colors";
 import { AddError, SetConnected } from "../robotController";
 import { CookiesProvider } from "react-cookie";
+import { useParams } from "react-router-dom";
 
 interface HeaderProps {
   setRos: (ros: ROSLIB.Ros) => any;
@@ -29,28 +30,31 @@ const Header: React.FunctionComponent<HeaderProps> = ({
     addError("ROS Connection Error: " + err, "Header");
   };
 
+  const { robotName } = useParams();
+
   //TODO: TS
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
-    if (!(ipAddr && ipPort)) return;
-    const targUrl = `wss://${ipAddr}/robot/flo`;
-    const newRosConnection = new ROSLIB.Ros({
-      url: targUrl
-      //url: `ws://${ipAddr}:${ipPort}`
-      //TODO: Obviously fix this up.
-    });
-    newRosConnection.on("error", err => {
-      errorWrapper(err);
-    });
-    newRosConnection.on("connection", () => {
-      console.log("connected to socket at: " + targUrl);
-      setConnected(true);
-    });
-    newRosConnection.on("close", () => {
-      setConnected(false);
-    });
-    setRos(newRosConnection);
-  };
+  useEffect(() => {
+    if (!ipAddr) return;
+    if (connected === false) {
+      const targUrl = `wss://${ipAddr}/robot/${robotName}`;
+      const newRosConnection = new ROSLIB.Ros({
+        url: targUrl
+        //url: `ws://${ipAddr}:${ipPort}`
+        //TODO: Obviously fix this up.
+      });
+      newRosConnection.on("error", err => {
+        errorWrapper(err);
+      });
+      newRosConnection.on("connection", () => {
+        console.log("connected to socket at: " + targUrl);
+        setConnected(true);
+      });
+      newRosConnection.on("close", () => {
+        setConnected(false);
+      });
+      setRos(newRosConnection);
+    }
+  }, [connected]);
 
   const connectedString = (): JSX.Element => {
     let toReturn: JSX.Element;
@@ -75,31 +79,6 @@ const Header: React.FunctionComponent<HeaderProps> = ({
       >
         <h1 style={{ margin: "0px" }}>Flo Control Center</h1>
         <div>
-          <form onSubmit={handleSubmit}>
-            <label htmlFor="ip_addr">
-              IP Address:
-              <input
-                type="text"
-                name="ip_addr"
-                value={ipAddr}
-                onChange={(e): void => {
-                  setIpAddr(e.target.value);
-                }}
-              />
-            </label>
-            <label htmlFor="ip_port">
-              IP Port:
-              <input
-                type="text"
-                name="ip_port"
-                value={ipPort}
-                onChange={(e): void => {
-                  setIpPort(e.target.value);
-                }}
-              />
-            </label>
-            <input type="submit" value="Connect" disabled={connected} />
-          </form>
           <b>{connectedString()}</b>
         </div>
       </div>

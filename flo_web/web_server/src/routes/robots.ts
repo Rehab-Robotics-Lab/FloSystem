@@ -89,7 +89,7 @@ router.post('/new-robot', checkAdmin, async (req, res) => {
 });
 
 // get api/robots/<id> Ex: api/robots/4
-router.get('/:id', async (req, res) => {
+router.get('/:id', checkLoggedIn, async (req, res) => {
     const { id } = req.params;
     const { rows } = await db.query('SELECT * FROM robots WHERE id = $1', [id]);
     res.send(rows[0]);
@@ -108,7 +108,7 @@ router.get('/', checkLoggedIn, async (req, res) => {
                 'where u.id = $1;',
             [userID],
         );
-        res.status(200).json(rows);
+        res.status(200).json({ robots: rows });
     } catch {
         res.status(500).json({ error: 'error running queries' });
     }

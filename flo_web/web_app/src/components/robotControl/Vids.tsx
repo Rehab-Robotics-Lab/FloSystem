@@ -1,7 +1,8 @@
 import React, { useEffect, useState, CSSProperties } from "react";
 import * as ROSLIB from "roslib";
-import { Helmet } from "react-helmet";
 import { wrapStyle } from "../../styleDefs/styles";
+import { useParams } from "react-router-dom";
+import "../../externalLibs/web/webrtc_ros.js";
 
 declare var WebrtcRos: any;
 
@@ -32,8 +33,11 @@ const Vids: React.FunctionComponent<VidsProps> = ({
   const localStream = React.useRef(null);
   const fishStream = React.useRef(null);
 
+  const { robotName } = useParams();
+
   useEffect(() => {
-    const connectionString = "wss://" + ipAddr + "/robot/flo/webrtc";
+    const connectionString =
+      "wss://" + ipAddr + "/robot/" + robotName + "/webrtc";
     if (connected) {
       const connection1 = WebrtcRos.createConnection(connectionString);
       console.log("connected to webrtc ros");
@@ -160,9 +164,6 @@ const Vids: React.FunctionComponent<VidsProps> = ({
 
   return (
     <>
-      <Helmet>
-        <script type="text/javascript" src={"/web/webrtc_ros.js"} />
-      </Helmet>
       <div style={wrapStyle}>
         <button
           type="button"

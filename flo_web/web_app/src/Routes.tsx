@@ -3,6 +3,7 @@ import { Route, Switch } from "react-router-dom";
 import RobotController from "./components/robotController";
 import Login from "./components/users/login";
 import Register from "./components/users/register";
+import Robots from "./components/robots";
 
 interface RoutesProps {
   loggedIn: boolean;
@@ -22,7 +23,7 @@ const Routes: React.FunctionComponent<RoutesProps> = ({
       <Route exact path="/">
         <div> hi</div>
       </Route>
-      <Route exact path="/controller">
+      <Route path="/controller/:robotName">
         <RobotController />
       </Route>
       <Route exact path="/login">
@@ -34,6 +35,9 @@ const Routes: React.FunctionComponent<RoutesProps> = ({
       </Route>
       <Route exact path="/register">
         <Register />
+      </Route>
+      <Route exact path="/robots">
+        <Robots />
       </Route>
     </Switch>
   );

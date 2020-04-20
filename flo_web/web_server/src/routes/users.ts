@@ -41,16 +41,25 @@ export const checkAdmin: express.RequestHandler = (req, res, next) => {
     next();
 };
 
+router.get('/login', async (req, res) => {
+    if (req.session!.userID === undefined) {
+        res.status(200).json({ loggedIn: false });
+        return;
+    }
+    res.status(200).json({ loggedIn: true, userName: req.session!.userName });
+});
+
 router.post('/login', checkLoggedOut, async (req, res) => {
     const { email, password } = req.body;
+    const emailLC = email.toLowerCase();
     try {
         const {
             rows,
         } = await db.query(
-            'select password_hash, u.id, ut.user_type  from users u' +
+            'select password_hash, u.id, ut.user_type, u.first_name, u.last_name  from users u' +
                 ' inner join user_types ut on u.user_type =ut.id' +
                 ' where email =$1',
-            [email],
+            [emailLC],
         );
         const passwordHash = rows[0]['password_hash'];
         const validPassword = await bcrypt.compare(password, passwordHash);
@@ -59,8 +68,15 @@ router.post('/login', checkLoggedOut, async (req, res) => {
             return;
         }
         req.session!.userID = rows[0]['id'];
-        req.session!.userType = rows[0]['user_type'];
-        res.status(200).json({ success: 'succesfully logged in' });
+        const userType = rows[0]['user_type'];
+        req.session!.userType = userType;
+        const userName = rows[0]['first_name'] + ' ' + rows[0]['last_name'];
+        req.session!.userName = userName;
+        res.status(200).json({
+            userName: userName,
+            userType: userType,
+            success: 'succesfully logged in',
+        });
         return;
     } catch {
         res.status(401).json({ error: 'error logging in' });
@@ -82,8 +98,9 @@ router.post('/logout', checkLoggedIn, async (req, res) => {
 
 router.post('/register', checkLoggedOut, async (req, res) => {
     const { firstName, lastName, email, password } = req.body;
+    const emailLC = email.toLowerCase();
     let passwordHash;
-    const validEmail = EmailValidator.validate(email);
+    const validEmail = EmailValidator.validate(emailLC);
     if (!validEmail) {
         res.status(400).json({
             error: 'your email (' + email + ') is not valid',
@@ -118,7 +135,7 @@ router.post('/register', checkLoggedOut, async (req, res) => {
     try {
         await db.query(
             'insert into users (first_name, last_name, email, password_hash) values ($1, $2, $3, $4)',
-            [firstName, lastName, email, passwordHash],
+            [firstName, lastName, emailLC, passwordHash],
         );
     } catch (e) {
         if (e.code === '23505') {
@@ -161,6 +178,7 @@ router.post('/change-password', checkLoggedIn, async (req, res) => {
 
 router.post('/reset-password', checkAdmin, async (req, res) => {
     const { email } = req.body;
+    const emailLC = email.toLowerCase();
     try {
         const passwordHex = await crypto.randomBytes(12);
         const password = passwordHex.toString('hex');
@@ -168,7 +186,7 @@ router.post('/reset-password', checkAdmin, async (req, res) => {
         const newPasswordHash = await bcrypt.hash(password, salt);
         await db.query('update users set password_hash =$1 where email=$2', [
             newPasswordHash,
-            email,
+            emailLC,
         ]);
         res.status(200).json({
             success: 'Password succesfully changed',

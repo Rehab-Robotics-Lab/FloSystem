@@ -4,6 +4,7 @@ import RobotController from "./components/robotController";
 import Login from "./components/users/login";
 import Register from "./components/users/register";
 import Robots from "./components/robots";
+import Admin from "./components/admin";
 import Home from "./components/home";
 
 interface RoutesProps {
@@ -11,13 +12,17 @@ interface RoutesProps {
   setLoggedIn: (arg: boolean) => void;
   setUserName: (arg: string) => void;
   setUserType: (arg: string) => void;
+  userType: string;
+  userName: string;
 }
 
 const Routes: React.FunctionComponent<RoutesProps> = ({
   loggedIn,
   setLoggedIn,
   setUserName,
-  setUserType
+  setUserType,
+  userType,
+  userName
 }) => {
   return (
     <Switch>
@@ -36,6 +41,9 @@ const Routes: React.FunctionComponent<RoutesProps> = ({
       </Route>
       <Route exact path="/register">
         <Register />
+      </Route>
+      <Route path="/admin">
+        <Admin loggedIn={loggedIn} userType={userType} />
       </Route>
       <Route exact path="/robots">
         <Robots />

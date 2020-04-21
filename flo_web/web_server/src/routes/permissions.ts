@@ -60,3 +60,18 @@ router.post('/remove', checkAdmin, async (req, res) => {
         email: email,
     });
 });
+router.get('/', checkAdmin, async (req, res) => {
+    const userID = req.session!.userID;
+    try {
+        const { rows } = await db.query(
+            'select r.robot_name ,array_agg(u.email) users from robots r ' +
+                'left join robot_permissions rp on rp.robot_id = r.id ' +
+                'left join users u on u.id=rp.user_id  ' +
+                'group by r.robot_name  ',
+            [],
+        );
+        res.status(200).json({ permissions: rows });
+    } catch {
+        res.status(500).json({ error: 'error running queries' });
+    }
+});

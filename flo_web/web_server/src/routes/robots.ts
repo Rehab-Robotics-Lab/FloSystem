@@ -88,6 +88,31 @@ router.post('/new-robot', checkAdmin, async (req, res) => {
     res.status(200).json({ newName: robotName, newPassword: password });
 });
 
+router.get('/all-robots', checkAdmin, async (req, res) => {
+    try {
+        const { rows } = await db.query(
+            'select ' +
+                'r.id, ' +
+                'r.ipaddr, ' +
+                'r.robot_name,' +
+                'rt.robot_type, ' +
+                'r.connected , ' +
+                'r.battery, ' +
+                'r.active_user_id, ' +
+                'u.first_name active_user_first, ' +
+                'u.last_name active_user_last, ' +
+                'u.email active_user_email ' +
+                'from robots r  ' +
+                'left join users u on u.id = r.active_user_id ' +
+                'left join robot_types rt on rt.id =r.robot_type ',
+            [],
+        );
+        res.status(200).json({ robots: rows });
+    } catch {
+        res.status(500).json({ error: 'error running queries' });
+    }
+});
+
 // get api/robots/<id> Ex: api/robots/4
 router.get('/:id', checkLoggedIn, async (req, res) => {
     const { id } = req.params;

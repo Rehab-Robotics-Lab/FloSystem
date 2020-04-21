@@ -3,7 +3,6 @@ import { Route, Switch } from "react-router-dom";
 import RobotController from "./components/robotController";
 import Login from "./components/users/login";
 import Register from "./components/users/register";
-import Robots from "./components/robots";
 import Admin from "./components/admin";
 import Home from "./components/home";
 
@@ -44,9 +43,6 @@ const Routes: React.FunctionComponent<RoutesProps> = ({
       </Route>
       <Route path="/admin">
         <Admin loggedIn={loggedIn} userType={userType} />
-      </Route>
-      <Route exact path="/robots">
-        <Robots />
       </Route>
     </Switch>
   );

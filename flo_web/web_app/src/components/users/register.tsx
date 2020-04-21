@@ -24,7 +24,7 @@ const Register: React.FunctionComponent = () => {
         <Link to="/login">Login</Link>
       </div>
       <br />
-      <div>
+      <div style={{ display: "inline-block" }}>
         <Formik
           initialValues={{
             email: "",
@@ -55,21 +55,47 @@ const Register: React.FunctionComponent = () => {
         >
           {({ isSubmitting }) => (
             <Form>
-              <label htmlFor="firstName">First Name</label>
-              <Field type="firstName" name="firstName" />
-              <ErrorMessage name="firstName" component="div" />
-              <label htmlFor="lastName">Last Name</label>
-              <Field type="lastName" name="lastName" />
-              <ErrorMessage name="lastName" component="div" />
-              <label htmlFor="email">e-mail</label>
-              <Field type="email" name="email" />
-              <ErrorMessage name="email" component="div" />
-              <label htmlFor="password">password</label>
-              <Field type="password" name="password" />
-              <ErrorMessage name="password" component="div" />
-              <button type="submit" disabled={isSubmitting}>
-                Submit
-              </button>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  flexDirection: "column"
+                }}
+              >
+                <div style={{ textAlign: "left" }}>
+                  <label htmlFor="firstName">First Name</label>
+                </div>
+                <div>
+                  <Field type="firstName" name="firstName" />
+                  <ErrorMessage name="firstName" component="div" />
+                </div>
+                <div style={{ textAlign: "left" }}>
+                  <label htmlFor="lastName">Last Name</label>
+                </div>
+                <div>
+                  <Field type="lastName" name="lastName" />
+                  <ErrorMessage name="lastName" component="div" />
+                </div>
+                <div style={{ textAlign: "left" }}>
+                  <label htmlFor="email">e-mail</label>
+                </div>
+                <div>
+                  <Field type="email" name="email" />
+                  <ErrorMessage name="email" component="div" />
+                </div>
+                <div style={{ textAlign: "left" }}>
+                  <label htmlFor="password">password</label>
+                </div>
+                <div>
+                  <Field type="password" name="password" />
+                  <ErrorMessage name="password" component="div" />
+                </div>
+                <div>
+                  <button type="submit" disabled={isSubmitting}>
+                    Submit
+                  </button>
+                </div>
+              </div>
             </Form>
           )}
         </Formik>

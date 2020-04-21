@@ -153,6 +153,19 @@ router.post('/register', checkLoggedOut, async (req, res) => {
     res.status(200).json({ success: 'added user to system' });
 });
 
+router.get('/all-users', checkAdmin, async (req, res) => {
+    try {
+        const { rows } = await db.query(
+            'select u.id, u.email, u.first_name, u.last_name, u.last_login, ut.user_type from users u ' +
+                'inner join user_types ut on ut.id = u.user_type ',
+            [],
+        );
+        res.status(200).json({ users: rows });
+    } catch {
+        res.status(500).json({ error: 'error running queries' });
+    }
+});
+
 router.post('/change-password', checkLoggedIn, async (req, res) => {
     const { oldPassword, newPassword } = req.body;
     try {
@@ -177,6 +190,21 @@ router.post('/change-password', checkLoggedIn, async (req, res) => {
     } catch {
         res.status(500).json({
             error: 'there was an error while changing password',
+        });
+    }
+});
+
+router.post('/change-type', checkAdmin, async (req, res) => {
+    const { email, userType } = req.body;
+    try {
+        await db.query(
+            'update users set user_type =(select id from user_types where user_type=$1) where email=$2',
+            [userType, email],
+        );
+        res.status(200).json({ success: 'User type succesfully changed' });
+    } catch {
+        res.status(500).json({
+            error: 'there was an error while changing the user type',
         });
     }
 });

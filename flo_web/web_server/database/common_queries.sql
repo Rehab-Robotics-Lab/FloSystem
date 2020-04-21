@@ -50,8 +50,10 @@ inner join robot_permissions rp on rp.user_id=u.id
 inner join robots r on r.id=rp.robot_id
 where u.email = 'mjsobrep@seas.upenn.edu';
 
--- get password hash for a user:
-select password_hash from users where email ='mjsobrep@seas.upenn.edu'
+-- get login info for a user:
+select password_hash, u.id, ut.user_type  from users u 
+inner join user_types ut on u.user_type =ut.id 
+where email ='mjsobrep@seas.upenn.edu'
 
 -- set password:
 update users set password_hash ='badpswd2' where email='mjsobrep@seas.upenn.edu'
@@ -70,7 +72,7 @@ select r.robot_name , r.battery, r.active_user_id, u2.first_name active_user_fir
 inner join robot_permissions rp on rp.user_id=u.id
 inner join robots r on r.id=rp.robot_id
 left join users u2 on u2.id = r.active_user_id 
-where u.email = 'mjsobrep@seas.upenn.edu' and r.connected=true;
+where u.email = 'testuser@seas.upenn.edu'
 
 -- Get the disconnected robots:
 select robot_name, last_login 
@@ -80,8 +82,10 @@ where connected =false;
 --disconect a robot from a user
 update robots set active_user_id =null where robot_name='lil''flo';
 
+-- remove permissions
+select * from robot_permissions
 
-
-
-
+delete from robot_permissions
+where robot_id =(select id from robots where robot_name='testrobot') and 
+user_id=(select id from users where email = 'testuser@seas.upenn.edu');
 

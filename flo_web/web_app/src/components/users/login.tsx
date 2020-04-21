@@ -31,7 +31,7 @@ const Login: React.FunctionComponent<LoginProps> = ({
         <Link to="/register">Register</Link>
       </div>
       <br />
-      <div>
+      <div style={{ display: "inline-block" }}>
         <Formik
           initialValues={{ email: "", password: "" }}
           validationSchema={loginSchema}
@@ -57,15 +57,33 @@ const Login: React.FunctionComponent<LoginProps> = ({
         >
           {({ isSubmitting }) => (
             <Form>
-              <label htmlFor="email">e-mail</label>
-              <Field type="email" name="email" />
-              <ErrorMessage name="email" component="div" />
-              <label htmlFor="password">password</label>
-              <Field type="password" name="password" />
-              <ErrorMessage name="password" component="div" />
-              <button type="submit" disabled={isSubmitting}>
-                Submit
-              </button>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  flexDirection: "column"
+                }}
+              >
+                <div style={{ textAlign: "left" }}>
+                  <label htmlFor="email">e-mail: </label>
+                </div>
+                <div>
+                  <Field type="email" name="email" />
+                  <ErrorMessage name="email" component="div" />
+                </div>
+                <div style={{ textAlign: "left" }}>
+                  <label htmlFor="password">password: </label>
+                </div>
+                <div>
+                  <Field type="password" name="password" />
+                  <ErrorMessage name="password" component="div" />
+                </div>
+                <div>
+                  <button type="submit" disabled={isSubmitting}>
+                    Submit
+                  </button>
+                </div>
+              </div>
             </Form>
           )}
         </Formik>

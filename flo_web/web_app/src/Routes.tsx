@@ -4,6 +4,7 @@ import RobotController from "./components/robotController";
 import Login from "./components/users/login";
 import Register from "./components/users/register";
 import Robots from "./components/robots";
+import Home from "./components/home";
 
 interface RoutesProps {
   loggedIn: boolean;
@@ -21,7 +22,7 @@ const Routes: React.FunctionComponent<RoutesProps> = ({
   return (
     <Switch>
       <Route exact path="/">
-        <div> hi</div>
+        <Home userName={userName} userType={userType} />
       </Route>
       <Route path="/controller/:robotName">
         <RobotController />

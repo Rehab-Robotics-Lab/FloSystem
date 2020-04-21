@@ -43,7 +43,6 @@ const Login: React.FunctionComponent<LoginProps> = ({
               })
               .then(
                 res => {
-                  console.log(res.data["userName"]);
                   setLoggedIn(true);
                   setUserType(res.data["userType"]);
                   setUserName(res.data["userName"]);

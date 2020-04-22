@@ -34,27 +34,30 @@ const Header: React.FunctionComponent<HeaderProps> = ({
 
   //TODO: TS
   useEffect(() => {
-    if (!ipAddr) return;
-    if (connected === false) {
-      const targUrl = `wss://${ipAddr}/robot/${robotName}`;
-      const newRosConnection = new ROSLIB.Ros({
-        url: targUrl
-        //url: `ws://${ipAddr}:${ipPort}`
-        //TODO: Obviously fix this up.
-      });
-      newRosConnection.on("error", err => {
-        errorWrapper(err);
-      });
-      newRosConnection.on("connection", () => {
-        console.log("connected to socket at: " + targUrl);
-        setConnected(true);
-      });
-      newRosConnection.on("close", () => {
-        setConnected(false);
-      });
-      setRos(newRosConnection);
-    }
-  }, [connected]);
+    const targUrl = `wss://${ipAddr}/robot/${robotName}`;
+    const newRosConnection = new ROSLIB.Ros({
+      url: targUrl
+      //url: `ws://${ipAddr}:${ipPort}`
+      //TODO: Obviously fix this up.
+    });
+    newRosConnection.on("error", err => {
+      errorWrapper(err);
+    });
+    newRosConnection.on("connection", () => {
+      console.log("connected to socket at: " + targUrl);
+      setConnected(true);
+    });
+    newRosConnection.on("close", () => {
+      setConnected(false);
+    });
+    setRos(newRosConnection);
+
+    return (): void => {
+      console.log("******CLOSING ROS CONNECTION********");
+      newRosConnection.close();
+    };
+  }, []);
+  //}, [connected]);
 
   const connectedString = (): JSX.Element => {
     let toReturn: JSX.Element;

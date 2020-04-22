@@ -30,18 +30,18 @@ const sessionStore = new RedisStore({
     client: redis.createClient({ host: 'session-store', port: 6379 }),
 });
 
-app.use(
-    session({
-        secret: sessionSecret,
-        store: sessionStore,
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-            secure: true,
-            maxAge: 1000 * 60 * 60 * 48, // 48 hours
-        },
-    }),
-);
+const sessionParser = session({
+    secret: sessionSecret,
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: true,
+        maxAge: 1000 * 60 * 60 * 48, // 48 hours
+    },
+});
+
+app.use(sessionParser);
 
 // Parse the string in the requests into json:
 app.use(bodyParser.json());
@@ -156,7 +156,7 @@ function parseUrl(
     }
 
     let webrtc = false;
-    let target: string = '';
+    let target = '';
     let originType: 'robot' | 'operator';
 
     if (pathSplits[1] === 'robot') {
@@ -444,9 +444,7 @@ class OperatorConnections extends Connections {
         // for sending back to the robot
         const sendToRobot = (id: string, command: string, msg: string) => {
             if (thisClient.connected === undefined) {
-                throw new Error(
-                    'message from operator for a non-existant webrtc connection path',
-                );
+                thisClient.close(); //The client is not connected to anything...
             }
             const robotSock = thisClient.connected.rtcSockets.get('robot');
             if (robotSock === undefined) {
@@ -513,10 +511,12 @@ class OperatorConnections extends Connections {
         console.log('operator ' + name + ' connected data channel');
         robot.connected = thisConnection;
         thisConnection.connected = robot;
-        await db.query('update robots set active_user_id=$1 where name=$2', [
-            name,
-            target,
-        ]);
+        await db.query(
+            'update robots set  ' +
+                'active_user_id =(select id from users where email=$1)  ' +
+                'where robot_name =$2',
+            [name, target],
+        );
 
         ws.on('message', (msg) => {
             const thisOperator = this.clients.get(name);
@@ -630,14 +630,39 @@ class Server {
             });
         } else if (urlReturn.originType === 'operator') {
             // For the clients to hook up to a robot
-            const name = 'operator1';
-            this.operators.server.handleUpgrade(request, socket, head, (ws) => {
-                this.operators.onConnection(
-                    ws,
+            sessionParser(request, {}, async () => {
+                if (!request.session.userID) {
+                    socket.destroy();
+                    return;
+                }
+
+                const {
+                    rows,
+                } = await db.query(
+                    'select count(*) from robot_permissions rp ' +
+                        'left join robots r on r.id = rp.robot_id ' +
+                        'where rp.user_id =$1 and r.robot_name =$2',
+                    [request.session.userID, urlReturn.target],
+                );
+
+                if (rows[0] < 1) {
+                    socket.destroy();
+                    return;
+                }
+
+                this.operators.server.handleUpgrade(
                     request,
-                    name,
-                    urlReturn.target,
-                    urlReturn.webrtc,
+                    socket,
+                    head,
+                    (ws) => {
+                        this.operators.onConnection(
+                            ws,
+                            request,
+                            request.session!.userID,
+                            urlReturn.target,
+                            urlReturn.webrtc,
+                        );
+                    },
                 );
             });
         } else {

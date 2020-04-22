@@ -1,7 +1,6 @@
 import React from "react";
 import Robots from "./robots";
-import { Route, Switch } from "react-router-dom";
-import { useHistory, Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 interface HomeProps {
   userName: string;

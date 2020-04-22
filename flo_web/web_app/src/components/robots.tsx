@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
-import { useHistory, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { SetInterval } from "./utilities";
 
 interface Robot {
@@ -13,7 +13,6 @@ interface Robot {
 }
 
 const Robots: React.FunctionComponent = () => {
-  const history = useHistory();
   const [robotArray, setRobotArray] = useState<Array<Robot>>([]);
 
   // Note this is coming from somewhere else, not vanilla

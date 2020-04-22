@@ -1,8 +1,8 @@
 //https://stackoverflow.com/questions/46140764/polling-api-every-x-seconds-with-react
 
-import React, { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 
-export const SetInterval = (callback: () => void, delay: number) => {
+const SetInterval = (callback: () => void, delay: number): void => {
   const savedCallback = useRef<() => void>(() => {});
 
   useEffect(() => {
@@ -20,3 +20,5 @@ export const SetInterval = (callback: () => void, delay: number) => {
     }
   }, [delay]);
 };
+
+export { SetInterval };

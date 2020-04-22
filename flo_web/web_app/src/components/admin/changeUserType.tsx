@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import React, { useState } from "react";
+import React from "react";
 
 const changeUserTypeSchema = Yup.object().shape({
   email: Yup.string()

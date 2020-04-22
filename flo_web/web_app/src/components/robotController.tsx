@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useReducer, useState, useEffect, useCallback } from "react";
 import "../App.css";
 import { CookiesProvider, useCookies } from "react-cookie";
 import Header from "./robotControl/Header";
@@ -21,6 +21,8 @@ import { basicBlock } from "../styleDefs/styles";
 import GameContainer from "./robotControl/GameContainer";
 import SystemMonitor from "./robotControl/SystemMonitor";
 import GameBuckets from "./robotControl/GameBuckets";
+import { useParams, useHistory } from "react-router-dom";
+import { PoseWrapper } from "./robotControl/seq_pose/PoseContainer";
 
 export function genRandID(): number {
   return Math.round(Math.random() * 10000) + Date.now();
@@ -35,7 +37,7 @@ export interface SetMovesList {
 }
 
 export interface AddToMoveList {
-  (value: Move): void;
+  (value: PoseWrapper): void;
 }
 
 export interface SetConnected {
@@ -76,16 +78,28 @@ export interface JointState {
   effort: number[];
 }
 
+const ipAddr = window.location.hostname;
+
 const RobotController: React.FunctionComponent = () => {
-  const [cookies, setCookie] = useCookies(["movesList", "ipAddr", "ipPort"]);
-  const [ipAddr, setIpAddr] = useState(
-    cookies.ipAddr || window.location.hostname
-  );
-  const [ipPort, setIpPort] = useState(cookies.ipPort || "9090");
   const [ros, setRos] = useState<ROSLIB.Ros | null>(null);
-  const [errorList, setErrorList] = useState<Array<ErrorItem>>([]);
+  //const [errorList, setErrorList] = useState<Array<ErrorItem>>([]);
+  function errorReducer(
+    errorList: ErrorItem[],
+    newError: { text: string; src: string }
+  ): ErrorItem[] {
+    const err = {
+      text: newError.text,
+      time: new Date(),
+      src: newError.src
+    };
+    errorList = [...errorList, err];
+    return errorList;
+  }
+
+  const [errorList, addError] = useReducer(errorReducer, []);
   const [connected, setConnected] = useState(false);
-  const [MovesList, setMovesListInternal] = useState(cookies.movesList || []);
+
+  const [MovesList, setMovesListInternal] = useState<Move[]>([]);
   const [moving, setMoving] = useState(false);
   const [speechTarget, setSpeechTarget] = useState<Utterance>({
     text: "",
@@ -99,30 +113,14 @@ const RobotController: React.FunctionComponent = () => {
   // TODO: make this type more specific
   const setMovesList: SetMovesList = arg => {
     if (!moving) {
-      setCookie("movesList", arg);
       setMovesListInternal(arg);
     }
   };
 
-  const setIpAddrCook = (addr: string) => {
-    setCookie("ipAddr", addr);
-    setIpAddr(addr);
-  };
-
-  const setIpPortCook = (port: string) => {
-    setCookie("ipPort", port);
-    setIpPort(port);
-  };
-
-  const addError: AddError = (text, src) => {
-    const newError = { text, time: new Date(), src };
-    setErrorList([...errorList, newError]);
-  };
-
   // TODO: TS
-  const addToMoveList: AddToMoveList = value => {
+  const addToMoveList: AddToMoveList = (value: PoseWrapper) => {
     if (moving) {
-      addError("Cannot add to moves list while moving", "core");
+      addError({ text: "Cannot add to moves list while moving", src: "core" });
       return;
     }
     setMovesList([
@@ -137,12 +135,15 @@ const RobotController: React.FunctionComponent = () => {
     ]);
   };
 
-  const setConnectedWrap: SetConnected = con => {
-    if (con === false && ros !== null) {
-      setRos(null);
-    }
-    setConnected(con);
-  };
+  const setConnectedWrap: SetConnected = useCallback(
+    con => {
+      if (con === false) {
+        setRos(null);
+      }
+      setConnected(con);
+    },
+    [setConnected, setRos]
+  );
 
   useEffect(() => {
     if (!connected) return;
@@ -154,28 +155,56 @@ const RobotController: React.FunctionComponent = () => {
       name: "joint_states",
       messageType: "sensor_msgs/JointState"
     });
-    poseListenerT.subscribe(msg => {
+    const plCB = (msg: ROSLIB.Message): void => {
       const cmsg = msg as JointState;
       if (cmsg.name.includes("left_shoulder_flexionextension")) {
         setPose(cmsg);
       }
-    });
+    };
+    poseListenerT.subscribe(plCB);
+
+    return (): void => {
+      poseListenerT.unsubscribe(plCB);
+    };
     //setPoseListener(poseListenerT);
   }, [connected, ros]);
+
+  const { robotName } = useParams();
+  const history = useHistory();
+
+  const goHome = useCallback((): void => {
+    history.push("/");
+  }, []);
+
+  useEffect(() => {
+    const targUrl = `wss://${ipAddr}/robot/${robotName}`;
+    const newRosConnection = new ROSLIB.Ros({
+      url: targUrl
+    });
+    newRosConnection.on("error", err => {
+      addError({ text: "ROS Connection Error: " + err, src: "Header" });
+    });
+    newRosConnection.on("connection", () => {
+      console.log("connected to socket at: " + targUrl);
+      setConnectedWrap(true);
+    });
+    newRosConnection.on("close", () => {
+      setConnectedWrap(false);
+      goHome();
+    });
+    setRos(newRosConnection);
+
+    return (): void => {
+      console.log("******CLOSING ROS CONNECTION********");
+      newRosConnection.close();
+    };
+  }, [addError, goHome, ipAddr, robotName, setConnectedWrap, setRos]);
+  //}, [connected]);
 
   return (
     <CookiesProvider>
       <div className="App">
-        <Header
-          setRos={setRos}
-          addError={addError}
-          connected={connected}
-          setConnected={setConnectedWrap}
-          ipAddr={ipAddr}
-          ipPort={ipPort}
-          setIpAddr={setIpAddrCook}
-          setIpPort={setIpPortCook}
-        />
+        <Header connected={connected} />
         <div className="body" style={{ backgroundColor: colors.gray.dark2 }}>
           <div
             className="visualFeeds"
@@ -186,12 +215,7 @@ const RobotController: React.FunctionComponent = () => {
               flexWrap: "wrap"
             })}
           >
-            <Vids
-              ros={ros}
-              connected={connected}
-              ipAddr={ipAddr}
-              ipPort={ipPort}
-            />
+            <Vids ros={ros} connected={connected} ipAddr={ipAddr} />
             <URDF ros={ros} connected={connected} />
             <SystemMonitor ros={ros} connected={connected} />
           </div>

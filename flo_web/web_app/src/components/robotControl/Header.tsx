@@ -1,66 +1,12 @@
-import React, { useEffect } from "react";
-import * as ROSLIB from "roslib";
+import React from "react";
 import colors from "../../styleDefs/colors";
-import { AddError, SetConnected } from "../robotController";
 import { CookiesProvider } from "react-cookie";
-import { useParams, useHistory } from "react-router-dom";
 
 interface HeaderProps {
-  setRos: (ros: ROSLIB.Ros) => any;
-  addError: AddError;
   connected: boolean;
-  setConnected: SetConnected;
-  ipAddr: string;
-  ipPort: string;
-  setIpAddr: (arg: string) => void;
-  setIpPort: (arg: string) => void;
 }
 
-const Header: React.FunctionComponent<HeaderProps> = ({
-  setRos,
-  addError,
-  connected,
-  setConnected,
-  ipAddr,
-  ipPort,
-  setIpAddr,
-  setIpPort
-}) => {
-  const errorWrapper = (err: string): void => {
-    addError("ROS Connection Error: " + err, "Header");
-  };
-
-  const { robotName } = useParams();
-  const history = useHistory();
-
-  //TODO: TS
-  useEffect(() => {
-    const targUrl = `wss://${ipAddr}/robot/${robotName}`;
-    const newRosConnection = new ROSLIB.Ros({
-      url: targUrl
-      //url: `ws://${ipAddr}:${ipPort}`
-      //TODO: Obviously fix this up.
-    });
-    newRosConnection.on("error", err => {
-      errorWrapper(err);
-    });
-    newRosConnection.on("connection", () => {
-      console.log("connected to socket at: " + targUrl);
-      setConnected(true);
-    });
-    newRosConnection.on("close", () => {
-      setConnected(false);
-      history.push("/");
-    });
-    setRos(newRosConnection);
-
-    return (): void => {
-      console.log("******CLOSING ROS CONNECTION********");
-      newRosConnection.close();
-    };
-  }, []);
-  //}, [connected]);
-
+const Header: React.FunctionComponent<HeaderProps> = ({ connected }) => {
   const connectedString = (): JSX.Element => {
     let toReturn: JSX.Element;
     if (connected) {

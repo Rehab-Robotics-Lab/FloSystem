@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Link, NavLink, useHistory } from "react-router-dom";
+import { NavLink, useHistory } from "react-router-dom";
 import "./App.css";
 import Routes from "./Routes";
 import axios from "axios";
-import { Helmet } from "react-helmet";
 import navbar from "./styleDefs/Nav.module.css";
 
 //function App() {
@@ -34,7 +33,7 @@ function App() {
         history.push("/login");
       }
     });
-  }, []);
+  }, [history, setLoggedIn, setUserName, setUserType]);
 
   return (
     <div className="App container">
@@ -79,9 +78,8 @@ function App() {
           </NavLink>
         )}
         {loggedIn && (
-          <a
+          <button
             className={navbar.navitem}
-            href="#"
             onClick={() => {
               axios.post("/api/users/logout").then(
                 res => {
@@ -89,13 +87,13 @@ function App() {
                   setUserName("");
                 },
                 err => {
-                  alert("failed to logout");
+                  alert("failed to logout: " + err.response.data["error"]);
                 }
               );
             }}
           >
             Logout
-          </a>
+          </button>
         )}
       </nav>
       <Routes

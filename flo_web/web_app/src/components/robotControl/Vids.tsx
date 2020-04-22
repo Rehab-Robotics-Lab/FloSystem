@@ -9,15 +9,13 @@ interface VidsProps {
   ros: ROSLIB.Ros | null;
   connected: boolean;
   ipAddr: string;
-  ipPort: string;
 }
 
 // Takes a parameter ros, which is the connection to ros
 const Vids: React.FunctionComponent<VidsProps> = ({
   ros,
   connected,
-  ipAddr,
-  ipPort
+  ipAddr
 }) => {
   const remoteRefUpper = React.useRef(null);
   const remoteRefLower = React.useRef(null);
@@ -162,7 +160,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
     {
       /*}*/
     }
-  }, [connected, ros, ipAddr, ipPort]);
+  }, [connected, ros, ipAddr]);
   //<script type="text/javascript" src={"/web/adapter.js"} />
   //
 

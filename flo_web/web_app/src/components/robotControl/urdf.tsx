@@ -12,7 +12,7 @@ const URDF: React.FunctionComponent<URDFProps> = ({ ros, connected }) => {
   const [viewer, setViewer] = useState<ROS3D.Viewer | null>(null);
   const [client, setClient] = useState<ROS3D.UrdfClient | null>(null);
 
-  const { path, url } = useRouteMatch();
+  const { url } = useRouteMatch();
   // We need to wait until the target diff exists
   useEffect(() => {
     // if (viewer !== null) return; I don't think
@@ -39,7 +39,7 @@ const URDF: React.FunctionComponent<URDFProps> = ({ ros, connected }) => {
     return () => {
       vw.stop();
     };
-  }, []);
+  }, [url]);
 
   useEffect(() => {
     if (!connected) {

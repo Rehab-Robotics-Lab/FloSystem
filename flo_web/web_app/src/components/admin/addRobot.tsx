@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
-import { useHistory, Link } from "react-router-dom";
 
 interface Robot {
   name: string;
@@ -20,7 +19,6 @@ const addRobotSchema = Yup.object().shape({
 
 const AddRobot: React.FunctionComponent = () => {
   const [newRobot, setNewRobot] = useState<Robot | undefined>(undefined);
-  const history = useHistory();
   return (
     <div>
       <h1>Create Robot</h1>

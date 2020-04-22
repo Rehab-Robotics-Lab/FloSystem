@@ -107,6 +107,16 @@ class Connection {
     }
 }
 
+class RobotConnection extends Connection {
+    async close() {
+        super.close();
+        await db.query(
+            'update robots set connected=false, active_user_id=null where robot_name=$1',
+            [this.name],
+        );
+    }
+}
+
 /**
  * Parse a URL to the websocket server
  *
@@ -324,7 +334,7 @@ class RobotConnections extends Connections {
         if (robot !== undefined) {
             robot.close();
         }
-        this.clients.set(name, new Connection(ws, name));
+        this.clients.set(name, new RobotConnection(ws, name));
         await db.query('update robots set connected=true where robot_name=$1', [
             name,
         ]);

@@ -42,7 +42,6 @@ const AddRobot: React.FunctionComponent = () => {
                 setSubmitting(false);
               })
               .catch(err => {
-                console.log(err.response.data["error"]);
                 alert("Failed to add robot: " + err.response.data["error"]);
                 setSubmitting(false);
               });

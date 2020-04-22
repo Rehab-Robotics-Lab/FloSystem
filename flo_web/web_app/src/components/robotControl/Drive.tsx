@@ -292,6 +292,10 @@ const Drive: React.FunctionComponent<DriveProps> = ({ ros, connected }) => {
 
     const canvas = (canvasRef.current as unknown) as HTMLCanvasElement;
     const joystick1 = new Joystick(canvas, publishFunc); //eslint-disable-line
+
+    return (): void => {
+      topic.unadvertise();
+    };
   }, [ros, connected]);
 
   return (

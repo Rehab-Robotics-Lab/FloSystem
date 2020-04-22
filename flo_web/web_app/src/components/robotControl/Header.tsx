@@ -3,7 +3,7 @@ import * as ROSLIB from "roslib";
 import colors from "../../styleDefs/colors";
 import { AddError, SetConnected } from "../robotController";
 import { CookiesProvider } from "react-cookie";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 
 interface HeaderProps {
   setRos: (ros: ROSLIB.Ros) => any;
@@ -31,6 +31,7 @@ const Header: React.FunctionComponent<HeaderProps> = ({
   };
 
   const { robotName } = useParams();
+  const history = useHistory();
 
   //TODO: TS
   useEffect(() => {
@@ -49,6 +50,7 @@ const Header: React.FunctionComponent<HeaderProps> = ({
     });
     newRosConnection.on("close", () => {
       setConnected(false);
+      history.push("/");
     });
     setRos(newRosConnection);
 

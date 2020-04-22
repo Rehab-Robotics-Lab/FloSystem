@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import * as ROS3D from "ros3d";
 import * as ROSLIB from "roslib";
+import { useRouteMatch } from "react-router-dom";
 
 interface URDFProps {
   ros: ROSLIB.Ros | null;
@@ -11,6 +12,7 @@ const URDF: React.FunctionComponent<URDFProps> = ({ ros, connected }) => {
   const [viewer, setViewer] = useState<ROS3D.Viewer | null>(null);
   const [client, setClient] = useState<ROS3D.UrdfClient | null>(null);
 
+  const { path, url } = useRouteMatch();
   // We need to wait until the target diff exists
   useEffect(() => {
     // if (viewer !== null) return; I don't think
@@ -33,6 +35,10 @@ const URDF: React.FunctionComponent<URDFProps> = ({ ros, connected }) => {
     // vw.directionalLight.castShaddow = true;
     setViewer(vw);
     console.log("setup urdf viewer");
+
+    return () => {
+      vw.stop();
+    };
   }, []);
 
   useEffect(() => {
@@ -60,13 +66,17 @@ const URDF: React.FunctionComponent<URDFProps> = ({ ros, connected }) => {
     const clientT = new ROS3D.UrdfClient({
       ros: ros as ROSLIB.Ros,
       tfClient,
-      path: `${process.env.PUBLIC_URL}/mesh_root/`,
+      path: `${url}/mesh_root/`,
       rootObject: viewer.scene
       // loader: ROS3D.COLLADA_LOADER2,
     });
     console.log("created a new URDF viewer");
 
     setClient(clientT);
+
+    return (): void => {
+      tfClient.dispose();
+    };
   }, [connected, client, ros, viewer]);
 
   return <div id="urdf" />;

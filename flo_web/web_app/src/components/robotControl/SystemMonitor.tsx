@@ -55,18 +55,20 @@ const SystemMonitor: React.FunctionComponent<SystemMonitorProps> = ({
       name: "cpu_stats",
       messageType: "system_monitor/CPUutil"
     });
-    cpuListener.subscribe(msg => {
+    const cpuCB = (msg: ROSLIB.Message): void => {
       setCpu((msg as CPUutilMsg).percent_utilization);
-    });
+    };
+    cpuListener.subscribe(cpuCB);
 
     const memListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "mem_stats",
       messageType: "system_monitor/MEMutil"
     });
-    memListener.subscribe(msg => {
+    const memCB = (msg: ROSLIB.Message): void => {
       setMem((msg as MEMutilMsg).percent_used);
-    });
+    };
+    memListener.subscribe(memCB);
     console.log("subscribed to memory utilization topic");
 
     const hddListener = new ROSLIB.Topic({
@@ -74,9 +76,10 @@ const SystemMonitor: React.FunctionComponent<SystemMonitorProps> = ({
       name: "hdd_stats",
       messageType: "system_monitor/HDDutil"
     });
-    hddListener.subscribe(msg => {
+    const hddCB = (msg: ROSLIB.Message): void => {
       setHdd((msg as HDDutilMsg).percent_free);
-    });
+    };
+    hddListener.subscribe(hddCB);
     console.log("subscribed to hard drive stats topic");
 
     const netListener = new ROSLIB.Topic({
@@ -84,11 +87,19 @@ const SystemMonitor: React.FunctionComponent<SystemMonitorProps> = ({
       name: "net_stats",
       messageType: "system_monitor/NETstats"
     });
-    netListener.subscribe(msg => {
+    const netCB = (msg: ROSLIB.Message): void => {
       setNetQ((msg as NETstatsMsg).link_quality);
       setNetS((msg as NETstatsMsg).signal_strength);
-    });
+    };
+    netListener.subscribe(netCB);
     console.log("subscribed to network stats topic");
+
+    return (): void => {
+      cpuListener.unsubscribe(cpuCB);
+      memListener.unsubscribe(memCB);
+      hddListener.unsubscribe(hddCB);
+      netListener.unsubscribe(netCB);
+    };
   }, [connected, ros]);
 
   return (

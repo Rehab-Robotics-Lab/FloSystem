@@ -80,10 +80,11 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
       name: "game_runner_command_opts",
       messageType: "flo_core_defs/GameCommandOptions"
     });
-    CommandListener.subscribe(msg => {
+    const clCallback = (msg: ROSLIB.Message): void => {
       setCommandOptions((msg as CommandOpts).options);
       console.log("got new command options");
-    });
+    };
+    CommandListener.subscribe(clCallback);
     console.log("subscribed to command options topic");
 
     const FeedbackListener = new ROSLIB.Topic({
@@ -91,10 +92,11 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
       name: "game_runner_state",
       messageType: "flo_core_defs/GameState"
     });
-    FeedbackListener.subscribe(msg => {
+    const flCallback = (msg: ROSLIB.Message): void => {
       setGameFeedback((msg as GameState).state);
       console.log("got new game feedback");
-    });
+    };
+    FeedbackListener.subscribe(flCallback);
     console.log("subscribed to game feedback topic");
 
     const gameDefPubT = new ROSLIB.Topic({
@@ -112,6 +114,13 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
     });
     setGameCommandPub(gameCommandPubT);
     console.log("connected to publish on game runner commands topic");
+
+    return (): void => {
+      CommandListener.unsubscribe(clCallback);
+      FeedbackListener.unsubscribe(flCallback);
+      gameDefPubT.unadvertise();
+      gameCommandPubT.unadvertise();
+    };
   }, [connected, ros]);
 
   const availableGames = ["simon_says", "target_touch"];

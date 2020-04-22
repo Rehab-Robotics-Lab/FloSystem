@@ -2,8 +2,6 @@
 
 source ~/.bashrc
 
-export FLO_SERVER_IP="192.168.1.7"
-
 tmux new-session -d -s flo
 tmux rename-window startup
 tmux send-keys 'roscore' Enter

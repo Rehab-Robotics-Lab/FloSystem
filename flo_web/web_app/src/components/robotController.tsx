@@ -23,6 +23,7 @@ import SystemMonitor from "./robotControl/SystemMonitor";
 import GameBuckets from "./robotControl/GameBuckets";
 import { useParams, useHistory } from "react-router-dom";
 import { PoseWrapper } from "./robotControl/seq_pose/PoseContainer";
+import EventEmitter2 from "eventemitter2";
 
 export function genRandID(): number {
   return Math.round(Math.random() * 10000) + Date.now();
@@ -197,6 +198,9 @@ const RobotController: React.FunctionComponent = () => {
     return (): void => {
       console.log("******CLOSING ROS CONNECTION********");
       newRosConnection.close();
+      ((newRosConnection as unknown) as EventEmitter2.EventEmitter2).removeAllListeners();
+      setConnectedWrap(false);
+      goHome();
     };
   }, [addError, goHome, ipAddr, robotName, setConnectedWrap, setRos]);
   //}, [connected]);

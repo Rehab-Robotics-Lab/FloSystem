@@ -2,9 +2,8 @@ import React, { useEffect, useState, CSSProperties } from "react";
 import * as ROSLIB from "roslib";
 import { wrapStyle } from "../../styleDefs/styles";
 import { useParams } from "react-router-dom";
-import "../../externalLibs/web/webrtc_ros.js";
-
-declare var WebrtcRos: any;
+import WebrtcRos from "../../externalLibs/web/webrtcRos";
+//import adapter from "webrtc-adapter";
 
 interface VidsProps {
   ros: ROSLIB.Ros | null;
@@ -152,6 +151,12 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         connection3.sendConfigure();
       };
       connection3.connect();
+
+      return (): void => {
+        connection1.close();
+        connection2.close();
+        connection3.close();
+      };
     }
   }, [connected, ros, ipAddr, ipPort]);
   //<script type="text/javascript" src={"/web/adapter.js"} />

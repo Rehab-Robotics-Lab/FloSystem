@@ -52,7 +52,7 @@ router.post('/new-password', checkAdmin, async (req, res) => {
             [passwordHash, robotName],
         );
     } catch (e) {
-        res.status(400).json({ error: e });
+        res.status(400).json({ error: e.toString() });
         return;
     }
 
@@ -81,7 +81,7 @@ router.post('/new-robot', checkAdmin, async (req, res) => {
             [robotName, passwordHash, robotType],
         );
     } catch (e) {
-        res.status(400).json({ error: e });
+        res.status(400).json({ error: e.toString() });
         return;
     }
 
@@ -137,8 +137,8 @@ router.get('/all-robots', checkAdmin, async (req, res) => {
             [],
         );
         res.status(200).json({ robots: rows });
-    } catch {
-        res.status(500).json({ error: 'error running queries' });
+    } catch (e) {
+        res.status(500).json({ error: e.toString() });
     }
 });
 
@@ -163,7 +163,7 @@ router.get('/', checkLoggedIn, async (req, res) => {
             [userID],
         );
         res.status(200).json({ robots: rows });
-    } catch {
-        res.status(500).json({ error: 'error running queries' });
+    } catch (e) {
+        res.status(500).json({ error: e.toString() });
     }
 });

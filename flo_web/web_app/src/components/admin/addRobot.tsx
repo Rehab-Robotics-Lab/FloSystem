@@ -26,7 +26,7 @@ const AddRobot: React.FunctionComponent = () => {
       <h1>Create Robot</h1>
       <div>
         <Formik
-          initialValues={{ robotName: "", robotType: "" }}
+          initialValues={{ robotName: "", robotType: "simple" }}
           validationSchema={addRobotSchema}
           onSubmit={(values, { setSubmitting }): void => {
             axios
@@ -34,19 +34,18 @@ const AddRobot: React.FunctionComponent = () => {
                 robotName: values.robotName,
                 robotType: values.robotType
               })
-              .then(
-                res => {
-                  const name = res.data["newName"];
-                  const password = res.data["newPassword"];
+              .then(res => {
+                const name = res.data["newName"];
+                const password = res.data["newPassword"];
 
-                  setNewRobot({ name: name, password: password });
-                  setSubmitting(false);
-                },
-                err => {
-                  alert("Failed to add robot");
-                  setSubmitting(false);
-                }
-              );
+                setNewRobot({ name: name, password: password });
+                setSubmitting(false);
+              })
+              .catch(err => {
+                console.log(err.response.data["error"]);
+                alert("Failed to add robot: " + err.response.data["error"]);
+                setSubmitting(false);
+              });
           }}
         >
           {({ isSubmitting }) => (

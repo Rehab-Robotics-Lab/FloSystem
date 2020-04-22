@@ -41,16 +41,14 @@ const Register: React.FunctionComponent = () => {
                 firstName: values.firstName,
                 lastName: values.lastName
               })
-              .then(
-                res => {
-                  alert("user created, please login");
-                  history.push("/login");
-                },
-                err => {
-                  alert("failed to register");
-                  setSubmitting(false);
-                }
-              );
+              .then(res => {
+                alert("user created, please login");
+                history.push("/login");
+              })
+              .catch(err => {
+                alert("failed to register: " + err.response.data["error"]);
+                setSubmitting(false);
+              });
           }}
         >
           {({ isSubmitting }) => (

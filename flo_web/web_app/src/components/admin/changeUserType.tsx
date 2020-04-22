@@ -35,7 +35,9 @@ const ChangeUserType: React.FunctionComponent = () => {
                   setSubmitting(false);
                 },
                 err => {
-                  alert("failed to change user type");
+                  alert(
+                    "failed to change user type: " + err.response.data["error"]
+                  );
                   setSubmitting(false);
                 }
               );

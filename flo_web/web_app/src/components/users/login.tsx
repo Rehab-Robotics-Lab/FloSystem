@@ -49,7 +49,7 @@ const Login: React.FunctionComponent<LoginProps> = ({
                   history.push("/");
                 },
                 err => {
-                  alert("failed login");
+                  alert("failed login: " + err.response.data["error"]);
                   setSubmitting(false);
                 }
               );

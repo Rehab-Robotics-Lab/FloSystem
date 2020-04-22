@@ -20,11 +20,10 @@ const ChangePermissions: React.FunctionComponent = () => {
   const update = (): void => {
     axios.get("/api/permissions").then(
       res => {
-        console.log(res.data.permissions);
         setPermissionsArray(res.data.permissions as Array<Permissions>);
       },
       err => {
-        console.log("error: " + err);
+        console.log("error: " + err.response.data["error"]);
       }
     );
   };

@@ -71,7 +71,7 @@ router.get('/', checkAdmin, async (req, res) => {
             [],
         );
         res.status(200).json({ permissions: rows });
-    } catch {
-        res.status(500).json({ error: 'error running queries' });
+    } catch (e) {
+        res.status(500).json({ error: e.toString() });
     }
 });

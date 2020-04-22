@@ -32,7 +32,10 @@ const ResetUserPassword: React.FunctionComponent = () => {
                   setSubmitting(false);
                 },
                 err => {
-                  alert("failed to reset users password");
+                  alert(
+                    "failed to reset users password: " +
+                      err.response.data["error"]
+                  );
                   setSubmitting(false);
                 }
               );

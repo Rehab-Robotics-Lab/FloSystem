@@ -29,7 +29,9 @@ const ChangePassword: React.FunctionComponent = () => {
                   setSubmitting(false);
                 },
                 err => {
-                  alert("failed to change password");
+                  alert(
+                    "failed to change password: " + err.response.data["error"]
+                  );
                   setSubmitting(false);
                 }
               );

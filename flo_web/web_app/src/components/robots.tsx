@@ -22,17 +22,24 @@ const Robots: React.FunctionComponent = () => {
       setRobotArray(res.data.robots as Array<Robot>);
     });
   }, 1000 * 1);
-  console.log(robotArray);
 
-  const robotRows = robotArray.map(robot => (
-    <tr key={robot.robot_name}>
-      <td>{robot["robot_name"]}</td>
-      <td>{robot["connected"].toString()}</td>
-      <td>{robot["battery"]}</td>
-      <td>{robot["active_user_first"]}</td>
-      <td>connect</td>
-    </tr>
-  ));
+  const robotRows = robotArray.map(robot => {
+    const canConnect = robot["active_user_first"] == null && robot["connected"];
+    return (
+      <tr key={robot.robot_name}>
+        <td>{robot["robot_name"]}</td>
+        <td>{robot["connected"].toString()}</td>
+        <td>{robot["battery"]}</td>
+        <td>{robot["active_user_first"]}</td>
+        <td>
+          {canConnect && (
+            <Link to={`/controller/${robot["robot_name"]}`}>Connect</Link>
+          )}
+          {canConnect || "Not Available"}
+        </td>
+      </tr>
+    );
+  });
 
   return (
     <div>

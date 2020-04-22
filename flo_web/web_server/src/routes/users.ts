@@ -83,8 +83,8 @@ router.post('/login', checkLoggedOut, async (req, res) => {
             success: 'succesfully logged in',
         });
         return;
-    } catch {
-        res.status(401).json({ error: 'error logging in' });
+    } catch (e) {
+        res.status(401).json({ error: e.toString() });
         return;
     }
 });
@@ -161,8 +161,8 @@ router.get('/all-users', checkAdmin, async (req, res) => {
             [],
         );
         res.status(200).json({ users: rows });
-    } catch {
-        res.status(500).json({ error: 'error running queries' });
+    } catch (e) {
+        res.status(500).json({ error: e.toString() });
     }
 });
 
@@ -187,9 +187,9 @@ router.post('/change-password', checkLoggedIn, async (req, res) => {
             req.session!.userID,
         ]);
         res.status(200).json({ success: 'Password succesfully changed' });
-    } catch {
+    } catch (e) {
         res.status(500).json({
-            error: 'there was an error while changing password',
+            error: e.toString(),
         });
     }
 });
@@ -202,9 +202,9 @@ router.post('/change-type', checkAdmin, async (req, res) => {
             [userType, email],
         );
         res.status(200).json({ success: 'User type succesfully changed' });
-    } catch {
+    } catch (e) {
         res.status(500).json({
-            error: 'there was an error while changing the user type',
+            error: e.toString(),
         });
     }
 });
@@ -225,9 +225,9 @@ router.post('/reset-password', checkAdmin, async (req, res) => {
             success: 'Password succesfully changed',
             newPassword: password,
         });
-    } catch {
+    } catch (e) {
         res.status(500).json({
-            error: 'there was an error while changing password',
+            error: e.toString(),
         });
     }
 });

@@ -5,6 +5,7 @@ import Login from "./components/users/login";
 import Register from "./components/users/register";
 import Admin from "./components/admin";
 import Home from "./components/home";
+import ChangePassword from "./components/users/changePassword";
 
 interface RoutesProps {
   loggedIn: boolean;
@@ -43,6 +44,9 @@ const Routes: React.FunctionComponent<RoutesProps> = ({
       </Route>
       <Route path="/admin">
         <Admin loggedIn={loggedIn} userType={userType} />
+      </Route>
+      <Route path="/change-password">
+        <ChangePassword />
       </Route>
     </Switch>
   );

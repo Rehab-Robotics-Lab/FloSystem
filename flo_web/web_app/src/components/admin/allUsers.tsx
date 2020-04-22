@@ -28,7 +28,6 @@ const AllUsers: React.FunctionComponent = () => {
       <td>{user.first_name}</td>
       <td>{user.last_name}</td>
       <td>{user.email}</td>
-      <td>{user.last_login}</td>
       <td>{user.user_type}</td>
     </tr>
   ));
@@ -43,7 +42,6 @@ const AllUsers: React.FunctionComponent = () => {
             <th>First Name</th>
             <th>Last Name</th>
             <th>Email</th>
-            <th>Last Login</th>
             <th>User Type</th>
           </tr>
         </thead>

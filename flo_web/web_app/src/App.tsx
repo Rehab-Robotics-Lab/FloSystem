@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Link, useHistory } from "react-router-dom";
+import { Link, NavLink, useHistory } from "react-router-dom";
 import "./App.css";
 import Routes from "./Routes";
 import axios from "axios";
 import { Helmet } from "react-helmet";
+import navbar from "./styleDefs/Nav.module.css";
 
 //function App() {
 //return <RobotController />;
@@ -35,45 +36,51 @@ function App() {
     });
   }, []);
 
-  const navStyle: React.CSSProperties = {
-    listStyleType: "none",
-    margin: "0",
-    padding: "0",
-    overflow: "hidden",
-    backgroundColor: "#333"
-  };
-  const linkStyle: React.CSSProperties = {
-    display: "block",
-    color: "white",
-    textAlign: "center",
-    padding: "14px 16px",
-    textDecoration: "none",
-    float: "left"
-  };
-
   return (
     <div className="App container">
       <div>
         {loggedIn && "welcome " + userName}
         {loggedIn || "Not logged in"}
       </div>
-      <nav style={navStyle}>
-        <Link style={linkStyle} to="/">
+      <nav className={navbar.navbar}>
+        <NavLink
+          className={navbar.navitem}
+          exact={true}
+          activeClassName={navbar.activenavitem}
+          to="/"
+        >
           Home
-        </Link>
+        </NavLink>
         {userType === "administrator" && (
-          <Link style={linkStyle} to="/admin">
+          <NavLink
+            className={navbar.navitem}
+            activeClassName={navbar.activenavitem}
+            to="/admin"
+          >
             Admin Portal
-          </Link>
+          </NavLink>
         )}
         {loggedIn || (
-          <Link style={linkStyle} to="/login">
+          <NavLink
+            className={navbar.navitem}
+            activeClassName={navbar.activenavitem}
+            to="/login"
+          >
             Login
-          </Link>
+          </NavLink>
+        )}
+        {loggedIn && (
+          <NavLink
+            className={navbar.navitem}
+            activeClassName={navbar.activenavitem}
+            to="/change-password"
+          >
+            Change Password
+          </NavLink>
         )}
         {loggedIn && (
           <a
-            style={linkStyle}
+            className={navbar.navitem}
             href="#"
             onClick={() => {
               axios.post("/api/users/logout").then(

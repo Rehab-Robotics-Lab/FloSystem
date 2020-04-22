@@ -1,0 +1,26 @@
+.navbar {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+
+.navitem {
+  float: left;
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+/* Change the link color to #111 (black) on hover */
+.navitem:hover {
+  background-color: #000f3a;
+}
+
+.activenavitem{
+  background-color: #011F5B;
+}

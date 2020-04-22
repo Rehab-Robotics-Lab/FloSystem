@@ -31,7 +31,7 @@ const AllRobots: React.FunctionComponent = () => {
     <tr key={robot.robot_name}>
       <td>{robot["id"]}</td>
       <td>{robot["robot_name"]}</td>
-      <td>{robot["connected"]}</td>
+      <td>{robot["connected"].toString()}</td>
       <td>{robot["ipaddr"]}</td>
       <td>{robot["robot_type"]}</td>
       <td>{robot["battery"]}</td>
@@ -59,7 +59,6 @@ const AllRobots: React.FunctionComponent = () => {
             <th>Type</th>
             <th>Battery</th>
             <th>Active User</th>
-            <th>Last Login</th>
           </tr>
         </thead>
         <tbody>{robotRows}</tbody>

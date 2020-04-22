@@ -22,11 +22,12 @@ const Robots: React.FunctionComponent = () => {
       setRobotArray(res.data.robots as Array<Robot>);
     });
   }, 1000 * 1);
+  console.log(robotArray);
 
   const robotRows = robotArray.map(robot => (
     <tr key={robot.robot_name}>
       <td>{robot["robot_name"]}</td>
-      <td>{robot["connected"]}</td>
+      <td>{robot["connected"].toString()}</td>
       <td>{robot["battery"]}</td>
       <td>{robot["active_user_first"]}</td>
       <td>connect</td>

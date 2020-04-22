@@ -156,7 +156,7 @@ router.post('/register', checkLoggedOut, async (req, res) => {
 router.get('/all-users', checkAdmin, async (req, res) => {
     try {
         const { rows } = await db.query(
-            'select u.id, u.email, u.first_name, u.last_name, u.last_login, ut.user_type from users u ' +
+            'select u.id, u.email, u.first_name, u.last_name,  ut.user_type from users u ' +
                 'inner join user_types ut on ut.id = u.user_type ',
             [],
         );

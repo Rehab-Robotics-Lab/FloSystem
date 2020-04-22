@@ -73,7 +73,7 @@ class Connection {
         this.rtcSockets = new Map();
     }
 
-    close() {
+    async close() {
         this.socket.close();
         if (this.connected !== undefined) {
             this.connected.connected = undefined; //prevent recursion
@@ -82,6 +82,10 @@ class Connection {
         this.rtcSockets.forEach((sock) => {
             sock.close();
         });
+        await db.query(
+            'update robots set connected=false where robot_name=$1',
+            [this.name],
+        );
     }
 
     onMessage(msg: any) {
@@ -315,12 +319,16 @@ class RobotConnections extends Connections {
      * @remarks
      * This will be coming directly from the rosweb server running on the robot
      */
-    onDataConnection(ws: WebSocket, name: string) {
+    async onDataConnection(ws: WebSocket, name: string) {
         const robot = this.clients.get(name);
         if (robot !== undefined) {
             robot.close();
         }
         this.clients.set(name, new Connection(ws, name));
+        await db.query('update robots set connected=true where robot_name=$1', [
+            name,
+        ]);
+
         console.log('robot ' + name + ' connected data channel');
 
         ws.on('message', (msg) => {
@@ -466,7 +474,7 @@ class OperatorConnections extends Connections {
         });
     }
 
-    onDataConnection(ws: WebSocket, name: string, target: string) {
+    async onDataConnection(ws: WebSocket, name: string, target: string) {
         const operator = this.clients.get(name);
         if (operator !== undefined) {
             console.error(
@@ -495,6 +503,10 @@ class OperatorConnections extends Connections {
         console.log('operator ' + name + ' connected data channel');
         robot.connected = thisConnection;
         thisConnection.connected = robot;
+        await db.query('update robots set active_user_id=$1 where name=$2', [
+            name,
+            target,
+        ]);
 
         ws.on('message', (msg) => {
             const thisOperator = this.clients.get(name);

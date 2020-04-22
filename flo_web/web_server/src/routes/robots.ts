@@ -88,6 +88,35 @@ router.post('/new-robot', checkAdmin, async (req, res) => {
     res.status(200).json({ newName: robotName, newPassword: password });
 });
 
+router.put('/ipaddr', async (req, res) => {
+    const { name, password, ipaddr } = req.body;
+    try {
+        const {
+            rows,
+        } = await db.query(
+            'select password_hash from robots where robot_name=$1',
+            [name],
+        );
+        const validPassword = await bcrypt.compare(
+            password,
+            rows[0]['password_hash'],
+        );
+
+        if (!validPassword) {
+            res.status(401).json({ error: 'failed to set ip address' });
+            return;
+        }
+
+        await db.query('update robots set ipaddr=$1 where robot_name=$2', [
+            ipaddr,
+            name,
+        ]);
+    } catch {
+        res.status(400).json({ error: 'failed to set ip address' });
+        return;
+    }
+});
+
 router.get('/all-robots', checkAdmin, async (req, res) => {
     try {
         const { rows } = await db.query(

@@ -418,7 +418,9 @@ function ssh-flo {
       to the webserver. During development you might have a different value here...
 10. Add two cron jobs to automatically startup the system:
     1. `crontab -e`
-    2. `@reboot (sleep 90; bash ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh)`
+    2. `SHELL=/bin/bash` This will set the shell that things should run in
+    2. `@reboot (sleep 90;  ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh)`
+    3. `@reboot (sleep 90; python ~/catkin_ws/src/LilFloSystem/flo_web/pinger/pinger.py)`
 
 #### Assigning the serial devices to have a fixed addresses {#udev}
 

@@ -2,27 +2,30 @@ version: "3"
 # This docker compose file makes a few changes that make developing easier.
 # Docker will automatically layer this over the docker-compose.yml base file
 #
-# The changes are 
+# The changes are
 #     - the addition of a node server that auto recompiles the front end
 #     - Pulling in the nginx config from outside and using the develop instead of the production file
 services:
-    nginx:
-        restart: unless-stopped
-        volumes:
-            - ./certs/certbot/conf:/etc/letsencrypt
-            - ./certs/certbot/www:/var/www/certbot
-        command: "/bin/sh -c 'while :; do sleep $$(( $$( date -d \"next sunday 0700\" +%s ) - $$( date +%s ) )) & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
-    certbot:
-        image: certbot/certbot
-        restart: unless-stopped
-        volumes:
-            - ./certs/certbot/conf:/etc/letsencrypt
-            - ./certs/certbot/www:/var/www/certbot
-        entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 48h & wait $${!}; done;'"
-        # ^ would use something better, but the container has busybox for its interpreter
-    postgres:
-        restart: unless-stopped
-    session-store:
-        restart: unless-stopped
-    client-store:
-        restart: unless-stopped
+  nginx:
+    restart: unless-stopped
+    volumes:
+      - ./certs/certbot/conf:/etc/letsencrypt
+      - ./certs/certbot/www:/var/www/certbot
+    command: '/bin/sh -c ''while :; do sleep $$(( $$( date -d "next sunday 0700" +%s ) - $$( date +%s ) )) & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
+  certbot:
+    image: certbot/certbot
+    restart: unless-stopped
+    volumes:
+      - ./certs/certbot/conf:/etc/letsencrypt
+      - ./certs/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 48h & wait $${!}; done;'"
+    # ^ would use something better, but the container has busybox for its interpreter
+  postgres:
+    environment:
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=flodb
+    restart: unless-stopped
+  session-store:
+    restart: unless-stopped
+  client-store:
+    restart: unless-stopped

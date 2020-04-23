@@ -2,8 +2,10 @@ import React, { useEffect, useState, CSSProperties } from "react";
 import * as ROSLIB from "roslib";
 import { wrapStyle } from "../../styleDefs/styles";
 import { useParams } from "react-router-dom";
-import WebrtcRos from "../../externalLibs/web/webrtcRos";
 //import adapter from "webrtc-adapter";
+import { Helmet } from "react-helmet";
+
+declare var WebrtcRos: any;
 
 interface VidsProps {
   ros: ROSLIB.Ros | null;
@@ -150,11 +152,11 @@ const Vids: React.FunctionComponent<VidsProps> = ({
       };
       connection3.connect();
 
-      //return (): void => {
-      //connection1.close();
-      //connection2.close();
-      //connection3.close();
-      //};
+      return (): void => {
+      connection1.close();
+      connection2.close();
+      connection3.close();
+      };
     }
   }, [connected, ros, ipAddr]);
   //<script type="text/javascript" src={"/web/adapter.js"} />
@@ -167,6 +169,9 @@ const Vids: React.FunctionComponent<VidsProps> = ({
 
   return (
     <>
+      <Helmet>
+      <script type="text/javascript" src={"/web/webrtc_ros.js"} />
+      </Helmet>
       <div style={wrapStyle}>
         <button
           type="button"

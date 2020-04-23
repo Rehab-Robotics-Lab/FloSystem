@@ -23,4 +23,5 @@ services:
             - $HOME/docker/volumes/postgres:/var/lib/postgresql/data
     session-store:
         image: redis
-
+    client-store:
+        image: redis

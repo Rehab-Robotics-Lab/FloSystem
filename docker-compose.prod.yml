@@ -24,3 +24,5 @@ services:
         restart: unless-stopped
     session-store:
         restart: unless-stopped
+    client-store:
+        restart: unless-stopped

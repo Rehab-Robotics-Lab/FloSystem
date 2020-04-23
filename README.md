@@ -433,8 +433,8 @@ function ssh-flo {
 11. Add two cron jobs to automatically startup the system:
     1. `crontab -e`
     2. `SHELL=/bin/bash` This will set the shell that things should run in
-    3. `@reboot (sleep 90; ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh)`
-    4. `@reboot (sleep 90; python ~/catkin_ws/src/LilFloSystem/flo_web/pinger/pinger.py)`
+    3. `@reboot (sleep 90; source ~/.bashrc; ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh)`
+    4. `@reboot (sleep 90; source ~/.bashrc; python ~/catkin_ws/src/LilFloSystem/flo_web/pinger/pinger.py)`
 
 #### Assigning the serial devices to have a fixed addresses {#udev}
 

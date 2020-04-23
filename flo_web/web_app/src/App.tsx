@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { NavLink, useHistory } from "react-router-dom";
 import "./App.css";
 import Routes from "./Routes";
@@ -15,12 +15,15 @@ function App() {
   const [userType, setUserType] = useState<string>("");
   const history = useHistory();
 
-  const setLoggedIn = (ut: boolean): void => {
-    setLoggedInInternal(ut);
-    if (ut === false) {
-      history.push("/login");
-    }
-  };
+  const setLoggedIn = useCallback(
+    (ut: boolean): void => {
+      setLoggedInInternal(ut);
+      if (ut === false) {
+        history.push("/login");
+      }
+    },
+    [setLoggedInInternal, history]
+  );
 
   useEffect(() => {
     axios.get("/api/users/login").then(res => {

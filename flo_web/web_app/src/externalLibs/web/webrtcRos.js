@@ -21,29 +21,28 @@ const WebrtcRosConnection = function(signalingServerPath, configuration) {
 };
 
 WebrtcRosConnection.prototype.connect = function() {
-  var self = this;
   this.close();
   this.signalingChannel = new WebSocket(this.signalingServerPath);
-  this.signalingChannel.onmessage = function(e) {
-    self.onSignalingMessage(e);
+  this.signalingChannel.onmessage = e => {
+    this.onSignalingMessage(e);
   };
-  this.signalingChannel.onopen = function() {
+  this.signalingChannel.onopen = () => {
     console.log("WebRTC signaling connection established");
-    if (self.onConfigurationNeeded) {
-      self.onConfigurationNeeded();
+    if (this.onConfigurationNeeded) {
+      this.onConfigurationNeeded();
     }
   };
-  this.signalingChannel.onerror = function() {
+  this.signalingChannel.onerror = () => {
     console.error("WebRTC signaling error");
   };
-  this.signalingChannel.onclose = function() {
+  this.signalingChannel.onclose = () => {
     console.log("WebRTC signaling connection closed");
   };
   this.peerConnection = new RTCPeerConnection(
     this.peerConnectionConfiguration,
     this.peerConnectionMediaConstraints
   );
-  this.peerConnection.onicecandidate = function(event) {
+  this.peerConnection.onicecandidate = event => {
     if (event.candidate) {
       const candidate = {
         sdp_mline_index: event.candidate.sdpMLineIndex,
@@ -51,14 +50,14 @@ WebrtcRosConnection.prototype.connect = function() {
         candidate: event.candidate.candidate,
         type: "ice_candidate"
       };
-      self.signalingChannel.send(JSON.stringify(candidate));
+      this.signalingChannel.send(JSON.stringify(candidate));
     }
   };
-  this.peerConnection.ontrack = function(event) {
-    var callbackData = self.addStreamCallbacks[event.streams[0].id];
+  this.peerConnection.ontrack = event => {
+    const callbackData = this.addStreamCallbacks[event.streams[0].id];
     if (callbackData) {
-      event.streams[0].onremovetrack = function(event) {
-        var callbackData = self.removeTrackCallbacks[event.track.id];
+      event.streams[0].onremovetrack = event => {
+        const callbackData = this.removeTrackCallbacks[event.track.id];
         if (callbackData) {
           callbackData.resolve({
             track: event.track
@@ -67,8 +66,8 @@ WebrtcRosConnection.prototype.connect = function() {
       };
       callbackData.resolve({
         stream: event.streams[0],
-        remove: new Promise(function(resolve, reject) {
-          self.removeTrackCallbacks[event.track.id] = {
+        remove: new Promise((resolve, reject) => {
+          this.removeTrackCallbacks[event.track.id] = {
             resolve: resolve,
             reject: reject
           };
@@ -77,6 +76,7 @@ WebrtcRosConnection.prototype.connect = function() {
     }
   };
 };
+
 WebrtcRosConnection.prototype.close = function() {
   if (this.peerConnection) {
     this.peerConnection.close();
@@ -87,15 +87,15 @@ WebrtcRosConnection.prototype.close = function() {
     this.signalingChannel = null;
   }
 };
+
 WebrtcRosConnection.prototype.onSignalingMessage = function(e) {
-  var self = this;
-  var dataJson = JSON.parse(e.data);
+  const dataJson = JSON.parse(e.data);
   if (dataJson.type === "offer") {
     console.log("Received WebRTC offer via WebRTC signaling channel");
     this.peerConnection.setRemoteDescription(
       new RTCSessionDescription(dataJson),
-      function() {
-        self.sendAnswer();
+      () => {
+        this.sendAnswer();
       },
       function(event) {
         console.error("onRemoteSdpError", event);
@@ -118,13 +118,12 @@ WebrtcRosConnection.prototype.onSignalingMessage = function(e) {
 };
 
 WebrtcRosConnection.prototype.sendAnswer = function() {
-  var self = this;
   const mediaConstraints = { optional: [{ OfferToReceiveVideo: true }] };
   this.peerConnection.createAnswer(
-    function(sessionDescription) {
-      self.peerConnection.setLocalDescription(sessionDescription);
-      var data = JSON.stringify(sessionDescription);
-      self.signalingChannel.send(data);
+    sessionDescription => {
+      this.peerConnection.setLocalDescription(sessionDescription);
+      const data = JSON.stringify(sessionDescription);
+      this.signalingChannel.send(data);
     },
     function(error) {
       console.warn("Create answer error:", error);
@@ -132,12 +131,12 @@ WebrtcRosConnection.prototype.sendAnswer = function() {
     mediaConstraints
   );
 };
+
 WebrtcRosConnection.prototype.addRemoteStream = function(config) {
   const stream_id = newStreamId();
-  var self = this;
 
   this.lastConfigureActionPromise = this.lastConfigureActionPromise.then(
-    function(actions) {
+    actions => {
       actions.push({ type: "add_stream", id: stream_id });
       if (config.video) {
         actions.push({
@@ -158,17 +157,17 @@ WebrtcRosConnection.prototype.addRemoteStream = function(config) {
       return actions;
     }
   );
-  return new Promise(function(resolve, reject) {
-    self.addStreamCallbacks[stream_id] = {
+  return new Promise((resolve, reject) => {
+    this.addStreamCallbacks[stream_id] = {
       resolve: resolve,
       reject: reject
     };
   });
 };
+
 WebrtcRosConnection.prototype.removeRemoteStream = function(stream) {
-  var self = this;
   this.lastConfigureActionPromise = this.lastConfigureActionPromise.then(
-    function(actions) {
+    actions => {
       actions.push({ type: "remove_stream", id: stream.id });
       return actions;
     }
@@ -178,13 +177,12 @@ WebrtcRosConnection.prototype.addLocalStream = function(
   user_media_config,
   local_stream_config
 ) {
-  var self = this;
-  return new Promise(function(resolve, reject) {
-    self.lastConfigureActionPromise = self.lastConfigureActionPromise.then(
-      function(actions) {
+  return new Promise((resolve, reject) => {
+    this.lastConfigureActionPromise = this.lastConfigureActionPromise.then(
+      actions => {
         return navigator.mediaDevices
           .getUserMedia(user_media_config)
-          .then(function(stream) {
+          .then(stream => {
             actions.push({ type: "expect_stream", id: stream.id });
             if (local_stream_config.video) {
               actions.push({
@@ -194,11 +192,16 @@ WebrtcRosConnection.prototype.addLocalStream = function(
                 dest: local_stream_config.video.dest
               });
             }
-            self.peerConnection.addStream(stream);
+            this.peerConnection.addStream(stream);
             resolve({
               stream: stream,
-              remove: new Promise(function(resolve, reject) {
-                self.removeStreamCallbacks[stream.id] = {
+              remove: new Promise((resolve, reject) => {
+                console.log("*************");
+                console.log("this: ");
+                console.log(this);
+                console.log("stream: ");
+                console.log(stream);
+                this.removeStreamCallbacks[stream.id] = {
                   resolve: resolve,
                   reject: reject
                 };
@@ -212,12 +215,11 @@ WebrtcRosConnection.prototype.addLocalStream = function(
 };
 
 WebrtcRosConnection.prototype.removeLocalStream = function(stream) {
-  const self = this;
   this.lastConfigureActionPromise = this.lastConfigureActionPromise.then(
-    function(actions) {
+    actions => {
       console.log("Removing stream");
-      self.peerConnection.removeStream(stream);
-      const callbackData = self.removeStreamCallbacks[stream.id];
+      this.peerConnection.removeStream(stream);
+      const callbackData = this.removeStreamCallbacks[stream.id];
       if (callbackData) {
         callbackData.resolve({
           stream: stream
@@ -229,13 +231,12 @@ WebrtcRosConnection.prototype.removeLocalStream = function(stream) {
 };
 
 WebrtcRosConnection.prototype.sendConfigure = function() {
-  const self = this;
   const currentLastConfigureActionPromise = this.lastConfigureActionPromise;
   this.lastConfigureActionPromise = Promise.resolve([]);
 
-  currentLastConfigureActionPromise.then(function(actions) {
+  currentLastConfigureActionPromise.then(actions => {
     const configMessage = { type: "configure", actions: actions };
-    self.signalingChannel.send(JSON.stringify(configMessage));
+    this.signalingChannel.send(JSON.stringify(configMessage));
     console.log("WebRTC ROS Configure: ", actions);
   });
 };

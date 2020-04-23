@@ -59,9 +59,10 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       name: "tts_state",
       messageType: "flo_core_defs/TTSState"
     });
-    stateListener.subscribe(msg => {
+    const slCB = (msg: ROSLIB.Message): void => {
       setSpeechState(msg as TTSState);
-    });
+    };
+    stateListener.subscribe(slCB);
     console.log("subscribed to tts_state");
 
     const utteranceListener = new ROSLIB.Topic({
@@ -69,10 +70,15 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       name: "tts_utterances",
       messageType: "flo_core_defs/TTSUtterances"
     });
-    utteranceListener.subscribe(msg => {
+    const ulCB = (msg: ROSLIB.Message): void => {
       setUtterances((msg as TTSUtterances).text);
-    });
+    };
+    utteranceListener.subscribe(ulCB);
     console.log("Subscribed to tts_utterances");
+    return (): void => {
+      stateListener.unsubscribe(slCB);
+      utteranceListener.unsubscribe(ulCB);
+    };
   }, [connected, ros]);
 
   const runSpeech = (): void => {

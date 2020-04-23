@@ -1,6 +1,5 @@
 import React, { useReducer, useState, useEffect, useCallback } from "react";
 import "../App.css";
-import { CookiesProvider, useCookies } from "react-cookie";
 import Header from "./robotControl/Header";
 import URDF from "./robotControl/urdf";
 import PoseContainer from "./robotControl/seq_pose/PoseContainer";
@@ -175,7 +174,7 @@ const RobotController: React.FunctionComponent = () => {
 
   const goHome = useCallback((): void => {
     history.push("/");
-  }, []);
+  }, [history]);
 
   useEffect(() => {
     const targUrl = `wss://${ipAddr}/robot/${robotName}`;
@@ -202,91 +201,89 @@ const RobotController: React.FunctionComponent = () => {
       setConnectedWrap(false);
       goHome();
     };
-  }, [addError, goHome, ipAddr, robotName, setConnectedWrap, setRos]);
+  }, [addError, goHome, robotName, setConnectedWrap, setRos]);
   //}, [connected]);
 
   return (
-    <CookiesProvider>
-      <div className="App">
-        <Header connected={connected} />
-        <div className="body" style={{ backgroundColor: colors.gray.dark2 }}>
-          <div
-            className="visualFeeds"
-            style={Object.assign({}, basicBlock, {
-              maxWidth: "none",
-              maxHeight: "auto",
-              flexDirection: "row",
-              flexWrap: "wrap"
-            })}
-          >
-            <Vids ros={ros} connected={connected} ipAddr={ipAddr} />
-            <URDF ros={ros} connected={connected} />
-            <SystemMonitor ros={ros} connected={connected} />
+    <div className="App">
+      <Header connected={connected} />
+      <div className="body" style={{ backgroundColor: colors.gray.dark2 }}>
+        <div
+          className="visualFeeds"
+          style={Object.assign({}, basicBlock, {
+            maxWidth: "none",
+            maxHeight: "auto",
+            flexDirection: "row",
+            flexWrap: "wrap"
+          })}
+        >
+          <Vids ros={ros} connected={connected} ipAddr={ipAddr} />
+          <URDF ros={ros} connected={connected} />
+          <SystemMonitor ros={ros} connected={connected} />
+        </div>
+        <RelaxMotors ros={ros} connected={connected} />
+        <div
+          className="controls"
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            flexWrap: "wrap",
+            alignItems: "flex-start"
+          }}
+        >
+          <Drive ros={ros} connected={connected} />
+          <GameContainer ros={ros} connected={connected} />
+          <div style={{ display: "flex", flexDirection: "row" }}>
+            <SpeechContainer
+              ros={ros}
+              connected={connected}
+              speechTarget={speechTarget}
+              setSpeechTarget={setSpeechTarget}
+              setSpeaking={setSpeaking}
+              speaking={speaking}
+            />
           </div>
-          <RelaxMotors ros={ros} connected={connected} />
+          <FaceContainer ros={ros} connected={connected} />
           <div
-            className="controls"
             style={{
               display: "flex",
               flexDirection: "row",
-              flexWrap: "wrap",
-              alignItems: "flex-start"
+              flexWrap: "wrap"
             }}
           >
-            <Drive ros={ros} connected={connected} />
-            <GameContainer ros={ros} connected={connected} />
-            <div style={{ display: "flex", flexDirection: "row" }}>
-              <SpeechContainer
-                ros={ros}
-                connected={connected}
-                speechTarget={speechTarget}
-                setSpeechTarget={setSpeechTarget}
-                setSpeaking={setSpeaking}
-                speaking={speaking}
-              />
-            </div>
-            <FaceContainer ros={ros} connected={connected} />
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                flexWrap: "wrap"
-              }}
-            >
-              <PoseContainer
-                ros={ros}
-                connected={connected}
-                addToMoveList={addToMoveList}
-                pose={pose}
-              />
-              <SequenceRunContainer
-                ros={ros}
-                connected={connected}
-                MovesList={MovesList}
-                setMovesList={setMovesList}
-                moving={moving}
-                setMoving={setMoving}
-              />
-              <SequenceContainer
-                ros={ros}
-                connected={connected}
-                MovesList={MovesList}
-                setMovesList={setMovesList}
-              />
-            </div>
-            <GameBuckets ros={ros} connected={connected} />
-            <MoveToPose
+            <PoseContainer
               ros={ros}
               connected={connected}
-              moving={moving}
-              setMoving={setMoving}
+              addToMoveList={addToMoveList}
               pose={pose}
             />
+            <SequenceRunContainer
+              ros={ros}
+              connected={connected}
+              MovesList={MovesList}
+              setMovesList={setMovesList}
+              moving={moving}
+              setMoving={setMoving}
+            />
+            <SequenceContainer
+              ros={ros}
+              connected={connected}
+              MovesList={MovesList}
+              setMovesList={setMovesList}
+            />
           </div>
-          <ErrorDisplay errorList={errorList} />
+          <GameBuckets ros={ros} connected={connected} />
+          <MoveToPose
+            ros={ros}
+            connected={connected}
+            moving={moving}
+            setMoving={setMoving}
+            pose={pose}
+          />
         </div>
+        <ErrorDisplay errorList={errorList} />
       </div>
-    </CookiesProvider>
+    </div>
   );
 };
 export default RobotController;

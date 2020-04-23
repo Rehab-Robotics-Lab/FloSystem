@@ -77,7 +77,7 @@ const URDF: React.FunctionComponent<URDFProps> = ({ ros, connected }) => {
     return (): void => {
       tfClient.dispose();
     };
-  }, [connected, client, ros, viewer]);
+  }, [connected, client, ros, viewer, url]);
 
   return <div id="urdf" />;
 };

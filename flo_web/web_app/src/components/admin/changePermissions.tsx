@@ -90,6 +90,8 @@ const ChangePermissions: React.FunctionComponent = () => {
                 </button>
               </li>
             );
+          } else {
+            return null;
           }
         })}
       </ul>

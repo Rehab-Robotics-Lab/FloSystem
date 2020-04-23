@@ -88,7 +88,7 @@ const CurrentFace: React.FunctionComponent<CurrentFaceProps> = ({
     return (): void => {
       faceListenerT.unsubscribe(callback);
     };
-  }, [connected, ros]);
+  }, [connected, ros, setFaceState]);
 
   const faceMatrices = [];
   if (faceState) {

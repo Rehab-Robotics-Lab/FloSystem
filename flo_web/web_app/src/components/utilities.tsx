@@ -13,10 +13,10 @@ const SetInterval = (callback: () => void, delay: number): void => {
     function tick() {
       savedCallback.current();
     }
-    tick();
     if (delay !== null) {
       const id = setInterval(tick, delay);
-      return () => clearInterval(id);
+      tick();
+      return (): void => clearInterval(id);
     }
   }, [delay]);
 };

@@ -37,6 +37,7 @@ const Routes: React.FunctionComponent<RoutesProps> = ({
           setLoggedIn={setLoggedIn}
           setUserName={setUserName}
           setUserType={setUserType}
+          loggedIn={loggedIn}
         />
       </Route>
       <Route exact path="/register">

@@ -32,11 +32,9 @@ function App() {
       if (li) {
         setUserName(res.data["userName"]);
         setUserType(res.data["userType"]);
-      } else {
-        history.push("/login");
       }
     });
-  }, [history, setLoggedIn, setUserName, setUserType]);
+  }, [setLoggedIn, setUserName, setUserType]);
 
   return (
     <div className="App container">

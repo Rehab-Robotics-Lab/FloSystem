@@ -15,14 +15,19 @@ interface LoginProps {
   setLoggedIn: (arg: boolean) => void;
   setUserName: (arg: string) => void;
   setUserType: (arg: string) => void;
+  loggedIn: boolean;
 }
 
 const Login: React.FunctionComponent<LoginProps> = ({
   setLoggedIn,
   setUserName,
-  setUserType
+  setUserType,
+  loggedIn
 }) => {
   const history = useHistory();
+  if (loggedIn) {
+    history.push("/");
+  }
 
   return (
     <div>

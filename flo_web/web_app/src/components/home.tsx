@@ -9,9 +9,6 @@ interface HomeProps {
 
 const Home: React.FunctionComponent<HomeProps> = ({ userName, userType }) => {
   const history = useHistory();
-  if (!userName) {
-    history.push("/login");
-  }
   return (
     <div>
       <div>

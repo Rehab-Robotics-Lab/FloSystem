@@ -8,9 +8,6 @@ import { v4 as uuidv4 } from 'uuid';
 //import passport from "passport";
 //import session from "express-session";
 
-// TODO: for testing only, very dangerous
-process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
-
 class ReconnectigWS {
     /**
      * Connect to and manage the connection with a remote websocket server.
@@ -56,7 +53,7 @@ class ReconnectigWS {
 
     constructor(
         url: string,
-        onMessage: (msg: string) => void = (msg) => {},
+        onMessage: (msg: string) => void = msg => {},
         onClose: () => void = () => {},
         onError: (err: Error) => void = () => {},
         pingFreq: number = 1000,
@@ -115,7 +112,7 @@ class ReconnectigWS {
             }
         });
 
-        this.sock.on('error', (err) => {
+        this.sock.on('error', err => {
             this.onError(err);
             this.reconnect();
         });
@@ -189,7 +186,7 @@ function sendUp(id: string, command: string, msg: string) {
     });
 }
 
-connection.onMessage = (msg) => {
+connection.onMessage = msg => {
     console.log('message received: ' + msg);
     const msgObj = JSON.parse(msg);
     const id = msgObj['id'];

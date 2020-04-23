@@ -69,6 +69,9 @@ This is done by changing the commands which run in the docker images,
 changing what volumes are mapped to bring in code and config files,
 and adding in the front end server.
 
+You should create a file in `LilFloSystem/certs/session-secret.env`
+with contents: `SESSION_SECRET=<cryptographically random value>`
+
 ####To run in development:
 
 1. Go to the root of this repo

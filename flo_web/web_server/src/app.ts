@@ -21,7 +21,7 @@ import util from 'util';
 
 const apiPort = 3030;
 const app = express();
-const sessionSecret = process.env.sessionsecret || 'secret';
+const sessionSecret = process.env.SESSION_SECRET || 'secret';
 
 app.set('trust proxy', 1); // allows us to use nginx with secure cookie in sessions
 // TODO: test if we need this.

@@ -275,8 +275,8 @@ class Server {
                     const msgData = JSON.parse(msg);
                     const command = msgData['command'];
                     const channelID = msgData['id'];
-                    cmdC = `robot:${name}:outgoing-commands-webrtc:${channelID}`;
-                    msgC = `robot:${name}:outgoing-data-webrtc:${channelID}`;
+                    cmdC = `robot:${name}:outgoing-commands-rtc:${channelID}`;
+                    msgC = `robot:${name}:outgoing-data-rtc:${channelID}`;
                     if (command === 'close') {
                         rpub.publish(cmdC, 'close');
                     } else if (command === 'ping') {
@@ -290,6 +290,7 @@ class Server {
                 rsub.subscribe(wrtcC);
                 rsub.on('message', (channel, message) => {
                     if (channel === wrtcC) {
+                        console.log('sending robot rtc msg: ' + message);
                         ws.send(message);
                     }
                 });
@@ -430,13 +431,13 @@ class Server {
                         rdb.sadd(`operator:${id}:webrtcIDs`, channelID);
 
                         rpub.publish(
-                            `${targetRobot}:incoming-data-rtc`,
+                            `robot:${targetRobot}:incoming-data-rtc`,
                             JSON.stringify({ command: 'open', id: channelID }),
                         );
 
                         ws.on('close', async () => {
                             rpub.publish(
-                                `${targetRobot}:incoming-data-rtc`,
+                                `robot:${targetRobot}:incoming-data-rtc`,
                                 JSON.stringify({
                                     command: 'close',
                                     id: channelID,
@@ -449,7 +450,7 @@ class Server {
 
                         ws.on('ping', () => {
                             rpub.publish(
-                                `${targetRobot}:incoming-data-rtc`,
+                                `robot:${targetRobot}:incoming-data-rtc`,
                                 JSON.stringify({
                                     command: 'ping',
                                     id: channelID,
@@ -458,8 +459,11 @@ class Server {
                         });
 
                         ws.on('message', (message) => {
+                            console.log(
+                                'webrtc message from operator: ' + message,
+                            );
                             rpub.publish(
-                                `${targetRobot}:incoming-data-rtc`,
+                                `robot:${targetRobot}:incoming-data-rtc`,
                                 JSON.stringify({
                                     command: 'msg',
                                     id: channelID,

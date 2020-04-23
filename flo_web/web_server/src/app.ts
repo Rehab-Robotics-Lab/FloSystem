@@ -121,9 +121,8 @@ function parseUrl(
  * # REDIS Client Store Structure:
  *
  * - 'robot:name' hash
- *      - 'connected-operator-rtc' The id of the connected client
- *      - 'connected-operator-data' The id of the connected client
- *      - 'webrtc-connected' T/F
+ *      - 'connected-operator' The id of the connected client
+ *      - 'rtc-connected' T/F
  *      - 'data-connected' T/F
  * - 'operator:id' hash
  *      - 'connected-robot' The name of the connected robot
@@ -185,7 +184,6 @@ class Server {
         socket: net.Socket,
         head: Buffer,
     ) {
-        console.log('upgrade request');
         const urlReturn = parseUrl(request.url);
         const handleUpgradePromise = (
             request: http.IncomingMessage,
@@ -208,6 +206,10 @@ class Server {
         const rsub = ClientStore();
         let cmdC: string;
         let msgC: string;
+
+        console.log(
+            `upgrade request for ${urlReturn.originType} with webrtc? ${urlReturn.webrtc}`,
+        );
 
         if (urlReturn.originType == 'robot') {
             // For the robots to connect to
@@ -239,9 +241,25 @@ class Server {
 
             const webrtcname = `robot:${name}:webrtc`;
             const dataname = `robot:${name}:data`;
+
+            // check if robot is available:
+            const channels = await rpub.pubsub(
+                'channels',
+                `robot:${name}:outgoing-commands*`,
+            );
+            console.log('connected channels');
+            console.log(channels);
+            if (channels.length === 0) {
+                db.query(
+                    'update robots set active_user_id=$1 where robot_name=$2',
+                    [null, name],
+                );
+                console.log('no operators connected');
+            }
+
             if (urlReturn.webrtc) {
                 this.sockets.set(webrtcname, ws);
-                rdb.hset(`robot:${name}`, 'webrtc-connected', 'true');
+                rdb.hset(`robot:${name}`, 'rtc-connected', 'true');
 
                 ws.on('close', () => {
                     rsub.unsubscribe();
@@ -299,16 +317,37 @@ class Server {
                     rpub.publish(cmdC, 'ping');
                 });
 
-                const dataC = `${name}:incoming-data`;
+                const dataC = `robot:${name}:incoming-data`;
+                const commandC = `robot:${name}:incoming-commands`;
                 rsub.subscribe(dataC);
+                rsub.subscribe(commandC);
                 rsub.on('message', (channel, message) => {
+                    console.log('sending robot msg: ' + message);
                     if (channel === dataC) {
                         ws.send(message);
+                    } else if (channel === commandC) {
+                        if (message === 'close') {
+                            ws.close();
+                        } else if (message === 'ping') {
+                            ws.ping();
+                        }
                     }
                 });
             }
 
-            if (webrtcname in this.sockets && dataname in this.sockets) {
+            const dataConnected = await rdb.hget(
+                `robot:${name}`,
+                'data-connected',
+            );
+            const rtcConnected = await rdb.hget(
+                `robot:${name}`,
+                'rtc-connected',
+            );
+
+            console.log(dataConnected);
+            console.log(rtcConnected);
+
+            if (dataConnected && rtcConnected) {
                 db.query('update robots set connected=$1 where robot_name=$2', [
                     true,
                     name,
@@ -337,34 +376,45 @@ class Server {
                     );
 
                     if (rows[0] < 1) {
+                        console.log('user not authorized');
                         socket.destroy();
                         return;
                     }
 
+                    console.log('user is authorized');
+
                     // make sure the robot is available and get if it is
-                    const insertSuccess = await rdb.hsetnx(
-                        `robot:${targetRobot}`,
-                        'connected',
-                        id,
-                    );
-                    // If it isn't avaialable, ok if we are already connected
-                    if (insertSuccess === 0) {
-                        const connectedRobot = await rdb.hget(
+                    const res = await rdb
+                        .multi()
+                        .hget(`robot:${targetRobot}`, 'data-connected') //0
+                        .hget(`robot:${targetRobot}`, 'rtc-connected') //1
+                        .hget(`robot:${targetRobot}`, 'connected-operator') //2
+                        .hsetnx(
                             `robot:${targetRobot}`,
-                            'connected',
-                        );
-                        if (connectedRobot !== id) {
+                            'connected-operator',
+                            id,
+                        )
+                        .exec();
+
+                    // If it isn't avaialable, ok if we are already connected
+                    if (res[3][1] === 0) {
+                        if (parseInt(res[2][1]) !== id) {
+                            console.log(
+                                `${id}: another user is connected (${res[2][1]}), disconnectiong`,
+                            );
                             socket.destroy;
                             return;
                         }
                     }
+
                     // reserve the robot on postgres
                     db.query(
                         'update robots set active_user_id=$1 where robot_name=$2',
                         [id, targetRobot],
                     );
                     rdb.hset(`operator:${id}`, 'connected-robot', targetRobot);
-                    rdb.hset(`robot:${targetRobot}`, 'connected-operator', id);
+
+                    console.log('connected to robot');
 
                     const ws = await handleUpgradePromise(
                         request,
@@ -437,6 +487,7 @@ class Server {
                         // onMessage
                         // - put it in the robot incoming queue
                         ws.on('message', async (msg: string) => {
+                            console.log('operator sent message: ' + msg);
                             rpub.publish(
                                 `robot:${targetRobot}:incoming-data`,
                                 msg,

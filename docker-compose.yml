@@ -1,27 +1,28 @@
 version: "3"
 services:
-    socket-server:
-        build:
-            context: ./flo_web/web_server/
-        depends_on:
-            - postgres
-            - session-store
-    nginx:
-        build:
-            context: ./
-            dockerfile: ./flo_web/Dockerfile
-        ports:
-            - "80:80"
-            - "443:443"
-        depends_on:
-            - socket-server
-        volumes:
-            - ./certs:/etc/nginx/certs
-    postgres:
-        image: postgres
-        volumes:
-            - $HOME/docker/volumes/postgres:/var/lib/postgresql/data
-    session-store:
-        image: redis
-    client-store:
-        image: redis
+  socket-server:
+    build:
+      context: ./flo_web/web_server/
+    depends_on:
+      - postgres
+      - session-store
+  nginx:
+    build:
+      context: ./
+      dockerfile: ./flo_web/Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - socket-server
+    volumes:
+      - ./certs:/etc/nginx/certs
+  postgres:
+    image: postgres
+    volumes:
+      - $HOME/docker/volumes/postgres:/var/lib/postgresql/data
+      - ./flo_web/web_server/database/setup:/docker-entrypoint-initdb.d
+  session-store:
+    image: redis
+  client-store:
+    image: redis

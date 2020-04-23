@@ -191,7 +191,7 @@ class Server {
             head: Buffer,
         ): Promise<WebSocket> => {
             return new Promise((resolve, reject) => {
-                this.wsServer.handleUpgrade(request, socket, head, (ws) => {
+                this.wsServer.handleUpgrade(request, socket, head, ws => {
                     resolve(ws);
                 });
             });
@@ -243,7 +243,7 @@ class Server {
             const dataname = `robot:${name}:data`;
 
             // check if robot is available:
-            const channels = await rpub.pubsub(
+            const channels = await (rpub as any).pubsub(
                 'channels',
                 `robot:${name}:outgoing-commands*`,
             );
@@ -458,7 +458,7 @@ class Server {
                             );
                         });
 
-                        ws.on('message', (message) => {
+                        ws.on('message', message => {
                             console.log(
                                 'webrtc message from operator: ' + message,
                             );

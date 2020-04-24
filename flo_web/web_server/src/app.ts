@@ -16,8 +16,27 @@ import session from 'express-session';
 import connectRedis from 'connect-redis';
 import ioredis from 'ioredis';
 import util from 'util';
+import winston from 'winston';
 //import passport from "passport";
 //import session from "express-session";
+
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.json(),
+    defaultMeta: { service: 'user-service' },
+    transports: [
+        //
+        // - Write to all logs with level `info` and below to `combined.log`
+        // - Write all logs error (and below) to `error.log`.
+        //
+        new winston.transports.File({
+            filename: '~/logs/error.log',
+            level: 'error',
+        }),
+        new winston.transports.File({ filename: '~/logs/combined.log' }),
+        new winston.transports.Console({ format: winston.format.simple() }),
+    ],
+});
 
 const apiPort = 3030;
 const app = express();
@@ -165,12 +184,13 @@ class Server {
     listening() {
         const address = this.server.address();
         if (address === null) {
+            logger.error('Started server with no address');
             throw new Error('something very wrong with starting server');
         }
         if (typeof address === 'string') {
-            console.log('Socket server listening at: ' + address);
+            logger.info('Socket server listening at: ' + address);
         } else {
-            console.log(
+            logger.info(
                 'Socket server listening at: ' +
                     address.address +
                     ':' +
@@ -191,7 +211,7 @@ class Server {
             head: Buffer,
         ): Promise<WebSocket> => {
             return new Promise((resolve, reject) => {
-                this.wsServer.handleUpgrade(request, socket, head, ws => {
+                this.wsServer.handleUpgrade(request, socket, head, (ws) => {
                     resolve(ws);
                 });
             });
@@ -207,7 +227,7 @@ class Server {
         let cmdC: string;
         let msgC: string;
 
-        console.log(
+        logger.debug(
             `upgrade request for ${urlReturn.originType} with webrtc? ${urlReturn.webrtc}`,
         );
 
@@ -215,6 +235,13 @@ class Server {
             // For the robots to connect to
             const name = request.headers['robotname'];
             const password = request.headers['robotpassword'];
+
+            const localLogger = logger.child({
+                source: 'robot',
+                name: name,
+                wsType: urlReurn.webrtc ? 'webrtc' : 'data',
+            });
+
             let validPassword = false;
             try {
                 const {
@@ -239,6 +266,8 @@ class Server {
 
             const ws = await handleUpgradePromise(request, socket, head);
 
+            localLogger.debug(`succesfully upgraded connection from ${name}`);
+
             const webrtcname = `robot:${name}:webrtc`;
             const dataname = `robot:${name}:data`;
 
@@ -247,21 +276,21 @@ class Server {
                 'channels',
                 `robot:${name}:outgoing-commands*`,
             );
-            console.log('connected channels');
-            console.log(channels);
             if (channels.length === 0) {
                 db.query(
                     'update robots set active_user_id=$1 where robot_name=$2',
                     [null, name],
                 );
-                console.log('no operators connected');
+                localLogger.debug('no operators connected');
             }
+            localLogger.debug('checked connected channels', channels);
 
             if (urlReturn.webrtc) {
                 this.sockets.set(webrtcname, ws);
                 rdb.hset(`robot:${name}`, 'rtc-connected', 'true');
 
                 ws.on('close', () => {
+                    localLogger.debug('ws close');
                     rsub.unsubscribe();
                     this.sockets.delete(webrtcname);
                     db.query(
@@ -272,6 +301,7 @@ class Server {
                 });
 
                 ws.on('message', (msg: string) => {
+                    localLogger.silly('ws message', msg);
                     const msgData = JSON.parse(msg);
                     const command = msgData['command'];
                     const channelID = msgData['id'];
@@ -289,8 +319,11 @@ class Server {
                 const wrtcC = `robot:${name}:incoming-data-rtc`;
                 rsub.subscribe(wrtcC);
                 rsub.on('message', (channel, message) => {
+                    localLogger.silly('incoming-data-rtc message', {
+                        channel,
+                        message,
+                    });
                     if (channel === wrtcC) {
-                        console.log('sending robot rtc msg: ' + message);
                         ws.send(message);
                     }
                 });
@@ -302,6 +335,7 @@ class Server {
                 rdb.hset(`robot:${name}`, 'data-connected', 'true');
 
                 ws.on('close', async () => {
+                    localLogger.debug('ws close');
                     rpub.publish(cmdC, 'close');
                     rsub.unsubscribe();
                     this.sockets.delete(dataname);
@@ -312,9 +346,11 @@ class Server {
                     rdb.hset(`robot:${name}`, 'data-connected', 'false');
                 });
                 ws.on('message', (msg: string) => {
+                    localLogger.silly('ws message', msg);
                     rpub.publish(msgC, msg);
                 });
                 ws.on('ping', () => {
+                    localLogger.silly('ws ping');
                     rpub.publish(cmdC, 'ping');
                 });
 
@@ -323,6 +359,7 @@ class Server {
                 rsub.subscribe(dataC);
                 rsub.subscribe(commandC);
                 rsub.on('message', (channel, message) => {
+                    localLogger('redis sub message', { channel, message });
                     console.log('sending robot msg: ' + message);
                     if (channel === dataC) {
                         ws.send(message);
@@ -336,17 +373,13 @@ class Server {
                 });
             }
 
-            const dataConnected = await rdb.hget(
-                `robot:${name}`,
-                'data-connected',
-            );
-            const rtcConnected = await rdb.hget(
-                `robot:${name}`,
-                'rtc-connected',
-            );
+            const [dataConnected, rtcConnected] = await Promise.all([
+                rdb.hget(`robot:${name}`, 'data-connected'),
+                rdb.hget(`robot:${name}`, 'rtc-connected'),
+            ]);
 
-            console.log(dataConnected);
-            console.log(rtcConnected);
+            localLogger.debug('data connected', dataConnected);
+            localLogger.debug('rtc connected', rtcConnected);
 
             if (dataConnected && rtcConnected) {
                 db.query('update robots set connected=$1 where robot_name=$2', [
@@ -458,7 +491,7 @@ class Server {
                             );
                         });
 
-                        ws.on('message', message => {
+                        ws.on('message', (message) => {
                             console.log(
                                 'webrtc message from operator: ' + message,
                             );

@@ -2,7 +2,7 @@ version: "3"
 services:
   socket-server:
     env_file:
-      - ./certs/sessionsecret
+      - ./certs/session-secret.env
     build:
       context: ./flo_web/web_server/
     depends_on:

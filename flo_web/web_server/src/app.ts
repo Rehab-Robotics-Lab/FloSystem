@@ -23,7 +23,6 @@ import winston from 'winston';
 const logger = winston.createLogger({
     level: 'info',
     format: winston.format.json(),
-    defaultMeta: { service: 'user-service' },
     transports: [
         //
         // - Write to all logs with level `info` and below to `combined.log`
@@ -34,7 +33,10 @@ const logger = winston.createLogger({
             level: 'error',
         }),
         new winston.transports.File({ filename: '~/logs/combined.log' }),
-        new winston.transports.Console({ format: winston.format.simple() }),
+        new winston.transports.Console({
+            format: winston.format.simple(),
+            level: 'debug',
+        }),
     ],
 });
 
@@ -71,7 +73,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 mountRoutes(app);
 // start server:
 app.listen(apiPort, () => {
-    console.log('API server running on port: ' + apiPort);
+    logger.info('API server running on port: ' + apiPort);
 });
 
 /**
@@ -229,6 +231,7 @@ class Server {
 
         logger.debug(
             `upgrade request for ${urlReturn.originType} with webrtc? ${urlReturn.webrtc}`,
+            urlReturn,
         );
 
         if (urlReturn.originType == 'robot') {
@@ -397,6 +400,12 @@ class Server {
                 async () => {
                     const id = (request as express.Request).session!.userID;
                     const targetRobot = urlReturn.target;
+                    const localLogger = logger.child({
+                        source: 'operator',
+                        id: id,
+                        target: targetRobot,
+                        wsType: urlReturn.webrtc ? 'webrtc' : 'data',
+                    });
                     if (!id) {
                         socket.destroy();
                         return;
@@ -412,12 +421,12 @@ class Server {
                     );
 
                     if (rows[0] < 1) {
-                        console.log('user not authorized');
+                        localLogger.info('user not authorized');
                         socket.destroy();
                         return;
                     }
 
-                    console.log('user is authorized');
+                    localLogger.verbose('user is authorized');
 
                     // make sure the robot is available and get if it is
                     const res = await rdb
@@ -435,8 +444,9 @@ class Server {
                     // If it isn't avaialable, ok if we are already connected
                     if (res[3][1] === 0) {
                         if (parseInt(res[2][1]) !== id) {
-                            console.log(
-                                `${id}: another user is connected (${res[2][1]}), disconnectiong`,
+                            localLogger.verbose(
+                                'another user is connected, disconnectiong',
+                                res[2][1],
                             );
                             socket.destroy;
                             return;
@@ -450,7 +460,7 @@ class Server {
                     );
                     rdb.hset(`operator:${id}`, 'connected-robot', targetRobot);
 
-                    console.log('connected to robot');
+                    localLogger.verbose('connected to robot');
 
                     const ws = await handleUpgradePromise(
                         request,
@@ -471,6 +481,7 @@ class Server {
                         );
 
                         ws.on('close', async () => {
+                            localLogger.debug('ws close');
                             rpub.publish(
                                 `robot:${targetRobot}:incoming-data-rtc`,
                                 JSON.stringify({
@@ -484,6 +495,7 @@ class Server {
                         });
 
                         ws.on('ping', () => {
+                            localLogger.silly('ws ping');
                             rpub.publish(
                                 `robot:${targetRobot}:incoming-data-rtc`,
                                 JSON.stringify({
@@ -494,9 +506,7 @@ class Server {
                         });
 
                         ws.on('message', (message) => {
-                            console.log(
-                                'webrtc message from operator: ' + message,
-                            );
+                            localLogger.silly('ws msg', message);
                             rpub.publish(
                                 `robot:${targetRobot}:incoming-data-rtc`,
                                 JSON.stringify({
@@ -515,7 +525,8 @@ class Server {
                         // onClose:
                         // - remove from this list
                         // - tell the robot to close
-                        ws.on('close', async () => {
+                        ws.on('close', () => {
+                            localLogger.debug('ws close');
                             rpub.publish(
                                 `robot:${targetRobot}:incoming-commands`,
                                 'close',
@@ -525,7 +536,8 @@ class Server {
                         });
                         // onMessage
                         // - put it in the robot incoming queue
-                        ws.on('message', async (msg: string) => {
+                        ws.on('message', (msg: string) => {
+                            localLogger.silly('ws message', msg);
                             console.log('operator sent message: ' + msg);
                             rpub.publish(
                                 `robot:${targetRobot}:incoming-data`,
@@ -534,7 +546,9 @@ class Server {
                         });
                         // onPing
                         // - put it in the robot incoming command queue
-                        ws.on('ping', async () => {
+                        ws.on('ping', () => {
+                            localLogger.silly('ws ping');
+
                             rpub.publish(
                                 `robot:${targetRobot}:incoming-commands`,
                                 'ping',
@@ -550,6 +564,7 @@ class Server {
                     rsub.subscribe(cmdC);
                     rsub.subscribe(msgC);
                     rsub.on('message', (channel, message) => {
+                        localLogger.silly('redis pub msg', channel, message);
                         if (channel === cmdC) {
                             if (message === 'close') {
                                 ws.close();
@@ -563,7 +578,7 @@ class Server {
                 },
             );
         } else {
-            console.log('invalid websocket enpoint: ' + urlReturn.originType);
+            logger.warn('invalid websocket enpoint: ', urlReturn.originType);
             socket.destroy();
         }
     }

@@ -152,7 +152,10 @@ const Vids: React.FunctionComponent<VidsProps> = ({
       };
       connection3.connect();
 
+      console.log("*** Done starting webrtc ***");
+
       return (): void => {
+        console.log("*** Close webrtc connections ***");
         connection1.close();
         connection2.close();
         connection3.close();

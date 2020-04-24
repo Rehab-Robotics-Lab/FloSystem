@@ -82,7 +82,7 @@ class ReconnectigWS {
         }
         const robotName = process.env['ROBOT_NAME'];
         const robotPassword = process.env['ROBOT_PASSWORD'];
-        console.log('connecting with name: ' + robotName);
+        console.log(`connecting to ${this.url} with name: ${robotName}`);
         this.sock = new WebSocket(this.url, {
             headers: {
                 robotName: robotName,
@@ -171,7 +171,8 @@ class ReconnectigWS {
 }
 
 const socketPort = 9091;
-const webUri = 'wss://192.168.1.7/host/webrtc'; // process.env.FLO_SERVER_IP; //TODO: bring in as an environment var
+const webUri =
+    'wss://' + (process.env.FLO_SERVER_IP || 'lilflo.com') + '/host/webrtc';
 const rtcServer = 'localhost';
 const connections: Record<string, WebSocket> = {};
 const bufferedMsgs: Map<string, [string]> = new Map();
@@ -186,7 +187,7 @@ function sendUp(id: string, command: string, msg: string) {
     });
 }
 
-connection.onMessage = msg => {
+connection.onMessage = (msg: string): void => {
     console.log('message received: ' + msg);
     const msgObj = JSON.parse(msg);
     const id = msgObj['id'];

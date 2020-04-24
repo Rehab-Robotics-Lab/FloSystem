@@ -434,7 +434,7 @@ function ssh-flo {
     1. `crontab -e`
     2. `SHELL=/bin/bash` This will set the shell that things should run in
     3. `@reboot (sleep 90; source ~/.bashrc; ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh)`
-    4. `@reboot (sleep 90; source ~/.bashrc; python ~/catkin_ws/src/LilFloSystem/flo_web/pinger/pinger.py)`
+    4. `*/1 * * * * (source ~/.bashrc; python ~/catkin_ws/src/LilFloSystem/flo_web/pinger/pinger.py)`
 
 #### Assigning the serial devices to have a fixed addresses {#udev}
 

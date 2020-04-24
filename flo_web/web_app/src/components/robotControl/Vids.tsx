@@ -153,12 +153,12 @@ const Vids: React.FunctionComponent<VidsProps> = ({
       connection3.connect();
 
       return (): void => {
-      connection1.close();
-      connection2.close();
-      connection3.close();
+        connection1.close();
+        connection2.close();
+        connection3.close();
       };
     }
-  }, [connected, ros, ipAddr]);
+  }, [connected, ipAddr]);
   //<script type="text/javascript" src={"/web/adapter.js"} />
   //
 
@@ -170,7 +170,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
   return (
     <>
       <Helmet>
-      <script type="text/javascript" src={"/web/webrtc_ros.js"} />
+        <script type="text/javascript" src={"/web/webrtc_ros.js"} />
       </Helmet>
       <div style={wrapStyle}>
         <button

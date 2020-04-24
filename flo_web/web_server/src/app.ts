@@ -239,7 +239,7 @@ class Server {
             const localLogger = logger.child({
                 source: 'robot',
                 name: name,
-                wsType: urlReurn.webrtc ? 'webrtc' : 'data',
+                wsType: urlReturn.webrtc ? 'webrtc' : 'data',
             });
 
             let validPassword = false;
@@ -359,8 +359,10 @@ class Server {
                 rsub.subscribe(dataC);
                 rsub.subscribe(commandC);
                 rsub.on('message', (channel, message) => {
-                    localLogger('redis sub message', { channel, message });
-                    console.log('sending robot msg: ' + message);
+                    localLogger.silly('redis sub message', {
+                        channel,
+                        message,
+                    });
                     if (channel === dataC) {
                         ws.send(message);
                     } else if (channel === commandC) {

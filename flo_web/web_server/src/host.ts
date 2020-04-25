@@ -116,7 +116,7 @@ const parseIncoming: ParseIncoming = async function (
                 rpub.publish(cmdC, 'close');
             } else if (command === 'ping') {
                 rpub.publish(cmdC, 'ping');
-            } else if (command === 'message') {
+            } else if (command === 'msg') {
                 rpub.publish(msgC, msgData['msg']);
             }
         });

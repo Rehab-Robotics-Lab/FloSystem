@@ -35,8 +35,22 @@ const Vids: React.FunctionComponent<VidsProps> = ({
   useEffect(() => {
     const connectionString =
       "wss://" + ipAddr + "/robot/" + robotName + "/webrtc";
+    const serverConfig = {
+      iceServers: [
+        {
+          urls: [
+            "stun:stun1.l.google.com:19302",
+            "stun:stun2.l.google.com:19302"
+          ]
+        }
+      ],
+      iceCandidatePoolSize: 10
+    };
     if (connected) {
-      const connection1 = WebrtcRos.createConnection(connectionString);
+      const connection1 = WebrtcRos.createConnection(
+        connectionString,
+        serverConfig
+      );
       console.log("connected to webrtc ros");
 
       connection1.onConfigurationNeeded = (): void => {

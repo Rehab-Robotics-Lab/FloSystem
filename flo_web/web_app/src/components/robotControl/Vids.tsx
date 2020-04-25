@@ -3,7 +3,7 @@ import * as ROSLIB from "roslib";
 import { wrapStyle } from "../../styleDefs/styles";
 import { useParams } from "react-router-dom";
 //import adapter from "webrtc-adapter";
-import { Helmet } from "react-helmet";
+import "../../externalLibs/webrtc_ros.js";
 
 declare var WebrtcRos: any;
 
@@ -172,9 +172,6 @@ const Vids: React.FunctionComponent<VidsProps> = ({
 
   return (
     <>
-      <Helmet>
-        <script type="text/javascript" src={"/web/webrtc_ros.js"} />
-      </Helmet>
       <div style={wrapStyle}>
         <button
           type="button"

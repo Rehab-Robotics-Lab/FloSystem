@@ -430,6 +430,10 @@ function ssh-flo {
       the webserver
     - `export FLO_SERVER_IP="lilflo.com` Which will allow the system to point
       to the webserver. During development you might have a different value here...
+    - If you are working with a server that doesn't have real certs (this should
+      only be true for development on a local machine). THen you also need to tell
+      the router to not check certs by adding to the bashrc:
+      `export NODE_TLS_REJECT_UNAUTHORIZED='0'`
 11. Add two cron jobs to automatically startup the system:
     1. `crontab -e`
     2. `SHELL=/bin/bash` This will set the shell that things should run in

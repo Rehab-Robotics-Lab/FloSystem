@@ -7,6 +7,17 @@ import { v4 as uuidv4 } from 'uuid';
 //import bcrypt from "bcrypt";
 //import passport from "passport";
 //import session from "express-session";
+import winston from 'winston';
+
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.json(),
+    transports: [
+        new winston.transports.Console({
+            level: 'silly',
+        }),
+    ],
+});
 
 class ReconnectigWS {
     /**
@@ -53,7 +64,7 @@ class ReconnectigWS {
 
     constructor(
         url: string,
-        onMessage: (msg: string) => void = msg => {},
+        onMessage: (msg: string) => void = (msg) => {},
         onClose: () => void = () => {},
         onError: (err: Error) => void = () => {},
         pingFreq: number = 1000,
@@ -75,14 +86,14 @@ class ReconnectigWS {
     }
 
     connect() {
-        console.log('connecting to server');
+        logger.info('connecting to server');
         this.connecting = false;
         if (this.sock !== undefined) {
             this.sock.removeAllListeners();
         }
         const robotName = process.env['ROBOT_NAME'];
         const robotPassword = process.env['ROBOT_PASSWORD'];
-        console.log(`connecting to ${this.url} with name: ${robotName}`);
+        logger.info(`connecting to ${this.url} with name: ${robotName}`);
         this.sock = new WebSocket(this.url, {
             headers: {
                 robotName: robotName,
@@ -95,11 +106,13 @@ class ReconnectigWS {
         }
 
         this.sock.on('message', (msg: string) => {
+            logger.info('message from server', msg);
             this.heartbeat();
             this.onMessage(msg);
         });
 
         this.sock.on('open', () => {
+            logger.info('socket opened');
             this.heartbeat();
             // Setup ping to go out every so often.
             this.pingTimer = setInterval(() => {
@@ -112,21 +125,25 @@ class ReconnectigWS {
             }
         });
 
-        this.sock.on('error', err => {
+        this.sock.on('error', (err) => {
+            logger.error('error', err);
             this.onError(err);
             this.reconnect();
         });
 
         this.sock.on('close', () => {
+            logger.info('socket closing');
             this.onClose();
             this.reconnect();
         });
 
         this.sock.on('ping', () => {
+            logger.silly('ping');
             this.heartbeat();
         });
 
         this.sock.on('pong', () => {
+            logger.silly('pong');
             this.heartbeat();
         });
     }
@@ -158,10 +175,10 @@ class ReconnectigWS {
             msg = JSON.stringify(msg);
         }
         if (this.sock == undefined) {
-            console.error('Socket is not connected');
+            logger.error('Socket is not connected');
             return;
         }
-        console.log('sending message to server: ' + msg);
+        logger.info('sending message to server', msg);
         if (this.sock.readyState === WebSocket.OPEN) {
             this.sock.send(msg);
         } else {
@@ -188,7 +205,7 @@ function sendUp(id: string, command: string, msg: string) {
 }
 
 connection.onMessage = (msg: string): void => {
-    console.log('message received: ' + msg);
+    logger.info('message received', msg);
     const msgObj = JSON.parse(msg);
     const id = msgObj['id'];
     const command = msgObj['command'];
@@ -197,7 +214,7 @@ connection.onMessage = (msg: string): void => {
         const ws = new WebSocket(
             'ws://' + rtcServer + ':' + socketPort + '/webrtc',
         );
-        console.log('opened new local websocket for id: ' + id);
+        logger.info('opened new local websocket', id);
         connections[id] = ws;
         ws.on('message', (msg: string) => {
             sendUp(id, 'msg', msg);
@@ -207,10 +224,10 @@ connection.onMessage = (msg: string): void => {
         });
         ws.on('open', () => {
             const thisBuffer = bufferedMsgs.get(id);
-            console.log('ws to roswebrtc opened, exiting bufer: ' + thisBuffer);
+            logger.info('ws to roswebrtc opened, exiting bufer', thisBuffer);
             if (thisBuffer !== undefined) {
                 for (msg of thisBuffer) {
-                    console.log('sending from buffer: ' + msg);
+                    logger.info('sending from buffer', msg);
                     ws.send(msg);
                 }
             }
@@ -223,7 +240,7 @@ connection.onMessage = (msg: string): void => {
         });
     } else if (command === 'msg') {
         const toSend = msgObj['msg'];
-        console.log('sending message to roswebrtc: ' + msg);
+        logger.info('sending message to roswebrtc', msg);
         if (connections[id].readyState === WebSocket.CONNECTING) {
             const existingBuffer = bufferedMsgs.get(id);
             if (existingBuffer === undefined) {
@@ -237,13 +254,13 @@ connection.onMessage = (msg: string): void => {
     } else if (command === 'close') {
         const thisConnection = connections[id];
         if (thisConnection !== undefined) {
-            console.log('closing ws connection to webrtc ros id: ' + id);
+            logger.info('closing ws connection to webrtc ros id', id);
             thisConnection.close();
             delete connections[id];
         } else {
-            console.log(
-                'ws connectin commanded to close by server, but already closed. ID: ' +
-                    id,
+            logger.info(
+                'ws connectin commanded to close by server, but already closed. ID',
+                id,
             );
         }
     } else if (command === 'ping') {
@@ -251,6 +268,6 @@ connection.onMessage = (msg: string): void => {
     } else if (command === 'pong') {
         connections[id].pong();
     } else {
-        console.error('got an invalid command');
+        logger.info('got an invalid command');
     }
 };

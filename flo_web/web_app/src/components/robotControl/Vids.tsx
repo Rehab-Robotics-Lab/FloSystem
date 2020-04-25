@@ -112,7 +112,10 @@ const Vids: React.FunctionComponent<VidsProps> = ({
       };
       connection1.connect();
 
-      const connection2 = WebrtcRos.createConnection(connectionString);
+      const connection2 = WebrtcRos.createConnection(
+        connectionString,
+        serverConfig
+      );
 
       connection2.onConfigurationNeeded = (): void => {
         const remoteStreamConfigLower = { video: {}, audio: {} };
@@ -138,7 +141,10 @@ const Vids: React.FunctionComponent<VidsProps> = ({
       };
       connection2.connect();
 
-      const connection3 = WebrtcRos.createConnection(connectionString);
+      const connection3 = WebrtcRos.createConnection(
+        connectionString,
+        serverConfig
+      );
 
       connection3.onConfigurationNeeded = (): void => {
         const remoteStreamConfigFish = { video: {}, audio: {} };

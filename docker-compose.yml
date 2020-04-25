@@ -1,6 +1,6 @@
 version: "3"
 services:
-  socket-server:
+  host-server:
     env_file:
       - ./certs/session-secret.env
     build:
@@ -8,6 +8,25 @@ services:
     depends_on:
       - postgres
       - session-store
+    command: ["node", "build/host.js"]
+  operator-server:
+    env_file:
+      - ./certs/session-secret.env
+    build:
+      context: ./flo_web/web_server/
+    depends_on:
+      - postgres
+      - session-store
+    command: ["node", "build/operator.js"]
+  api-server:
+    env_file:
+      - ./certs/session-secret.env
+    build:
+      context: ./flo_web/web_server/
+    depends_on:
+      - postgres
+      - session-store
+    command: ["node", "build/api.js"]
   nginx:
     build:
       context: ./
@@ -16,7 +35,9 @@ services:
       - "80:80"
       - "443:443"
     depends_on:
-      - socket-server
+      - host-server
+      - operator-server
+      - api-server
     volumes:
       - ./certs:/etc/nginx/certs
   postgres:

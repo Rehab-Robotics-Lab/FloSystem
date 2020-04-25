@@ -173,6 +173,7 @@ const RobotController: React.FunctionComponent = () => {
   const history = useHistory();
 
   const goHome = useCallback((): void => {
+    console.log("*** Going Home ***");
     history.push("/");
   }, [history]);
 

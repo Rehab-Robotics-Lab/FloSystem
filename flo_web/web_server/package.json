@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "tsc": "tsc",
-    "dev": "ts-node-dev --respawn --transpileOnly ./src/app.ts"
+    "dev-api": "ts-node-dev --respawn --transpileOnly ./src/api.ts",
+    "dev-operator": "ts-node-dev --respawn --transpileOnly ./src/operator.ts",
+    "dev-host": "ts-node-dev --respawn --transpileOnly ./src/host.ts"
   },
   "repository": {
     "type": "git",

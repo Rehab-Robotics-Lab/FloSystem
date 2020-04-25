@@ -3,9 +3,7 @@ import * as ROSLIB from "roslib";
 import { wrapStyle } from "../../styleDefs/styles";
 import { useParams } from "react-router-dom";
 //import adapter from "webrtc-adapter";
-import "../../externalLibs/webrtc_ros.js";
-
-declare var WebrtcRos: any;
+import { WebrtcRos } from "../../externalLibs/webrtc_ros.js";
 
 interface VidsProps {
   ros: ROSLIB.Ros | null;

@@ -249,7 +249,6 @@ const parseIncoming: ParseIncoming = async function (
                 } else if (channel === msgC) {
                     ws.send(message);
                 }
-                killer.heartbeat();
             });
         },
     );

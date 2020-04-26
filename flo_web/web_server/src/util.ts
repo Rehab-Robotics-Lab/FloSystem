@@ -298,7 +298,7 @@ function killOnDisconnect(
     };
 
     const heartbeat = () => {
-        localLogger.silly('handshake');
+        localLogger.silly('heartbeat');
         if (timeout !== undefined) {
             clearTimeout(timeout);
             timeout = undefined;

@@ -76,43 +76,15 @@ const parseIncoming: ParseIncoming = async function (
     const webrtcname = `robot:${name}:webrtc`;
     const dataname = `robot:${name}:data`;
 
-    // check if robot is available:
-    const channels = await (rpub as any).pubsub(
-        'channels',
-        `robot:${name}:outgoing-commands*`,
-    );
-    if (channels.length === 0) {
-        db.query('update robots set active_user_id=$1 where robot_name=$2', [
-            null,
-            name,
-        ]);
-        localLogger.debug('no operators connected');
-    }
-    localLogger.debug('checked connected channels', channels);
-
-    const checkDisconnect = async (): Promise<void> => {
-        const [dataConnected, rtcConnected] = await Promise.all([
-            rdb.hget(`robot:${name}`, 'data-connected'),
-            rdb.hget(`robot:${name}`, 'rtc-connected'),
-        ]);
-        if (!(dataConnected || rtcConnected)) {
-            rdb.hdel(`robot:${name}`, 'connected-operator');
-            db.query(
-                'update robots set connected=$1, active_user_id=$2 where robot_name=$3',
-                [false, null, name],
-            );
-        }
-    };
-
     if (urlReturn.webrtc) {
         addSocket(webrtcname, ws);
-        rdb.hincrby(`robot:${name}`, 'rtc-connected', 1);
+        rdb.hset(`robot:${name}`, 'rtc-connected', true);
 
         ws.on('close', () => {
             localLogger.info('ws close');
             rsub.unsubscribe();
             removeSocket(webrtcname);
-            rdb.hincrby(`robot:${name}`, 'rtc-connected', -1);
+            rdb.hset(`robot:${name}`, 'rtc-connected', false);
             checkDisconnect();
         });
 

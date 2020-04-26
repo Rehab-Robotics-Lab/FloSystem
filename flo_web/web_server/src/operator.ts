@@ -101,12 +101,28 @@ const parseIncoming: ParseIncoming = async function (
 
             const ws = await handleUpgradePromise(request, socket, head);
 
+            const checkDisconnect = async (): Promise<void> => {
+                const [dataConnected, rtcConnected] = await Promise.all([
+                    rdb.hget(`operator:${id}`, 'connected-rtc-channels'),
+                    rdb.hget(`operator:${id}`, 'connected-data-channels'),
+                ]);
+                if (!(dataConnected && rtcConnected)) {
+                    rdb.hdel(`robot:${targetRobot}`, 'connected-operator');
+                    rdb.hdel(`operator:${id}`, 'connected-robot');
+                    db.query(
+                        'update robots set connected=$1, active_user_id=$2 where robot_name=$3',
+                        [false, null, name],
+                    );
+                }
+            };
+
             if (urlReturn.webrtc) {
                 const channelID = uuidv4();
                 const key = `operator:${id}:webrtc:${channelID}`;
                 addSocket(key, ws);
 
                 rdb.sadd(`operator:${id}:webrtcIDs`, channelID);
+                rdb.hincrby(`operator:${id}`, 'connected-rtc-channels', 1);
 
                 rpub.publish(
                     `robot:${targetRobot}:incoming-data-rtc`,
@@ -125,6 +141,8 @@ const parseIncoming: ParseIncoming = async function (
                     removeSocket(key);
                     rsub.unsubscribe();
                     rdb.srem(`operator:${id}:webrtcIDs`, channelID);
+                    rdb.hincrby(`operator:${id}`, 'connected-rtc-channels', -1);
+                    checkDisconnect();
                 });
 
                 ws.on('ping', () => {
@@ -155,6 +173,7 @@ const parseIncoming: ParseIncoming = async function (
             } else {
                 const key = `operator:${id}:data`;
                 addSocket(key, ws);
+                rdb.hincrby(`operator:${id}`, 'connected-data-channels', 1);
                 // onClose:
                 // - remove from this list
                 // - tell the robot to close
@@ -166,6 +185,12 @@ const parseIncoming: ParseIncoming = async function (
                     );
                     removeSocket(key);
                     rsub.unsubscribe();
+                    rdb.hincrby(
+                        `operator:${id}`,
+                        'connected-data-channels',
+                        -1,
+                    );
+                    checkDisconnect();
                 });
                 // onMessage
                 // - put it in the robot incoming queue

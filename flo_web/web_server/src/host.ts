@@ -86,9 +86,9 @@ const parseIncoming: ParseIncoming = async function (
             rtcConnected: rtcConnected,
         });
         if (
-            dataConnected === '0' ||
+            dataConnected === 'false' ||
             dataConnected === null ||
-            rtcConnected === '0' ||
+            rtcConnected === 'false' ||
             rtcConnected === null
         ) {
             db.query('update robots set connected=$1 where robot_name=$2', [

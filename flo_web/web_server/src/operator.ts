@@ -90,6 +90,8 @@ const parseIncoming: ParseIncoming = async function (
                 }
             }
 
+            // TODO: check if data and rtc connected. if not disconnect and delete connected operator hash
+
             // reserve the robot on postgres
             db.query(
                 'update robots set active_user_id=$1 where robot_name=$2',
@@ -103,14 +105,17 @@ const parseIncoming: ParseIncoming = async function (
 
             const checkDisconnect = async (): Promise<void> => {
                 const [dataConnected, rtcConnected] = await Promise.all([
-                    rdb.hget(`operator:${id}`, 'connected-dat-channels'),
+                    rdb.hget(`operator:${id}`, 'connected-data-channels'),
                     rdb.hget(`operator:${id}`, 'connected-rtc-channels'),
                 ]);
                 localLogger.verbose('check disconnecct', {
                     dataChannels: dataConnected,
                     rtcChannels: rtcConnected,
                 });
-                if (dataConnected === '0' && rtcConnected === '0') {
+                if (
+                    (dataConnected === '0' || dataConnected === null) &&
+                    (rtcConnected === '0' || rtcConnected === null)
+                ) {
                     rdb.hdel(`robot:${targetRobot}`, 'connected-operator');
                     rdb.hdel(`operator:${id}`, 'connected-robot');
                     db.query(

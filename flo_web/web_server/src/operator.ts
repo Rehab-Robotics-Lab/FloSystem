@@ -106,13 +106,18 @@ const parseIncoming: ParseIncoming = async function (
                     rdb.hget(`operator:${id}`, 'connected-rtc-channels'),
                     rdb.hget(`operator:${id}`, 'connected-data-channels'),
                 ]);
-                if (!(dataConnected && rtcConnected)) {
+                localLogger.verbose('check disconnecct', {
+                    dataChaanels: dataConnected,
+                    rtcChannels: rtcConnected,
+                });
+                if (!(dataConnected || rtcConnected)) {
                     rdb.hdel(`robot:${targetRobot}`, 'connected-operator');
                     rdb.hdel(`operator:${id}`, 'connected-robot');
                     db.query(
                         'update robots set connected=$1, active_user_id=$2 where robot_name=$3',
                         [false, null, name],
                     );
+                    localLogger.info('robot available');
                 }
             };
 

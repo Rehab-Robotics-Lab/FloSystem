@@ -120,7 +120,7 @@ const parseIncoming: ParseIncoming = async function (
                     rdb.hdel(`operator:${id}`, 'connected-robot');
                     db.query(
                         'update robots set connected=$1, active_user_id=$2 where robot_name=$3',
-                        [false, null, name],
+                        [false, null, targetRobot],
                     );
                     localLogger.info('robot available');
                 }

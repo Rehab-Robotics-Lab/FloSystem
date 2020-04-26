@@ -8,7 +8,7 @@ tmux send-keys 'roscore' Enter
 
 tmux split-window -t flo
 #tmux send-keys 'mon launch --name=flo_launcher flo_core flo_bringup.launch' Enter
-tmux send-keys 'roslaunch flo_core flo_bringup.launch' Enter # until rosmon gets fixed
+tmux send-keys 'roslaunch --wait flo_core flo_bringup.launch' Enter # until rosmon gets fixed
 
 tmux split-window -t flo -h
 tmux send-keys 'htop' Enter

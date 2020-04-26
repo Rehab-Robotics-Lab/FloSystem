@@ -83,7 +83,7 @@ const parseIncoming: ParseIncoming = async function (
                 if (parseInt(res[2][1]) !== id) {
                     localLogger.info(
                         'another user is connected, disconnectiong',
-                        res[2][1],
+                        { result: res },
                     );
                     socket.destroy;
                     return;

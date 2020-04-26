@@ -40,13 +40,14 @@ const Vids: React.FunctionComponent<VidsProps> = ({
 
   const getTurnCreds = async (): Promise<TurnCreds> => {
     const resp = await axios.get(
-      `api/webrtc/turn-credentials?robotName=${robotName}`
+      `/api/webrtc/turn-credentials?robotName=${robotName}`
     );
     return resp.data as TurnCreds;
   };
 
   useEffect(() => {
     getTurnCreds().then(turnCredentials => {
+      console.log(turnCredentials);
       const connectionString =
         "wss://" + ipAddr + "/robot/" + robotName + "/webrtc";
       const serverConfig = {
@@ -58,12 +59,22 @@ const Vids: React.FunctionComponent<VidsProps> = ({
             ]
           },
           {
-            urls: `turn:${ipAddr}/turn?transport=udp`,
+            urls: `turn:${ipAddr}:5349?transport=udp`,
             username: turnCredentials["username"],
             credential: turnCredentials["password"]
           },
           {
-            urls: `turn:${ipAddr}/turn?transport=udp`,
+            urls: `turn:${ipAddr}:5349?transport=tcp`,
+            username: turnCredentials["username"],
+            credential: turnCredentials["password"]
+          },
+          {
+            urls: `turn:${ipAddr}:3478?transport=udp`,
+            username: turnCredentials["username"],
+            credential: turnCredentials["password"]
+          },
+          {
+            urls: `turn:${ipAddr}:3478?transport=tcp`,
             username: turnCredentials["username"],
             credential: turnCredentials["password"]
           }

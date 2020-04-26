@@ -143,6 +143,12 @@ Linode is small, easy to use, and affordable.
    4. `ufw allow ssh`
    5. `ufw allow http`
    6. `ufw allow https`
+   7. `ufw allow 49152:65535/udp`
+   7. `ufw allow 49152:65535/tcp`
+   7. `ufw allow 3478/tcp`
+   7. `ufw allow 3478/udp`
+   7. `ufw allow 5349/tcp`
+   7. `ufw allow 5349/udp`
    7. `ufw enable`
    8. Check status with `ufw status`
 4. [Setup unattended updates](https://help.ubuntu.com/lts/serverguide/automatic-updates.html): `apt install unattended-upgrades`

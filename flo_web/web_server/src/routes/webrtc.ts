@@ -14,7 +14,7 @@ const coturn_secret = process.env.COTURN_SECRET || 'coturn_secret';
 
 // From: https://stackoverflow.com/questions/35766382/coturn-how-to-use-turn-rest-api
 function getTURNCredentials(name: string, secret: string) {
-    const unixTimeStamp = Math.ceil(Date.now() / 1000) + 60; // this credential would be valid for the next 60 seconds
+    const unixTimeStamp = Math.ceil(Date.now() / 1000) + 60*60; // this credential would be valid for the next 1 hour
     const username = [unixTimeStamp, name].join(':');
     const hmac = crypto.createHmac('sha1', secret);
     hmac.setEncoding('base64');

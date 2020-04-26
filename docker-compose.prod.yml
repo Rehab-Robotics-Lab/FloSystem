@@ -37,5 +37,6 @@ services:
       context: ./flo_web/turn_server/
     env_file:
       - ./certs/coturn.env
-    ports:
-      - 10000-10100:10000-10100
+    volumes:
+      - ./certs/certbot/conf:/etc/letsencrypt
+    network_mode: "host"

@@ -90,19 +90,29 @@ const parseIncoming: ParseIncoming = async function (
     }
     localLogger.debug('checked connected channels', channels);
 
+    const checkDisconnect = () => {
+        const [dataConnected, rtcConnected] = await Promise.all([
+            rdb.hget(`robot:${name}`, 'data-connected'),
+            rdb.hget(`robot:${name}`, 'rtc-connected'),
+        ]);
+        if (!(dataConnected || rtcConnected)) {
+            rdb.hdel(`robot:${name}`, 'connected-operator');
+        }
+    };
+
     if (urlReturn.webrtc) {
         addSocket(webrtcname, ws);
-        rdb.hset(`robot:${name}`, 'rtc-connected', 'true');
+        rdb.hincrby(`robot:${name}`, 'rtc-connected', 1);
 
         ws.on('close', () => {
             localLogger.debug('ws close');
             rsub.unsubscribe();
             removeSocket(webrtcname);
+            rdb.hincrby(`robot:${name}`, 'rtc-connected', -1);
             db.query('update robots set connected=$1 where robot_name=$2', [
                 false,
                 name,
             ]);
-            rdb.hset(`robot:${name}`, 'webrtc-connected', 'false');
         });
 
         ws.on('message', (msg: string) => {
@@ -144,10 +154,6 @@ const parseIncoming: ParseIncoming = async function (
             rpub.publish(cmdC, 'close');
             rsub.unsubscribe();
             removeSocket(dataname);
-            db.query('update robots set connected=$1 where robot_name=$2', [
-                false,
-                name,
-            ]);
             rdb.hset(`robot:${name}`, 'data-connected', 'false');
         });
         ws.on('message', (msg: string) => {

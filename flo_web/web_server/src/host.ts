@@ -85,7 +85,6 @@ const parseIncoming: ParseIncoming = async function (
             rsub.unsubscribe();
             removeSocket(webrtcname);
             rdb.hset(`robot:${name}`, 'rtc-connected', false);
-            checkDisconnect();
         });
 
         ws.on('message', (msg: string) => {
@@ -128,7 +127,6 @@ const parseIncoming: ParseIncoming = async function (
             rsub.unsubscribe();
             removeSocket(dataname);
             rdb.hset(`robot:${name}`, 'data-connected', 'false');
-            checkDisconnect();
         });
         ws.on('message', (msg: string) => {
             localLogger.silly('ws message', msg);

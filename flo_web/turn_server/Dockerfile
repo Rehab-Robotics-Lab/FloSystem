@@ -1,6 +1,6 @@
 FROM ubuntu:18.04
 
-RUN apt-get update -y && apt-get upgde -y
+RUN apt-get update -y && apt-get upgrade -y
 
 RUN apt-get install -y coturn
 

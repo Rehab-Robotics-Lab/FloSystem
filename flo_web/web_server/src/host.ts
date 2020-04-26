@@ -78,13 +78,13 @@ const parseIncoming: ParseIncoming = async function (
 
     if (urlReturn.webrtc) {
         addSocket(webrtcname, ws);
-        rdb.hset(`robot:${name}`, 'rtc-connected', true);
+        rdb.hset(`robot:${name}`, 'rtc-connected', 'true');
 
         ws.on('close', () => {
             localLogger.info('ws close');
             rsub.unsubscribe();
             removeSocket(webrtcname);
-            rdb.hset(`robot:${name}`, 'rtc-connected', false);
+            rdb.hset(`robot:${name}`, 'rtc-connected', 'false');
         });
 
         ws.on('message', (msg: string) => {

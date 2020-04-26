@@ -90,13 +90,17 @@ const parseIncoming: ParseIncoming = async function (
     }
     localLogger.debug('checked connected channels', channels);
 
-    const checkDisconnect = () => {
+    const checkDisconnect = async (): Promise<void> => {
         const [dataConnected, rtcConnected] = await Promise.all([
             rdb.hget(`robot:${name}`, 'data-connected'),
             rdb.hget(`robot:${name}`, 'rtc-connected'),
         ]);
         if (!(dataConnected || rtcConnected)) {
             rdb.hdel(`robot:${name}`, 'connected-operator');
+            db.query(
+                'update robots set connected=$1, active_user_id=$2 where robot_name=$3',
+                [false, null, name],
+            );
         }
     };
 
@@ -109,10 +113,7 @@ const parseIncoming: ParseIncoming = async function (
             rsub.unsubscribe();
             removeSocket(webrtcname);
             rdb.hincrby(`robot:${name}`, 'rtc-connected', -1);
-            db.query('update robots set connected=$1 where robot_name=$2', [
-                false,
-                name,
-            ]);
+            checkDisconnect();
         });
 
         ws.on('message', (msg: string) => {
@@ -155,6 +156,7 @@ const parseIncoming: ParseIncoming = async function (
             rsub.unsubscribe();
             removeSocket(dataname);
             rdb.hset(`robot:${name}`, 'data-connected', 'false');
+            checkDisconnect();
         });
         ws.on('message', (msg: string) => {
             localLogger.silly('ws message', msg);

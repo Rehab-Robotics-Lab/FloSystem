@@ -280,10 +280,15 @@ function killOnDisconnect(
     pingFreq: number = 1000,
     connectionTimeout: number = 5000,
 ) {
+    const localLogger = logger.child({
+        source: 'killOnDisconnect',
+    });
+
     let pingTimer: undefined | ReturnType<typeof setInterval> = undefined;
     let timeout: undefined | ReturnType<typeof setTimeout> = undefined;
 
     const cancel = () => {
+        localLogger.verbose('cancel');
         if (pingTimer !== undefined) {
             clearTimeout(pingTimer);
         }
@@ -293,11 +298,13 @@ function killOnDisconnect(
     };
 
     const heartbeat = () => {
+        localLogger.silly('handshake');
         if (timeout !== undefined) {
             clearTimeout(timeout);
             timeout = undefined;
         }
         timeout = setTimeout(() => {
+            localLogger.info('killing socket');
             ws.terminate();
             cancel();
         }, connectionTimeout);

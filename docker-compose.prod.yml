@@ -29,3 +29,13 @@ services:
     restart: unless-stopped
   client-store:
     restart: unless-stopped
+  api-server:
+    env_file:
+      - ./certs/coturn.env
+  coturn:
+    build:
+      context: ./flo_web/turn_server/
+    env_file:
+      - ./certs/coturn.env
+    ports:
+      - 10000-10100:10000-10100

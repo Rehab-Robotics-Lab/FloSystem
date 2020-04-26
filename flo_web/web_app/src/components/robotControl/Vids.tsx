@@ -4,6 +4,7 @@ import { wrapStyle } from "../../styleDefs/styles";
 import { useParams } from "react-router-dom";
 //import adapter from "webrtc-adapter";
 import { WebrtcRos } from "../../externalLibs/webrtc_ros.js";
+import axios from "axios";
 
 interface VidsProps {
   ros: ROSLIB.Ros | null;
@@ -33,6 +34,10 @@ const Vids: React.FunctionComponent<VidsProps> = ({
   const { robotName } = useParams();
 
   useEffect(() => {
+    const resp = await axios.get(
+      `api/webrtc/turn-credentials?robotName=${robotName}`
+    );
+
     const connectionString =
       "wss://" + ipAddr + "/robot/" + robotName + "/webrtc";
     const serverConfig = {
@@ -42,6 +47,16 @@ const Vids: React.FunctionComponent<VidsProps> = ({
             "stun:stun1.l.google.com:19302",
             "stun:stun2.l.google.com:19302"
           ]
+        },
+        {
+          urls: `turn:${ipAddr}/turn?transport=udp`,
+          username: resp.data["username"],
+          credential: resp.data["password"]
+        },
+        {
+          urls: `turn:${ipAddr}/turn?transport=udp`,
+          username: resp.data["username"],
+          credential: resp.data["password"]
         }
       ],
       iceCandidatePoolSize: 10

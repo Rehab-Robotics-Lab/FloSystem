@@ -72,6 +72,13 @@ and adding in the front end server.
 You should create a file in `LilFloSystem/certs/session-secret.env`
 with contents: `SESSION_SECRET=<cryptographically random value>`
 
+You should create a file in `LilFloSystem/certs/coturn.env`
+with contents:
+```conf
+COTURN_SECRET=<cryptographically random value>
+SITE_ADDR=<the site address, ex: lilflo.com>
+```
+
 ####To run in development:
 
 1. Go to the root of this repo

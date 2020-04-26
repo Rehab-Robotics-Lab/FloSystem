@@ -48,6 +48,7 @@ const parseIncoming: ParseIncoming = async function (
             });
             if (!id) {
                 socket.destroy();
+                localLogger.info('no vlid session, destroying');
                 return;
             }
 
@@ -66,7 +67,7 @@ const parseIncoming: ParseIncoming = async function (
                 return;
             }
 
-            localLogger.verbose('user is authorized');
+            localLogger.info('user is authorized');
 
             // make sure the robot is available and get if it is
             const res = await rdb
@@ -80,7 +81,7 @@ const parseIncoming: ParseIncoming = async function (
             // If it isn't avaialable, ok if we are already connected
             if (res[3][1] === 0) {
                 if (parseInt(res[2][1]) !== id) {
-                    localLogger.verbose(
+                    localLogger.info(
                         'another user is connected, disconnectiong',
                         res[2][1],
                     );

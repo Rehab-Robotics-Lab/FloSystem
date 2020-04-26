@@ -109,7 +109,7 @@ const parseIncoming: ParseIncoming = async function (
         rdb.hincrby(`robot:${name}`, 'rtc-connected', 1);
 
         ws.on('close', () => {
-            localLogger.debug('ws close');
+            localLogger.info('ws close');
             rsub.unsubscribe();
             removeSocket(webrtcname);
             rdb.hincrby(`robot:${name}`, 'rtc-connected', -1);

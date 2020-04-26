@@ -1,0 +1,40 @@
+Tables:
+- users
+    - key
+    - username: str
+    - pwdhash: str
+    - type:
+    - last_login: date/time
+- robots:
+    - key
+    - name: str
+    - pwd hash: str
+    - current_user: [link to id in users or empty] (empty implies available)
+    - ipaddr: str
+    - battery: float
+- user_types:
+    - key
+    - type: string
+        - global admin
+        - local admin
+        - regular
+- user_events
+    - key
+    - type:  [link to key in user_event_types]
+    - time: date/time type
+- user_event_types:
+    - key
+    - description: string
+        - login
+        - logout
+        - connect to robot
+        - disconnect from robot
+    - target: [link to key in robots or empty]
+- robot_event_types:
+    - key
+    - description: string
+        - connected to server
+        - disconnected from server
+        - connected to user
+        - diconnected from user
+    - target: [link to key in users or empty]

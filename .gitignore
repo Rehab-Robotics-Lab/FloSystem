@@ -61,3 +61,6 @@ mySyncConfig.lua
 
 tags.lock
 tags.temp
+
+certs/
+data/

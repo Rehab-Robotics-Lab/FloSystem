@@ -103,14 +103,14 @@ const parseIncoming: ParseIncoming = async function (
 
             const checkDisconnect = async (): Promise<void> => {
                 const [dataConnected, rtcConnected] = await Promise.all([
+                    rdb.hget(`operator:${id}`, 'connected-dat-channels'),
                     rdb.hget(`operator:${id}`, 'connected-rtc-channels'),
-                    rdb.hget(`operator:${id}`, 'connected-data-channels'),
                 ]);
                 localLogger.verbose('check disconnecct', {
-                    dataChaanels: dataConnected,
+                    dataChannels: dataConnected,
                     rtcChannels: rtcConnected,
                 });
-                if (!(dataConnected || rtcConnected)) {
+                if (dataConnected === '0' && rtcConnected === '0') {
                     rdb.hdel(`robot:${targetRobot}`, 'connected-operator');
                     rdb.hdel(`operator:${id}`, 'connected-robot');
                     db.query(

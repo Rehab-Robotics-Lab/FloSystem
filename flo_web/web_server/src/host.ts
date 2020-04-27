@@ -13,6 +13,7 @@ import {
     ClientStore,
     ParseIncoming,
     Server,
+    killOnDisconnect,
 } from './util';
 
 const parseIncoming: ParseIncoming = async function (
@@ -71,6 +72,10 @@ const parseIncoming: ParseIncoming = async function (
 
     const ws = await handleUpgradePromise(request, socket, head);
 
+    const killer = killOnDisconnect(ws);
+    ws.on('pong', killer.heartbeat);
+    killer.heartbeat();
+
     localLogger.debug(`succesfully upgraded connection from ${name}`);
 
     const webrtcname = `robot:${name}:webrtc`;
@@ -108,6 +113,7 @@ const parseIncoming: ParseIncoming = async function (
             removeSocket(webrtcname);
             rdb.hset(`robot:${name}`, 'rtc-connected', 'false');
             checkDisconnect();
+            killer.cancel();
         });
 
         ws.on('message', (msg: string) => {
@@ -124,6 +130,7 @@ const parseIncoming: ParseIncoming = async function (
             } else if (command === 'msg') {
                 rpub.publish(msgC, msgData['msg']);
             }
+            killer.heartbeat();
         });
 
         const wrtcC = `robot:${name}:incoming-data-rtc`;
@@ -151,14 +158,17 @@ const parseIncoming: ParseIncoming = async function (
             removeSocket(dataname);
             rdb.hset(`robot:${name}`, 'data-connected', 'false');
             checkDisconnect();
+            killer.cancel();
         });
         ws.on('message', (msg: string) => {
             localLogger.silly('ws message', msg);
             rpub.publish(msgC, msg);
+            killer.heartbeat();
         });
         ws.on('ping', () => {
             localLogger.silly('ws ping');
             rpub.publish(cmdC, 'ping');
+            killer.heartbeat();
         });
 
         const dataC = `robot:${name}:incoming-data`;

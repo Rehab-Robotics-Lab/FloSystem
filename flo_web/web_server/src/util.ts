@@ -266,3 +266,60 @@ class Server {
 }
 
 export { Server, HandleUpgradePromise, ParseIncoming };
+
+/**
+ * Helper function to kill a websocket if it isn't being talked to
+ *
+ * @remarks
+ * Will start the first time that hearbeat is called.
+ * Heartbeat should be called each time the socket is heard from
+ * When the websocket closes, the cancel function should be called
+ */
+function killOnDisconnect(
+    ws: WebSocket,
+    pingFreq: number = 1000,
+    connectionTimeout: number = 5000,
+) {
+    const localLogger = logger.child({
+        source: 'killOnDisconnect',
+    });
+
+    let pingTimer: undefined | ReturnType<typeof setInterval> = undefined;
+    let timeout: undefined | ReturnType<typeof setTimeout> = undefined;
+
+    const cancel = () => {
+        localLogger.verbose('cancel');
+        if (pingTimer !== undefined) {
+            clearTimeout(pingTimer);
+        }
+        if (timeout !== undefined) {
+            clearTimeout(timeout);
+        }
+    };
+
+    const heartbeat = () => {
+        localLogger.silly('heartbeat');
+        if (timeout !== undefined) {
+            clearTimeout(timeout);
+            timeout = undefined;
+        }
+        timeout = setTimeout(() => {
+            localLogger.info('killing socket');
+            ws.terminate();
+            cancel();
+        }, connectionTimeout);
+        if (pingTimer !== undefined) {
+            clearInterval(pingTimer);
+            pingTimer = undefined;
+        }
+        pingTimer = setInterval(() => {
+            ws.ping();
+        }, pingFreq);
+    };
+
+    return {
+        heartbeat: heartbeat,
+        cancel: cancel,
+    };
+}
+export { killOnDisconnect };

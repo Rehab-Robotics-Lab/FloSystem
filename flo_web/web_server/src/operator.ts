@@ -13,6 +13,7 @@ import {
     ClientStore,
     ParseIncoming,
     Server,
+    killOnDisconnect,
 } from './util';
 const parseIncoming: ParseIncoming = async function (
     urlReturn,
@@ -103,6 +104,10 @@ const parseIncoming: ParseIncoming = async function (
 
             const ws = await handleUpgradePromise(request, socket, head);
 
+            const killer = killOnDisconnect(ws);
+            ws.on('pong', killer.heartbeat);
+            killer.heartbeat();
+
             const checkDisconnect = async (): Promise<void> => {
                 const [dataConnected, rtcConnected] = await Promise.all([
                     rdb.hget(`operator:${id}`, 'connected-data-channels'),
@@ -153,6 +158,7 @@ const parseIncoming: ParseIncoming = async function (
                     rdb.srem(`operator:${id}:webrtcIDs`, channelID);
                     rdb.hincrby(`operator:${id}`, 'connected-rtc-channels', -1);
                     checkDisconnect();
+                    killer.cancel();
                 });
 
                 ws.on('ping', () => {
@@ -164,6 +170,7 @@ const parseIncoming: ParseIncoming = async function (
                             id: channelID,
                         }),
                     );
+                    killer.heartbeat();
                 });
 
                 ws.on('message', (message) => {
@@ -176,6 +183,7 @@ const parseIncoming: ParseIncoming = async function (
                             msg: message,
                         }),
                     );
+                    killer.heartbeat();
                 });
 
                 cmdC = `robot:${targetRobot}:outgoing-commands-rtc:${channelID}`;
@@ -201,12 +209,14 @@ const parseIncoming: ParseIncoming = async function (
                         -1,
                     );
                     checkDisconnect();
+                    killer.cancel();
                 });
                 // onMessage
                 // - put it in the robot incoming queue
                 ws.on('message', (msg: string) => {
                     localLogger.silly('ws message', msg);
                     rpub.publish(`robot:${targetRobot}:incoming-data`, msg);
+                    killer.heartbeat();
                 });
                 // onPing
                 // - put it in the robot incoming command queue
@@ -217,6 +227,7 @@ const parseIncoming: ParseIncoming = async function (
                         `robot:${targetRobot}:incoming-commands`,
                         'ping',
                     );
+                    killer.heartbeat();
                 });
                 // while open:
                 // - listen to robot outgoing commands

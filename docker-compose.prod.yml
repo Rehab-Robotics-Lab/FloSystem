@@ -33,6 +33,7 @@ services:
     env_file:
       - ./certs/coturn.env
   coturn:
+    restart: unless-stopped
     build:
       context: ./flo_web/turn_server/
     env_file:

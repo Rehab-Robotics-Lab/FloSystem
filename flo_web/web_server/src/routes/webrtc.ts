@@ -28,23 +28,52 @@ function getTURNCredentials(name: string, secret: string) {
 }
 
 router.get('/turn-credentials', checkLoggedIn, async (req, res) => {
-    const { robotName } = req.body;
-    const id = req.session!.userID;
-    const {
-        rows,
-    } = await db.query(
-        'select count(*) from robot_permissions rp ' +
-            'left join robots r on r.id = rp.robot_id ' +
-            'where rp.user_id =$1 and r.robot_name =$2',
-        [id, robotName],
-    );
+    const { robotName, username, password } = req.body;
+    let ctname: string;
+    try {
+        if (robotName !== undefined) {
+            const id = req.session!.userID;
+            const {
+                rows,
+            } = await db.query(
+                'select count(*) from robot_permissions rp ' +
+                    'left join robots r on r.id = rp.robot_id ' +
+                    'where rp.user_id =$1 and r.robot_name =$2',
+                [id, robotName],
+            );
 
-    if (rows[0] < 1) {
-        res.status(403).json({ error: 'insufficient permissions' });
-        return;
+            if (rows[0] < 1) {
+                res.status(403).json({ error: 'insufficient permissions' });
+                return;
+            }
+            ctname = id;
+        } else if (username !== undefined && password !== undefined) {
+            const {
+                rows,
+            } = await db.query(
+                'select password_hash from robots where robot_name=$1',
+                [username],
+            );
+            const validPassword = await bcrypt.compare(
+                password,
+                rows[0]['password_hash'],
+            );
+
+            if (!validPassword) {
+                res.status(401).json({ error: 'failed to auth' });
+                return;
+            }
+
+            ctname = username;
+        } else {
+            res.status(400).json({ error: 'nonsensical request' });
+            return;
+        }
+
+        const coturn_creds = getTURNCredentials(ctname, coturn_secret);
+
+        res.status(200).json(coturn_creds);
+    } catch (e) {
+        res.status(500).json({ error: e });
     }
-
-    const coturn_creds = getTURNCredentials(id, coturn_secret);
-
-    res.status(200).json(coturn_creds);
 });

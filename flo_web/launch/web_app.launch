@@ -1,10 +1,11 @@
+<?xml version="1.0"?>
 <launch>
-    <!--<include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch">-->
-        <!--<arg name="port" value="9090"/>-->
-    <!--</include>-->
-    <node name="rosapi" pkg="rosapi" type="rosapi_node"/>
-    <node name="rosbridge_websocket" pkg="flo_web" type="wsFactory.py">
-        <param name="address" value="$(env FLO_SERVER_IP)"/>
-    </node>
-    <node name="tf2_web_republisher" pkg="tf2_web_republisher" type="tf2_web_republisher"/>
+  <!--<include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch">-->
+  <!--<arg name="port" value="9090"/>-->
+  <!--</include>-->
+  <node name="rosapi" pkg="rosapi" type="rosapi_node"/>
+  <node name="rosbridge_websocket" pkg="flo_web" type="wsFactory.py">
+    <param name="address" value="$(env FLO_SERVER_IP)"/>
+  </node>
+  <node name="tf2_web_republisher" pkg="tf2_web_republisher" type="tf2_web_republisher"/>
 </launch>

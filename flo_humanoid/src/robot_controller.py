@@ -16,7 +16,7 @@ import numpy.matlib as matlib
 import rospkg
 
 
-from std_msgs.msg import String
+from std_msgs.msg import String, Bool
 from sensor_msgs.msg import JointState
 from flo_humanoid_defs.msg import MoveAction, MoveResult, MoveFeedback
 from read_from_bolide import BolideReader
@@ -92,6 +92,14 @@ class BolideController(object):
         self.joint_publisher = rospy.Publisher(
             'joint_states', JointState, queue_size=1)
 
+        self.available_publisher = rospy.Publisher('move_available',
+                                                   Bool, queue_size=1,
+                                                   latch=True)
+
+        self.goal_publisher = rospy.Publisher('move_goal',
+                                              MoveAction, queue_size=1,
+                                              latch=True)
+
         rospy.Subscriber(
             'motor_commands', String, self.new_control_command)
 
@@ -156,6 +164,7 @@ class BolideController(object):
         self.last_feedback_time = rospy.get_time()
 
         self.server.start()
+        self.available_publisher.publish(True)
         rospy.loginfo('started action server for humanoid motion')
 
         self.read_loop()
@@ -299,6 +308,7 @@ class BolideController(object):
             self.read_all()
             if self.server.new_goal and not self.awaiting_pos_resp:
                 rospy.loginfo('got a new goal')
+                self.available_publisher.publish(False)
                 self.move(self.server.accept_new_goal())
             # ITERATE GIVE FEEDBACK
             elif self.moving:
@@ -313,6 +323,7 @@ class BolideController(object):
                         self.moving_params['final_goal'])
                     self.server.set_preempted(result, "Movement Preempted")
                     rospy.loginfo('preempted motion')
+                    self.available_publisher.publish(True)
                     return
                 feedback = MoveFeedback()
                 feedback.time_elapsed = rospy.get_time() - \
@@ -341,6 +352,7 @@ class BolideController(object):
                     result.positional_error = self.error(
                         self.moving_params['final_goal'])
                     self.server.set_succeeded(result, "Motion complete")
+                    self.available_publisher.publish(True)
                     self.moving = False
                     rospy.loginfo('completed motion')
                 elif (self.last_feedback is None or
@@ -415,13 +427,12 @@ class BolideController(object):
         self.read_all()
         returns = False
         with self.usb_lock:
-            # self.ser.flushInput()  # TODO I don't like needing this
             to_send = bytearray([0xff, len(command)+3]+command+[0xfe])
             rospy.logdebug('sending: %s', [hex(s) for s in to_send])
             self.ser.write(to_send)
             rospy.logdebug('waiting for response')
             self.state = 'waiting_for_feedback'
-            returns = self.read_one(tries=15)
+            returns = self.read_one(tries=15)  # TODO: can this value be none?
             if not looking_for_pos:
                 while returns['command'] == self.commands['pos']:
                     returns = self.read_one(tries=15)

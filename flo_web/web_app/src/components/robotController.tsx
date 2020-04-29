@@ -218,8 +218,8 @@ const RobotController: React.FunctionComponent = () => {
             flexWrap: "wrap"
           })}
         >
-          <Vids ros={ros} connected={connected} ipAddr={ipAddr} />
           <URDF ros={ros} connected={connected} />
+          <Vids ros={ros} connected={connected} ipAddr={ipAddr} />
           <SystemMonitor ros={ros} connected={connected} />
         </div>
         <RelaxMotors ros={ros} connected={connected} />

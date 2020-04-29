@@ -77,13 +77,41 @@ const URDF: React.FunctionComponent<URDFProps> = ({ ros, connected }) => {
     };
   }, [connected, ros, viewer]);
 
-  useEffect(() => {
-    if (viewer !== undefined && divRef !== null && divRef.current !== null) {
-      viewer.resize(divRef.current.offsetWidth, divRef.current.offsetHeight);
-    }
-  }, [divRef.current]);
+  if (viewer !== undefined && divRef !== null && divRef.current !== null) {
+    viewer.resize(divRef.current.offsetWidth, divRef.current.offsetHeight);
+  }
 
-  return <div id="urdf" style={{ maxWidth: "10%" }} ref={divRef} />;
+  return (
+    <div
+      style={{
+        width: "15%",
+        minWidth: "100px"
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          paddingTop: "99%",
+          height: "0",
+          overflow: "hidden",
+          position: "relative"
+        }}
+      >
+        <div
+          id="urdf"
+          ref={divRef}
+          style={{
+            position: "absolute",
+            top: "0",
+            left: "0",
+            width: "100%",
+            height: "100%",
+            textAlign: "center"
+          }}
+        />
+      </div>
+    </div>
+  );
 };
 
 export default URDF;

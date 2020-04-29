@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 //import adapter from "webrtc-adapter";
 import { WebrtcRos } from "../../externalLibs/webrtc_ros.js";
 import axios from "axios";
+import SystemMonitor from "./SystemMonitor";
 
 interface VidsProps {
   ros: ROSLIB.Ros | null;
@@ -236,14 +237,25 @@ const Vids: React.FunctionComponent<VidsProps> = ({
   //<script type="text/javascript" src={"/web/adapter.js"} />
   //
 
-  const vidStyle = {
-    width: "auto",
-    maxWidth: "300px"
+  const vidStyle: CSSProperties = {
+    width: "100%",
+    height: "auto"
+  };
+
+  const vidContainerStyle: CSSProperties = {
+    width: "27%",
+    minWidth: "150px",
+    display: "flex",
+    flexDirection: "column",
+    height: "auto",
+    borderRadius: "5px",
+    overflow: "hidden"
   };
 
   return (
     <>
-      <div style={wrapStyle}>
+      <div style={vidContainerStyle}>
+        {/*
         <button
           type="button"
           onClick={(): void => {
@@ -257,6 +269,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         >
           {upperEnable ? "Disable Upper" : "Enable Upper"}
         </button>
+        */}
         <video
           ref={remoteRefUpper}
           id="remote-video-upper"
@@ -264,7 +277,8 @@ const Vids: React.FunctionComponent<VidsProps> = ({
           style={vidStyle}
         ></video>
       </div>
-      <div style={wrapStyle}>
+      <div style={vidContainerStyle}>
+        {/*
         <button
           type="button"
           onClick={(): void => {
@@ -278,6 +292,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         >
           {lowerEnable ? "Disable Lower" : "Enable Lower"}
         </button>
+        */}
         <video
           ref={remoteRefLower}
           id="remote-video-lower"
@@ -285,7 +300,13 @@ const Vids: React.FunctionComponent<VidsProps> = ({
           style={vidStyle}
         ></video>
       </div>
-      <div style={wrapStyle}>
+      <div
+        style={Object.assign({}, vidContainerStyle, {
+          width: "20%",
+          minWidth: "113px"
+        })}
+      >
+        {/*
         <button
           type="button"
           onClick={(): void => {
@@ -299,6 +320,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         >
           {fishEnable ? "Disable Fisheye" : "Enable Fisheye"}
         </button>
+        */}
         <video
           ref={remoteRefFish}
           id="remote-video-fish"
@@ -306,7 +328,13 @@ const Vids: React.FunctionComponent<VidsProps> = ({
           style={vidStyle}
         ></video>
       </div>
-      <div style={wrapStyle}>
+      <div
+        style={Object.assign({}, vidContainerStyle, {
+          minWidth: "55px",
+          width: "10%"
+        })}
+      >
+        {/*
         <button
           type="button"
           onClick={(): void => {
@@ -320,6 +348,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         >
           {localEnable ? "Disable Local" : "Enable Local"}
         </button>
+        */}
         <video
           ref={localRef}
           id="local-video"
@@ -327,6 +356,9 @@ const Vids: React.FunctionComponent<VidsProps> = ({
           style={vidStyle}
           muted={true}
         ></video>
+        <div style={{ display: "flex", flexWrap: "wrap" }}>
+          <SystemMonitor ros={ros} connected={connected} />
+        </div>
       </div>
     </>
   );

@@ -36,6 +36,35 @@ interface SpeechProps {
   speaking: boolean;
 }
 
+function syllables(word: string): number {
+  word = word.toLowerCase();
+  if (word === null) {
+    return 0;
+  }
+  if (word.length <= 3) {
+    return 1;
+  }
+  const clean = word
+    .replace(/(?:[^laeiouy]es|ed|lle|[^laeiouy]e)$/, "")
+    .replace(/^y/, "")
+    .match(/[aeiouy]{1,2}/g);
+  if (clean) {
+    return clean.length;
+  }
+  return 0;
+}
+
+function countSyllables(sentence: string): number {
+  var count = 0;
+  var words = sentence.split(" ");
+
+  words.map(function(val, key) {
+    count += syllables(val);
+  });
+
+  return count;
+}
+
 // Takes a parameter ros, which is the connection to ros
 const Speech: React.FunctionComponent<SpeechProps> = ({
   ros,
@@ -87,7 +116,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       ros: ros as ROSLIB.Ros,
       serverName: "/tts",
       actionName: "tts/SpeechAction",
-      timeout: 1 //Not sure about this value here. needs testing
+      timeout: 1500 //Not sure about this value here. needs testing
     });
     console.log("connected to speech action server");
 
@@ -126,9 +155,21 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       // should get a useful response
     });
 
+    (actionClient as any).on("timeout", () => {
+      goal.cancel();
+      alert("there was an error speaking, please try again");
+      setSpeaking(false);
+    });
+
+    goal.on("timeout", () => {
+      goal.cancel();
+      alert("there was an error speaking, please try again");
+      setSpeaking(false);
+    });
+
     //TODO put an indication that speaking is underway
     setSpeaking(true);
-    goal.send();
+    goal.send((countSyllables(speechTarget.text) / 5) * 1000 * 10);
     console.log("sent request to speak");
   };
 

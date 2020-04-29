@@ -53,7 +53,7 @@ export const runSequence = (
     ros: ros,
     serverName: "/move",
     actionName: "flo_humanoid_defs/MoveAction",
-    timeout: 1 //Not sure about this value here. needs testing
+    timeout: 1500 //Not sure about this value here. needs testing
   });
   console.log("connected to move action action client");
 
@@ -92,9 +92,27 @@ export const runSequence = (
   });
 
   //TODO: get this out as an error
-  //goal.on("timeout",fb=>{
+  (actionClient as any).on("timeout", () => {
+    alert("failed to attach to move server due to timeout, you can try again");
+    setMoving(false);
+    const moveListN = [...MovesList];
+    for (let idx = 0; idx < moveListN.length; idx += 1) {
+      moveListN[idx].status = "none";
+    }
+    setMovesList(moveListN);
+    goal.cancel();
+  });
 
-  //})
+  goal.on("timeout", () => {
+    alert("failed to move due to timeout, you can try again");
+    setMoving(false);
+    const moveListN = [...MovesList];
+    for (let idx = 0; idx < moveListN.length; idx += 1) {
+      moveListN[idx].status = "none";
+    }
+    setMovesList(moveListN);
+    goal.cancel();
+  });
 
   goal.on("feedback", fb => {
     const curMove = fb.move_number;
@@ -128,7 +146,7 @@ export const runSequence = (
   }
   setMovesList(moveListN);
 
-  goal.send();
+  goal.send(time * 1000 * 2);
   console.log("sent command to move");
 };
 

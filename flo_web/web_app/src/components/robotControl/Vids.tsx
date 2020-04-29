@@ -33,12 +33,18 @@ const Vids: React.FunctionComponent<VidsProps> = ({
   connected,
   ipAddr
 }) => {
-  const remoteRef = React.useRef(null);
+  const remoteRefUpper = React.useRef(null);
+  const remoteRefLower = React.useRef(null);
+  const remoteRefFish = React.useRef(null);
   const localRef = React.useRef(null);
   const [localEnable, setLocalEnable] = useState(true);
-  const [remoteEnable, setRemoteEnable] = useState(true);
-  const remoteStream = React.useRef(null);
+  const [upperEnable, setUpperEnable] = useState(true);
+  const [lowerEnable, setLowerEnable] = useState(true);
+  const [fishEnable, setFishEnable] = useState(true);
+  const upperStream = React.useRef(null);
+  const lowerStream = React.useRef(null);
   const localStream = React.useRef(null);
+  const fishStream = React.useRef(null);
 
   const { robotName } = useParams();
 
@@ -100,28 +106,27 @@ const Vids: React.FunctionComponent<VidsProps> = ({
           console.log("connected to webrtc ros");
 
           connection1.onConfigurationNeeded = (): void => {
-            const remoteStreamConfig = { video: {}, audio: {} };
-            remoteStreamConfig.video = {
-              id: "subscribed_video",
-              //src: "ros_image:/video_to_web"
-              src: "ros_image:/video_to_web"
+            const remoteStreamConfigUpper = { video: {}, audio: {} };
+            remoteStreamConfigUpper.video = {
+              id: "subscribed_video_upper",
+              src: "ros_image:/upper_realsense/color/image_raw"
             };
-            remoteStreamConfig.audio = {
+            remoteStreamConfigUpper.audio = {
               id: "subscribed_audio",
               src: "local:"
             };
 
             connection1
-              .addRemoteStream(remoteStreamConfig)
+              .addRemoteStream(remoteStreamConfigUpper)
               .then((event: any) => {
                 //stream started
-                const remoteVideoElement = remoteRef as any;
+                const remoteVideoElement = remoteRefUpper as any;
                 remoteVideoElement.current.srcObject = event.stream;
                 event.remove.then(function() {
                   //Remote stream removed
                   remoteVideoElement.srcObject = null;
                 });
-                remoteStream.current = event.stream;
+                upperStream.current = event.stream;
                 //(window as any).remotestream = event.stream;
               });
 
@@ -159,11 +164,71 @@ const Vids: React.FunctionComponent<VidsProps> = ({
           };
           connection1.connect();
 
+          const connection2 = WebrtcRos.createConnection(
+            connectionString,
+            serverConfig
+          );
+
+          connection2.onConfigurationNeeded = (): void => {
+            const remoteStreamConfigLower = { video: {}, audio: {} };
+            remoteStreamConfigLower.video = {
+              id: "subscribed_video_lower",
+              src: "ros_image:/lower_realsense/color/image_raw"
+            };
+
+            connection2
+              .addRemoteStream(remoteStreamConfigLower)
+              .then((event: any) => {
+                //stream started
+                const remoteVideoElement = remoteRefLower as any;
+                remoteVideoElement.current.srcObject = event.stream;
+                event.remove.then(function() {
+                  //Remote stream removed
+                  remoteVideoElement.srcObject = null;
+                });
+                //(window as any).remotestream = event.stream;
+                lowerStream.current = event.stream;
+              });
+            connection2.sendConfigure();
+          };
+          connection2.connect();
+
+          const connection3 = WebrtcRos.createConnection(
+            connectionString,
+            serverConfig
+          );
+
+          connection3.onConfigurationNeeded = (): void => {
+            const remoteStreamConfigFish = { video: {}, audio: {} };
+            remoteStreamConfigFish.video = {
+              id: "subscribed_video_fish",
+              src: "ros_image:/fisheye_cam/image_raw"
+            };
+
+            connection3
+              .addRemoteStream(remoteStreamConfigFish)
+              .then((event: any) => {
+                //stream started
+                const remoteVideoElement = remoteRefFish as any;
+                remoteVideoElement.current.srcObject = event.stream;
+                event.remove.then(function() {
+                  //Remote stream removed
+                  remoteVideoElement.srcObject = null;
+                });
+                //(window as any).remotestream = event.stream;
+                fishStream.current = event.stream;
+              });
+            connection3.sendConfigure();
+          };
+          connection3.connect();
+
           console.log("*** Done starting webrtc ***");
 
           return (): void => {
             console.log("*** Close webrtc connections ***");
             connection1.close();
+            connection2.close();
+            connection3.close();
           };
         });
     }
@@ -179,19 +244,87 @@ const Vids: React.FunctionComponent<VidsProps> = ({
   return (
     <>
       <div style={wrapStyle}>
+        <button
+          type="button"
+          onClick={(): void => {
+            if (upperStream && upperStream.current) {
+              (upperStream!.current! as any)
+                .getTracks()
+                .forEach((track: any) => (track.enabled = !upperEnable));
+              setUpperEnable(!upperEnable);
+            }
+          }}
+        >
+          {upperEnable ? "Disable Upper" : "Enable Upper"}
+        </button>
         <video
-          ref={remoteRef}
-          id="remote-video"
+          ref={remoteRefUpper}
+          id="remote-video-upper"
           autoPlay={true}
-          style={{ width: "auto", maxWidth: "80%" }}
+          style={vidStyle}
         ></video>
       </div>
       <div style={wrapStyle}>
+        <button
+          type="button"
+          onClick={(): void => {
+            if (lowerStream && lowerStream.current) {
+              (lowerStream!.current! as any)
+                .getTracks()
+                .forEach((track: any) => (track.enabled = !lowerEnable));
+              setLowerEnable(!lowerEnable);
+            }
+          }}
+        >
+          {lowerEnable ? "Disable Lower" : "Enable Lower"}
+        </button>
+        <video
+          ref={remoteRefLower}
+          id="remote-video-lower"
+          autoPlay={true}
+          style={vidStyle}
+        ></video>
+      </div>
+      <div style={wrapStyle}>
+        <button
+          type="button"
+          onClick={(): void => {
+            if (fishStream && fishStream.current) {
+              (fishStream!.current! as any)
+                .getTracks()
+                .forEach((track: any) => (track.enabled = !fishEnable));
+              setFishEnable(!fishEnable);
+            }
+          }}
+        >
+          {fishEnable ? "Disable Fisheye" : "Enable Fisheye"}
+        </button>
+        <video
+          ref={remoteRefFish}
+          id="remote-video-fish"
+          autoPlay={true}
+          style={vidStyle}
+        ></video>
+      </div>
+      <div style={wrapStyle}>
+        <button
+          type="button"
+          onClick={(): void => {
+            if (localStream && localStream.current) {
+              (localStream!.current! as any)
+                .getTracks()
+                .forEach((track: any) => (track.enabled = !localEnable));
+              setLocalEnable(!localEnable);
+            }
+          }}
+        >
+          {localEnable ? "Disable Local" : "Enable Local"}
+        </button>
         <video
           ref={localRef}
           id="local-video"
           autoPlay={true}
-          style={{ width: "auto", maxHeight: "100px" }}
+          style={vidStyle}
           muted={true}
         ></video>
       </div>

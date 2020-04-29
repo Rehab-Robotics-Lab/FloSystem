@@ -8,12 +8,12 @@
     <arg name="simulate" value="$(arg simulate)"/>
   </include>
   <!--Humanoid Robot -->
-  <node name="bolide_interface" pkg="flo_humanoid" type="robot_controller.py"/>
+  <node name="bolide_interface" pkg="flo_humanoid" type="robot_controller.py" respawn="true"/>
   <!--The robot URDF parsing and loading-->
   <arg name="model" default="$(find flo_humanoid)/urdf/flo.urdf.xacro"/>
   <param name="robot_description" command="$(find xacro)/xacro --inorder $(arg model) "/>
   <!--Publishing the robot joint positions instead of just angles-->
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true"/>
   <!--Voice-->
   <arg name="voice_config_file" default="$(find flo_core)/config/polly.yaml"/>
   <env name="AWS_PROFILE" value="flo"/>
@@ -24,22 +24,23 @@
   <include file="$(find flo_web)/launch/web_app.launch"/>
   <!--Database for poses, actions, etc-->
   <rosparam param="database_location">"~/db/flo.db"</rosparam>
-  <node name="pose_db_manager" pkg="flo_core" type="flo_db.py"/>
+  <node name="pose_db_manager" pkg="flo_core" type="flo_db.py" respawn="true"/>
   <!--Kobuki-->
   <group if="$(eval simulate==False)">
     <include file="$(find kobuki_node)/launch/minimal.launch"/>
     <include file="$(find flo_core)/launch/safe_keyop.launch"/>
   </group>
   <!--Game Runer-->
-  <node name="game_runner" pkg="flo_core" type="game_runner.py"/>
+  <node name="game_runner" pkg="flo_core" type="game_runner.py" respawn="true"/>
   <!--Logging-->
   <group if="$(eval simulate==False and record==True)">
     <include file="$(find flo_core)/launch/recording.launch"/>
   </group>
   <!--System Monitoring-->
-  <node name="system_monitor" pkg="system_monitor" type="stats_publisher.py"/>
+  <node name="system_monitor" pkg="system_monitor" type="stats_publisher.py" respawn="true"/>
   <!--Telepresence-->
   <include file="$(find flo_telepresence)/launch/telepresence.launch">
     <arg name="simulate" value="$(arg simulate)"/>
+    <arg name="record" value="$(arg record)"/>
   </include>
 </launch>

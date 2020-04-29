@@ -28,7 +28,8 @@ class RobotScreen(object):
         self.bridge = CvBridge()
         # msg = rospy.wait_for_message("videofile/image_raw", smImage)
         # self.new_img(msg)
-        rospy.Subscriber('/remote_video', smImage, self.__new_img)
+        rospy.Subscriber('/video_to_web', smImage, self.__new_img)
+        # rospy.Subscriber('/remote_video', smImage, self.__new_img)
         self.__run_display()
 
     def __run_display(self):

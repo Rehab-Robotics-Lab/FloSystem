@@ -1,23 +1,28 @@
 <?xml version="1.0"?>
 <launch>
+  <arg name="record" default="False"/>
   <!--This guide tells us settings to start with:-->
   <!--https://www.intel.com/content/dam/support/us/en/documents/emerging-technologies/intel-realsense-technology/BKMs_Tuning_RealSense_D4xx_Cam.pdf-->
+  <!--Valid resolutions on page 55:-->
+  <!--https://www.intel.com/content/dam/support/us/en/documents/emerging-technologies/intel-realsense-technology/Intel-RealSense-D400-Series-Datasheet.pdf-->
   <!--S/N 1: 904412060717-->
   <!--S/N 2: 912322061173-->
   <arg name="serial_no_lower" value="904412060717"/>
   <arg name="serial_no_upper" value="912322061173"/>
   <arg name="depth_width" value="1280"/>
   <arg name="depth_height" value="720"/>
-  <arg name="enable_depth" value="true"/>
   <arg name="depth_fps" value="30"/>
-  <!--should be 1920:-->
-  <arg name="color_width" value="1280"/>
-  <!--should be 1080:-->
-  <arg name="color_height" value="720"/>
-  <arg name="enable_color" value="true"/>
+  <arg name="enable_color" value="True"/>
+  <arg name="enable_depth" value="True" if="$(eval record==True)"/>
+  <arg name="color_width" value="1920" if="$(eval record==True)"/>
+  <arg name="color_height" value="1080" if="$(eval record==True)"/>
+  <arg name="align_depth" value="True" if="$(eval record==True)"/>
+  <arg name="enable_depth" value="False" if="$(eval record==False)"/>
+  <arg name="color_width" value="848" if="$(eval record==False)"/>
+  <arg name="color_height" value="480" if="$(eval record==False)"/>
+  <arg name="align_depth" value="False" if="$(eval record==False)"/>
   <!--Should be 30:-->
   <arg name="color_fps" value="30"/>
-  <arg name="align_depth" value="false"/>
   <arg name="enable_pointcloud" value="false"/>
   <arg name="enable_infra" value="false"/>
   <!--<arg name="enable_sync"               default="false"/>-->
@@ -46,16 +51,16 @@
     <arg name="enable_infra2" value="$(arg enable_infra)"/>
     <arg name="initial_reset" value="$(arg initial_reset)"/>
   </include>
-  <group ns="lower_realsense/color">
-    <node pkg="topic_tools" name="image_throttled" type="throttle" args="messages image_raw 15 image_throttled"/>
-    <node pkg="nodelet" type="nodelet" name="image_web" args="standalone image_proc/resize">
-      <param name="use_scale" type="bool" value="False"/>
-      <param name="width" type="int" value="300"/>
-      <param name="height" type="int" value="168"/>
-      <remap from="image" to="image_throttled"/>
-      <remap from="~image" to="image_web"/>
-    </node>
-  </group>
+  <!--<group ns="lower_realsense/color">-->
+  <!--<node pkg="topic_tools" name="image_throttled" type="throttle" args="messages image_raw 15 image_throttled"/>-->
+  <!--<node pkg="nodelet" type="nodelet" name="image_web" args="standalone image_proc/resize">-->
+  <!--<param name="use_scale" type="bool" value="False"/>-->
+  <!--<param name="width" type="int" value="300"/>-->
+  <!--<param name="height" type="int" value="168"/>-->
+  <!--<remap from="image" to="image_throttled"/>-->
+  <!--<remap from="~image" to="image_web"/>-->
+  <!--</node>-->
+  <!--</group>-->
   <include file="$(find realsense2_camera)/launch/rs_camera.launch">
     <arg name="serial_no" value="$(arg serial_no_upper)"/>
     <arg name="camera" value="upper_realsense"/>
@@ -76,14 +81,14 @@
     <arg name="enable_infra2" value="$(arg enable_infra)"/>
     <arg name="initial_reset" value="$(arg initial_reset)"/>
   </include>
-  <group ns="upper_realsense/color">
-    <node pkg="topic_tools" name="image_throttled" type="throttle" args="messages image_raw 15 image_throttled"/>
-    <node pkg="nodelet" type="nodelet" name="image_web" args="standalone image_proc/resize">
-      <param name="use_scale" type="bool" value="False"/>
-      <param name="width" type="int" value="300"/>
-      <param name="height" type="int" value="168"/>
-      <remap from="image" to="image_throttled"/>
-      <remap from="~image" to="image_web"/>
-    </node>
-  </group>
+  <!--<group ns="upper_realsense/color">-->
+  <!--<node pkg="topic_tools" name="image_throttled" type="throttle" args="messages image_raw 15 image_throttled"/>-->
+  <!--<node pkg="nodelet" type="nodelet" name="image_web" args="standalone image_proc/resize">-->
+  <!--<param name="use_scale" type="bool" value="False"/>-->
+  <!--<param name="width" type="int" value="300"/>-->
+  <!--<param name="height" type="int" value="168"/>-->
+  <!--<remap from="image" to="image_throttled"/>-->
+  <!--<remap from="~image" to="image_web"/>-->
+  <!--</node>-->
+  <!--</group>-->
 </launch>

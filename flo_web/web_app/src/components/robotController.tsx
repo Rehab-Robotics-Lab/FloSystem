@@ -207,82 +207,97 @@ const RobotController: React.FunctionComponent = () => {
 
   return (
     <div className="App">
-      <Header connected={connected} />
-      <div className="body" style={{ backgroundColor: colors.gray.dark2 }}>
+      <div
+        className="body"
+        style={{
+          backgroundColor: colors.gray.dark2,
+          display: "flex",
+          width: "100%",
+          height: "100%",
+
+          alignItems: "flex-start",
+          margin: "0px",
+          flexDirection: "column"
+        }}
+      >
         <div
           className="visualFeeds"
           style={Object.assign({}, basicBlock, {
             maxWidth: "none",
             maxHeight: "auto",
             flexDirection: "row",
-            flexWrap: "wrap"
+            flexWrap: "wrap",
+            position: "sticky",
+            top: 0,
+            justifyContent: "spaceAround"
           })}
         >
           <Vids ros={ros} connected={connected} ipAddr={ipAddr} />
           <URDF ros={ros} connected={connected} />
-          <SystemMonitor ros={ros} connected={connected} />
         </div>
-        <RelaxMotors ros={ros} connected={connected} />
-        <div
-          className="controls"
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
-            alignItems: "flex-start"
-          }}
-        >
-          <Drive ros={ros} connected={connected} />
-          <GameContainer ros={ros} connected={connected} />
-          <div style={{ display: "flex", flexDirection: "row" }}>
-            <SpeechContainer
-              ros={ros}
-              connected={connected}
-              speechTarget={speechTarget}
-              setSpeechTarget={setSpeechTarget}
-              setSpeaking={setSpeaking}
-              speaking={speaking}
-            />
-          </div>
-          <FaceContainer ros={ros} connected={connected} />
+        <div style={{ flexGrow: 1, overflow: "auto" }}>
+          <RelaxMotors ros={ros} connected={connected} />
           <div
+            className="controls"
             style={{
               display: "flex",
               flexDirection: "row",
-              flexWrap: "wrap"
+              flexWrap: "wrap",
+              alignItems: "flex-start"
             }}
           >
-            <PoseContainer
+            <Drive ros={ros} connected={connected} />
+            <GameContainer ros={ros} connected={connected} />
+            <div style={{ display: "flex", flexDirection: "row" }}>
+              <SpeechContainer
+                ros={ros}
+                connected={connected}
+                speechTarget={speechTarget}
+                setSpeechTarget={setSpeechTarget}
+                setSpeaking={setSpeaking}
+                speaking={speaking}
+              />
+            </div>
+            <FaceContainer ros={ros} connected={connected} />
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "wrap"
+              }}
+            >
+              <PoseContainer
+                ros={ros}
+                connected={connected}
+                addToMoveList={addToMoveList}
+                pose={pose}
+              />
+              <SequenceRunContainer
+                ros={ros}
+                connected={connected}
+                MovesList={MovesList}
+                setMovesList={setMovesList}
+                moving={moving}
+                setMoving={setMoving}
+              />
+              <SequenceContainer
+                ros={ros}
+                connected={connected}
+                MovesList={MovesList}
+                setMovesList={setMovesList}
+              />
+            </div>
+            <GameBuckets ros={ros} connected={connected} />
+            <MoveToPose
               ros={ros}
               connected={connected}
-              addToMoveList={addToMoveList}
-              pose={pose}
-            />
-            <SequenceRunContainer
-              ros={ros}
-              connected={connected}
-              MovesList={MovesList}
-              setMovesList={setMovesList}
               moving={moving}
               setMoving={setMoving}
-            />
-            <SequenceContainer
-              ros={ros}
-              connected={connected}
-              MovesList={MovesList}
-              setMovesList={setMovesList}
+              pose={pose}
             />
           </div>
-          <GameBuckets ros={ros} connected={connected} />
-          <MoveToPose
-            ros={ros}
-            connected={connected}
-            moving={moving}
-            setMoving={setMoving}
-            pose={pose}
-          />
+          <ErrorDisplay errorList={errorList} />
         </div>
-        <ErrorDisplay errorList={errorList} />
       </div>
     </div>
   );

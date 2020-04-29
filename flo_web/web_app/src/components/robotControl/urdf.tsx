@@ -9,7 +9,8 @@ interface URDFProps {
 }
 // Takes a parameter ros, which is the connection to ros
 const URDF: React.FunctionComponent<URDFProps> = ({ ros, connected }) => {
-  const [viewer, setViewer] = useState<ROS3D.Viewer | null>(null);
+  const [viewer, setViewer] = useState<ROS3D.Viewer | undefined>(undefined);
+  const divRef = React.useRef<HTMLHeadingElement>(null);
 
   const { url } = useRouteMatch();
   // We need to wait until the target diff exists
@@ -56,7 +57,7 @@ const URDF: React.FunctionComponent<URDFProps> = ({ ros, connected }) => {
 
     console.log(`hosting urdf from : ${process.env.PUBLIC_URL}/mesh_root/`);
     // The URDF Loader and drawer
-    if (viewer === null || viewer.scene === null) return;
+    if (viewer === undefined || viewer.scene === null) return;
     const clientT = new ROS3D.UrdfClient({
       ros: ros as ROSLIB.Ros,
       tfClient,
@@ -76,7 +77,41 @@ const URDF: React.FunctionComponent<URDFProps> = ({ ros, connected }) => {
     };
   }, [connected, ros, viewer]);
 
-  return <div id="urdf" />;
+  if (viewer !== undefined && divRef !== null && divRef.current !== null) {
+    viewer.resize(divRef.current.offsetWidth, divRef.current.offsetHeight);
+  }
+
+  return (
+    <div
+      style={{
+        width: "15%",
+        minWidth: "100px"
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          paddingTop: "99%",
+          height: "0",
+          overflow: "hidden",
+          position: "relative"
+        }}
+      >
+        <div
+          id="urdf"
+          ref={divRef}
+          style={{
+            position: "absolute",
+            top: "0",
+            left: "0",
+            width: "100%",
+            height: "100%",
+            textAlign: "center"
+          }}
+        />
+      </div>
+    </div>
+  );
 };
 
 export default URDF;

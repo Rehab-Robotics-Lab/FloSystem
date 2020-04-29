@@ -1,17 +1,84 @@
 import React, { useEffect, useReducer } from "react";
 import * as ROSLIB from "roslib";
 import { wrapStyle } from "../../styleDefs/styles";
-import Gauge from "react-svg-gauge";
+
+//https://gist.github.com/mlocati/7210513
+function perc2color(perc: number): string {
+  perc = 100 - perc;
+  let r;
+  let g;
+  const b = 0;
+  if (perc < 50) {
+    r = 255;
+    g = Math.round(5.1 * perc);
+  } else {
+    g = 255;
+    r = Math.round(510 - 5.1 * perc);
+  }
+  const h = r * 0x10000 + g * 0x100 + b * 0x1;
+  return "#" + ("000000" + h.toString(16)).slice(-6);
+}
 
 const statsLength = 20;
-const gaugeW = 90;
-const gaugeH = 65;
+const gaugeW = 50;
+const gaugeH = 30;
 const gaugeF = (n: number): string => {
-  return n.toFixed(2).toString();
+  return Math.round(n).toString();
 };
 
 const gaugeFdb = (n: number): string => {
-  return n.toFixed(2).toString() + " dBm";
+  return Math.round(n).toString() + " dBm";
+};
+
+interface GaugeProps {
+  value: number;
+  label: string;
+  valueFormatter?: (arg: number) => string;
+  min?: number;
+  max?: number;
+  invert?: boolean;
+}
+
+const Gauge: React.FunctionComponent<GaugeProps> = ({
+  value,
+  label,
+  valueFormatter,
+  min,
+  max,
+  invert
+}) => {
+  let valueStr = Math.round(value).toString();
+  if (valueFormatter) {
+    valueStr = valueFormatter(value);
+  }
+  let scaleVal = value;
+  if (min && max) {
+    scaleVal = (100 * (value - min)) / (max - min);
+  }
+  if (invert) {
+    scaleVal = 100 - scaleVal;
+  }
+  return (
+    <div
+      style={{
+        backgroundColor: perc2color(scaleVal),
+        width: "100%",
+        height: "auto",
+        fontSize: "1vh"
+      }}
+    >
+      {label}:{valueStr}
+    </div>
+  );
+};
+
+Gauge.defaultProps = {
+  valueFormatter: (arg: number): string => {
+    return Math.round(arg).toString();
+  },
+  min: 0,
+  max: 100,
+  invert: false
 };
 
 interface CPUutilMsg {
@@ -103,69 +170,25 @@ const SystemMonitor: React.FunctionComponent<SystemMonitorProps> = ({
   }, [connected, ros]);
 
   return (
-    <div>
-      <h2>System Stats</h2>
-      <div
-        style={Object.assign(
-          { maxHeight: "250px", flexWrap: "wrap" },
-          wrapStyle
-        )}
-      >
-        <div>
-          <Gauge
-            value={cpu[0]}
-            width={gaugeW}
-            height={gaugeH}
-            label="CPU Utilization"
-            valueFormatter={gaugeF}
-            minMaxLabelStyle={{ visibility: "hidden" }}
-          />
-        </div>
-
-        <div>
-          <Gauge
-            value={mem[0]}
-            width={gaugeW}
-            height={gaugeH}
-            label="Memory Utilization"
-            valueFormatter={gaugeF}
-            minMaxLabelStyle={{ visibility: "hidden" }}
-          />
-        </div>
-        <div>
-          <Gauge
-            value={100 - hdd[0]}
-            width={gaugeW}
-            height={gaugeH}
-            label="Hard Drive Utilization"
-            valueFormatter={gaugeF}
-            minMaxLabelStyle={{ visibility: "hidden" }}
-          />
-        </div>
-        <div>
-          <Gauge
-            value={netQ[0]}
-            width={gaugeW}
-            height={gaugeH}
-            label="Network Quality"
-            valueFormatter={gaugeF}
-            minMaxLabelStyle={{ visibility: "hidden" }}
-          />
-        </div>
-        <div>
-          <Gauge
-            value={netS[0]}
-            width={gaugeW}
-            height={gaugeH}
-            label="Network Strength"
-            valueFormatter={gaugeFdb}
-            min={-70} //https://codeyarns.com/2017/07/23/dbm-wireless-signal-strength/
-            max={-20}
-            minMaxLabelStyle={{ visibility: "hidden" }}
-          />
-        </div>
-      </div>
-    </div>
+    <>
+      <Gauge value={cpu[0]} label="CPU" valueFormatter={gaugeF} />
+      <Gauge value={mem[0]} label="Mem" valueFormatter={gaugeF} />
+      <Gauge value={100 - hdd[0]} label="HD" valueFormatter={gaugeF} />
+      <Gauge
+        value={netQ[0]}
+        label="WiFi Quality"
+        valueFormatter={gaugeF}
+        invert={true}
+      />
+      <Gauge
+        value={netS[0]}
+        label="WiFi Strength"
+        valueFormatter={gaugeFdb}
+        min={-70} //https://codeyarns.com/2017/07/23/dbm-wireless-signal-strength/
+        max={-20}
+        invert={true}
+      />
+    </>
   );
 };
 

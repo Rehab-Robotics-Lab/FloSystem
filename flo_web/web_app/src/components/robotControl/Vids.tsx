@@ -230,6 +230,18 @@ const Vids: React.FunctionComponent<VidsProps> = ({
             connection1.close();
             connection2.close();
             connection3.close();
+            console.log("*** DONE Close webrtc connections ***");
+            console.log("localStream");
+            console.log(localStream);
+            if (localStream && localStream.current) {
+              (localStream!.current! as any)
+                .getTracks()
+                .forEach((track: any) => {
+                  console.log("track");
+                  console.log(track);
+                  track.close();
+                });
+            }
           };
         });
     }

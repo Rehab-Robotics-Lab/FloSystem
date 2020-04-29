@@ -10,19 +10,19 @@
     <!--Should be 30-->
     <arg name="set_camera_fps" value="30"/>
   </include>
-  <group ns="fisheye_cam">
-    <node pkg="topic_tools" name="fisheye_throttle" type="throttle" args="messages image_raw 10 image_throttled"/>
-    <node pkg="nodelet" name="fish_nodelet_manager" type="nodelet" args="manager"/>
-    <!--<node pkg="nodelet" name="fisheye_throttle" type="nodelet" args="load test_nodelet_topic_tools/NodeletThrottleImage nodelet_manager">-->
-    <!--<remap from="topic_in" to="image_raw"/>-->
-    <!--<remap from="topic_out" to="image_throttled"/>-->
-    <!--</node>-->
-    <node pkg="nodelet" name="image_web" type="nodelet" args="load image_proc/resize fish_nodelet_manager">
-      <param name="use_scale" type="bool" value="False"/>
-      <param name="width" type="int" value="320"/>
-      <param name="height" type="int" value="240"/>
-      <remap from="image" to="image_throttled"/>
-      <remap from="~image" to="image_web"/>
-    </node>
-  </group>
+  <!--<group ns="fisheye_cam">-->
+  <!--<node pkg="topic_tools" name="fisheye_throttle" type="throttle" args="messages image_raw 10 image_throttled"/>-->
+  <!--<node pkg="nodelet" name="fish_nodelet_manager" type="nodelet" args="manager"/>-->
+  <!--[><node pkg="nodelet" name="fisheye_throttle" type="nodelet" args="load test_nodelet_topic_tools/NodeletThrottleImage nodelet_manager"><]-->
+  <!--[><remap from="topic_in" to="image_raw"/><]-->
+  <!--[><remap from="topic_out" to="image_throttled"/><]-->
+  <!--[></node><]-->
+  <!--<node pkg="nodelet" name="image_web" type="nodelet" args="load image_proc/resize fish_nodelet_manager">-->
+  <!--<param name="use_scale" type="bool" value="False"/>-->
+  <!--<param name="width" type="int" value="320"/>-->
+  <!--<param name="height" type="int" value="240"/>-->
+  <!--<remap from="image" to="image_throttled"/>-->
+  <!--<remap from="~image" to="image_web"/>-->
+  <!--</node>-->
+  <!--</group>-->
 </launch>

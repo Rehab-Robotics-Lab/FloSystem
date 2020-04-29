@@ -2,9 +2,9 @@ import { CSSProperties } from "react";
 
 export const basicBlock: CSSProperties = {
   backgroundColor: "white",
-  borderRadius: "25px",
-  padding: "10px",
-  margin: "10px",
+  borderRadius: "15px",
+  padding: "5px",
+  margin: "2.5px",
   display: "flex",
   flexDirection: "column",
   overflow: "hidden",

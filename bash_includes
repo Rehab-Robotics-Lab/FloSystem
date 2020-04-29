@@ -1,6 +1,22 @@
-source /opt/ros/kinetic/setup.bash
+###### ROS Support ######
+if (($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==16));then
+    ROS_VERSION="kinetic"
+    OS_VERSION="xenial"
+    function ifip { /sbin/ifconfig $1 | grep "inet addr" | awk -F: '{print $2}' |awk '{print $1}'; }
+    else
+    if (($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==18)); then
+    ROS_VERSION="melodic"
+    OS_VERSION="bionic"
+    function ifip { ip -4 addr show $1 | grep -oP '(?<=inet\s)\d+(\.\d+){3}' ;}
+fi
+fi
+echo "using ros version: $ROS_VERSION"
+echo "on OS: $OS_VERSION"
+source /opt/ros/${ROS_VERSION}/setup.bash
 source ~/catkin_ws/devel/setup.bash
+
 export ROS_MASTER_URI=http://localhost:11311
-function ifip { /sbin/ifconfig $1 | grep "inet addr" | awk -F: '{print $2}' |awk '{print $1}'; }
+
 export ROS_IP=`ifip wlp58s0`
+
 export DISPLAY=:0

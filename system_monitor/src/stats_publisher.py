@@ -80,7 +80,7 @@ class StatsPublisher(object):
             A dictionary with the fields `link_quality` and `signal_level`
         """
         try:
-            proc = subprocess.Popen('iwconfig | grep Link', shell=True,
+            proc = subprocess.Popen('/sbin/iwconfig | grep Link', shell=True,
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output, err = proc.communicate()
             if not output:

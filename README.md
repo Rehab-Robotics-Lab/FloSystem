@@ -1,4 +1,5 @@
 # LilFloSystem
+
 ![Check Syntax](https://github.com/Rehab-Robotics-Lab/LilFloSystem/workflows/Check%20Syntax/badge.svg)
 ![Install & Build](https://github.com/Rehab-Robotics-Lab/LilFloSystem/workflows/Install%20&%20Build/badge.svg)
 
@@ -11,14 +12,17 @@ Lil'Flo platform.
 You may be interested in [papers and posters on the project](https://michaelsobrepera.com/tags/flo)
 
 ## License:
-Currently all code, documentation, other content, and ideas in this repository is available for you to view. 
-If you would like to use the code, documentation, other content, or ideas in this repository, please reach out to mjsobrep@seas.upenn.edu. 
+
+Currently all code, documentation, other content, and ideas in this repository is available for you to view.
+If you would like to use the code, documentation, other content, or ideas in this repository, please reach out to mjsobrep@seas.upenn.edu.
 
 ### Why so restrictive?
+
 We are waiting on approvals from the owners of the repository (The University of Pennsylvania) to approve a less restrictive license.
 
 ## Contents
 
+- [WebServer Setup](#webserver-setup)
 - [Development Computer Setup](#dev-computer)
 - [Network Setup](#network)
 - [NUC Setup](#nuc)
@@ -38,6 +42,153 @@ We are waiting on approvals from the owners of the repository (The University of
   - [ROS won't build](#broken-build)
   - [No audio plays](#broken-audio)
   - [No videos on web](#broken-web-video)
+
+## WebServer Setup
+
+Setting up the webserver is a totally different issue from setting up the robot.
+Everything runs in docker. Let's walk through real quickly what is going on:
+When anything outside hits the webserver stack, they are going to route through
+Nginx, which is listening on both ports 80 and 443. The definition for Nginx depends on the environment, production or development, and is
+defined in `flo_web/nginx-prod.conf` and `flo_web/nginx-dev.conf`
+respectively. In production, Nginx will serve the static front end
+files itself. In development create-react-app (via nodejs) will serve
+them so that the developer has hot reloading. The Nginx docker image
+is defined in `flo_wb/Dockerfile` where the front end is first compiled
+and then added into Nginx.
+
+When in development, the create-react-app runtime is defined in
+`flo_web/web_app/Dockerfile`.
+
+For both production and development, the backend socket server runtime
+is defined in `flo_web/web_server/Dockerfile`.
+
+There is a base docker-compose file in the root. This file defines
+the operations during production. There is also a docker-compose
+override file, which defines operations during development.
+This is done by changing the commands which run in the docker images,
+changing what volumes are mapped to bring in code and config files,
+and adding in the front end server.
+
+You should create a file in `LilFloSystem/certs/session-secret.env`
+with contents: `SESSION_SECRET=<cryptographically random value>`
+
+You should create a file in `LilFloSystem/certs/coturn.env`
+with contents:
+```conf
+COTURN_SECRET=<cryptographically random value>
+SITE_ADDR=<the site address, ex: lilflo.com>
+```
+
+####To run in development:
+
+1. Go to the root of this repo
+2. `docker-compose build`
+3. `docker-compose up`
+   In theory, you shouldn't have to rebuild for any changes.
+   If you change the Nginx dev config, you will either need
+   to go into the Nginx container and restart it or restart
+   the entire docker-compose group (ctrl-c; `docker-compose up`)
+
+#### To run in production:
+
+1. Go to the root of this repo
+2. `docker-compose -f docker-compose.yml up -d`
+   TODO: [add a production def](https://docs.docker.com/compose/extends/#multiple-compose-files) that sets restart rules and stuff.
+3. If you need to take it down, run: `docker-compose down`
+
+### Using docker compose:
+
+Docker compose is nice because it will build, name, and run all of the necessary
+images.
+This is defined in the `docker-compose.yml` file in the root.
+
+1. Go to the root
+2. Run `docker-compose build`
+3. Run `docker-compose up`, Ctrl+c to take down
+   - To put in background run `docker-compose -D up`
+   - To take out of background: `docker-compose down`
+
+### SSL certs
+
+#### Local
+
+We need ssl certs during local development.
+
+1. sudo apt install libnss3-tools
+2. Download the latest binary for [mkcert](https://github.com/FiloSottile/mkcert)
+3. Change permissions `sudo chmod u+x <name of binary>`
+4. Setup certs registry: `<name of binary: mkcert...> -install`
+5. Make a certs dir (named `certs`) in the root of this repo and go into it
+6. Make new certs: `<name of binary: mkcert...> localhost` you can add other options here if you want to simulate a local domain by putting it in your hosts file, add in the 127.0.0.1 or other localhost aliases, etc. You can even use wildcards. NOTE: be very careful with these, they can really really open you up to security holes in your local computer if shared.
+7. rename the certs: `mv localhost-key.pem localhost.key && mv localhost.pem localhost.crt` Of course if your certs are named something else... you get the idea.
+
+#### Server
+
+We use certbot to generate certificates automatically. The certbot certificates
+automatically. They expire every so often, so they need to be regularly regenerated.
+We have it run once a week on sunday at 2:30AM eastern to regen certs and
+3:30AM eastern to restart the server and use the new certs.
+The whole system runs based on a [guide](https://medium.com/@pentacent/nginx-and-lets-encrypt-with-docker-in-less-than-5-minutes-b4b8a60d3a71)
+
+### Deploying to Linode
+
+Linode is small, easy to use, and affordable.
+
+1. Setup a node on linode. The small size should be fine. When setting up, setup an ssh-key to make your life easier. Use the latest Ubuntu LTS.
+2. Setup the A/AAA record to work with your domain name and have your register use the linode domain servers.
+3. Install and setup firewall:
+   1. `apt install ufw`
+   2. `ufw default allow outgoing`
+   3. `ufw default deny incoming`
+   4. `ufw allow ssh`
+   5. `ufw allow http`
+   6. `ufw allow https`
+   7. `ufw allow 49152:65535/udp`
+   7. `ufw allow 49152:65535/tcp`
+   7. `ufw allow 3478/tcp`
+   7. `ufw allow 3478/udp`
+   7. `ufw allow 5349/tcp`
+   7. `ufw allow 5349/udp`
+   7. `ufw enable`
+   8. Check status with `ufw status`
+4. [Setup unattended updates](https://help.ubuntu.com/lts/serverguide/automatic-updates.html): `apt install unattended-upgrades`
+5. Clone this repository
+6. Install docker-compose: `apt install docker-compose`
+7. Go into the repo root and run `docker-compose -f docker-compose.yml -f docker-compose.prod.yml build`
+8. Run `docker pull certbot/certbot`
+9. Setup certificates by running `./init-letsencrypt.sh`
+10. Run `docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d`
+11. Monitor with `docker ps`, `docker stats`, and `docker-compose logs -f`
+
+### Deploying to Heroku
+
+Discovered that on heroku, each individual docker image/service needs its own dyno and the way that they talk between each other doesn't work really well.
+So we are not going with heroku.
+But I am leavin this here for future ref
+
+Heroku is a nice quick way to deploy. They provide a free hobby dyno to students,
+so using that. The Heroku-Redis and Heroku-Postgres serve the need for in system
+messaging, in system memory, and database. In theory heroku will handle keeping
+those systems safe.
+
+1. [Install the Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli#download-and-install)
+2. Login to Heroku CLI: `heroku login`
+3. Create an app: `heroku create <app-name>`. Note that the app name is in a
+   global namespace for all heroku apps, so for example `flo-control-system`
+   is alredy taken
+4. If you don't want to be storing plain text passwords (you don't) you need to
+   [setup a credential helper](https://docs.docker.com/engine/reference/commandline/login/#credentials-store)
+   1. Install the helper, download
+      [the latest release](https://github.com/docker/docker-credential-helpers/releases)
+      and put it in your path. Easiest to just drop in ~/bin and go change the permissions to
+      be runnable (`chmod u+x <filename>`)
+   2. To use pass:
+      1. Install pass and gnupg: `sudo apt install pass gnupg`
+      2. Make a gpg key: gpg --full-gen-key
+      3. Initialize pass: pass init <emailaddr>
+   3. Setup the docker config by editing ~/.docker/config.json to have:
+      `"credsStore": "pass"`
+5. login to the container system: `heroku container:login`
 
 ## Setup
 
@@ -284,6 +435,23 @@ function ssh-flo {
    [realsense cameras](#realsense-cameras)
 8. You need to setup [Amazon Polly](#amazon-polly)
 9. You will need to [setup the webrtc ros](#webrtc-ros) code
+10. Add to the bashrc file on the robot:
+    - `export ROBOT_NAME=<robots name>` The name should be the unique name of the
+      robot. The current valid values are lilflo and mantaro, as we add more
+      systems, each name must be unique
+    - `export ROBOT_PASSWORD=<robot password>` This is the password generated by
+      the webserver
+    - `export FLO_SERVER_IP=< wherever the server is. Ex: "lilflo.com">` Which will allow the system to point
+      to the webserver. During development you might have a different value here...
+    - If you are working with a server that doesn't have real certs (this should
+      only be true for development on a local machine). THen you also need to tell
+      the router to not check certs by adding to the bashrc:
+      `export NODE_TLS_REJECT_UNAUTHORIZED='0'`
+11. Add two cron jobs to automatically startup the system:
+    1. `crontab -e`
+    2. `SHELL=/bin/bash` This will set the shell that things should run in
+    3. `@reboot (sleep 90; source ~/.bashrc; ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh)`
+    4. `*/1 * * * * (source ~/.bashrc; python ~/catkin_ws/src/LilFloSystem/flo_web/pinger/pinger.py)`
 
 #### Assigning the serial devices to have a fixed addresses {#udev}
 
@@ -347,6 +515,30 @@ then restart
 The realsense cameras seem to hold a lot of settings on board. For now, you need
 to plugin the camera and run `realsense-viewer`. For now, set the system to high
 accuracy with the laser projector set to laser.
+
+### Raspberry Pi
+
+A Raspberry Pi cannot be used for most of this system. And it is not needed when
+a beffier computer like a NUC is around. However, for running basic teleop a R/Pi
+can be used. The install instructions are the same as the NUC, except you will
+need to install ubuntu mate for raspberry pi armhf version. The realsense stuff
+can't be installed, so be sure to comment that out of `gen_install.sh` before
+you run it.
+
+After installation, setting up openssh is a bit harder, update the system, install
+openssh, then reconfigure it with sudo dpkg-reconfigure openssh-server
+
+If you want to use the raspberry Pi camera, then run `sudo raspi-reconfigure`
+and enable the camera. Then clone the [raspberry pi camera ros](https://github.com/UbiquityRobotics/raspicam_node)
+repo into the `catkin_ws/src` repo and run:
+
+```bash
+sudo apt install libraspberrypi-dev libraspberrypi0
+rosdep update
+rosdep install --from-paths ~/catkin_ws/src/raspicam_node/ --ignore-src -r -y
+cd ~/catkin_ws
+catkin_make
+```
 
 ### Amazon Polly
 

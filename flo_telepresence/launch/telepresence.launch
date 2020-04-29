@@ -1,29 +1,26 @@
+<?xml version="1.0"?>
 <launch>
-    <arg name="simulate" default="False" />
-
-    <group if="$(eval simulate==False)">
-        <!--Realsense-->
-        <include file="$(find flo_telepresence)/launch/realsense.launch" />
-
-        <!--Fisheye Camera-->
-        <include file="$(find flo_telepresence)/launch/vid_stream_opencv.launch" />
-
-        <!--Audio-->
-        <include file="$(find flo_telepresence)/launch/audio.launch"/>
-
-        <!--Screen on Robot-->
-        <node name="robot_screen" pkg="flo_telepresence" type="display-cv.py"/>
-    </group>
-
-    <group if="$(eval simulate==True)">
-        <!--<node name="robot_screen" pkg="flo_telepresence" type="display.py"/>-->
-        <node name="robot_screen" pkg="image_view" type="image_view">
-            <remap from="image" to="/remote_Video" />
-        </node>
-        <!--TODO: Add in something to play a bag file on a loop with data from all realsenses and audio-->
-    </group>
-
-    <!--WebRTC-->
-    <include file="$(find flo_telepresence)/launch/webrtc.launch"/>
-
-    </launch>
+  <arg name="simulate" default="False"/>
+  <arg name="record" default="False"/>
+  <group if="$(eval simulate==False)">
+    <!--Realsense-->
+    <include file="$(find flo_telepresence)/launch/realsense.launch">
+      <arg name="record" value="$(arg record)"/>
+    </include>
+    <!--Fisheye Camera-->
+    <include file="$(find flo_telepresence)/launch/vid_stream_opencv.launch"/>
+    <!--Audio-->
+    <include file="$(find flo_telepresence)/launch/audio.launch"/>
+    <!--Screen on Robot-->
+    <node name="robot_screen" pkg="flo_telepresence" type="display-cv.py"/>
+  </group>
+  <group if="$(eval simulate==True)">
+    <!--<node name="robot_screen" pkg="flo_telepresence" type="display.py"/>-->
+    <node name="robot_screen" pkg="image_view" type="image_view">
+      <remap from="image" to="/remote_Video"/>
+    </node>
+    <!--TODO: Add in something to play a bag file on a loop with data from all realsenses and audio-->
+  </group>
+  <!--WebRTC-->
+  <include file="$(find flo_telepresence)/launch/webrtc.launch"/>
+</launch>

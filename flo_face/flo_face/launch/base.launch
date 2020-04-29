@@ -1,8 +1,8 @@
+<?xml version="1.0"?>
 <launch>
-    <arg name="simulate" default="False"/>
-
-    <group if="$(eval simulate==False)">
-        <node name="face_serial" pkg="flo_face" type="com_manager.py" output="screen"/>
-    </group>
-    <node name="face_manager" pkg="flo_face" type="face_manager.py" output="screen"/>
+  <arg name="simulate" default="False"/>
+  <group if="$(eval simulate==False)">
+    <node name="face_serial" pkg="flo_face" type="com_manager.py" output="screen" respawn="true"/>
+  </group>
+  <node name="face_manager" pkg="flo_face" type="face_manager.py" output="screen" respawn="true"/>
 </launch>

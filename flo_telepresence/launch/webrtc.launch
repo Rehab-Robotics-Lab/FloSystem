@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-  <node name="image_concatenater" pkg="flo_telepresence" type="image_concat.py" output="screen"/>
+  <!--<node name="image_concatenater" pkg="flo_telepresence" type="image_concat.py" output="screen"/>-->
   <node name="ice_server_provider" pkg="webrtc_ros" type="ice_server_service.py">
     <!--These are the servers used for resolving remote addresses, google provides-->
     <!--some free to use ones, here as defaults. You could setup your own or use-->

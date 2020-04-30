@@ -71,6 +71,11 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         ],
         iceCandidatePoolSize: 10
       };
+
+      let connection1: any;
+      let connection2: any;
+      let connection3: any;
+
       getTurnCreds()
         .then(turnCredentials => {
           serverConfig.iceServers.push(
@@ -100,7 +105,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
           console.log("failed to get turn server credentials");
         })
         .finally(() => {
-          const connection1 = WebrtcRos.createConnection(
+          connection1 = WebrtcRos.createConnection(
             connectionString,
             serverConfig
           );
@@ -165,7 +170,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
           };
           connection1.connect();
 
-          const connection2 = WebrtcRos.createConnection(
+          connection2 = WebrtcRos.createConnection(
             connectionString,
             serverConfig
           );
@@ -194,7 +199,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
           };
           connection2.connect();
 
-          const connection3 = WebrtcRos.createConnection(
+          connection3 = WebrtcRos.createConnection(
             connectionString,
             serverConfig
           );
@@ -224,26 +229,23 @@ const Vids: React.FunctionComponent<VidsProps> = ({
           connection3.connect();
 
           console.log("*** Done starting webrtc ***");
-
-          return (): void => {
-            console.log("*** Close webrtc connections ***");
-            connection1.close();
-            connection2.close();
-            connection3.close();
-            console.log("*** DONE Close webrtc connections ***");
-            console.log("localStream");
-            console.log(localStream);
-            if (localStream && localStream.current) {
-              (localStream!.current! as any)
-                .getTracks()
-                .forEach((track: any) => {
-                  console.log("track");
-                  console.log(track);
-                  track.close();
-                });
-            }
-          };
         });
+      return (): void => {
+        console.log("*** Close webrtc connections ***");
+        connection1.close();
+        connection2.close();
+        connection3.close();
+        console.log("*** DONE Close webrtc connections ***");
+        console.log("localStream");
+        console.log(localStream);
+        if (localStream && localStream.current) {
+          (localStream!.current! as any).getTracks().forEach((track: any) => {
+            console.log("track");
+            console.log(track);
+            track.stop();
+          });
+        }
+      };
     }
   }, [robotName, connected, ipAddr]);
   //<script type="text/javascript" src={"/web/adapter.js"} />

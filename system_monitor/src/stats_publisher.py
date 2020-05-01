@@ -86,10 +86,10 @@ class StatsPublisher(object):
             if not output:
                 if err:
                     rospy.logdebug(
-                        'no output recieved while checking net strength, got error:\n%s', err)
+                        'no output received while checking net strength, got error:\n%s', err)
                 else:
                     rospy.logdebug(
-                        'no output recieved while checking net strength')
+                        'no output received while checking net strength')
 
             msg = output.decode('utf-8')
             lqv = re.split(

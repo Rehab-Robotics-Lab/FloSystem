@@ -57,7 +57,7 @@ class FloFaceManager(object):
         return GetFaceOptionsResponse(self.mouth_keys)
 
     def set_face(self, request):
-        """Recieve a request to set the face. Load the new mouth and
+        """Receive a request to set the face. Load the new mouth and
         the eyes into the new state structure and the current mouth
         and eyes. If the new face doesn't have the current eye
         type/direction, the eyes will be set to their default.

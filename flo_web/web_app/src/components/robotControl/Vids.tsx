@@ -1,4 +1,4 @@
-import React, { useEffect, useState, CSSProperties } from "react";
+import React, { useEffect, useState, CSSProperties, Ref } from "react";
 import * as ROSLIB from "roslib";
 import { wrapStyle } from "../../styleDefs/styles";
 import { useParams } from "react-router-dom";
@@ -42,10 +42,10 @@ const Vids: React.FunctionComponent<VidsProps> = ({
   const [upperEnable, setUpperEnable] = useState(true);
   const [lowerEnable, setLowerEnable] = useState(true);
   const [fishEnable, setFishEnable] = useState(true);
-  const upperStream = React.useRef(null);
-  const lowerStream = React.useRef(null);
-  const localStream = React.useRef(null);
-  const fishStream = React.useRef(null);
+  const upperStream = React.useRef<MediaStream>();
+  const lowerStream = React.useRef<MediaStream>();
+  const localStream = React.useRef<MediaStream>();
+  const fishStream = React.useRef<MediaStream>();
 
   const { robotName } = useParams();
 
@@ -235,16 +235,17 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         connection1.close();
         connection2.close();
         connection3.close();
-        console.log("*** DONE Close webrtc connections ***");
-        console.log("localStream");
-        console.log(localStream);
-        if (localStream && localStream.current) {
-          (localStream!.current! as any).getTracks().forEach((track: any) => {
-            console.log("track");
-            console.log(track);
-            track.stop();
-          });
-        }
+        const closeStreams = (stream: MediaStream): void => {
+          if (stream) {
+            stream.getTracks().forEach((track: any) => {
+              track.stop();
+            });
+          }
+        };
+        localStream && localStream.current && closeStreams(localStream.current);
+        upperStream && upperStream.current && closeStreams(upperStream.current);
+        lowerStream && lowerStream.current && closeStreams(lowerStream.current);
+        fishStream && fishStream.current && closeStreams(fishStream.current);
       };
     }
   }, [robotName, connected, ipAddr]);

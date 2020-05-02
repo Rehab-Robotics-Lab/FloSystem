@@ -1,4 +1,4 @@
-import React, { useEffect, useState, CSSProperties } from "react";
+import React, { useEffect, useState, CSSProperties, Ref } from "react";
 import * as ROSLIB from "roslib";
 import { wrapStyle } from "../../styleDefs/styles";
 import { useParams } from "react-router-dom";
@@ -42,10 +42,10 @@ const Vids: React.FunctionComponent<VidsProps> = ({
   const [upperEnable, setUpperEnable] = useState(true);
   const [lowerEnable, setLowerEnable] = useState(true);
   const [fishEnable, setFishEnable] = useState(true);
-  const upperStream = React.useRef(null);
-  const lowerStream = React.useRef(null);
-  const localStream = React.useRef(null);
-  const fishStream = React.useRef(null);
+  const upperStream = React.useRef<MediaStream>();
+  const lowerStream = React.useRef<MediaStream>();
+  const localStream = React.useRef<MediaStream>();
+  const fishStream = React.useRef<MediaStream>();
 
   const { robotName } = useParams();
 
@@ -71,6 +71,11 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         ],
         iceCandidatePoolSize: 10
       };
+
+      let connection1: any;
+      let connection2: any;
+      let connection3: any;
+
       getTurnCreds()
         .then(turnCredentials => {
           serverConfig.iceServers.push(
@@ -100,7 +105,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
           console.log("failed to get turn server credentials");
         })
         .finally(() => {
-          const connection1 = WebrtcRos.createConnection(
+          connection1 = WebrtcRos.createConnection(
             connectionString,
             serverConfig
           );
@@ -165,7 +170,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
           };
           connection1.connect();
 
-          const connection2 = WebrtcRos.createConnection(
+          connection2 = WebrtcRos.createConnection(
             connectionString,
             serverConfig
           );
@@ -194,7 +199,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
           };
           connection2.connect();
 
-          const connection3 = WebrtcRos.createConnection(
+          connection3 = WebrtcRos.createConnection(
             connectionString,
             serverConfig
           );
@@ -224,14 +229,24 @@ const Vids: React.FunctionComponent<VidsProps> = ({
           connection3.connect();
 
           console.log("*** Done starting webrtc ***");
-
-          return (): void => {
-            console.log("*** Close webrtc connections ***");
-            connection1.close();
-            connection2.close();
-            connection3.close();
-          };
         });
+      return (): void => {
+        console.log("*** Close webrtc connections ***");
+        connection1.close();
+        connection2.close();
+        connection3.close();
+        const closeStreams = (stream: MediaStream): void => {
+          if (stream) {
+            stream.getTracks().forEach((track: any) => {
+              track.stop();
+            });
+          }
+        };
+        localStream && localStream.current && closeStreams(localStream.current);
+        upperStream && upperStream.current && closeStreams(upperStream.current);
+        lowerStream && lowerStream.current && closeStreams(lowerStream.current);
+        fishStream && fishStream.current && closeStreams(fishStream.current);
+      };
     }
   }, [robotName, connected, ipAddr]);
   //<script type="text/javascript" src={"/web/adapter.js"} />

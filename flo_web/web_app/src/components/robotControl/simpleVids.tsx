@@ -105,7 +105,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
             const remoteStreamConfigUpper = { video: {}, audio: {} };
             remoteStreamConfigUpper.video = {
               id: "subscribed_video_upper",
-              src: "ros_image:/upper_realsense/color/image_raw"
+              src: "ros_image:/mantaro_cam/image_raw"
             };
             remoteStreamConfigUpper.audio = {
               id: "subscribed_audio",

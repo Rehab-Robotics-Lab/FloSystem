@@ -27,10 +27,12 @@ function getTURNCredentials(name: string, secret: string) {
     };
 }
 
-router.get('/turn-credentials', checkLoggedIn, async (req, res) => {
+router.post('/turn-credentials', checkLoggedIn, async (req, res) => {
     const { robotName, username, password } = req.body;
     let ctname: string;
     try {
+        console.log('*****************');
+        console.log(req.body);
         if (robotName !== undefined) {
             const id = req.session!.userID;
             const {

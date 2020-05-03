@@ -155,10 +155,11 @@ router.get('/', checkLoggedIn, async (req, res) => {
         const {
             rows,
         } = await db.query(
-            'select r.robot_name, r.connected , r.battery, r.active_user_id, u2.first_name active_user_first, u2.last_name active_user_last from users u ' +
+            'select r.robot_name, r.connected , r.battery, r.active_user_id, u2.first_name active_user_first, u2.last_name active_user_last, rt.robot_type from users u ' +
                 'inner join robot_permissions rp on rp.user_id=u.id ' +
                 'inner join robots r on r.id=rp.robot_id ' +
                 'left join users u2 on u2.id = r.active_user_id ' +
+                'left join robot_types rt on rt.id=r.robot_type ' +
                 'where u.id = $1;',
             [userID],
         );

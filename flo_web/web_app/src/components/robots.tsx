@@ -10,6 +10,7 @@ interface Robot {
   active_user_id: number;
   active_user_first: string;
   active_user_last: string;
+  robot_type: "simple" | "lilflo";
 }
 
 const Robots: React.FunctionComponent = () => {
@@ -24,6 +25,14 @@ const Robots: React.FunctionComponent = () => {
 
   const robotRows = robotArray.map(robot => {
     const canConnect = robot["active_user_first"] == null && robot["connected"];
+    let connectionString;
+    if (robot.robot_type == "lilflo") {
+      connectionString = `/controller/${robot["robot_name"]}`;
+    } else if (robot.robot_type == "simple") {
+      connectionString = `/simple-controller/${robot["robot_name"]}`;
+    } else {
+      return;
+    }
     return (
       <tr key={robot.robot_name}>
         <td>{robot["robot_name"]}</td>
@@ -31,9 +40,7 @@ const Robots: React.FunctionComponent = () => {
         <td>{robot["battery"]}</td>
         <td>{robot["active_user_first"]}</td>
         <td>
-          {canConnect && (
-            <Link to={`/controller/${robot["robot_name"]}`}>Connect</Link>
-          )}
+          {canConnect && <Link to={connectionString}>Connect</Link>}
           {canConnect || "Not Available"}
         </td>
       </tr>

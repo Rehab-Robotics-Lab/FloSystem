@@ -44,9 +44,9 @@ const Vids: React.FunctionComponent<VidsProps> = ({
   useEffect(() => {
     if (connected) {
       const getTurnCreds = async (): Promise<TurnCreds> => {
-        const resp = await axios.get(
-          `/api/webrtc/turn-credentials?robotName=${robotName}`
-        );
+        const resp = await axios.post(`/api/webrtc/turn-credentials`, {
+          robotName: robotName
+        });
         return resp.data as TurnCreds;
       };
 

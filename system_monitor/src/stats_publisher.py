@@ -6,6 +6,7 @@ import rospy
 import psutil
 import re
 import subprocess
+import socket
 
 from system_monitor.msg import CPUutil, HDDutil, MEMutil, NETstats
 
@@ -60,7 +61,10 @@ class StatsPublisher(object):
     def read_net(self, _):
         """Read the current network status"""
         net_stats = self.get_net_strength()
-        if net_stats:
+        ip_addr = self.get_ip_addr()
+        net_name = self.get_net_name()
+
+        if net_stats and ip_addr and net_name:
             link_quality = net_stats['link_quality']
             signal_strength = net_stats['signal_level']
             rospy.logdebug('Network Signal Strength: %5.2fdb Link Quality: %4.1f%%',
@@ -68,9 +72,33 @@ class StatsPublisher(object):
             msg = NETstats()
             msg.link_quality = link_quality
             msg.signal_strength = signal_strength
+            msg.network_ssid = net_name
+            msg.ip_addr = ip_addr
             self.net_stats_pub.publish(msg)
         else:
             rospy.logdebug('could not get network stats')
+
+    @staticmethod
+    def get_net_name():
+        try:
+            proc = subprocess.Popen('/sbin/iwgetid', shell=True,
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            output, err = proc.communicate()
+            if output:
+                return output.split('"')[1]
+        except:
+            return None
+
+    @staticmethod
+    def get_ip_addr():
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            ip_addr = s.getsockname()[0]
+            s.close()
+            return ip_addr
+        except:
+            return None
 
     @staticmethod
     def get_net_strength():

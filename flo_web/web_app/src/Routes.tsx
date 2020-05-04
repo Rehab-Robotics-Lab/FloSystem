@@ -1,6 +1,7 @@
 import React from "react";
 import { Route, Switch } from "react-router-dom";
 import RobotController from "./components/robotController";
+import SimpleRobotController from "./components/simpleRobotController";
 import Login from "./components/users/login";
 import Register from "./components/users/register";
 import Admin from "./components/admin";
@@ -31,6 +32,9 @@ const Routes: React.FunctionComponent<RoutesProps> = ({
       </Route>
       <Route path="/controller/:robotName">
         <RobotController />
+      </Route>
+      <Route path="/simple-controller/:robotName">
+        <SimpleRobotController />
       </Route>
       <Route exact path="/login">
         <Login

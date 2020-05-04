@@ -86,9 +86,30 @@ const parseIncoming: ParseIncoming = async function (
                         'another user is connected, disconnectiong',
                         { result: res },
                     );
-                    socket.destroy;
+                    socket.destroy();
                     return;
                 }
+            }
+            if (urlReturn.webrtc && res[1][1] !== 'true') {
+                localLogger.info(
+                    'operator connected to webrtc, but robot webrtc not connected',
+                );
+                socket.destroy();
+                if (res[3][1] !== 0) {
+                    rdb.hdel(`robot:${targetRobot}`, 'connected-operator');
+                }
+
+                return;
+            }
+            if (!urlReturn.webrtc && res[0][1] !== 'true') {
+                localLogger.info(
+                    'operator connected to data, but robot data not connected',
+                );
+                if (res[3][1] !== 0) {
+                    rdb.hdel(`robot:${targetRobot}`, 'connected-operator');
+                }
+                socket.destroy();
+                return;
             }
 
             // TODO: check if data and rtc connected. if not disconnect and delete connected operator hash

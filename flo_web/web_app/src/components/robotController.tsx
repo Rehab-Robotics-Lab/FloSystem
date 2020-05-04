@@ -1,6 +1,5 @@
 import React, { useReducer, useState, useEffect, useCallback } from "react";
 import "../App.css";
-import Header from "./robotControl/Header";
 import URDF from "./robotControl/urdf";
 import PoseContainer from "./robotControl/seq_pose/PoseContainer";
 import ErrorDisplay, { ErrorItem } from "./robotControl/ErrorDisplay";
@@ -18,7 +17,6 @@ import * as ROSLIB from "roslib";
 import Drive from "./robotControl/Drive";
 import { basicBlock } from "../styleDefs/styles";
 import GameContainer from "./robotControl/GameContainer";
-import SystemMonitor from "./robotControl/SystemMonitor";
 import GameBuckets from "./robotControl/GameBuckets";
 import { useParams, useHistory } from "react-router-dom";
 import { PoseWrapper } from "./robotControl/seq_pose/PoseContainer";
@@ -183,7 +181,7 @@ const RobotController: React.FunctionComponent = () => {
       url: targUrl
     });
     newRosConnection.on("error", err => {
-      addError({ text: "ROS Connection Error: " + err, src: "Header" });
+      goHome();
     });
     newRosConnection.on("connection", () => {
       console.log("connected to socket at: " + targUrl);

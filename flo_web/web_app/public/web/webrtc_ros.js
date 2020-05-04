@@ -170,7 +170,6 @@ window.WebrtcRos = (function() {
     });
   };
   WebrtcRosConnection.prototype.removeRemoteStream = function(stream) {
-    var self = this;
     this.lastConfigureActionPromise = this.lastConfigureActionPromise.then(
       function(actions) {
         actions.push({ type: "remove_stream", id: stream.id });

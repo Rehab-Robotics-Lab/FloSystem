@@ -55,11 +55,12 @@ function syllables(word: string): number {
 }
 
 function countSyllables(sentence: string): number {
-  var count = 0;
-  var words = sentence.split(" ");
+  let count = 0;
+  const words = sentence.split(" ");
 
   words.map(function(val, key) {
     count += syllables(val);
+    return null;
   });
 
   return count;

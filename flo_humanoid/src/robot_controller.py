@@ -500,12 +500,12 @@ class BolideController(object):
                 if idx+1 == len(poses):
                     if not ret['command'] == self.feedback['done']:
                         raise Exception(
-                            'did not recieve done response after uploading ' +
+                            'did not receive done response after uploading ' +
                             'final pose. Received: {}'.format(ret))
                 else:
                     if not ret['command'] == self.feedback['keep_going']:
                         raise Exception(
-                            'did not recieve keep going response after loading ' +
+                            'did not receive keep going response after loading ' +
                             'pose in sequence. Received: {}'.format(ret))
 
     def upload_sequence(self, poses, times):
@@ -530,7 +530,7 @@ class BolideController(object):
             ret = self.send_packet([self.CMD_SEQ_load_SEQCnt, len(times)])
             if not ret['command'] == self.feedback['keep_going']:
                 raise Exception(
-                    'did not recieve keep going feedback when sending number of ' +
+                    'did not receive keep going feedback when sending number of ' +
                     'poses in sequence. Received: {}'.format(ret))
             for idx, ttime in enumerate(times):
                 # time is in units of 10ms on the robot. But in sec coming in

@@ -54,7 +54,6 @@ from flo_core_defs.srv import GetPoseSeqID, GetPoseSeqIDResponse
 from simon_says import simon_says
 from target_touch import target_touch
 from flo_core_defs.msg import GameAction
-import threading
 
 
 class GameRunner(object):
@@ -75,8 +74,6 @@ class GameRunner(object):
 
     def __init__(self):
         rospy.init_node('game_runner')
-
-        self.lock = threading.Lock()
 
         ### Action Servers to Make Things Happen ###
         # set up polly action server

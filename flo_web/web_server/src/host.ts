@@ -145,6 +145,10 @@ const parseIncoming: ParseIncoming = async function (
             }
         });
     } else {
+        db.query('update robots set active_user_id=$1 where robot_name=$2', [
+            null,
+            name,
+        ]);
         cmdC = `robot:${name}:outgoing-commands`;
         msgC = `robot:${name}:outgoing-data`;
 

@@ -54,6 +54,7 @@ from flo_core_defs.srv import GetPoseSeqID, GetPoseSeqIDResponse
 from simon_says import simon_says
 from target_touch import target_touch
 from flo_core_defs.msg import GameAction
+import threading
 
 
 class GameRunner(object):
@@ -74,6 +75,8 @@ class GameRunner(object):
 
     def __init__(self):
         rospy.init_node('game_runner')
+
+        self.lock = threading.Lock()
 
         ### Action Servers to Make Things Happen ###
         # set up polly action server
@@ -146,8 +149,11 @@ class GameRunner(object):
         Args:
             msg: The rosmsg containing the new command
         """
-        self.command_queue.put(msg.command)
-        rospy.loginfo('added command to command queue: %s', msg.command)
+        if self.command_queue.empty():
+            self.command_queue.put(msg.command)
+            rospy.loginfo('added command to command queue: %s', msg.command)
+        else:
+            rospy.logerr('got a new command but already have commands')
 
     def __loop(self):
         """Loop through reading all of the queues and taking the

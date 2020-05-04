@@ -1,6 +1,5 @@
 import React from "react";
 import Robots from "./robots";
-import { useHistory } from "react-router-dom";
 
 interface HomeProps {
   userName: string;
@@ -8,7 +7,6 @@ interface HomeProps {
 }
 
 const Home: React.FunctionComponent<HomeProps> = ({ userName, userType }) => {
-  const history = useHistory();
   return (
     <div>
       <div>

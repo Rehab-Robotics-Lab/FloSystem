@@ -24,14 +24,15 @@ const Robots: React.FunctionComponent = () => {
   }, 1000 * 1);
 
   const robotRows = robotArray.map(robot => {
-    const canConnect = robot["active_user_first"] == null && robot["connected"];
+    const canConnect =
+      robot["active_user_first"] === null && robot["connected"];
     let connectionString;
-    if (robot.robot_type == "lilflo") {
+    if (robot.robot_type === "lilflo") {
       connectionString = `/controller/${robot["robot_name"]}`;
-    } else if (robot.robot_type == "simple") {
+    } else if (robot.robot_type === "simple") {
       connectionString = `/simple-controller/${robot["robot_name"]}`;
     } else {
-      return;
+      return null;
     }
     return (
       <tr key={robot.robot_name}>

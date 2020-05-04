@@ -6,7 +6,6 @@ import Vids from "./robotControl/simpleVids";
 import * as ROSLIB from "roslib";
 import Drive from "./robotControl/Drive";
 import { basicBlock } from "../styleDefs/styles";
-import SystemMonitor from "./robotControl/SystemMonitor";
 import EventEmitter2 from "eventemitter2";
 import { SetConnected } from "./robotController";
 import { useParams, useHistory } from "react-router-dom";

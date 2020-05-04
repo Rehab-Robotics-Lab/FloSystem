@@ -1,6 +1,5 @@
-import React, { useEffect, useState, CSSProperties, Ref } from "react";
+import React, { useEffect, CSSProperties } from "react";
 import * as ROSLIB from "roslib";
-import { wrapStyle } from "../../styleDefs/styles";
 import { useParams } from "react-router-dom";
 //import adapter from "webrtc-adapter";
 import { WebrtcRos } from "../../externalLibs/webrtc_ros.js";

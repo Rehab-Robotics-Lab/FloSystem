@@ -1,6 +1,5 @@
 import React, { useEffect, useReducer } from "react";
 import * as ROSLIB from "roslib";
-import { wrapStyle } from "../../styleDefs/styles";
 
 //https://gist.github.com/mlocati/7210513
 function perc2color(perc: number): string {
@@ -20,8 +19,6 @@ function perc2color(perc: number): string {
 }
 
 const statsLength = 20;
-const gaugeW = 50;
-const gaugeH = 30;
 const gaugeF = (n: number): string => {
   return Math.round(n).toString();
 };

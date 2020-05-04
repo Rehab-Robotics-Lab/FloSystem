@@ -1,6 +1,5 @@
-import React, { useEffect, useState, CSSProperties, Ref } from "react";
+import React, { useEffect, CSSProperties } from "react";
 import * as ROSLIB from "roslib";
-import { wrapStyle } from "../../styleDefs/styles";
 import { useParams } from "react-router-dom";
 //import adapter from "webrtc-adapter";
 import { WebrtcRos } from "../../externalLibs/webrtc_ros.js";
@@ -38,10 +37,6 @@ const Vids: React.FunctionComponent<VidsProps> = ({
   const remoteRefLower = React.useRef(null);
   const remoteRefFish = React.useRef(null);
   const localRef = React.useRef(null);
-  const [localEnable, setLocalEnable] = useState(true);
-  const [upperEnable, setUpperEnable] = useState(true);
-  const [lowerEnable, setLowerEnable] = useState(true);
-  const [fishEnable, setFishEnable] = useState(true);
   const upperStream = React.useRef<MediaStream>();
   const lowerStream = React.useRef<MediaStream>();
   const localStream = React.useRef<MediaStream>();

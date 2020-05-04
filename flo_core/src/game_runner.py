@@ -54,6 +54,7 @@ from flo_core_defs.srv import GetPoseSeqID, GetPoseSeqIDResponse
 from simon_says import simon_says
 from target_touch import target_touch
 from flo_core_defs.msg import GameAction
+import threading
 
 
 class GameRunner(object):
@@ -111,6 +112,7 @@ class GameRunner(object):
 
         ### Queue's for safe receiving of info ###
         self.command_queue = queue.Queue()
+        self.command_lock = threading.Lock()
         self.def_queue = queue.Queue()
 
         ### State Management ###
@@ -146,8 +148,13 @@ class GameRunner(object):
         Args:
             msg: The rosmsg containing the new command
         """
-        self.command_queue.put(msg.command)
-        rospy.loginfo('added command to command queue: %s', msg.command)
+        with self.command_lock:
+            if self.command_queue.empty() and msg.command in self.command_opts:
+                self.command_queue.put(msg.command)
+                rospy.loginfo(
+                    'added command to command queue: %s', msg.command)
+            else:
+                rospy.logerr('got a new command but already have commands')
 
     def __loop(self):
         """Loop through reading all of the queues and taking the
@@ -169,7 +176,8 @@ class GameRunner(object):
                 or self.state == self.states.game_loaded):
             new_command = None
             try:
-                new_command = self.command_queue.get_nowait()
+                with self.command_lock:
+                    new_command = self.command_queue.get_nowait()
             except queue.Empty:
                 pass
             if new_command in self.command_opts:
@@ -230,7 +238,8 @@ class GameRunner(object):
             new_def: the game definition
         """
         # if we are loading a new game, we need to get rid of exiting commands
-        self.command_queue = queue.Queue()
+        with self.command_lock:
+            self.command_queue = queue.Queue()
         self.actions_list = []
         # Eventually we probably want to make this cleaner, but for now I need
         # to get a demo going, so we will manually load in the games
@@ -393,7 +402,8 @@ class GameRunner(object):
         rospy.loginfo('repeating the last step')
         self.action_idx -= 1
         self.__run_step(self.action_idx)
-        self.command_queue.put('next')
+        with self.command_lock:
+            self.command_queue.put('next')
 
     def __congratulate(self):
         rospy.loginfo('saying something congratulatory')

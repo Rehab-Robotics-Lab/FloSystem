@@ -1,2 +1,4 @@
 float32 link_quality
 float32 signal_strength
+string network_ssid
+string ip_addr

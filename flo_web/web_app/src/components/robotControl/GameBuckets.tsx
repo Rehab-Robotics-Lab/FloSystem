@@ -186,25 +186,44 @@ interface StepDef {
 }
 
 interface LoadBucketProps {
-  ros: ROSLIB.Ros | null;
   showLoad: boolean;
   cancel: () => void;
-  connected: boolean;
+  buckets: GameBucket[];
   setSteps: (arg: StepDef[]) => void;
-  setSaveID: (arg: number) => void;
 }
 
 const LoadBucket: React.FunctionComponent<LoadBucketProps> = ({
-  ros,
   showLoad,
   cancel,
-  connected,
-  setSteps,
-  setSaveID
+  buckets,
+  setSteps
 }) => {
+  const [loadID, setLoadID] = useState(0);
+  const load = (): void => {
+    setSteps(buckets[loadID].steps);
+    cancel();
+  };
   return (
     <ModalWrapper show={showLoad}>
       <h1>Load Game Bucket</h1>
+      <label htmlFor="loadBucketSelector">
+        <select
+          id="loadBucketSelector"
+          onChange={(obj): void => {
+            setLoadID(parseInt(obj.target.value, 10));
+          }}
+        >
+          {buckets.map((value, idx) => (
+            <option key={idx} value={idx}>
+              {value.name}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <button type="button" onClick={(): void => load()}>
+        Load
+      </button>
       <button type="button" onClick={(): void => cancel()}>
         Cancel
       </button>
@@ -586,17 +605,13 @@ const GameBuckets: React.FunctionComponent<GameBucketsProps> = ({
         buckets={buckets}
       />
       <LoadBucket
-        ros={ros}
         showLoad={showLoad}
         cancel={(): void => {
           setShowLoad(false);
         }}
-        connected={connected}
+        buckets={buckets}
         setSteps={(steps: StepDef[]) => {
           setSteps(steps);
-        }}
-        setSaveID={(id: number) => {
-          setSaveID(id);
         }}
       />
     </div>

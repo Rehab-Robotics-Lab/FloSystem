@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import * as ROSLIB from "roslib";
 import { basicBlock } from "../../styleDefs/styles";
+import ModalWrapper from "./ModalWrapper";
+import { GameBucket } from "./GameBuckets";
 
 interface CommandOpts {
   options: string[];
@@ -123,22 +125,52 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
     };
   }, [connected, ros]);
 
-  const availableGames = ["simon_says", "target_touch"];
+  const [showSelector, setShowSelector] = useState(false);
+  const [gbID, setGbID] = useState(0);
+  const [gameType, setGameType] = useState<"simon_says" | "target_touch">(
+    "simon_says"
+  );
+  const [buckets, setBuckets] = useState<GameBucket[]>([]);
 
-  //{availableGames.map(value => (
-  //<GameDef
-  //name={value}
-  //disabled={gameFeedback!=='waiting_for_def' || gameDefPub===null}
-  //run={()=>{
-  //let game_def = new ROSLIB.Message({
-  //gameType:{value}
-  //})
-  //if (gameDefPub !==null){
-  //gameDefPub.publish(game_def)
-  //}}}
-  ///>
-
-  //))}
+  const startButton = (type: string, cleanText: string) => {
+    return (
+      <button
+        type="button"
+        disabled={gameFeedback !== "waiting_for_def" || gameDefPub === null}
+        onClick={(): void => {
+          if (!connected) {
+            return;
+          }
+          const srv = new ROSLIB.Service({
+            ros: ros as ROSLIB.Ros,
+            name: "/search_game_bucket_name_desc",
+            serviceType: "flo_core_defs/SearchGameBucket"
+          });
+          console.log("Connected to service to search for a game bucket");
+          const request = new ROSLIB.ServiceRequest({ search: "" });
+          srv.callService(request, resp => {
+            const tmpBuckets = [];
+            for (let idx = 0; idx < resp["ids"].length; idx++) {
+              tmpBuckets[resp["ids"][idx]] = resp["game_buckets"][idx];
+            }
+            setBuckets(tmpBuckets);
+            setGbID(
+              buckets.findIndex(arg => {
+                if (arg === undefined) {
+                  return false;
+                } else {
+                  return true;
+                }
+              })
+            );
+          });
+          setShowSelector(true);
+        }}
+      >
+        {cleanText}
+      </button>
+    );
+  };
 
   return (
     <div
@@ -147,43 +179,8 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
       })}
     >
       <h2>Games:</h2>
-
-      <button
-        type="button"
-        disabled={gameFeedback !== "waiting_for_def" || gameDefPub === null}
-        onClick={(): void => {
-          const simonSaysDef = new ROSLIB.Message({
-            game_type: "simon_says" // eslint-disable-line
-          });
-          if (gameDefPub !== null) {
-            gameDefPub.publish(simonSaysDef);
-            console.log("sent command to play simon says");
-          } else {
-            console.error("not able to publish game def");
-          }
-        }}
-      >
-        Simon Says
-      </button>
-
-      <button
-        type="button"
-        disabled={gameFeedback !== "waiting_for_def" || gameDefPub === null}
-        onClick={(): void => {
-          const simonSaysDef = new ROSLIB.Message({
-            game_type: "target_touch" // eslint-disable-line
-          });
-          if (gameDefPub !== null) {
-            gameDefPub.publish(simonSaysDef);
-            console.log("sent command to play target touch");
-          } else {
-            console.error("not able to publish game def");
-          }
-        }}
-      >
-        Target Touch
-      </button>
-
+      {startButton("simon_says", "Simon Says")}
+      {startButton("target_touch", "Target Touch")}
       {commandOptions.map(value => (
         <GameCommand
           name={value}
@@ -198,6 +195,59 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
           key={value}
         />
       ))}
+      <ModalWrapper show={showSelector}>
+        <h3>Select Bucket</h3>
+        <label htmlFor="selectGameBucket">
+          Game Bucket:
+          <select
+            id="selectGameBucket"
+            onChange={(obj): void => {
+              const newId: number = parseInt(obj.target.value, 10);
+              setGbID(newId);
+            }}
+          >
+            {buckets.map((value, idx) => (
+              <option key={idx} value={idx}>
+                {value.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          type="button"
+          onClick={(): void => {
+            if (!connected) {
+              console.error("tried to play game when not connected");
+              return;
+            }
+            if (buckets[gbID] === undefined) {
+              console.error("tried to play a game with a bad game id");
+              return;
+            }
+            const gameDef = new ROSLIB.Message({
+              game_type: gameType, // eslint-disable-line
+              steps: buckets[gbID].steps
+            });
+            if (gameDefPub !== null) {
+              gameDefPub.publish(gameDef);
+              console.log(`sent command to play ${gameType}`);
+            } else {
+              console.error("not able to publish game def");
+            }
+            setShowSelector(false);
+          }}
+        >
+          Start!
+        </button>
+        <button
+          type="button"
+          onClick={(): void => {
+            setShowSelector(false);
+          }}
+        >
+          Cancel
+        </button>
+      </ModalWrapper>
     </div>
   );
 };

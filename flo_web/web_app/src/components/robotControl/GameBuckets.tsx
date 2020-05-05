@@ -478,7 +478,7 @@ const AddGameAction: React.FunctionComponent<AddGameActionProps> = ({
             addGameAction({
               type: actionType,
               text: toSay,
-              id: activeOpt,
+              id: gameActionOpts[activeOpt].id,
               time: timeTarget,
               desc: gameActionOpts[activeOpt].description,
               key: actionType + activeOpt + dt.getTime()
@@ -492,7 +492,7 @@ const AddGameAction: React.FunctionComponent<AddGameActionProps> = ({
   );
 };
 
-interface GameBucket {
+export interface GameBucket {
   name: string;
   subject: number;
   targeted_game: string;

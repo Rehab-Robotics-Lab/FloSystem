@@ -1,7 +1,180 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import * as ROSLIB from "roslib";
 import { basicBlock } from "../../styleDefs/styles";
 import ModalWrapper from "./ModalWrapper";
+
+interface SaveBucketProps {
+  ros: ROSLIB.Ros | null;
+  showSave: boolean;
+  cancel: () => void;
+  connected: boolean;
+  steps: StepDef[];
+  setBucketId: (id: number, def: GameBucket) => void;
+  buckets: GameBucket[];
+}
+
+const SaveBucket: React.FunctionComponent<SaveBucketProps> = ({
+  ros,
+  showSave,
+  cancel,
+  connected,
+  steps,
+  setBucketId,
+  buckets
+}) => {
+  const [saveID, setSaveID] = useState(0);
+  const [nme, setNme] = useState("");
+  const [desc, setDesc] = useState("");
+  const [subjNo, setSubjNo] = useState(0);
+  const [targGame, setTargGame] = useState<"simon_says" | "target_touch">(
+    "simon_says"
+  );
+
+  const save = () => {
+    if (!connected) {
+      return;
+    }
+    if (steps.length === 0) {
+      return;
+    }
+    if (nme === "") {
+      return;
+    }
+    const serv = new ROSLIB.Service({
+      ros: ros as ROSLIB.Ros,
+      name: "/set_game_bucket",
+      serviceType: "flo_core_defs/SetGameBucket"
+    });
+
+    const cleanSteps = steps.map(({ desc, key, ...keep }) => keep);
+    console.log(steps);
+    console.log(cleanSteps);
+
+    const thisBucket = {
+      name: nme,
+      subject: subjNo,
+      targeted_game: targGame,
+      description: desc,
+      steps: steps
+    };
+
+    const cleanBucket = {
+      name: nme,
+      subject: subjNo,
+      targeted_game: targGame,
+      description: desc,
+      steps: cleanSteps
+    };
+
+    console.log(cleanBucket);
+
+    const req = new ROSLIB.ServiceRequest({
+      id: saveID,
+      game_bucket: cleanBucket
+    });
+    serv.callService(
+      req,
+      resp => {
+        setBucketId(resp.id, thisBucket);
+        cancel();
+      },
+      resp => {
+        alert(`failed to save bucket: ${resp}`);
+      }
+    );
+  };
+  return (
+    <ModalWrapper show={showSave}>
+      <h1>Save a New Game Bucket or Overwrite an Existing One</h1>
+      <label htmlFor="saveBucketIDSelector">
+        Save As:
+        <select
+          id="saveBucketIDSelector"
+          onChange={(obj): void => {
+            const newId: number = parseInt(obj.target.value, 10);
+            setSaveID(newId);
+            if (newId > 0) {
+              setDesc(buckets[newId].description);
+              setNme(buckets[newId].name);
+              setSubjNo(buckets[newId].subject);
+              const gt = buckets[newId].targeted_game;
+              if (gt in ["simon_says", "target_touch"]) {
+                setTargGame(gt as "simon_says" | "target_touch");
+              }
+            }
+          }}
+        >
+          <option value="0">New Bucket</option>
+          {buckets.map((value, idx) => (
+            <option key={idx} value={idx}>
+              {value.name}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label htmlFor="bucketNameSave">
+        Name:
+        <input
+          id="bucktNameSave"
+          type="text"
+          value={nme}
+          onChange={(obj): void => {
+            setNme(obj.target.value);
+          }}
+        />
+      </label>
+
+      <label htmlFor="bucketDescSave">
+        Description:
+        <input
+          id="bucketDescSave"
+          type="text"
+          value={desc}
+          onChange={(obj): void => {
+            setDesc(obj.target.value);
+          }}
+        />
+      </label>
+
+      <label htmlFor="bucketSubjSave">
+        Subject Number:
+        <input
+          id="bucketSubjSave"
+          type="number"
+          min="0"
+          value={subjNo}
+          onChange={(obj): void => {
+            setSubjNo(parseInt(obj.target.value, 10));
+          }}
+        />
+      </label>
+
+      <label htmlFor="bucketGameTypeSave">
+        Game Type:
+        <select
+          id="bucketGameTypeSave"
+          onChange={(obj): void => {
+            const gt = obj.target.value;
+            if (gt in ["simon_says", "target_touch"]) {
+              setTargGame(gt as "simon_says" | "target_touch");
+            }
+          }}
+        >
+          <option value="simon_says">Simon Says</option>
+          <option value="target_touch">Target Touch</option>
+        </select>
+      </label>
+
+      <button type="button" onClick={(): void => save()} disabled={!connected}>
+        Save
+      </button>
+      <button type="button" onClick={(): void => cancel()}>
+        Cancel
+      </button>
+    </ModalWrapper>
+  );
+};
 
 interface StepDef {
   type: string;
@@ -11,6 +184,33 @@ interface StepDef {
   desc: string;
   key: string;
 }
+
+interface LoadBucketProps {
+  ros: ROSLIB.Ros | null;
+  showLoad: boolean;
+  cancel: () => void;
+  connected: boolean;
+  setSteps: (arg: StepDef[]) => void;
+  setSaveID: (arg: number) => void;
+}
+
+const LoadBucket: React.FunctionComponent<LoadBucketProps> = ({
+  ros,
+  showLoad,
+  cancel,
+  connected,
+  setSteps,
+  setSaveID
+}) => {
+  return (
+    <ModalWrapper show={showLoad}>
+      <h1>Load Game Bucket</h1>
+      <button type="button" onClick={(): void => cancel()}>
+        Cancel
+      </button>
+    </ModalWrapper>
+  );
+};
 
 interface GameAction {
   id: number;
@@ -272,6 +472,15 @@ const AddGameAction: React.FunctionComponent<AddGameActionProps> = ({
     </ModalWrapper>
   );
 };
+
+interface GameBucket {
+  name: string;
+  subject: number;
+  targeted_game: string;
+  description: string;
+  steps: StepDef[];
+}
+
 // Takes a parameter ros, which is the connection to ros
 const GameBuckets: React.FunctionComponent<GameBucketsProps> = ({
   ros,
@@ -279,7 +488,36 @@ const GameBuckets: React.FunctionComponent<GameBucketsProps> = ({
 }) => {
   const [steps, setSteps] = useState<StepDef[]>([]);
   const [showAdd, setShowAdd] = useState(false);
+  const [showSave, setShowSave] = useState(false);
+  const [showLoad, setShowLoad] = useState(false);
   const [saveID, setSaveID] = useState(0);
+  const [buckets, setBuckets] = useState<GameBucket[]>([]);
+
+  useEffect(() => {
+    if (!connected) {
+      return;
+    }
+    const srv = new ROSLIB.Service({
+      ros: ros as ROSLIB.Ros,
+      name: "/search_game_bucket_name_desc",
+      serviceType: "flo_core_defs/SearchGameBucket"
+    });
+    console.log("Connected to service to search for a game bucket");
+    const request = new ROSLIB.ServiceRequest({ search: "" });
+    srv.callService(request, resp => {
+      const tmpBuckets = [];
+      for (let idx = 0; idx < resp["ids"].length; idx++) {
+        tmpBuckets[resp["ids"][idx]] = resp["game_buckets"][idx];
+      }
+      setBuckets(tmpBuckets);
+    });
+  }, [setBuckets, ros, connected]);
+
+  const setBucketID = (id: number, bucket: GameBucket): void => {
+    buckets[id] = bucket;
+    setBuckets(buckets);
+  };
+
   return (
     <div style={basicBlock}>
       <h2>GameBuckets</h2>
@@ -287,8 +525,7 @@ const GameBuckets: React.FunctionComponent<GameBucketsProps> = ({
       <button
         type="button"
         onClick={(): void => {
-          //TODO: Implement this
-          console.warn("not implemente");
+          setShowLoad(true);
         }}
       >
         Load Bucket
@@ -296,8 +533,7 @@ const GameBuckets: React.FunctionComponent<GameBucketsProps> = ({
       <button
         type="button"
         onClick={(): void => {
-          //TODO: Implement this
-          console.warn("not implemente");
+          setShowSave(true);
         }}
       >
         Save Bucket
@@ -337,6 +573,31 @@ const GameBuckets: React.FunctionComponent<GameBucketsProps> = ({
         }}
         showAdd={showAdd}
         connected={connected}
+      />
+      <SaveBucket
+        ros={ros}
+        showSave={showSave}
+        cancel={(): void => {
+          setShowSave(false);
+        }}
+        connected={connected}
+        steps={steps}
+        setBucketId={setBucketID}
+        buckets={buckets}
+      />
+      <LoadBucket
+        ros={ros}
+        showLoad={showLoad}
+        cancel={(): void => {
+          setShowLoad(false);
+        }}
+        connected={connected}
+        setSteps={(steps: StepDef[]) => {
+          setSteps(steps);
+        }}
+        setSaveID={(id: number) => {
+          setSaveID(id);
+        }}
       />
     </div>
   );

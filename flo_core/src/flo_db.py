@@ -21,7 +21,8 @@ from flo_core_defs.msg import DBUpdate
 from flo_core_defs.srv import SetGameBucket
 from flo_core_defs.msg import GameBucket
 from flo_core_defs.srv import GetGameBucketID, GetGameBucketIDResponse
-from flo_core_defs.srv import SearchGameBucket
+from flo_core_defs.srv import SearchGameBucket, SearchGameBucketResponse
+from flo_core_defs.msg import StepDef
 
 import mutagen
 
@@ -380,9 +381,10 @@ class FloDb(object):
             The response.
         """
         db = DB(self.db_path)  # pylint: disable=invalid-name
-        game_bucket = request.game
+        game_bucket = request.game_bucket
         steps = game_bucket.steps
 
+        clean_steps = []
         for step in steps:
             if step.type == 'move':
                 curs = db.ex(
@@ -398,6 +400,10 @@ class FloDb(object):
                 if not data:
                     raise rospy.ServiceException(
                         'The pose id: {} does not exist'.format(step.id))
+
+            clean_steps.append(
+                {'type': step.type, 'text': step.text,
+                 'id': step.id, 'time': step.time})
 
         if game_bucket.targeted_game not in ['simon_says', 'target_touch']:
             raise rospy.ServiceException('The targeted game type is not valid')
@@ -416,7 +422,7 @@ class FloDb(object):
                     game_bucket.subject,
                     game_bucket.targeted_game,
                     game_bucket.description,
-                    json.dumps(steps)
+                    json.dumps(clean_steps)
                 )
                 updated_row = request.id
             else:
@@ -424,14 +430,14 @@ class FloDb(object):
                     'The selected row does not exist, you cannot update it')
         else:
             db_return = db.ex(
-                'insert into pose_sequences('
+                'insert into game_buckets('
                 + 'name, subject, targeted_game, description, steps'
                 + ') values (?,?,?,?,?)',
                 game_bucket.name,
                 game_bucket.subject,
                 game_bucket.targeted_game,
                 game_bucket.description,
-                json.dumps(steps)
+                json.dumps(clean_steps)
             )
             updated_row = db_return.lastrowid
 
@@ -457,7 +463,13 @@ class FloDb(object):
             game_bucket.subject = data['subject']
             game_bucket.targeted_game = data['targeted_game']
             game_bucket.description = data['description']
-            game_bucket.steps = json.loads(data['steps'])
+            dirty_steps = json.loads(data['steps'])
+            clean_steps = []
+            for step in dirty_steps:
+                clean_steps.append(
+                    StepDef(type=step['type'], text=step['text'],
+                            id=step['id'], time=step['time']))
+            game_bucket.steps = clean_steps
             resp.game_bucket = game_bucket
             return resp
         raise rospy.ServiceException('That ID does not exist')
@@ -481,7 +493,13 @@ class FloDb(object):
             new_game_bucket.subject = row['subject']
             new_game_bucket.targeted_game = row['targeted_game']
             new_game_bucket.description = row['description']
-            new_game_bucket.steps = json.loads(row['steps'])
+            dirty_steps = json.loads(row['steps'])
+            clean_steps = []
+            for step in dirty_steps:
+                clean_steps.append(
+                    StepDef(type=step['type'], text=step['text'],
+                            id=step['id'], time=step['time']))
+            new_game_bucket.steps = clean_steps
 
             resp.game_buckets.append(new_game_bucket)
             resp.ids.append(row['id'])

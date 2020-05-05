@@ -16,7 +16,7 @@ tmux send-keys 'htop' Enter
 tmux split-window -t flo -h
 
 tmux send-keys 'cd ~/catkin_ws/src/LilFloSystem/flo_web/webrtc_robot_router/' Enter
-tmux send-keys 'npm run tsc && node ./build/app.js' Enter
+tmux send-keys 'npm run tsc && pm2 start ./build/app.js && pm2 logs' Enter
 # need to make this use a build version
 
 tmux rotate-window -t flo

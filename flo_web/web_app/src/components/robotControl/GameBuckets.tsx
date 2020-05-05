@@ -29,11 +29,9 @@ interface GameStepProps {
 
 const GameStep: React.FunctionComponent<GameStepProps> = ({ def, del }) => {
   return (
-    <div>
-      <div>
-        <div>{def.type + ": " + def.desc}</div>
-        <div>{def.time + "/" + def.text}</div>
-      </div>
+    <div style={{ display: "flex", justifyContent: "space-between" }}>
+      <div>{def.type + ": " + def.desc}</div>
+      <div>{`(${def.time}s) "${def.text}"`}</div>
       <button
         type="button"
         onClick={(): void => {
@@ -158,76 +156,84 @@ const AddGameAction: React.FunctionComponent<AddGameActionProps> = ({
         Cancel
       </button>
       <div>
-        <button
-          type="button"
-          disabled={!connected || actionType == ActionType.seq}
-          onClick={(): void => {
-            const searchSeqClient = new ROSLIB.Service({
-              ros: ros as ROSLIB.Ros,
-              name: "/search_pose_seq",
-              serviceType: "flo_core_defs/SearchPoseSeq"
-            });
-            console.log("connected to service to search for a pose sequence");
+        <div>
+          <button
+            type="button"
+            disabled={!connected || actionType == ActionType.seq}
+            onClick={(): void => {
+              const searchSeqClient = new ROSLIB.Service({
+                ros: ros as ROSLIB.Ros,
+                name: "/search_pose_seq",
+                serviceType: "flo_core_defs/SearchPoseSeq"
+              });
+              console.log("connected to service to search for a pose sequence");
 
-            const request = new ROSLIB.ServiceRequest({ search: "" });
+              const request = new ROSLIB.ServiceRequest({ search: "" });
 
-            searchSeqClient.callService(request, resp => {
-              const seqs = [];
-              for (let i = 0; i < resp.ids.length; i += 1) {
-                seqs.push({
-                  id: resp.ids[i],
-                  description: resp.sequences[i].description
-                });
-              }
-              setGameActionOpts(seqs);
-              console.log("received pose sequences");
-            });
-            console.log("searched for all pose sequences");
-            setActionType(ActionType.seq);
-          }}
-        >
-          Sequence
-        </button>
+              searchSeqClient.callService(request, resp => {
+                const seqs = [];
+                for (let i = 0; i < resp.ids.length; i += 1) {
+                  seqs.push({
+                    id: resp.ids[i],
+                    description: resp.sequences[i].description
+                  });
+                }
+                setGameActionOpts(seqs);
+                console.log("received pose sequences");
+              });
+              console.log("searched for all pose sequences");
+              setActionType(ActionType.seq);
+            }}
+          >
+            Sequence
+          </button>
 
-        <PoseButton
-          buttonText="Pose - Right Arm"
-          disabled={!connected || actionType == ActionType.rightArm}
-          ros={ros}
-          setGameActionOpts={setGameActionOpts}
-          setActionType={(): void => {
-            setActionType(ActionType.rightArm);
-          }}
-        />
-
-        <PoseButton
-          buttonText="Pose - Left Arm"
-          disabled={!connected || actionType == ActionType.leftArm}
-          ros={ros}
-          setGameActionOpts={setGameActionOpts}
-          setActionType={(): void => {
-            setActionType(ActionType.leftArm);
-          }}
-        />
-
-        <label htmlFor="toSay">
-          To Say:
-          <input
-            type="text"
-            name="toSay"
-            value={toSay}
-            onChange={(e): void => setToSay(e.target.value)}
+          <PoseButton
+            buttonText="Pose - Right Arm"
+            disabled={!connected || actionType == ActionType.rightArm}
+            ros={ros}
+            setGameActionOpts={setGameActionOpts}
+            setActionType={(): void => {
+              setActionType(ActionType.rightArm);
+            }}
           />
-        </label>
-        <label htmlFor="timeTarget">
-          Time (0 yields default):
-          <input
-            type="number"
-            min="0"
-            name="timeTarget"
-            value={timeTarget}
-            onChange={(e): void => setTimeTarget(Number(e.target.value))}
+
+          <PoseButton
+            buttonText="Pose - Left Arm"
+            disabled={!connected || actionType == ActionType.leftArm}
+            ros={ros}
+            setGameActionOpts={setGameActionOpts}
+            setActionType={(): void => {
+              setActionType(ActionType.leftArm);
+            }}
           />
-        </label>
+        </div>
+
+        <div>
+          <label htmlFor="toSay">
+            To Say:
+            <input
+              type="text"
+              name="toSay"
+              value={toSay}
+              onChange={(e): void => setToSay(e.target.value)}
+            />
+          </label>
+        </div>
+
+        <div>
+          <label htmlFor="timeTarget">
+            Time (0 yields default):
+            <input
+              type="number"
+              min="0"
+              name="timeTarget"
+              value={timeTarget}
+              onChange={(e): void => setTimeTarget(Number(e.target.value))}
+            />
+          </label>
+        </div>
+
         <div>
           {gameActionOpts.map((value, idx) => (
             <GameActionOpt
@@ -306,7 +312,7 @@ const GameBuckets: React.FunctionComponent<GameBucketsProps> = ({
       </button>
       <hr />
 
-      <div>
+      <div style={{ display: "flex", flexDirection: "column-reverse" }}>
         {steps.map((value, idx) => (
           <GameStep
             def={value}

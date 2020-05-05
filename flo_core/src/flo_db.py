@@ -21,6 +21,7 @@ from flo_core_defs.msg import DBUpdate
 from flo_core_defs.srv import SetGameBucket
 from flo_core_defs.msg import GameBucket
 from flo_core_defs.srv import GetGameBucketID, GetGameBucketIDResponse
+from flo_core_defs.srv import SearchGameBucket
 
 import mutagen
 

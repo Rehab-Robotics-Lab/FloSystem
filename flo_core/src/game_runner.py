@@ -61,22 +61,25 @@ class GameRunner(object):
     """The actual class that orchestrates the games"""
 
     # pylint: disable=too-many-instance-attributes
-    # having 12 instance attributes is just the way it is for something of this size
+    # having 12 instance attributes is just the way it is for something of this
+    # size
     states = Enum(
         'states', 'waiting_for_def game_loaded acting waiting_for_command')
 
     action_states = Enum('action_states', 'sent active done none')
 
     congratulate_strings = ['good job', 'that was great', 'well done',
-                            'you are doing really well', 'you are super good at this']
+                            'you are doing really well',
+                            'you are super good at this']
 
     try_again_strings = ['let\'s try that again together',
-                         'see if you can do a bit better', 'how about we give that another try']
+                         'see if you can do a bit better',
+                         'how about we give that another try']
 
     def __init__(self):
         rospy.init_node('game_runner')
 
-        ### Action Servers to Make Things Happen ###
+        # -- Action Servers to Make Things Happen -- #
         # set up polly action server
         self.speech_server = actionlib.SimpleActionClient(
             'tts', SpeechAction)
@@ -95,14 +98,14 @@ class GameRunner(object):
             'game_runner_actions', GameAction, queue_size=10)
         rospy.loginfo('setup publishers')
 
-        ### Subscribers ###
+        # -- Subscribers -- #
         rospy.Subscriber(
             'game_runner_commands', GameCommand, self.__new_command)
         rospy.Subscriber(
             'game_runner_def', GameDef, self.__new_def)
         rospy.loginfo('setup subscribers')
 
-        ### Services ###
+        # -- Services -- #
         rospy.wait_for_service('get_pose_id')
         self.get_pose_id = rospy.ServiceProxy('get_pose_id', GetPoseID)
         rospy.wait_for_service('get_pose_seq_id')
@@ -110,23 +113,23 @@ class GameRunner(object):
             'get_pose_seq_id', GetPoseSeqID)
         rospy.loginfo('setup services')
 
-        ### Queue's for safe receiving of info ###
+        # -- Queue's for safe receiving of info -- #
         self.command_queue = queue.Queue()
         self.command_lock = threading.Lock()
         self.def_queue = queue.Queue()
 
-        ### State Management ###
+        # -- State Management -- #
         self.__set_state(self.states.waiting_for_def)
         self.moving_state = self.action_states.none
         self.speaking_state = self.action_states.none
         self.state = self.states.waiting_for_command
 
-        ### The actions that compose this game ###
+        # -- The actions that compose this game -- #
         self.actions_list = []
         self.action_idx = -1
         self.command_opts = []
 
-        ### Run ###
+        # -- Run -- #
         rate = rospy.Rate(20)
         rospy.loginfo('done with initialization')
         while not rospy.is_shutdown():
@@ -195,7 +198,8 @@ class GameRunner(object):
             else:
                 self.state = self.states.waiting_for_command
                 self.__set_options(
-                    ['next', 'repeat', 'congratulate', 'try_again', 'quit_game'])
+                    ['next', 'repeat', 'congratulate', 'try_again',
+                     'quit_game'])
 
     def __process_step(self, step):
         targets = []

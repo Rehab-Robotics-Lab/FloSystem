@@ -452,6 +452,9 @@ function ssh-flo {
     2. `SHELL=/bin/bash` This will set the shell that things should run in
     3. `@reboot (sleep 90; source ~/.bashrc; ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh)`
     4. `*/1 * * * * (source ~/.bashrc; python ~/catkin_ws/src/LilFloSystem/flo_web/pinger/pinger.py)`
+12. Install pm2 (#TODO: put into install scripts): `npm install -g pm2`
+13. Install router dependencies:
+    1. Go into `flo_web/webrtc_robot_router` and run `npm install`
 
 #### Assigning the serial devices to have a fixed addresses {#udev}
 

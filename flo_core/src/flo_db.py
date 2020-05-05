@@ -18,6 +18,11 @@ from flo_core_defs.srv import SetUtterance, SetUtteranceResponse
 from flo_core_defs.srv import SearchUtterance, SearchUtteranceResponse
 from flo_core_defs.msg import PoseSeq
 from flo_core_defs.msg import DBUpdate
+from flo_core_defs.srv import SetGameBucket
+from flo_core_defs.msg import GameBucket
+from flo_core_defs.srv import GetGameBucketID, GetGameBucketIDResponse
+from flo_core_defs.srv import SearchGameBucket, SearchGameBucketResponse
+from flo_core_defs.msg import StepDef
 
 import mutagen
 
@@ -58,6 +63,11 @@ class FloDb(object):
         rospy.Service('search_utterance', SearchUtterance,
                       self.__search_utterance)
         rospy.Service('set_utterance', SetUtterance, self.__set_utterance)
+        rospy.Service('set_game_bucket', SetGameBucket, self.__set_game_bucket)
+        rospy.Service('get_game_bucket_id', GetGameBucketID,
+                      self.__get_game_bucket_id)
+        rospy.Service('search_game_bucket_name_desc',
+                      SearchGameBucket, self.__search_game_bucket_name_desc)
 
         rospy.loginfo('Node up, services ready')
 
@@ -114,10 +124,10 @@ class FloDb(object):
 
     def __set_pose(self, request):
         """Set the passed in pose in the database. If the default value for the
-        id of 0 is used, a new entry will be created. If the value of an existing
-        row's id is passed, that row will be replaced with the new data. If
-        a non-zero id is passed which does not exist in the database, an error
-        will be raised.
+        id of 0 is used, a new entry will be created. If the value of an
+        existing row's id is passed, that row will be replaced with the new
+        data. If a non-zero id is passed which does not exist in the database,
+        an error will be raised.
 
         :param request: The SetPose service message request
         """
@@ -132,8 +142,9 @@ class FloDb(object):
             data = curs.fetchone()
             if data:
                 db_return = db.ex(
-                    'replace into poses(id, description, joint_positions, joint_names)' +
-                    ' values (?,?,?,?)',
+                    'replace into poses('
+                    + 'id, description, joint_positions, joint_names)'
+                    + 'values (?,?,?,?)',
                     request.id,
                     request.pose.description,
                     json.dumps(request.pose.joint_positions),
@@ -147,7 +158,8 @@ class FloDb(object):
                     'The selected row does not exist, you cannot update it')
         else:
             db_return = db.ex(
-                'insert into poses(description, joint_positions, joint_names) values (?,?,?)',
+                'insert into poses(description, joint_positions, joint_names)'
+                + 'values (?,?,?)',
                 request.pose.description,
                 json.dumps(request.pose.joint_positions),
                 json.dumps(request.pose.joint_names))
@@ -178,8 +190,8 @@ class FloDb(object):
         update = DBUpdate()
 
         if not len(seq.pose_ids) == len(seq.times) == len(seq.arms):
-            raise rospy.ServiceException(
-                'the length of the pose ids, times, and arms are not consistent')
+            raise rospy.ServiceException('the length of the pose ids, times, '
+                                         + 'and arms are not consistent')
 
         for pose_id in seq.pose_ids:
             curs = db.ex('select id from poses where id = ?', pose_id)
@@ -194,8 +206,9 @@ class FloDb(object):
             data = curs.fetchone()
             if data:
                 db_return = db.ex(
-                    'replace into pose_sequences(id, times, pose_ids, total_time,' +
-                    ' arms, description) values (?,?,?,?,?,?)',
+                    'replace into pose_sequences('
+                    + 'id, times, pose_ids, total_time, arms, description) '
+                    + 'values (?,?,?,?,?,?)',
                     request.id,
                     json.dumps(seq.times),
                     json.dumps(seq.pose_ids),
@@ -210,8 +223,8 @@ class FloDb(object):
                     'The selected row does not exist, you cannot update it')
         else:
             db_return = db.ex(
-                'insert into pose_sequences(times, pose_ids, total_time, arms, description)' +
-                ' values (?,?,?,?,?)',
+                'insert into pose_sequences(times, pose_ids, total_time, '
+                + 'arms, description) values (?,?,?,?,?)',
                 json.dumps(seq.times),
                 json.dumps(seq.pose_ids),
                 seq.total_time,
@@ -257,7 +270,8 @@ class FloDb(object):
         raise rospy.ServiceException('That ID does not exist')
 
     def __search_pose_seq(self, request):
-        """Search for a pose sequence in the database using a string of the description
+        """Search for a pose sequence in the database using a string of the
+        description
 
         Args:
             request: the service request
@@ -267,7 +281,8 @@ class FloDb(object):
         """
         db = DB(self.db_path)  # pylint:disable=invalid-name
         resp = SearchPoseSeqResponse()
-        for row in db.ex('select * from pose_sequences where description like ?',
+        for row in db.ex('select * from pose_sequences where description '
+                         + 'like ?',
                          '%'+request.search+'%'):
             new_pose_seq = PoseSeq()
             new_pose_seq.description = row['description']
@@ -301,7 +316,8 @@ class FloDb(object):
     def __set_utterance(self, request):
         """Set an utterance in the Database
 
-        Updates (if given an ID) or creates a new utterance (if not given and ID)
+        Updates (if given an ID) or creates a new utterance
+        (if not given and ID)
         based on the request passed from the action server
 
         Args:
@@ -319,7 +335,8 @@ class FloDb(object):
             data = curs.fetchone()
             if data:
                 db_return = db.ex(
-                    'replace into utterances(id, text, length, metadata) values (?,?,?,?)',
+                    'replace into utterances(id, text, length, metadata) '
+                    + 'values (?,?,?,?)',
                     request.id,
                     request.text,
                     time_length,
@@ -334,7 +351,8 @@ class FloDb(object):
                     'The selected row does not exist, you cannot update it')
         else:
             db_return = db.ex(
-                'insert into utterances(text, length, metadata) values (?,?,?)',
+                'insert into utterances(text, length, metadata) '
+                + 'values (?,?,?)',
                 request.text,
                 time_length,
                 request.metadata
@@ -351,6 +369,140 @@ class FloDb(object):
             'metadata': request.metadata
         })
         resp = SetUtteranceResponse(id=updated_row, time=time_length)
+        return resp
+
+    def __set_game_bucket(self, request):
+        """set a bucket of games in the database
+
+        Args:
+            request: The service request
+
+        Returns:
+            The response.
+        """
+        db = DB(self.db_path)  # pylint: disable=invalid-name
+        game_bucket = request.game_bucket
+        steps = game_bucket.steps
+
+        clean_steps = []
+        for step in steps:
+            if step.type == 'move':
+                curs = db.ex(
+                    'select id from pose_sequences where id = ?', step.id)
+                data = curs.fetchone()
+                if not data:
+                    raise rospy.ServiceException(
+                        'The pose sequence id: {} does not exist'.format(
+                            step.id))
+            elif step.type in ['pose_left', 'pose_right', 'pose_both']:
+                curs = db.ex('select id from poses where id = ?', step.id)
+                data = curs.fetchone()
+                if not data:
+                    raise rospy.ServiceException(
+                        'The pose id: {} does not exist'.format(step.id))
+
+            clean_steps.append(
+                {'type': step.type, 'text': step.text,
+                 'id': step.id, 'time': step.time})
+
+        if game_bucket.targeted_game not in ['simon_says', 'target_touch']:
+            raise rospy.ServiceException('The targeted game type is not valid')
+
+        if request.id:
+            curs = db.ex(
+                'select id from game_buckets where id = ?', request.id)
+            data = curs.fetchone()
+            if data:
+                db_return = db.ex(
+                    'replace into game_buckets('
+                    + 'id, name, subject, targeted_game, description, steps'
+                    + ') values (?,?,?,?,?,?)',
+                    request.id,
+                    game_bucket.name,
+                    game_bucket.subject,
+                    game_bucket.targeted_game,
+                    game_bucket.description,
+                    json.dumps(clean_steps)
+                )
+                updated_row = request.id
+            else:
+                raise rospy.ServiceException(
+                    'The selected row does not exist, you cannot update it')
+        else:
+            db_return = db.ex(
+                'insert into game_buckets('
+                + 'name, subject, targeted_game, description, steps'
+                + ') values (?,?,?,?,?)',
+                game_bucket.name,
+                game_bucket.subject,
+                game_bucket.targeted_game,
+                game_bucket.description,
+                json.dumps(clean_steps)
+            )
+            updated_row = db_return.lastrowid
+
+        return updated_row
+
+    def __get_game_bucket_id(self, request):
+        """Get a game bucket given its id
+
+        Args:
+            request: the service request
+
+        Returns:
+            The service response
+        """
+        db = DB(self.db_path)  # pylint: disable=invalid-name
+        curs = db.ex('select * from game_buckets where id = ?', request.id)
+        data = curs.fetchone()
+        if data:
+            resp = GetGameBucketIDResponse()
+            game_bucket = GameBucket()
+            resp.id = data['id']
+            game_bucket.name = data['name']
+            game_bucket.subject = data['subject']
+            game_bucket.targeted_game = data['targeted_game']
+            game_bucket.description = data['description']
+            dirty_steps = json.loads(data['steps'])
+            clean_steps = []
+            for step in dirty_steps:
+                clean_steps.append(
+                    StepDef(type=step['type'], text=step['text'],
+                            id=step['id'], time=step['time']))
+            game_bucket.steps = clean_steps
+            resp.game_bucket = game_bucket
+            return resp
+        raise rospy.ServiceException('That ID does not exist')
+
+    def __search_game_bucket_name_desc(self, request):
+        """Search for a game bucket using both the name and description
+
+        Args:
+            request: the service request
+
+        Returns:
+            The service response
+        """
+        db = DB(self.db_path)  # pylint:disable=invalid-name
+        resp = SearchGameBucketResponse()
+        for row in db.ex('select * from game_buckets where ('
+                         + 'description like ? OR name like ?)',
+                         '%'+request.search+'%', '%'+request.search+'%'):
+            new_game_bucket = GameBucket()
+            new_game_bucket.name = row['name']
+            new_game_bucket.subject = row['subject']
+            new_game_bucket.targeted_game = row['targeted_game']
+            new_game_bucket.description = row['description']
+            dirty_steps = json.loads(row['steps'])
+            clean_steps = []
+            for step in dirty_steps:
+                clean_steps.append(
+                    StepDef(type=step['type'], text=step['text'],
+                            id=step['id'], time=step['time']))
+            new_game_bucket.steps = clean_steps
+
+            resp.game_buckets.append(new_game_bucket)
+            resp.ids.append(row['id'])
         return resp
 
 

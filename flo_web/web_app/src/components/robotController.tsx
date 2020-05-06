@@ -215,7 +215,8 @@ const RobotController: React.FunctionComponent = () => {
 
           alignItems: "flex-start",
           margin: "0px",
-          flexDirection: "column"
+          flexDirection: "column",
+          justifyContent: "center"
         }}
       >
         <div
@@ -227,13 +228,18 @@ const RobotController: React.FunctionComponent = () => {
             flexWrap: "wrap",
             position: "sticky",
             top: 0,
-            justifyContent: "spaceAround"
+            justifyContent: "space-around"
           })}
         >
           <Vids ros={ros} connected={connected} ipAddr={ipAddr} />
           <URDF ros={ros} connected={connected} />
         </div>
-        <div style={{ flexGrow: 1, overflow: "auto" }}>
+        <div
+          style={{
+            flexGrow: 1,
+            overflow: "auto"
+          }}
+        >
           <RelaxMotors ros={ros} connected={connected} />
           <div
             className="controls"
@@ -241,7 +247,8 @@ const RobotController: React.FunctionComponent = () => {
               display: "flex",
               flexDirection: "row",
               flexWrap: "wrap",
-              alignItems: "flex-start"
+              alignItems: "flex-start",
+              justifyContent: "center"
             }}
           >
             <Drive ros={ros} connected={connected} />

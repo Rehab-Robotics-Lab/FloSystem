@@ -455,6 +455,12 @@ function ssh-flo {
 12. Install pm2 (#TODO: put into install scripts): `npm install -g pm2`
 13. Install router dependencies:
     1. Go into `flo_web/webrtc_robot_router` and run `npm install`
+14. load patched rosbridge suite:
+    1. go into catkin_ws/src
+    2. clone https://github.com/mjsobrep/rosbridge_suite.git
+	2. checkout the `nousub` branch (optionally merge in master)
+	3. delete catkin_ws/devel and catkin_ws/install. 
+	4. run catkin_make
 
 #### Assigning the serial devices to have a fixed addresses {#udev}
 

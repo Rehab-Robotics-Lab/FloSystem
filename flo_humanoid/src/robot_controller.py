@@ -434,7 +434,7 @@ class BolideController(object):
             self.state = 'waiting_for_feedback'
             returns = self.read_one(tries=15)  # TODO: can this value be none?
             if not looking_for_pos:
-                while returns['command'] == self.commands['pos']:
+                while returns and returns['command'] == self.commands['pos']:
                     returns = self.read_one(tries=15)
             rospy.logdebug('received response: %s', returns)
         if returns and returns['command'] == self.feedback['error']:
@@ -568,7 +568,7 @@ class BolideController(object):
             return
         if header != 0xFF:
             # log(3, 'first byte read did not match header: {}'.format(header))
-            rospy.logerr('Incorrect first byte')
+            rospy.logerr('Incorrect first byte: {}'.format(header))
             self.ret = ''
             return
 
@@ -591,7 +591,7 @@ class BolideController(object):
         end = ord(self.ret[-1])
         if end != 0xFE:
             # log(3, 'bad end bit')
-            rospy.logerr('incorrect end bit received')
+            rospy.logerr('incorrect end bit received: {}'.format(end))
             self.ret = ''
             return
 

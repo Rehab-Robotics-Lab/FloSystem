@@ -158,13 +158,13 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
 
     (actionClient as any).on("timeout", () => {
       goal.cancel();
-      alert("there was an error speaking, please try again");
+      console.error("there was an error speaking, please try again");
       setSpeaking(false);
     });
 
     goal.on("timeout", () => {
       goal.cancel();
-      alert("there was an error speaking, please try again");
+      console.error("there was an error speaking, please try again");
       setSpeaking(false);
     });
 

@@ -461,6 +461,12 @@ function ssh-flo {
 	2. checkout the `nousub` branch (optionally merge in master)
 	3. delete catkin_ws/devel and catkin_ws/install. 
 	4. run catkin_make
+15. Setup firewall (really need that with ros)
+	1. `sudo ufw default allow outgoing`
+	2. `sudo ufw default deny incoming`
+	3. `sudo ufw allow ssh`
+	4. `sudo ufw enable`
+	5. check: `ufw status`
 
 #### Assigning the serial devices to have a fixed addresses {#udev}
 

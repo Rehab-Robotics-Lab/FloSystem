@@ -150,6 +150,16 @@ class Joystick {
       2 * Math.PI
     );
     this.ctx.stroke();
+
+    this.ctx.font = "15px Comic Sans MS";
+    this.ctx.fillStyle = "red";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText("Forward", this.circleCenter.x, 20);
+    this.ctx.fillText("Backward", this.circleCenter.x, this.canvas.height - 7);
+    this.ctx.textAlign = "left";
+    this.ctx.fillText("L", 10, this.circleCenter.y + 3);
+    this.ctx.textAlign = "right";
+    this.ctx.fillText("R", this.canvas.width - 10, this.circleCenter.y + 3);
   }
 
   actOnInput(position: Pos): void {

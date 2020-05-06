@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
   <!--<node name="image_concatenater" pkg="flo_telepresence" type="image_concat.py" output="screen"/>-->
-  <node name="ice_server_provider" pkg="webrtc_ros" type="ice_server_service.py">
+  <node name="ice_server_provider" pkg="webrtc_ros" type="ice_server_service.py" respawn="true">
     <!--These are the servers used for resolving remote addresses, google provides-->
     <!--some free to use ones, here as defaults. You could setup your own or use-->
     <!--another provider-->
@@ -29,7 +29,7 @@
     <param name="turn_server_creds_username" value="$(env ROBOT_NAME)"/>
     <param name="turn_server_creds_password" value="$(env ROBOT_PASSWORD)"/>
   </node>
-  <node name="webrtc_server" pkg="webrtc_ros" type="webrtc_ros_server_node">
+  <node name="webrtc_server" pkg="webrtc_ros" type="webrtc_ros_server_node" respawn="true">
     <param name="port" value="9091"/>
   </node>
 </launch>

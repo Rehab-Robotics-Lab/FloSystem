@@ -468,6 +468,7 @@ function ssh-flo {
     3. `sudo ufw allow ssh`
     4. `sudo ufw enable`
     5. check: `ufw status`
+16. Take a look at the bash_includes file. It should be going in through the install system automatically. Might not be though. For testing you want to set the ros_ip. But for deployment you do not. If a ROS IP is set using a network which the robot is connected to, then upon network loss the ros system will crash
 
 #### Assigning the serial devices to have a fixed addresses {#udev}
 

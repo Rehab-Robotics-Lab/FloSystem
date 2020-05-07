@@ -174,4 +174,3 @@ class RobotScreen(object):
 
 if __name__ == '__main__':
     RobotScreen()
-    RobotScreen()

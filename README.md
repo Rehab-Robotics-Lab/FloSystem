@@ -74,6 +74,7 @@ with contents: `SESSION_SECRET=<cryptographically random value>`
 
 You should create a file in `LilFloSystem/certs/coturn.env`
 with contents:
+
 ```conf
 COTURN_SECRET=<cryptographically random value>
 SITE_ADDR=<the site address, ex: lilflo.com>
@@ -144,13 +145,13 @@ Linode is small, easy to use, and affordable.
    5. `ufw allow http`
    6. `ufw allow https`
    7. `ufw allow 49152:65535/udp`
-   7. `ufw allow 49152:65535/tcp`
-   7. `ufw allow 3478/tcp`
-   7. `ufw allow 3478/udp`
-   7. `ufw allow 5349/tcp`
-   7. `ufw allow 5349/udp`
-   7. `ufw enable`
-   8. Check status with `ufw status`
+   8. `ufw allow 49152:65535/tcp`
+   9. `ufw allow 3478/tcp`
+   10. `ufw allow 3478/udp`
+   11. `ufw allow 5349/tcp`
+   12. `ufw allow 5349/udp`
+   13. `ufw enable`
+   14. Check status with `ufw status`
 4. [Setup unattended updates](https://help.ubuntu.com/lts/serverguide/automatic-updates.html): `apt install unattended-upgrades`
 5. Clone this repository
 6. Install docker-compose: `apt install docker-compose`
@@ -458,15 +459,15 @@ function ssh-flo {
 14. load patched rosbridge suite:
     1. go into catkin_ws/src
     2. clone https://github.com/mjsobrep/rosbridge_suite.git
-	2. checkout the `nousub` branch (optionally merge in master)
-	3. delete catkin_ws/devel and catkin_ws/install. 
-	4. run catkin_make
+    3. checkout the `nousub` branch (optionally merge in master)
+    4. delete catkin_ws/devel and catkin_ws/install.
+    5. run catkin_make
 15. Setup firewall (really need that with ros)
-	1. `sudo ufw default allow outgoing`
-	2. `sudo ufw default deny incoming`
-	3. `sudo ufw allow ssh`
-	4. `sudo ufw enable`
-	5. check: `ufw status`
+    1. `sudo ufw default allow outgoing`
+    2. `sudo ufw default deny incoming`
+    3. `sudo ufw allow ssh`
+    4. `sudo ufw enable`
+    5. check: `ufw status`
 
 #### Assigning the serial devices to have a fixed addresses {#udev}
 
@@ -701,13 +702,27 @@ the install and dev folders in `catkin_ws` and run `catkin_make`
 
 ### REALSENSE has version mismatches and stuff {#broken-realsense}
 
+PAUSE!! Ok, Realsense is a pain. Intel really doesn't want us using
+their hardware. The first thing to do is to go check the latest
+releases from realsense-ros. What version of librealsense is supported?
+You probably want to update to the latest version of realsense ros
+but only want to upgrade to the version of librealsense that that
+supports (wtf intel?). Good luck my friend
+
 apt update and upgrade Go into `catkin_ws/src/realsense-ros` run:
 
 ```bash
+git fetch
 git checkout `git tag | sort -V | grep -P "^\d+\.\d+\.\d+" | tail -1`
 ```
 
-cd up to `catkin_ws` and `run catkin_make` followed by `catkin_make install`
+cd up to `catkin_ws` and run:
+
+```bash
+catkin_make clean
+catkin_make -DCATKIN_ENABLE_TESTING=False -DCMAKE_BUILD_TYPE=Release
+catkin_make install
+```
 
 It is also possible that you need to update the camera's firmware. To do this,
 open realsense-viewer with the camera connected to a computer with an available

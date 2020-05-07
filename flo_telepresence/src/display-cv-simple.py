@@ -27,8 +27,9 @@ class RobotScreen(object):
         rospy.loginfo('Started Robot Screen Node')
 
         self.bridge = CvBridge()
-        rospy.Subscriber('/remote_video', smImage, self.__new_img)
-        self.__run_display()
+        rospy.Subscriber('/remote_video_clean', smImage, self.__new_img)
+        # self.__run_display()
+        rospy.spin()
 
     def __run_display(self):
         rate = rospy.Rate(45)
@@ -46,12 +47,13 @@ class RobotScreen(object):
             rate.sleep()
 
     def __new_img(self, msg):
-        try:
-            cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
-        except CvBridgeError as err:
-            rospy.logerr('error converting message to cvmat: %s', err)
-            return
-        self.image_queue.put(cv_image)
+        print('{} new image'.format(rospy.get_time()))
+        # try:
+        #     cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+        # except CvBridgeError as err:
+        #     rospy.logerr('error converting message to cvmat: %s', err)
+        #     return
+        # self.image_queue.put(cv_image)
 
 
 if __name__ == '__main__':

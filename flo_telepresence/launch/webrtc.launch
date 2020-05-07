@@ -32,4 +32,5 @@
   <node name="webrtc_server" pkg="webrtc_ros" type="webrtc_ros_server_node" respawn="true">
     <param name="port" value="9091"/>
   </node>
+  <node name="remote_vid_repub" pkg="image_transport" type="republish" args="in:=/remote_video raw out:=/remote_video_clean"/>
 </launch>

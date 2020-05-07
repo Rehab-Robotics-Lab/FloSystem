@@ -17,6 +17,6 @@ source ~/catkin_ws/devel/setup.bash
 
 export ROS_MASTER_URI=http://localhost:11311
 
-export ROS_IP=`ifip wlp58s0`
+#export ROS_IP=`ifip wlp58s0`
 
 export DISPLAY=:0

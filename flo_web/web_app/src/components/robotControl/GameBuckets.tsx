@@ -378,7 +378,7 @@ const AddGameAction: React.FunctionComponent<AddGameActionProps> = ({
         <div>
           <button
             type="button"
-            disabled={!connected || actionType == ActionType.seq}
+            disabled={!connected || actionType === ActionType.seq}
             onClick={(): void => {
               const searchSeqClient = new ROSLIB.Service({
                 ros: ros as ROSLIB.Ros,
@@ -409,7 +409,7 @@ const AddGameAction: React.FunctionComponent<AddGameActionProps> = ({
 
           <PoseButton
             buttonText="Pose - Right Arm"
-            disabled={!connected || actionType == ActionType.rightArm}
+            disabled={!connected || actionType === ActionType.rightArm}
             ros={ros}
             setGameActionOpts={setGameActionOpts}
             setActionType={(): void => {
@@ -419,7 +419,7 @@ const AddGameAction: React.FunctionComponent<AddGameActionProps> = ({
 
           <PoseButton
             buttonText="Pose - Left Arm"
-            disabled={!connected || actionType == ActionType.leftArm}
+            disabled={!connected || actionType === ActionType.leftArm}
             ros={ros}
             setGameActionOpts={setGameActionOpts}
             setActionType={(): void => {
@@ -461,14 +461,14 @@ const AddGameAction: React.FunctionComponent<AddGameActionProps> = ({
               setActiveOpt={(): void => {
                 setActiveOpt(idx);
               }}
-              active={idx == activeOpt}
+              active={idx === activeOpt}
             />
           ))}
         </div>
         <button
           type="button"
           disabled={
-            actionType == ActionType.none ||
+            actionType === ActionType.none ||
             timeTarget < 0 ||
             activeOpt < 0 ||
             activeOpt >= gameActionOpts.length
@@ -509,7 +509,6 @@ const GameBuckets: React.FunctionComponent<GameBucketsProps> = ({
   const [showAdd, setShowAdd] = useState(false);
   const [showSave, setShowSave] = useState(false);
   const [showLoad, setShowLoad] = useState(false);
-  const [saveID, setSaveID] = useState(0);
   const [buckets, setBuckets] = useState<GameBucket[]>([]);
 
   useEffect(() => {

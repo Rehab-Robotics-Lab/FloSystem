@@ -34,30 +34,6 @@ const GameCommand: React.FunctionComponent<GameCommandProps> = ({
   );
 };
 
-interface GameDefProps {
-  name: string;
-  run: () => void;
-  disabled: boolean;
-}
-
-const GameDef: React.FunctionComponent<GameDefProps> = ({
-  name,
-  run,
-  disabled
-}) => {
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={(): void => {
-        run();
-      }}
-    >
-      {name}
-    </button>
-  );
-};
-
 interface GameContainerProps {
   ros: ROSLIB.Ros | null;
   connected: boolean;
@@ -132,7 +108,10 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
   );
   const [buckets, setBuckets] = useState<GameBucket[]>([]);
 
-  const startButton = (type: string, cleanText: string) => {
+  const startButton = (
+    type: "simon_says" | "target_touch",
+    cleanText: string
+  ) => {
     return (
       <button
         type="button"
@@ -141,6 +120,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
           if (!connected) {
             return;
           }
+          setGameType(type);
           const srv = new ROSLIB.Service({
             ros: ros as ROSLIB.Ros,
             name: "/search_game_bucket_name_desc",
@@ -148,6 +128,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
           });
           console.log("Connected to service to search for a game bucket");
           const request = new ROSLIB.ServiceRequest({ search: "" });
+          //TODO: Should be sorting out the buckets by game type
           srv.callService(request, resp => {
             const tmpBuckets = [];
             for (let idx = 0; idx < resp["ids"].length; idx++) {

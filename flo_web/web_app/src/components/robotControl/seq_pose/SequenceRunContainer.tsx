@@ -93,7 +93,9 @@ export const runSequence = (
 
   //TODO: get this out as an error
   (actionClient as any).on("timeout", () => {
-    alert("failed to attach to move server due to timeout, you can try again");
+    console.error(
+      "failed to attach to move server due to timeout, you can try again"
+    );
     setMoving(false);
     const moveListN = [...MovesList];
     for (let idx = 0; idx < moveListN.length; idx += 1) {
@@ -104,7 +106,7 @@ export const runSequence = (
   });
 
   goal.on("timeout", () => {
-    alert("failed to move due to timeout, you can try again");
+    console.error("failed to move due to timeout, you can try again");
     setMoving(false);
     const moveListN = [...MovesList];
     for (let idx = 0; idx < moveListN.length; idx += 1) {

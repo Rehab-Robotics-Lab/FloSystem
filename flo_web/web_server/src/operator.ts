@@ -15,6 +15,7 @@ import {
     Server,
     killOnDisconnect,
 } from './util';
+
 const parseIncoming: ParseIncoming = async function (
     urlReturn,
     request,
@@ -112,8 +113,6 @@ const parseIncoming: ParseIncoming = async function (
                 return;
             }
 
-            // TODO: check if data and rtc connected. if not disconnect and delete connected operator hash
-
             // reserve the robot on postgres
             db.query(
                 'update robots set active_user_id=$1 where robot_name=$2',
@@ -122,8 +121,30 @@ const parseIncoming: ParseIncoming = async function (
             rdb.hset(`operator:${id}`, 'connected-robot', targetRobot);
 
             localLogger.verbose('connected to robot');
+            // now entering a dangerous state where if anything fails the user may
+            // never be disconnected internally.
 
-            const ws = await handleUpgradePromise(request, socket, head);
+            try {
+                const ws = await handleUpgradePromise(request, socket, head);
+            } catch (err) {
+                // something went wrong when trying to connect
+                rdb.hdel(`robot:${targetRobot}`, 'connected-operator');
+                db.query(
+                    'update robots set active_user_id=$1 where robot_name=$2',
+                    [null, targetRobot],
+                );
+                localLogger.warn('a socket failed to upgrade', {
+                    request: request,
+                    socket: socket,
+                    head: head,
+                });
+                try {
+                    socket.destroy();
+                } catch {
+                    localLogger.warn('could not destroy socket after failur');
+                }
+                return;
+            }
 
             const killer = killOnDisconnect(ws);
             ws.on('pong', killer.heartbeat);

@@ -124,8 +124,9 @@ const parseIncoming: ParseIncoming = async function (
             // now entering a dangerous state where if anything fails the user may
             // never be disconnected internally.
 
+            let ws: WebSocket;
             try {
-                const ws = await handleUpgradePromise(request, socket, head);
+                ws = await handleUpgradePromise(request, socket, head);
             } catch (err) {
                 // something went wrong when trying to connect
                 rdb.hdel(`robot:${targetRobot}`, 'connected-operator');

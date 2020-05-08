@@ -111,6 +111,7 @@ router.put('/ipaddr', async (req, res) => {
             ipaddr,
             name,
         ]);
+        res.status(200).json({ ipaddr: ipaddr, name: name });
     } catch {
         res.status(400).json({ error: 'failed to set ip address' });
         return;

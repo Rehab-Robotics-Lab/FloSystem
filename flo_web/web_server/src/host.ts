@@ -145,6 +145,8 @@ const parseIncoming: ParseIncoming = async function (
             }
         });
     } else {
+        // When we get a new data connection say that no one can be connected
+        // currently. TODO: this is a hack, remove
         db.query('update robots set active_user_id=$1 where robot_name=$2', [
             null,
             name,

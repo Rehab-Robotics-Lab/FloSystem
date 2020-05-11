@@ -144,14 +144,8 @@ Linode is small, easy to use, and affordable.
    4. `ufw allow ssh`
    5. `ufw allow http`
    6. `ufw allow https`
-   7. `ufw allow 49152:65535/udp`
-   8. `ufw allow 49152:65535/tcp`
-   9. `ufw allow 3478/tcp`
-   10. `ufw allow 3478/udp`
-   11. `ufw allow 5349/tcp`
-   12. `ufw allow 5349/udp`
-   13. `ufw enable`
-   14. Check status with `ufw status`
+   7. `ufw enable`
+   8. Check status with `ufw status`
 4. [Setup unattended updates](https://help.ubuntu.com/lts/serverguide/automatic-updates.html): `apt install unattended-upgrades`
 5. Clone this repository
 6. Install docker-compose: `apt install docker-compose`
@@ -159,6 +153,39 @@ Linode is small, easy to use, and affordable.
 8. Run `docker pull certbot/certbot`
 9. Setup certificates by running `./init-letsencrypt.sh`
 10. Run `docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d`
+11. Monitor with `docker ps`, `docker stats`, and `docker-compose logs -f`
+
+### Deploying TURN Server
+
+In some network situations, you will need a turn server. In those cases,
+you probably want to be running UDP, TCP, and TLS on port 443 to allow
+packets through.
+
+After trying to get this to work behind Nginx to get this all on one server,
+I have concluded that the turn server should be on an independent vm. This
+makes the port management easier and prevents the turn server from taking
+resources from the rest of the system.
+
+1. Create a new Ubuntu 18 vm.
+2. Create an A/AAA record for `turn.<url>`
+3. Install and setup firewall:
+   1. `apt install ufw`
+   2. `ufw default allow outgoing`
+   3. `ufw default deny incoming`
+   4. `ufw allow ssh`
+   5. `ufw allow http`
+   6. `ufw allow https`
+   7. `ufw allow 49152:65535/udp`
+   8. `ufw allow 49152:65535/tcp`
+   9. `ufw enable`
+   10. Check status with `ufw status`
+4. [Setup unattended updates](https://help.ubuntu.com/lts/serverguide/automatic-updates.html): `apt install unattended-upgrades`
+5. Clone this repo
+6. Install docker-compose: `apt install docker-compose`
+7. Go into the repo root and run `docker-compose -f docker-compose-turn.yml build`
+8. Run `docker pull certbot/certbot`
+9. Setup certificates by running `./init-letsencrypt-turn.sh`
+10. Run `docker-compose -f docker-compose-turn.yml up -d`
 11. Monitor with `docker ps`, `docker stats`, and `docker-compose logs -f`
 
 ### Deploying to Heroku

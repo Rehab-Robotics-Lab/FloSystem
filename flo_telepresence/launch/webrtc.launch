@@ -12,10 +12,8 @@
     <!--Not always needed, but in some corporate environments it might be. -->
     <!--This is the url of the turn server (Ex: coturn)-->
     <rosparam param="turn_server_uris" subst_value="true">
-        ['turn:$(env FLO_SERVER_IP):3478?transport=udp',
-         'turn:$(env FLO_SERVER_IP):5349?transport=udp',
-         'turn:$(env FLO_SERVER_IP):3478?transport=tcp',
-         'turn:$(env FLO_SERVER_IP):5349?transport=tcp']
+        ['turn:turn.$(env FLO_SERVER_IP):443?transport=udp',
+         'turn:turn.$(env FLO_SERVER_IP):443?transport=tcp']
     </rosparam>
     <!--You need credentials to access your turn server. The best way to do-->
     <!--that (the way we support) is to use a seperate rest api with a shared-->

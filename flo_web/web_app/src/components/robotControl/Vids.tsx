@@ -80,7 +80,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
               credential: turnCredentials["password"]
             },
             {
-              urls: `turn:turn.${ipAddr}:443?transport=udp`,
+              urls: `turn:turn.${ipAddr}:443?transport=tcp`,
               username: turnCredentials["username"],
               credential: turnCredentials["password"]
             }

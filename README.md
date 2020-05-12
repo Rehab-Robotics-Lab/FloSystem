@@ -148,12 +148,14 @@ Linode is small, easy to use, and affordable.
    8. Check status with `ufw status`
 4. [Setup unattended updates](https://help.ubuntu.com/lts/serverguide/automatic-updates.html): `apt install unattended-upgrades`
 5. Clone this repository
-6. Install docker-compose: `apt install docker-compose`
-7. Go into the repo root and run `docker-compose -f docker-compose.yml -f docker-compose.prod.yml build`
-8. Run `docker pull certbot/certbot`
-9. Setup certificates by running `./init-letsencrypt.sh`
-10. Run `docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d`
-11. Monitor with `docker ps`, `docker stats`, and `docker-compose logs -f`
+6. update and upgrade: `apt update -y && apt upgrade -y`
+7. [Install docker](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository)
+8. Install docker-compose: `apt install docker-compose`
+9. Go into the repo root and run `docker-compose -f docker-compose.yml -f docker-compose.prod.yml build`
+10. Run `docker pull certbot/certbot`
+11. Setup certificates by running `./init-letsencrypt.sh`
+12. Run `docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d`
+13. Monitor with `docker ps`, `docker stats`, and `docker-compose logs -f`
 
 ### Deploying TURN Server
 
@@ -184,12 +186,13 @@ resources from the rest of the system.
 4. [Setup unattended updates](https://help.ubuntu.com/lts/serverguide/automatic-updates.html): `apt install unattended-upgrades`
 5. Clone this repo
 6. update and upgrade: `apt update -y && apt upgrade -y`
-7. Install docker-compose: `apt install docker-compose`
-8. Go into the repo root and run `docker-compose -f docker-compose-turn.yml build`
-9. Run `docker pull certbot/certbot`
-10. Setup certificates by running `./init-letsencrypt-turn.sh`
-11. Run `docker-compose -f docker-compose-turn.yml up -d`
-12. Monitor with `docker ps`, `docker stats`, and `docker-compose logs -f`
+7. [Install docker](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository)
+8. Install docker-compose: `apt install docker-compose`
+9. Go into the repo root and run `docker-compose -f docker-compose-turn.yml build`
+10. Run `docker pull certbot/certbot`
+11. Setup certificates by running `./init-letsencrypt-turn.sh`
+12. Run `docker-compose -f docker-compose-turn.yml up -d`
+13. Monitor with `docker ps`, `docker stats`, and `docker-compose logs -f`
 
 ### Deploying to Heroku
 

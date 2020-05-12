@@ -5,7 +5,7 @@ if ! [ -x "$(command -v docker-compose)" ]; then
   exit 1
 fi
 
-domains=(lilflo.com www.lilflo.com)
+domains=(turn.lilflo.com)
 rsa_key_size=4096
 data_path="./certs/certbot"
 email="mjsobrep@live.com" # Adding a valid address is strongly recommended
@@ -39,7 +39,7 @@ echo
 
 
 echo "### Starting nginx ..."
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --force-recreate -d nginx
+docker-compose -f docker-compose-turn.yml up --force-recreate -d nginx
 echo
 
 echo "### Deleting dummy certificate for $domains ..."
@@ -66,7 +66,7 @@ esac
 # Enable staging mode if needed
 if [ $staging != "0" ]; then staging_arg="--staging"; fi
 
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml run --rm --entrypoint "\
+docker-compose -f docker-compose-turn.yml run --rm --entrypoint "\
   certbot certonly --webroot -w /var/www/certbot \
     $staging_arg \
     $email_arg \
@@ -77,4 +77,4 @@ docker-compose -f docker-compose.yml -f docker-compose.prod.yml run --rm --entry
 echo
 
 echo "### Reloading nginx ..."
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml exec nginx nginx -s reload
+docker-compose -f docker-compose-turn.yml exec nginx nginx -s reload

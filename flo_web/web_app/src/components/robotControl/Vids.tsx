@@ -75,22 +75,12 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         .then(turnCredentials => {
           serverConfig.iceServers.push(
             {
-              urls: `turn:${ipAddr}:5349?transport=udp`,
+              urls: `turn:turn.${ipAddr}:443?transport=udp`,
               username: turnCredentials["username"],
               credential: turnCredentials["password"]
             },
             {
-              urls: `turn:${ipAddr}:3478?transport=udp`,
-              username: turnCredentials["username"],
-              credential: turnCredentials["password"]
-            },
-            {
-              urls: `turn:${ipAddr}:5349?transport=tcp`,
-              username: turnCredentials["username"],
-              credential: turnCredentials["password"]
-            },
-            {
-              urls: `turn:${ipAddr}:3478?transport=tcp`,
+              urls: `turn:turn.${ipAddr}:443?transport=tcp`,
               username: turnCredentials["username"],
               credential: turnCredentials["password"]
             }

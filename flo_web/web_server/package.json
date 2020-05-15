@@ -43,7 +43,7 @@
     "ioredis": "^4.16.3",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
-    "pg": "^8.0.2",
+    "pg": "^8.0.3",
     "redis": "^3.0.2",
     "ts-node-dev": "^1.0.0-pre.44",
     "uuid": "^7.0.3",

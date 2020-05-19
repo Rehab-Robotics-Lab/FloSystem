@@ -8,8 +8,12 @@ version: "3"
 services:
   host-server:
     restart: unless-stopped
+    env_file:
+      - ./flo_web/datadog.env
   operator-server:
     restart: unless-stopped
+    env_file:
+      - ./flo_web/datadog.env
   nginx:
     restart: unless-stopped
     volumes:
@@ -33,12 +37,16 @@ services:
   api-server:
     env_file:
       - ./certs/coturn.env
+      - ./flo_web/datadog.env
   datadog:
     restart: unless-stopped
     build:
       context: ./flo_web/web_server/datadog
     env_file:
       - ./certs/datadog.env
+    environment:
+      - DD_APM_ENABLED=true
+      - DD_APM_NON_LOCAL=true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /proc/:/host/proc/:ro

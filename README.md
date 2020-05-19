@@ -80,6 +80,13 @@ COTURN_SECRET=<cryptographically random value>
 SITE_ADDR=<the site address, ex: lilflo.com>
 ```
 
+You should create a file in `LilFloSystem/certs/datadog.env`
+with contents:
+
+```conf
+DD_API_KEY=<cryptographically random value>
+```
+
 ####To run in development:
 
 1. Go to the root of this repo

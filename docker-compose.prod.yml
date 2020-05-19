@@ -6,6 +6,10 @@ version: "3"
 #     - the addition of a node server that auto recompiles the front end
 #     - Pulling in the nginx config from outside and using the develop instead of the production file
 services:
+  host-server:
+    restart: unless-stopped
+  operator-server:
+    restart: unless-stopped
   nginx:
     restart: unless-stopped
     volumes:
@@ -21,9 +25,6 @@ services:
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 48h & wait $${!}; done;'"
     # ^ would use something better, but the container has busybox for its interpreter
   postgres:
-    environment:
-      - POSTGRES_PASSWORD=docker
-      - POSTGRES_DB=flodb
     restart: unless-stopped
   session-store:
     restart: unless-stopped
@@ -32,3 +33,12 @@ services:
   api-server:
     env_file:
       - ./certs/coturn.env
+  datadog:
+    restart: unless-stopped
+    build: ./flo_web/web_server/datadog
+    env_file:
+      - ./certs/datadog.env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup:/host/sys/fs/cgroup:ro

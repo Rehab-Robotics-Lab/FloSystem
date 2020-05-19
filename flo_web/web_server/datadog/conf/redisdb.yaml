@@ -1,5 +1,4 @@
 init_config:
-
 instances:
     - host: session-store
       port: 6379

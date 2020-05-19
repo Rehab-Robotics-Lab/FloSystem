@@ -10,10 +10,14 @@ services:
     restart: unless-stopped
     env_file:
       - ./flo_web/datadog.env
+    environment:
+      - DD_SERVICE=host-server
   operator-server:
     restart: unless-stopped
     env_file:
       - ./flo_web/datadog.env
+    environment:
+      - DD_SERVICE=operator-server
   nginx:
     restart: unless-stopped
     volumes:
@@ -38,6 +42,8 @@ services:
     env_file:
       - ./certs/coturn.env
       - ./flo_web/datadog.env
+    environment:
+      - DD_SERVICE=api-server
   datadog:
     restart: unless-stopped
     build:

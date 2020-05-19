@@ -85,6 +85,7 @@ with contents:
 
 ```conf
 DD_API_KEY=<cryptographically random value>
+DD_HOSTNAME=<hostname ex: lilflo.com>
 ```
 
 ####To run in development:

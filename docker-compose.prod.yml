@@ -35,7 +35,8 @@ services:
       - ./certs/coturn.env
   datadog:
     restart: unless-stopped
-    build: ./flo_web/web_server/datadog
+    build:
+      context: ./flo_web/web_server/datadog
     env_file:
       - ./certs/datadog.env
     volumes:

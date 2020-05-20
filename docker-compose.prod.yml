@@ -24,9 +24,9 @@ services:
       - ./certs/certbot/conf:/etc/letsencrypt
       - ./certs/certbot/www:/var/www/certbot
     labels:
-      - com.datadoghq.ad.check_names: "[nginx]"
-      - com.datadoghq.ad.init_configs: "[{}]"
-      - com.datadoghq.ad.instances: '[{"nginx_status_url":"http://%%host%%:81/nginx_status/"}]'
+      com.datadoghq.ad.check_names: "[nginx]"
+      com.datadoghq.ad.init_configs: "[{}]"
+      com.datadoghq.ad.instances: '[{"nginx_status_url":"http://%%host%%:81/nginx_status/"}]'
     command: '/bin/sh -c ''while :; do sleep $$(( $$( date -d "next sunday 0700" +%s ) - $$( date +%s ) )) & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
   certbot:
     image: certbot/certbot
@@ -39,9 +39,9 @@ services:
   postgres:
     restart: unless-stopped
     labels:
-      - com.datadoghq.ad.check_names: "[postgres]"
-      - com.datadoghq.ad.init_configs: "[{}]"
-      - com.datadoghq.ad.instances: '[{"host":"%%host%%","port":5432,"username":"datadog","password":"not-so-secret"}]'
+      com.datadoghq.ad.check_names: "[postgres]"
+      com.datadoghq.ad.init_configs: "[{}]"
+      com.datadoghq.ad.instances: '[{"host":"%%host%%","port":5432,"username":"datadog","password":"not-so-secret"}]'
   session-store:
     restart: unless-stopped
   client-store:

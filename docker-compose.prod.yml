@@ -46,8 +46,7 @@ services:
       - DD_SERVICE=api_server
   datadog:
     restart: unless-stopped
-    build:
-      context: ./flo_web/web_server/datadog
+    image: datadog/agent
     env_file:
       - ./certs/datadog.env
     environment:

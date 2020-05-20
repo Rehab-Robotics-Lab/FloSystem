@@ -41,7 +41,7 @@ services:
     labels:
       com.datadoghq.ad.check_names: "[postgres]"
       com.datadoghq.ad.init_configs: "[{}]"
-      com.datadoghq.ad.instances: '[{"host":"%%host%%","port":5432,"username":"datadog","password":"not-so-secret"}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%","port":5432,"username":"datadog","dbname":"flodb","password":"not-so-secret"}]'
   session-store:
     restart: unless-stopped
   client-store:

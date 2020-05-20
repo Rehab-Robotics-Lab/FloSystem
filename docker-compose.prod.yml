@@ -41,8 +41,18 @@ services:
       com.datadoghq.ad.instances: '[{"host": "%%host%%","port": 5432,"username": "datadog","dbname": "flodb","password": "not-so-secret"}]'
   session-store:
     restart: unless-stopped
+    labels:
+      com.datadoghq.ad.check_names: '["redisdb"]'
+      com.datadoghq.ad.init_configs: "[{}]"
+      com.datadoghq.ad.instances: '[{"host": "%%host%%", "port": "6379"}]'
+      com.datadoghq.ad.logs: '[{"source": "redis", "service": "lilflosystem_session-store"}]'
   client-store:
     restart: unless-stopped
+    labels:
+      com.datadoghq.ad.check_names: '["redisdb"]'
+      com.datadoghq.ad.init_configs: "[{}]"
+      com.datadoghq.ad.instances: '[{"host": "%%host%%", "port": "6379"}]'
+      com.datadoghq.ad.logs: '[{"source": "redis", "service": "lilflosystem_client-store"}]'
   api-server:
     env_file:
       - ./certs/coturn.env

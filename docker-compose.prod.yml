@@ -56,7 +56,7 @@ services:
       - DD_APM_NON_LOCAL=true
       - DD_LOGS_ENABLED=true
       - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
-      - DD_AC_EXCLUDE="source:agent"
+      - DD_AC_EXCLUDE="image:datadog/agent"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /proc/:/host/proc/:ro

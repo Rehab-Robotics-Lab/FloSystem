@@ -23,6 +23,7 @@ services:
       com.datadoghq.ad.check_names: '["nginx"]'
       com.datadoghq.ad.init_configs: "[{}]"
       com.datadoghq.ad.instances: '[{"nginx_status_url": "http://%%host%%:81/nginx_status/"}]'
+      com.datadoghq.ad.logs: '[{"source": "nginx", "service:"web_proxy"}]'
     command: '/bin/sh -c ''while :; do sleep $$(( $$( date -d "next sunday 0700" +%s ) - $$( date +%s ) )) & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
   certbot:
     image: certbot/certbot

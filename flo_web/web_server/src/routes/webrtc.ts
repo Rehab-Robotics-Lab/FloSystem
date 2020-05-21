@@ -31,8 +31,6 @@ router.post('/turn-credentials', async (req, res) => {
     const { robotName, username, password } = req.body;
     let ctname: string;
     try {
-        console.log('*****************');
-        console.log(req.body);
         if (robotName !== undefined) {
             const id = req.session!.userID;
             const {

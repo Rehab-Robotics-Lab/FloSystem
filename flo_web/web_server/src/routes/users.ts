@@ -76,7 +76,6 @@ router.post('/login', checkLoggedOut, async (req, res) => {
         req.session!.userType = userType;
         const userName = rows[0]['first_name'] + ' ' + rows[0]['last_name'];
         req.session!.userName = userName;
-        console.log(req.session);
         res.status(200).json({
             userName: userName,
             userType: userType,

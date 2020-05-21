@@ -20,7 +20,7 @@
   "homepage": "https://github.com/Rehab-Robotics-Lab/LilFloSystem#readme",
   "dependencies": {
     "@types/express": "^4.17.6",
-    "@types/node": "^13.13.2",
+    "@types/node": "^13.13.4",
     "@types/uuid": "^7.0.2",
     "@types/ws": "^7.2.4",
     "eslint-plugin-tsdoc": "^0.2.4",

@@ -14,7 +14,7 @@ const logger = winston.createLogger({
     format: winston.format.json(),
     transports: [
         new winston.transports.File({
-            filename: `${appRoot}/logs/datadog.log`,
+            filename: `~/logs/datadog.log`,
         }),
 
         //

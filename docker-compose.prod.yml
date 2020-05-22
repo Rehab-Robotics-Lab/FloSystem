@@ -71,7 +71,7 @@ services:
       - ./certs/datadog.env
     environment:
       - DD_APM_ENABLED=true
-      - DD_APM_NON_LOCAL=true
+      - DD_APM_NON_LOCAL_TRAFFIC=true
       - DD_LOGS_ENABLED=true
       - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
       - DD_AC_EXCLUDE=image:datadog/agent

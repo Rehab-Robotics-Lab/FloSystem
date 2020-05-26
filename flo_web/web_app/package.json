@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@datadog/browser-logs": "^1.11.5",
     "@honeybadger-io/react": "0.0.7",
     "@types/eventemitter2": "^4.1.0",
     "@types/jest": "^24.0.18",

@@ -7,9 +7,17 @@ import { BrowserRouter } from "react-router-dom";
 
 import Honeybadger from "honeybadger-js";
 import ErrorBoundary from "@honeybadger-io/react";
+import { datadogLogs } from "@datadog/browser-logs";
 
 const honeybadger = Honeybadger.configure({
   apiKey: "3f9e99e4"
+});
+
+datadogLogs.init({
+  clientToken: "pubd1da6c3a72adcfec0f6fa5d9814aaef5",
+  datacenter: "us",
+  forwardErrorsToLogs: true,
+  sampleRate: 100
 });
 
 ReactDOM.render(

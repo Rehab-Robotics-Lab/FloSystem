@@ -68,6 +68,7 @@ services:
       - ./flo_web/datadog.env
     environment:
       - DD_SERVICE=lilflosystem_api-server
+      - DD_LOGS_INJECTION=true
     labels:
       com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "lilflosystem_api-server", "type": "file", "path": "/usr/logs/datadog.log", "sourcecategory": "sourcecode"}]'
   datadog:

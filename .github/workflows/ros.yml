@@ -71,5 +71,5 @@ jobs:
 
       - name: Lint with pylint
         run: |
-          pip install pylint
+          python -m pip install pylint
           find . -type f -name "*.py" | xargs pylint

@@ -20,6 +20,9 @@ datadogLogs.init({
   sampleRate: 100
 });
 
+datadogLogs.logger.log("Page Loaded");
+console.log("Page Loaded - console");
+
 ReactDOM.render(
   <ErrorBoundary honeybadger={honeybadger}>
     <BrowserRouter>

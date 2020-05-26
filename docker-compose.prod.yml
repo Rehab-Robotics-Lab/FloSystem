@@ -11,7 +11,7 @@ services:
     env_file:
       - ./flo_web/datadog.env
     environment:
-      - DD_SERVICE=host-server
+      - DD_SERVICE=lilflosystem_host-server
     labels:
       com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "lilflosystem_host-server", "type": "file", "path": "/usr/logs/datadog.log", "sourcecategory": "sourcecode"}]'
   operator-server:
@@ -19,7 +19,7 @@ services:
     env_file:
       - ./flo_web/datadog.env
     environment:
-      - DD_SERVICE=operator-server
+      - DD_SERVICE=lilflosystem_operator-server
     labels:
       com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "lilflosystem_operator-server", "type": "file", "path": "/usr/logs/datadog.log", "sourcecategory": "sourcecode"}]'
   nginx:
@@ -67,7 +67,7 @@ services:
       - ./certs/coturn.env
       - ./flo_web/datadog.env
     environment:
-      - DD_SERVICE=api-server
+      - DD_SERVICE=lilflosystem_api-server
     labels:
       com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "lilflosystem_api-server", "type": "file", "path": "/usr/logs/datadog.log", "sourcecategory": "sourcecode"}]'
   datadog:

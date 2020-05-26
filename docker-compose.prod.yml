@@ -11,13 +11,13 @@ services:
     env_file:
       - ./flo_web/datadog.env
     labels:
-      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "lilflosystem_host-server", "type": "file", "path": "~/logs/datadog.log", "sourcecategory": "sourcecode"}]'
+      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "lilflosystem_host-server", "type": "file", "path": "/usr/logs/datadog.log", "sourcecategory": "sourcecode"}]'
   operator-server:
     restart: unless-stopped
     env_file:
       - ./flo_web/datadog.env
     labels:
-      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "lilflosystem_operator-server", "type": "file", "path": "~/logs/datadog.log", "sourcecategory": "sourcecode"}]'
+      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "lilflosystem_operator-server", "type": "file", "path": "/usr/logs/datadog.log", "sourcecategory": "sourcecode"}]'
   nginx:
     restart: unless-stopped
     volumes:
@@ -63,7 +63,7 @@ services:
       - ./certs/coturn.env
       - ./flo_web/datadog.env
     labels:
-      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "lilflosystem_api-server", "type": "file", "path": "~/logs/datadog.log", "sourcecategory": "sourcecode"}]'
+      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "lilflosystem_api-server", "type": "file", "path": "/usr/logs/datadog.log", "sourcecategory": "sourcecode"}]'
   datadog:
     restart: unless-stopped
     image: datadog/agent
@@ -75,6 +75,7 @@ services:
       - DD_LOGS_ENABLED=true
       - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
       - DD_AC_EXCLUDE=image:datadog/agent
+      - DD_PROCESS_AGENT_ENABLED=true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /proc/:/host/proc/:ro

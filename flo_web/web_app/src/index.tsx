@@ -5,10 +5,19 @@ import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import { BrowserRouter } from "react-router-dom";
 
+import Honeybadger from "honeybadger-js";
+import ErrorBoundary from "@honeybadger-io/react";
+
+const honeybadger = Honeybadger.configure({
+  apiKey: "3f9e99e4"
+});
+
 ReactDOM.render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>,
+  <ErrorBoundary honeybadger={honeybadger}>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </ErrorBoundary>,
   document.getElementById("root")
 );
 

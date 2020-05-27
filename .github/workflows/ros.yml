@@ -33,12 +33,6 @@ jobs:
       #    ref: develop
       #    path: webrtc_ros
 
-      - name: Add catkin_ws to path
-        run: echo 'source ~/catkin_ws/src/LilFloSystem/bash_includes' >> $HOME/.bashrc
-
-      - name: debug print
-        run: cat $HOME/.bashrc
-
       - name: Link repos into catkin ws
         run: |
           ln -s "$GITHUB_WORKSPACE/LilFloSystem" "$HOME/catkin_ws/src/"
@@ -72,6 +66,6 @@ jobs:
 
       - name: Lint with pylint
         run: |
-          source $HOME/.bashrc
+          source ~/catkin_ws/src/LilFloSystem/bash_includes
           cd $GITHUB_WORKSPACE/LilFloSystem
           git ls-files | grep 'py$' | xargs pylint --unsafe-load-any-extension=y

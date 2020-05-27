@@ -5,7 +5,7 @@ on:
     types: [synchronize, opened, reopened]
 
 jobs:
-  build-install:
+  build-install-lint:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -34,10 +34,7 @@ jobs:
       #    path: webrtc_ros
 
       - name: Add catkin_ws to path
-        run: |
-          echo 'source /opt/ros/kinetic/setup.bash' >> ~/.bashrc
-          echo 'source $HOME/catkin_ws/devel/setup.bash' >> ~/.bashrc
-          echo 'export ROS_MASTER_URI=http://localhost:11311' >> ~/.bashrc
+        run: echo 'source ~/catkin_ws/src/LilFloSystem/bash_includes' >> $HOME/.bashrc
 
       - name: Link repos into catkin ws
         run: |
@@ -57,10 +54,6 @@ jobs:
           cd "$HOME/catkin_ws/src/LilFloSystem"
           bash gen_install.sh
 
-  lint-python:
-    needs: build-install
-    runs-on: ubuntu-18.04
-    steps:
       - uses: actions/cache@v1
         with:
           path: ~/.cache/pip
@@ -76,7 +69,6 @@ jobs:
 
       - name: Lint with pylint
         run: |
-          source /opt/ros/melodic/setup.bash
-          source $HOME/catkin_ws/devel/setup.bash
+          source $HOME/.bashrc
           cd $GITHUB_WORKSPACE/LilFloSystem
           git ls-files | grep 'py$' | xargs pylint --unsafe-load-any-extension=y

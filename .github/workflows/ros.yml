@@ -77,4 +77,4 @@ jobs:
           source /opt/ros/kinetic/setup.bash
           source $HOME/catkin_ws/devel/setup.bash
           cd $GITHUB_WORKSPACE/LilFloSystem
-          find . -type f -name "*.py" -exec pylint {} +
+          git ls-files | grep 'py$' | xargs pylint

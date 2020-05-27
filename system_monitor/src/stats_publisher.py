@@ -12,6 +12,8 @@ from system_monitor.msg import CPUutil, HDDutil, MEMutil, NETstats
 
 
 class StatsPublisher(object):
+    """Class to publish the system stats of the computer into
+    the ROS system"""
 
     def __init__(self):
         rospy.init_node('stats_publisher')
@@ -124,7 +126,7 @@ class StatsPublisher(object):
                 '/', re.search('(?<=Link Quality=)[0-9/]*', msg).group(0))
             link_quality = 100*int(lqv[0])/int(lqv[1])
             signal_level = int(
-                re.search('(?<=Signal level=)[0-9\-]*', msg).group(0))
+                re.search(r'(?<=Signal level=)[0-9\-]*', msg).group(0))
             return {'link_quality': link_quality, 'signal_level': signal_level}
         except:
             return None

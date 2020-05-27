@@ -1,7 +1,11 @@
+"""Module to communicate over serial connections"""
+
 import serial
 
 
 class SerialCom:
+    """Class for managing serial connections with variable
+    length messages and error checking"""
 
     def __init__(self, port, data_handler, baud_rate=9600):
         """Constructs the Serial Communicator
@@ -9,7 +13,7 @@ class SerialCom:
         Args:
             port (string): The port on which to connect
             data_handler (func): A function to handle receiving a complete data
-                                 message. Must take a single byte array as an 
+                                 message. Must take a single byte array as an
                                  argument.
             baud_rate (int): The baud rate at which to run
         """
@@ -34,7 +38,7 @@ class SerialCom:
         """Sends data
 
         Args:
-            data: The data which you wish to send. Can be a bytearray, string, 
+            data: The data which you wish to send. Can be a bytearray, string,
                   or list of integers 0-255
         """
         if isinstance(data, bytearray):
@@ -62,7 +66,7 @@ class SerialCom:
     def receiveData(self, iterations=999999):
         """Receives data from the other side. Will receive as much data as is
            waiting or however many iterations, whichever is smaller. This should
-           be called in a loop. 
+           be called in a loop.
 
             Args:
                 iterations (int): The maximumm number of times to loop through,

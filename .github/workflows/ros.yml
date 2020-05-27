@@ -59,7 +59,7 @@ jobs:
 
   lint-python:
     needs: build-install
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
       - uses: actions/cache@v1
         with:
@@ -76,7 +76,7 @@ jobs:
 
       - name: Lint with pylint
         run: |
-          source /opt/ros/kinetic/setup.bash
+          source /opt/ros/melodic/setup.bash
           source $HOME/catkin_ws/devel/setup.bash
           cd $GITHUB_WORKSPACE/LilFloSystem
           git ls-files | grep 'py$' | xargs pylint --unsafe-load-any-extension=y

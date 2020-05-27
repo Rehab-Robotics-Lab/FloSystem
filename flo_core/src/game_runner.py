@@ -44,17 +44,18 @@ try:
     import queue
 except ImportError:
     import Queue as queue
+import threading
 import rospy
 import actionlib
 from tts.msg import SpeechAction, SpeechGoal
 from flo_humanoid_defs.msg import MoveAction, MoveGoal, JointTarget
-from flo_core_defs.msg import GameState, GameCommandOptions, GameDef, GameCommand, StepDef
-from flo_core_defs.srv import GetPoseID, GetPoseIDResponse
-from flo_core_defs.srv import GetPoseSeqID, GetPoseSeqIDResponse
+from flo_core_defs.msg import GameState, GameCommandOptions, GameDef,\
+    GameCommand, StepDef
+from flo_core_defs.srv import GetPoseID
+from flo_core_defs.srv import GetPoseSeqID
+from flo_core_defs.msg import GameAction
 from simon_says import simon_says
 from target_touch import target_touch
-from flo_core_defs.msg import GameAction
-import threading
 
 
 class GameRunner(object):
@@ -217,10 +218,19 @@ class GameRunner(object):
             # speech = speech+' with your right hand'
         elif step.type == 'pose_both':
             pose = self.get_pose_id(step.id).pose  # type: Pose
-            targets = [self.__construct_joint_target(
-                pose.joint_names, pose.joint_positions, step_time, 'left'),
+            targets = [
                 self.__construct_joint_target(
-                pose.joint_names, pose.joint_positions, step_time, 'right')]
+                    pose.joint_names,
+                    pose.joint_positions,
+                    step_time,
+                    'left'),
+                self.__construct_joint_target(
+                    pose.joint_names,
+                    pose.joint_positions,
+                    step_time,
+                    'right'
+                )
+            ]
             # speech = speech+' with your right hand'
         elif step.type == 'move':
             sequence = self.get_pose_seq_id(
@@ -247,7 +257,6 @@ class GameRunner(object):
         self.actions_list = []
         # Eventually we probably want to make this cleaner, but for now I need
         # to get a demo going, so we will manually load in the games
-        # TODO: pull games out into database or something
         if new_def.game_type == 'simon_says':
             self.actions_list = simon_says(new_def, self.__process_step)
         elif new_def.game_type == 'target_touch':
@@ -371,10 +380,10 @@ class GameRunner(object):
             self.__set_state(self.states.acting)
             self.__set_options([])
 
-    def __moving_done(self, terminal_state, result):
+    def __moving_done(self, *_):
         self.moving_state = self.action_states.done
 
-    def __speaking_done(self, terminal_state, result):
+    def __speaking_done(self, *_):
         self.speaking_state = self.action_states.done
 
     def __moving_active(self):

@@ -1,11 +1,13 @@
 #! /usr/bin/env python
 
+"""The wrapper around the database for storing poses, sequences, and
+games on the robot"""
+
 from __future__ import print_function
 
 import json
 from os import path
 import rospy
-
 
 from flo_core_defs.srv import GetPoseID, GetPoseIDResponse
 from flo_core_defs.srv import SetPose
@@ -39,6 +41,9 @@ from db import DB
 
 class FloDb(object):
     """A class to manage all of the database interactions for flo"""
+    # pylint: disable=too-few-public-methods
+    # This code is meant to be interfaced with through ros, not
+    # run directly
 
     def __init__(self):
         """Setup the node and the services, load the database location.

@@ -59,6 +59,7 @@ jobs:
 
   lint-python:
     needs: build-install
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/cache@v1
         with:

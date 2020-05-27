@@ -1,5 +1,9 @@
 #! /usr/bin/env python
 
+# pylint: skip-file
+# This file comes copied from a library. There are only a few
+# modified lines. Will leave style errors in place.
+
 # Software License Agreement (BSD License)
 #
 # Copyright (c) 2012, Willow Garage, Inc.

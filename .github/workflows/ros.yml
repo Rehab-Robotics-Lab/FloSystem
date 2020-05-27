@@ -77,4 +77,4 @@ jobs:
           source /opt/ros/kinetic/setup.bash
           source $HOME/catkin_ws/devel/setup.bash
           cd $GITHUB_WORKSPACE/LilFloSystem
-          git ls-files | grep 'py$' | xargs pylint --generate-members --extension-pkg-whitelist=cv2
+          git ls-files | grep 'py$' | xargs pylint --unsafe-load-any-extension=y

@@ -5,7 +5,7 @@ on:
     types: [synchronize, opened, reopened]
 
 jobs:
-  build-lint:
+  build-install:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -50,15 +50,16 @@ jobs:
       #    sudo apt install tree
       #    tree
       #    tree ~/catkin_ws
-
       #- name: Prevent all of webrtc dev from building
       #  run: touch ./webrtc_ros/webrtc/CATKIN_IGNORE
-
       - name: Run Install Script
         run: |
           cd "$HOME/catkin_ws/src/LilFloSystem"
           bash gen_install.sh
 
+  lint-python:
+    needs: build-install
+    steps:
       - uses: actions/cache@v1
         with:
           path: ~/.cache/pip

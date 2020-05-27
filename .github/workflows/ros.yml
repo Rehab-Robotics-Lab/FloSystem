@@ -36,7 +36,7 @@ jobs:
       - name: Add catkin_ws to path
         run: |
           echo 'source /opt/ros/kinetic/setup.bash' >> ~/.bashrc
-          echo 'source $GITHUB_WORKSPACE/catkin_ws/devel/setup.bash' >> ~/.bashrc
+          echo 'source $HOME/catkin_ws/devel/setup.bash' >> ~/.bashrc
           echo 'export ROS_MASTER_URI=http://localhost:11311' >> ~/.bashrc
 
       - name: Link repos into catkin ws
@@ -75,5 +75,5 @@ jobs:
       - name: Lint with pylint
         run: |
           source /opt/ros/kinetic/setup.bash
-          source $GITHUB_WORKSPACE/catkin_ws/devel/setup.bash
+          source $HOME/catkin_ws/devel/setup.bash
           find . -type f -name "*.py" -exec pylint {} +

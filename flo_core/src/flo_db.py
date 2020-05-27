@@ -9,6 +9,8 @@ import json
 from os import path
 import rospy
 
+import mutagen
+
 from flo_core_defs.srv import GetPoseID, GetPoseIDResponse
 from flo_core_defs.srv import SetPose
 from flo_core_defs.srv import SearchPose, SearchPoseResponse
@@ -25,8 +27,6 @@ from flo_core_defs.msg import GameBucket
 from flo_core_defs.srv import GetGameBucketID, GetGameBucketIDResponse
 from flo_core_defs.srv import SearchGameBucket, SearchGameBucketResponse
 from flo_core_defs.msg import StepDef
-
-import mutagen
 
 from db import DB
 

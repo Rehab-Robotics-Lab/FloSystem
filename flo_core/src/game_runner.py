@@ -64,6 +64,11 @@ class GameRunner(object):
     # pylint: disable=too-many-instance-attributes
     # having 12 instance attributes is just the way it is for something of this
     # size
+
+    # pylint: disable=too-few-public-methods
+    # This class communicates with the ros system, it is not meant to be
+    # used directly in client code
+
     states = Enum(
         'states', 'waiting_for_def game_loaded acting waiting_for_command')
 

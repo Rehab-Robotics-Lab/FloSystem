@@ -34,7 +34,8 @@ Example::
     client.send_goal(goal)
     client.wait_for_result()
 
-    # start listening to a response or waiting for some input to continue the interaction
+    # start listening to a response or waiting for some input to continue the
+    # interaction
 
 2. Play and forget
 ------------------
@@ -48,12 +49,14 @@ A user can also choose not to wait::
     goal.text = 'Let me talk, you can to something else in the meanwhile.'
     client.send_goal(goal)
 
-This is useful when the robot wants to do stuff while the audio is being played. For example, a robot may start to
+This is useful when the robot wants to do stuff while the audio is being
+played. For example, a robot may start to
 read some instructions and immediately get ready for any input.
 """
 
 import json
 
+import xml.etree.ElementTree as ET
 import actionlib
 import rospy
 from tts.msg import SpeechAction, SpeechResult
@@ -61,8 +64,6 @@ from tts.srv import Synthesizer
 from flo_core_defs.msg import TTSState, TTSUtterances
 
 from sound_play.libsoundplay import SoundClient
-
-import xml.etree.ElementTree as ET
 
 
 def play(filename):
@@ -78,6 +79,7 @@ def do_synthesize(goal):
 
 
 class TTSManager(object):
+    """Action server for managing the tts system"""
 
     def __init__(self):
         rospy.init_node('tts_node')
@@ -104,24 +106,25 @@ class TTSManager(object):
     def do_speak(self, goal):
         """The action handler.
 
-        Note that although it responds to client after the audio play is finished, a client can choose
+        Note that although it responds to client after the audio play is
+        finished, a client can choose
         not to wait by not calling ``SimpleActionClient.waite_for_result()``.
         """
-        rospy.loginfo('speech goal: {}'.format(goal))
+        rospy.loginfo('speech goal: %s', goal)
 
         goal_root = ET.fromstring(goal.text)
         goal_text = goal_root.text
 
         self.state_pub.publish(state=TTSState.SYNTHESIZING, text=goal_text)
         res = do_synthesize(goal)
-        rospy.loginfo('synthesizer returns: {}'.format(res))
+        rospy.loginfo('synthesizer returns: %s', res)
 
         try:
             res = json.loads(res.result)
         except Exception as err:
             syn = 'Expecting JSON from synthesizer but got {}'.format(
                 res.result)
-            rospy.logerr('{}. Exception: {}'.format(syn, err))
+            rospy.logerr('%s. Exception: %s', syn, err)
             self.state_pub.publish(state=TTSState.ERROR, text=syn)
             self.finish_with_result(syn)
             return
@@ -130,7 +133,7 @@ class TTSManager(object):
 
         if 'Audio File' in res:
             audio_file = res['Audio File']
-            rospy.loginfo('Will play {}'.format(audio_file))
+            rospy.loginfo('Will play %s', audio_file)
 
             self.state_pub.publish(state=TTSState.PLAYING, text=goal_text)
             self.utterance_pub.publish(goal_text)

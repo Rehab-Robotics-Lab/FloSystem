@@ -1,3 +1,6 @@
+# pylint: skip-file
+# This is an old example in a library, no need to worry about it
+
 from __future__ import print_function
 from serial_coms import SerialCom
 from functools import partial

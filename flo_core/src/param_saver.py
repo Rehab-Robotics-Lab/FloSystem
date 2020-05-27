@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 """This module handles saving parameters from the server to the disk"""
 
+from __future__ import print_function
 import os.path
 from datetime import datetime
 import rospy
@@ -8,6 +9,12 @@ import rosparam
 
 
 class ParamSaver(object):
+    """A class to save Parameters on startup and shutdown"""
+
+    # pylint: disable=too-few-public-methods
+    # This file is designed to be run by the roslaunch system
+    # Parameters are passed by the ros param system
+
     def __init__(self):
         rospy.init_node('param_saver')
         rospy.loginfo('started ros param saver')

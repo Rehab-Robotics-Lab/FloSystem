@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 """A module to generate target touch type games"""
 
 import random

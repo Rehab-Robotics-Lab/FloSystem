@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 """A module to display the robot screen using opencv"""
 
+import os
+import socket
 import rospy
-import sys
 from sensor_msgs.msg import Image as smImage
 from system_monitor.msg import NETstats
 from rosbridge_msgs.msg import ConnectedClients
@@ -10,12 +11,7 @@ from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
 import cv2
 import Queue
-import requests
-import time
-import os
-import socket
 import rospkg
-import pdb
 
 # Screen is 800x480
 

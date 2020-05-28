@@ -61,9 +61,8 @@ import actionlib
 import rospy
 from tts.msg import SpeechAction, SpeechResult
 from tts.srv import Synthesizer
-from flo_core_defs.msg import TTSState, TTSUtterances
-
 from sound_play.libsoundplay import SoundClient
+from flo_core_defs.msg import TTSState, TTSUtterances
 
 
 def play(filename):
@@ -121,7 +120,7 @@ class TTSManager(object):
 
         try:
             res = json.loads(res.result)
-        except Exception as err:
+        except ValueError as err:
             syn = 'Expecting JSON from synthesizer but got {}'.format(
                 res.result)
             rospy.logerr('%s. Exception: %s', syn, err)

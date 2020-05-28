@@ -1,3 +1,5 @@
+# pylint: skip-file
+# This is a library file, no need to worry about it
 """Module to communicate over serial connections"""
 
 import serial

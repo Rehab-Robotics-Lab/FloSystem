@@ -68,4 +68,23 @@ jobs:
         run: |
           source ~/catkin_ws/src/LilFloSystem/bash_includes
           cd $GITHUB_WORKSPACE/LilFloSystem
-          git ls-files | grep 'py$' | xargs pylint --unsafe-load-any-extension=y
+          git ls-files | grep 'py$' | xargs pylint --unsafe-load-any-extension=y --disable=fixme
+  python-todos:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/cache@v1
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-pip-pylint
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Setup Pylint
+        run: |
+          python -m pip install --upgrade pip
+          echo "::add-path::/home/runner/.local/bin"
+          python -m pip install "pylint<2.0.0"
+
+      - name: Find TODOs
+        run: |
+          cd $GITHUB_WORKSPACE/LilFloSystem
+          git ls-files | grep 'py$' | xargs pylint --disable=all --enable=fixme

@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 
+"""Code to connect to and read from a bolid robot. 
+
+This code is meant to be imported and used by another class
+"""
+
 from __future__ import print_function
 from __future__ import division
 
 import time
 import datetime
-import serial
 import numpy as np
-from matplotlib import cm
 
 LOGGING_LEVEL = 6
 
@@ -26,6 +29,7 @@ def log(level, message):
 
 
 class BolideReader(object):
+    """Read input from XYZ Bolide robot"""
 
     commands = {'pos': 0x03, 'current': 0x06, 'torque': 0x07}
 

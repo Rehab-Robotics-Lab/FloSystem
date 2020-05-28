@@ -69,5 +69,32 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: setup cert files
+        run: |
+          mkdir certs
+          echo "SESSION_SECRET=abc123" >> ./certs/session-secrent.env
       - name: Build-docker-compose
         run: docker-compose build
+
+  build_prod_docker:
+    name: Build Production Docker Images
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build-docker-compose
+        run: docker-compose -f docker-compose.yml -f docker-compose.prod.yml build
+
+  build_turn_docker:
+    name: Build Turn Docker Images
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup cert files
+        run: |
+          mkdir certs
+          echo "COTURN_SECRET=xyz789" >> ./certs/coturn.env
+          echo "SITE_ADDR=demo.com" >> ./certs/coturn.env
+      - name: Build-docker-compose
+        run: docker-compose -f docker-compose-turn.yml build

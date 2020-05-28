@@ -72,7 +72,7 @@ jobs:
       - name: setup cert files
         run: |
           mkdir certs
-          echo "SESSION_SECRET=abc123" >> ./certs/session-secrent.env
+          echo "SESSION_SECRET=abc123" >> ./certs/session-secret.env
       - name: Build-docker-compose
         run: docker-compose build
 
@@ -82,6 +82,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: setup cert files
+        run: |
+          mkdir certs
+          echo "SESSION_SECRET=abc123" >> ./certs/session-secret.env
       - name: Build-docker-compose
         run: docker-compose -f docker-compose.yml -f docker-compose.prod.yml build
 

@@ -9,7 +9,7 @@ import navbar from "./styleDefs/Nav.module.css";
 //return <RobotController />;
 //}
 //export default App;
-function App() {
+const App: React.FunctionComponent = () => {
   const [loggedIn, setLoggedInInternal] = useState(false);
   const [userName, setUserName] = useState("");
   const [userType, setUserType] = useState<string>("");
@@ -81,9 +81,10 @@ function App() {
         {loggedIn && (
           <button
             className={navbar.navitem}
-            onClick={() => {
+            onClick={(): void => {
               axios.post("/api/users/logout").then(
-                res => {
+                () => {
+                  // request succeeded
                   setLoggedIn(false);
                   setUserName("");
                 },
@@ -107,6 +108,6 @@ function App() {
       />
     </div>
   );
-}
+};
 
 export default App;

@@ -14,6 +14,7 @@ const pool = new Pool({
     password: 'docker',
 });
 
-const query = (text: string, params: Array<any>) => pool.query(text, params);
+const query = (text: string, params: Array<any>): Promise<any[]> =>
+    pool.query(text, params);
 
 export { query };

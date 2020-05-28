@@ -76,10 +76,10 @@ class BolideReader(object):
             header = ord(ret[0])
         else:
             log(3, 'not enough data returned after tries')
-            return
+            return None
         if header != 0xFF:
             log(3, 'first byte read did not match header: {}'.format(header))
-            return
+            return None
         # If we make it to here, we have received a good header
 
         while len(ret) < 40 and tries > 0:
@@ -90,20 +90,20 @@ class BolideReader(object):
         if len(ret) != 40:
             log(3, 'wrong length returned, got {}, expected {}'.format(
                 len(ret), 40))
-            return
+            return None
 
         len_bit = ord(ret[1])
         if len_bit != 40:
             log(3, 'wrong length bit sent')
-            return
+            return None
         command = ord(ret[2])
         if not command == self.commands[target]:
             log(3, 'incorrect command type: {}'.format(command))
-            return
+            return None
         end = ord(ret[-1])
         if end != 0xFE:
             log(3, 'bad end bit')
-            return
+            return None
         data = ret[3:-1]
         final_joint_pos = [0]*18
         for i in range(18):

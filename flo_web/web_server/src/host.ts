@@ -216,4 +216,4 @@ const parseIncoming: ParseIncoming = async function (
     }
 };
 
-const server = new Server(8080, parseIncoming);
+new Server(8080, parseIncoming);

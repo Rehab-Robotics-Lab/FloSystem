@@ -151,7 +151,12 @@ router.get('/:id', checkLoggedIn, async (req, res) => {
 });
 
 router.get('/', checkLoggedIn, async (req, res) => {
-    const userID = req.session!.userID;
+    const session = req.session;
+    if (session === undefined) {
+        res.status(401).json({ error: 'no active session for this user.' });
+        return;
+    }
+    const userID = session.userID;
     try {
         const {
             rows,

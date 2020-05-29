@@ -159,6 +159,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
 
             connection1
               .addLocalStream(userMediaConfig, localStreamConfig)
+              //eslint-disable-next-line @typescript-eslint/no-explicit-any
               .then(function(event: any) {
                 console.log(
                   "Local stream added",
@@ -166,10 +167,30 @@ const Vids: React.FunctionComponent<VidsProps> = ({
                   event.stream.getVideoTracks(),
                   event.stream.getAudioTracks()
                 );
-                const localVideoElement = localRef as any;
+                const localVideoElement = localRef;
+                if (
+                  !localVideoElement ||
+                  !localVideoElement.current ||
+                  !localVideoElement.current.srcObject
+                ) {
+                  console.error(
+                    "tried to set local video element before defining."
+                  );
+                  return;
+                }
                 localVideoElement.current.srcObject = event.stream;
                 event.remove.then(function() {
                   //console.log("Local stream removed", event);
+                  if (
+                    !localVideoElement ||
+                    !localVideoElement.current ||
+                    !localVideoElement.current.srcObject
+                  ) {
+                    console.error(
+                      "tried to wipe local video element but not defined."
+                    );
+                    return;
+                  }
                   localVideoElement.current.srcObject = null;
                 });
                 localStream.current = event.stream;
@@ -187,7 +208,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         connection1.close();
         const closeStreams = (stream: MediaStream): void => {
           if (stream) {
-            stream.getTracks().forEach((track: any) => {
+            stream.getTracks().forEach((track: MediaStreamTrack) => {
               track.stop();
             });
           }

@@ -33,8 +33,8 @@ const Vids: React.FunctionComponent<VidsProps> = ({
   connected,
   ipAddr
 }) => {
-  const remoteRefUpper = React.useRef(null);
-  const localRef = React.useRef(null);
+  const remoteRefUpper = React.useRef<HTMLVideoElement>(null);
+  const localRef = React.useRef<HTMLVideoElement>(null);
   const upperStream = React.useRef<MediaStream>();
   const localStream = React.useRef<MediaStream>();
 
@@ -63,7 +63,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         iceCandidatePoolSize: 10
       };
 
-      let connection1: any;
+      let connection1: any; //eslint-disable-line @typescript-eslint/no-explicit-any
 
       getTurnCreds()
         .then(turnCredentials => {
@@ -113,13 +113,34 @@ const Vids: React.FunctionComponent<VidsProps> = ({
 
             connection1
               .addRemoteStream(remoteStreamConfigUpper)
+              //eslint-disable-next-line @typescript-eslint/no-explicit-any
               .then((event: any) => {
                 //stream started
-                const remoteVideoElement = remoteRefUpper as any;
+                const remoteVideoElement = remoteRefUpper;
+                if (
+                  !remoteVideoElement ||
+                  !remoteVideoElement.current ||
+                  !remoteVideoElement.current.srcObject
+                ) {
+                  console.error(
+                    "tried to set remote video element before defining."
+                  );
+                  return;
+                }
                 remoteVideoElement.current.srcObject = event.stream;
                 event.remove.then(function() {
                   //Remote stream removed
-                  remoteVideoElement.srcObject = null;
+                  if (
+                    !remoteVideoElement ||
+                    !remoteVideoElement.current ||
+                    !remoteVideoElement.current.srcObject
+                  ) {
+                    console.error(
+                      "tried to remove remote video element but not defined."
+                    );
+                    return;
+                  }
+                  remoteVideoElement.current.srcObject = null;
                 });
                 upperStream.current = event.stream;
                 //(window as any).remotestream = event.stream;

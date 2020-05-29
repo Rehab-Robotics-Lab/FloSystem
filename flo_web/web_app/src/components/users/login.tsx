@@ -61,7 +61,7 @@ const Login: React.FunctionComponent<LoginProps> = ({
               );
           }}
         >
-          {({ isSubmitting }) => (
+          {({ isSubmitting }): JSX.Element => (
             <Form>
               <div
                 style={{

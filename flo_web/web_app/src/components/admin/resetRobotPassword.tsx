@@ -39,7 +39,7 @@ const ResetRobotPassword: React.FunctionComponent = () => {
               );
           }}
         >
-          {({ isSubmitting }) => (
+          {({ isSubmitting }): JSX.Element => (
             <Form>
               <label htmlFor="name">Robot Name</label>
               <Field type="name" name="name" />

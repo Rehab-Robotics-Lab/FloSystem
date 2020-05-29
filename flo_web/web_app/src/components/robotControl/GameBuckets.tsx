@@ -30,7 +30,7 @@ const SaveBucket: React.FunctionComponent<SaveBucketProps> = ({
     "simon_says"
   );
 
-  const save = () => {
+  const save = (): void => {
     if (!connected) {
       return;
     }
@@ -46,14 +46,14 @@ const SaveBucket: React.FunctionComponent<SaveBucketProps> = ({
       serviceType: "flo_core_defs/SetGameBucket"
     });
 
-    const cleanSteps = steps.map(({ desc, key, ...keep }) => keep);
+    const cleanSteps = steps.map(({ ...keep }) => keep);
     console.log(steps);
     console.log(cleanSteps);
 
     const thisBucket = {
       name: nme,
       subject: subjNo,
-      targeted_game: targGame,
+      targeted_game: targGame, //eslint-disable-line @typescript-eslint/camelcase
       description: desc,
       steps: steps
     };
@@ -61,7 +61,7 @@ const SaveBucket: React.FunctionComponent<SaveBucketProps> = ({
     const cleanBucket = {
       name: nme,
       subject: subjNo,
-      targeted_game: targGame,
+      targeted_game: targGame, //eslint-disable-line @typescript-eslint/camelcase
       description: desc,
       steps: cleanSteps
     };
@@ -70,7 +70,7 @@ const SaveBucket: React.FunctionComponent<SaveBucketProps> = ({
 
     const req = new ROSLIB.ServiceRequest({
       id: saveID,
-      game_bucket: cleanBucket
+      game_bucket: cleanBucket //eslint-disable-line @typescript-eslint/camelcase
     });
     serv.callService(
       req,
@@ -609,7 +609,7 @@ const GameBuckets: React.FunctionComponent<GameBucketsProps> = ({
           setShowLoad(false);
         }}
         buckets={buckets}
-        setSteps={(steps: StepDef[]) => {
+        setSteps={(steps: StepDef[]): void => {
           setSteps(steps);
         }}
       />

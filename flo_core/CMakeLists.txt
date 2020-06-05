@@ -172,7 +172,7 @@ install(PROGRAMS
    src/tts_node.py
    src/flo_db.py
    src/tty_keyboard_teleop.py
-   src/param_server.py
+   src/param_saver.py
    src/game_runner.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )

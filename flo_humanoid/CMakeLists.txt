@@ -32,3 +32,8 @@ include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
 )
+
+install(PROGRAMS
+    src/robot_controller.py
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+ )

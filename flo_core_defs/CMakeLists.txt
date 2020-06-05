@@ -68,7 +68,10 @@ catkin_package(
 #  LIBRARIES flo_humanoid
 #  CATKIN_DEPENDS roscpp rospy std_msgs tf
 #  DEPENDS system_lib
-CATKIN_DEPENDS std_msgs flo_humanoid_defs message_runtime
+CATKIN_DEPENDS
+flo_humanoid_defs
+message_runtime
+std_msgs
 )
 
 ###########

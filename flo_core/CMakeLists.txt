@@ -168,12 +168,12 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 install(PROGRAMS
-   src/manage_seq_pose.py
-   src/tts_node.py
    src/flo_db.py
-   src/tty_keyboard_teleop.py
-   src/param_saver.py
    src/game_runner.py
+   src/manage_seq_pose.py
+   src/param_saver.py
+   src/tts_node.py
+   src/tty_keyboard_teleop.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 

@@ -20,6 +20,7 @@ const App: React.FunctionComponent = () => {
     (un: string): void => {
       setUserNameInternal(un);
       Honeybadger.setContext({
+        //eslint-disable-next-line @typescript-eslint/camelcase
         user_email: un
       });
     },

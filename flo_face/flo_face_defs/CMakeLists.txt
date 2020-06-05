@@ -8,8 +8,8 @@ project(flo_face_defs)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  std_msgs
   message_generation
+  std_msgs
 )
 
 ################################################
@@ -44,7 +44,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES flo_face
-#  CATKIN_DEPENDS rospy std_msgs
+  CATKIN_DEPENDS  std_msgs message_runtime
 #  DEPENDS system_lib
 )
 

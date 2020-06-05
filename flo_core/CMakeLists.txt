@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(flo_core)
+p2033 Spruce Streetroject(flo_core)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -167,10 +167,15 @@ include_directories(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+install(PROGRAMS
+   src/manage_seq_pose.py
+   src/tts_node.py
+   src/flo_db.py
+   src/tty_keyboard_teleop.py
+   src/param_server.py
+   src/game_runner.py
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+ )
 
 ## Mark executables and/or libraries for installation
 # install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node

@@ -2,7 +2,7 @@
 <package format="2">
   <name>flo_core</name>
   <version>0.0.0</version>
-  <description>A package for working with the core components of the Lil'Flo project robots. This pacakge provides entry points to launch the system, manages the databse, handles games, and has test scripts for the voice server.</description>
+  <description>Working with the core components of the Lil'Flo project robots. This pacakge provides entry points to launch the system, manages the databse, handles games, and has test scripts for the voice server.</description>
   <maintainer email="mjsobrep@seas.upenn.edu">Michael Sobrepera</maintainer>
   <license>proprietary</license>
   <buildtool_depend>catkin</buildtool_depend>
@@ -18,6 +18,9 @@
   <exec_depend>flo_humanoid</exec_depend>
   <exec_depend>tts</exec_depend>
   <exec_depend>kobuki</exec_depend>
+  <exec_depend>flo_web</exec_depend>
+  <exec_depend>system_monitor</exec_depend>
+  <exec_depend>flo_telepresence</exec_depend>
   <export>
     <!-- Other tools can request additional information be placed here -->
   </export>

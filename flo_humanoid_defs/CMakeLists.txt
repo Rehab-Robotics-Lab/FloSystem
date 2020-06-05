@@ -8,9 +8,9 @@ project(flo_humanoid_defs)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  std_msgs
-  message_generation
   actionlib_msgs
+  message_generation
+  std_msgs
 )
 
 
@@ -19,23 +19,23 @@ find_package(catkin REQUIRED COMPONENTS
 ################################################
 
 ## Generate messages in the 'msg' folder
- add_message_files(
+add_message_files(
      FILES
    JointTarget.msg
  )
 
 ## Generate actions in the 'action' folder
- add_action_files(
+add_action_files(
      DIRECTORY action
    FILES
    Move.action
  )
 
 ## Generate added messages and services with any dependencies listed here
- generate_messages(
+generate_messages(
    DEPENDENCIES
-   std_msgs
    actionlib_msgs
+   std_msgs
  )
 
 ###################################

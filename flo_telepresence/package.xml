@@ -2,7 +2,7 @@
 <package format="2">
   <name>flo_telepresence</name>
   <version>0.0.0</version>
-  <description>The flo_telepresence package which provides launch files for the telepresence components and handles the screen for the remote operator on the robot</description>
+  <description>Package which provides launch files for the telepresence components and handles the screen for the remote operator on the robot</description>
   <maintainer email="mjsobrep@seas.upenn.edu">Michael Sobrepera</maintainer>
   <license>proprietary</license>
   <buildtool_depend>catkin</buildtool_depend>

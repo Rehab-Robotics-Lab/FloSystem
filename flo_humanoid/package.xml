@@ -2,7 +2,7 @@
 <package format="2">
   <name>flo_humanoid</name>
   <version>0.0.0</version>
-  <description>The flo_humanoid package for interacting with the Bolide robot</description>
+  <description>Manage interacting with the Bolide robot and handle simulations of the robbot</description>
   <maintainer email="mjsobrep@seas.upenn.edu">Michael Sobrepera</maintainer>
   <license>proprietery</license>
   <buildtool_depend>catkin</buildtool_depend>

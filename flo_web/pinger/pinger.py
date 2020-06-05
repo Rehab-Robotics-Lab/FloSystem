@@ -1,9 +1,11 @@
-import requests
-import time
+"""System to ping remote server with the ipaddress of the
+machine running this code"""
+
 import os
 import socket
 import logging
 import logging.handlers
+import requests
 
 if __name__ == "__main__":
     SERVER_ADDR = os.environ['FLO_SERVER_IP']
@@ -30,10 +32,11 @@ if __name__ == "__main__":
         S.close()
         LOG.info('setting ip addr to %s', IP_ADDR)
         RESP = requests.put('https://'+SERVER_ADDR + '/api/robots/ipaddr',
-                            {'name': NAME, 'password': PASSWORD, 'ipaddr': IP_ADDR})
+                            {'name': NAME, 'password': PASSWORD,
+                             'ipaddr': IP_ADDR})
         if RESP.status_code == 200:
             LOG.info('set ip address: %s', RESP)
         else:
             LOG.warning('error in response: %s', RESP)
-    except Exception as ex:
+    except (socket.error, requests.exceptions.RequestException) as ex:
         LOG.warning(ex)

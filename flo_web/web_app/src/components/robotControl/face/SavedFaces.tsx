@@ -111,7 +111,7 @@ const SavedFaces: React.FunctionComponent<SavedFacesProps> = ({
         {faces.map(value => (
           <SavedFace
             name={value}
-            setFace={() => setFace(value)}
+            setFace={(): void => setFace(value)}
             disabled={!connected}
             key={value}
           />

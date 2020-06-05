@@ -27,7 +27,7 @@ interface MoveProps {
   moveDown: SimpleModificationFunc;
   remove: SimpleModificationFunc;
   status: string;
-  prior_lr: "left" | "right" | "";
+  priorLR: "left" | "right" | "";
   priorTime: number;
   setErrorState: (arg: boolean) => void;
 }
@@ -92,6 +92,8 @@ export const runSequence = (
   });
 
   //TODO: get this out as an error
+  // The typing is not complete for the actioni client
+  //eslint-disable-next-line @typescript-eslint/no-explicit-any
   (actionClient as any).on("timeout", () => {
     console.error(
       "failed to attach to move server due to timeout, you can try again"
@@ -163,7 +165,7 @@ const Move: React.FunctionComponent<MoveProps> = ({
   moveDown,
   remove,
   status,
-  prior_lr,
+  priorLR,
   priorTime,
   setErrorState
 }) => {
@@ -182,7 +184,7 @@ const Move: React.FunctionComponent<MoveProps> = ({
 
   let errorTitle = "";
 
-  if (time <= 0 && prior_lr === lr) {
+  if (time <= 0 && priorLR === lr) {
     errorTitle = "You cannot have zero time between two moves on the same arm";
     setErrorState(true);
   } else if (time === 0 && priorTime === 0) {
@@ -303,7 +305,7 @@ const SequenceRunContainer: React.FunctionComponent<SequenceRunContainerProps> =
 
   const renderedMoves = [];
   for (let index = 0; index < MovesList.length; index += 1) {
-    let value = MovesList[index];
+    const value = MovesList[index];
     if (value !== null && value !== undefined) {
       renderedMoves.push(
         <Move
@@ -318,7 +320,7 @@ const SequenceRunContainer: React.FunctionComponent<SequenceRunContainerProps> =
           moveDown={moveDown}
           remove={remove}
           status={value.status}
-          prior_lr={
+          priorLR={
             index === 0 || MovesList[index - 1] === undefined
               ? ""
               : MovesList[index - 1].lr
@@ -328,7 +330,7 @@ const SequenceRunContainer: React.FunctionComponent<SequenceRunContainerProps> =
               ? 0
               : MovesList[index - 1].time
           }
-          setErrorState={val => {
+          setErrorState={(val): void => {
             if (val !== errorList[index]) {
               const errorListT: boolean[] = [...errorList];
               errorListT[index] = val;

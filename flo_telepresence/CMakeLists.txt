@@ -31,3 +31,8 @@ include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
 )
+
+install(PROGRAMS
+   src/display_cv.py
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+ )

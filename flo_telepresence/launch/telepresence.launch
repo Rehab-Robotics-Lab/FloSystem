@@ -12,7 +12,7 @@
     <!--Audio-->
     <include file="$(find flo_telepresence)/launch/audio.launch"/>
     <!--Screen on Robot-->
-    <node name="robot_screen" pkg="flo_telepresence" type="display-cv.py" respawn="true"/>
+    <node name="robot_screen" pkg="flo_telepresence" type="display_cv.py" respawn="true"/>
   </group>
   <group if="$(eval simulate==True)">
     <!--<node name="robot_screen" pkg="flo_telepresence" type="display.py"/>-->

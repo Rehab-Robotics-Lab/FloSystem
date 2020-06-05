@@ -1,0 +1,106 @@
+---
+name: web
+
+on:
+  pull_request:
+    types: [synchronize, opened, reopened]
+
+jobs:
+  lint_front:
+    name: Lint Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 13.x
+
+      - name: Cache node modules
+        uses: actions/cache@v1
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('flo_web/web_app/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Lint with eslint
+        run: |
+          cd flo_web/web_app
+          npm install
+          npm install -g eslint
+          eslint src
+  lint_server:
+    name: Lint Server
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 13.x
+
+      - name: Cache node modules
+        uses: actions/cache@v1
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('flo_web/web_server/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Lint with eslint
+        run: |
+          cd flo_web/web_server
+          npm install
+          npm install -g eslint
+          eslint src
+
+  build_dev_docker:
+    name: Build Development Docker Images
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup cert files
+        run: |
+          mkdir certs
+          echo "SESSION_SECRET=abc123" >> ./certs/session-secret.env
+      - name: Build-docker-compose
+        run: docker-compose build
+
+  build_prod_docker:
+    name: Build Production Docker Images
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup cert files
+        run: |
+          mkdir certs
+          echo "SESSION_SECRET=abc123" >> ./certs/session-secret.env
+          echo "COTURN_SECRET=xyz789" >> ./certs/coturn.env
+          echo "SITE_ADDR=demo.com" >> ./certs/coturn.env
+      - name: Build-docker-compose
+        run: docker-compose -f docker-compose.yml -f docker-compose.prod.yml build
+
+  build_turn_docker:
+    name: Build Turn Docker Images
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup cert files
+        run: |
+          mkdir certs
+          echo "COTURN_SECRET=xyz789" >> ./certs/coturn.env
+          echo "SITE_ADDR=demo.com" >> ./certs/coturn.env
+      - name: Build-docker-compose
+        run: docker-compose -f docker-compose-turn.yml build

@@ -45,7 +45,7 @@ const ChangePermissions: React.FunctionComponent = () => {
                   email: values.email
                 })
                 .then(
-                  res => {
+                  () => {
                     update();
                     setSubmitting(false);
                   },
@@ -56,7 +56,7 @@ const ChangePermissions: React.FunctionComponent = () => {
                 );
             }}
           >
-            {({ isSubmitting }) => (
+            {({ isSubmitting }): JSX.Element => (
               <Form>
                 <label htmlFor="email">e-mail</label>
                 <Field type="email" name="email" />

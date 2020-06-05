@@ -1,8 +1,6 @@
 import Router from 'express-promise-router';
 import * as db from '../db';
-import bcrypt from 'bcrypt';
-import crypto from 'crypto';
-import { checkLoggedIn, checkAdmin } from './users';
+import { checkAdmin } from './users';
 // create a new express-promise-router
 // this has the same API as the normal express router except
 // it allows you to use async functions as route handlers
@@ -10,13 +8,11 @@ const router = Router();
 // export our router to be mounted by the parent application
 export default router;
 
-const saltRounds = 10;
-
 router.post('/add', checkAdmin, async (req, res) => {
     const { robotName, email } = req.body;
 
     try {
-        const { rows } = await db.query(
+        await db.query(
             'insert into robot_permissions ' +
                 '(user_id, robot_id) ' +
                 'values ' +
@@ -41,7 +37,7 @@ router.post('/remove', checkAdmin, async (req, res) => {
     const { robotName, email } = req.body;
 
     try {
-        const { rows } = await db.query(
+        await db.query(
             'delete from robot_permissions ' +
                 'where ' +
                 'robot_id =(select id from robots where robot_name=$1) and ' +
@@ -61,7 +57,6 @@ router.post('/remove', checkAdmin, async (req, res) => {
     });
 });
 router.get('/', checkAdmin, async (req, res) => {
-    const userID = req.session!.userID;
     try {
         const { rows } = await db.query(
             'select r.robot_name ,array_agg(u.email) users from robots r ' +

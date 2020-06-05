@@ -2,7 +2,7 @@
 <package format="2">
   <name>flo_face</name>
   <version>0.0.0</version>
-  <description>The flo_face package</description>
+  <description>Manage state for, interface with, and control flo's face</description>
   <maintainer email="mjsobrep@seas.upenn.edu">Michael Sobrepera</maintainer>
   <license>propriatary</license>
   <buildtool_depend>catkin</buildtool_depend>

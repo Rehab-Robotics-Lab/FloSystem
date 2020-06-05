@@ -45,7 +45,7 @@ const AddRobot: React.FunctionComponent = () => {
               });
           }}
         >
-          {({ isSubmitting }) => (
+          {({ isSubmitting }): JSX.Element => (
             <Form>
               <label htmlFor="robotName">Robot Name</label>
               <Field type="robotName" name="robotName" />

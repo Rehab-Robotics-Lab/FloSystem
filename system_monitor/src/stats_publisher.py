@@ -2,16 +2,18 @@
 """A mdoule which allows monitoring and publishing system stats"""
 
 from __future__ import division
-import rospy
-import psutil
 import re
 import subprocess
 import socket
+import rospy
+import psutil
 
 from system_monitor.msg import CPUutil, HDDutil, MEMutil, NETstats
 
 
 class StatsPublisher(object):
+    """Class to publish the system stats of the computer into
+    the ROS system"""
 
     def __init__(self):
         rospy.init_node('stats_publisher')
@@ -67,8 +69,9 @@ class StatsPublisher(object):
         if net_stats and ip_addr and net_name:
             link_quality = net_stats['link_quality']
             signal_strength = net_stats['signal_level']
-            rospy.logdebug('Network Signal Strength: %5.2fdb Link Quality: %4.1f%%',
-                           signal_strength, link_quality)
+            rospy.logdebug(
+                'Network Signal Strength: %5.2fdb Link Quality: %4.1f%%',
+                signal_strength, link_quality)
             msg = NETstats()
             msg.link_quality = link_quality
             msg.signal_strength = signal_strength
@@ -80,25 +83,31 @@ class StatsPublisher(object):
 
     @staticmethod
     def get_net_name():
+        """Get the name of the network adapter that is being used."""
         try:
             proc = subprocess.Popen('/sbin/iwgetid', shell=True,
-                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            output, err = proc.communicate()
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+            output, _ = proc.communicate()
             if output:
                 return output.split('"')[1]
-        except:
+        except subprocess.CalledProcessError:
             return None
+        return None
 
     @staticmethod
     def get_ip_addr():
+        """Get the IP Address of the NIC that can actually reach the
+        internet"""
         try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.connect(("8.8.8.8", 80))
-            ip_addr = s.getsockname()[0]
-            s.close()
+            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            sock.connect(("8.8.8.8", 80))
+            ip_addr = sock.getsockname()[0]
+            sock.close()
             return ip_addr
-        except:
+        except socket.error:
             return None
+        return None
 
     @staticmethod
     def get_net_strength():
@@ -109,12 +118,14 @@ class StatsPublisher(object):
         """
         try:
             proc = subprocess.Popen('/sbin/iwconfig | grep Link', shell=True,
-                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
             output, err = proc.communicate()
             if not output:
                 if err:
                     rospy.logdebug(
-                        'no output received while checking net strength, got error:\n%s', err)
+                        'no output received while checking net strength, ' +
+                        'got error:\n%s', err)
                 else:
                     rospy.logdebug(
                         'no output received while checking net strength')
@@ -124,9 +135,9 @@ class StatsPublisher(object):
                 '/', re.search('(?<=Link Quality=)[0-9/]*', msg).group(0))
             link_quality = 100*int(lqv[0])/int(lqv[1])
             signal_level = int(
-                re.search('(?<=Signal level=)[0-9\-]*', msg).group(0))
+                re.search(r'(?<=Signal level=)[0-9\-]*', msg).group(0))
             return {'link_quality': link_quality, 'signal_level': signal_level}
-        except:
+        except (subprocess.CalledProcessError, AttributeError):
             return None
 
 

@@ -4,7 +4,7 @@ import permissions from './permissions';
 import webrtc from './webrtc';
 import express from 'express';
 
-const exp = (app: express.Application) => {
+const exp = (app: express.Application): void => {
     app.get('/api', (req, resp) => {
         resp.send('you have reached the api server');
     });

@@ -86,7 +86,7 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y python-catkin-lint
           cd $GITHUB_WORKSPACE/LilFloSystem
-          catkin_lint . -W2
+          catkin_lint . -W2 --strict
 
   python-todos:
     runs-on: ubuntu-18.04

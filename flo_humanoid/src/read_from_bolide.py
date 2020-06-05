@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Code to connect to and read from a bolid robot. 
+"""Code to connect to and read from a bolid robot.
 
 This code is meant to be imported and used by another class
 """
@@ -54,6 +54,7 @@ class BolideReader(object):
         self.start_time = time.time()
         self.current_time = 0  # elapsed time from start
 
+    # pylint: disable=too-many-return-statements
     def read_data(self, target, tries=5):
         '''Read data from the bolide robot. Check the header, length,
         and end. Read either position, current, or torque
@@ -130,10 +131,12 @@ class BolideReader(object):
             header = ord(ret[0])
         else:
             return ('local_err',
-                    'not enough data returned after tries. Length of data: {}'.format(len(ret)))
+                    'not enough data returned after tries. ' +
+                    'Length of data: {}'.format(len(ret)))
 
         if header != 0xFF:
-            return ('local_err', 'first byte read did not match header: {}'.format(header))
+            return ('local_err', 'first byte read did not match header: ' +
+                    '{}'.format(header))
         # If we get to here, we have received a good header
         expected_length = ord(ret[1])
         while len(ret) < expected_length and tries > 0:
@@ -150,7 +153,8 @@ class BolideReader(object):
         if end != 0xFE:
             return ('local_err', 'bad end bit')
 
-        # return [key for key, value in self.feedback.items() if value == feedback]
+        # return [key for key, value in self.feedback.items()
+        # if value == feedback]
         return feedback
 
     # def read_battery_voltage(self):
@@ -164,7 +168,8 @@ class BolideReader(object):
     #         return
     #     header = ord(ret[0])
     #     if header != 0xFF:
-    #         # print('first byte read did not match header: {}'.format(header))
+    #         # print('first byte read did not match header: '+
+    #                 '{}'.format(header))
     #         return
     #     len_bit = ord(ret[1])
     #     if len_bit != 6:

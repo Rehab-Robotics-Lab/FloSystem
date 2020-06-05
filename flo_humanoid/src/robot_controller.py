@@ -22,6 +22,7 @@ from flo_humanoid_defs.msg import MoveAction, MoveResult, MoveFeedback
 from read_from_bolide import BolideReader
 
 
+# pylint: disable=too-many-public-methods
 class BolideController(object):
     """BolideController
 
@@ -78,6 +79,7 @@ class BolideController(object):
     feedback = {'error': 0x00, 'keep_going': 0x01,
                 'done': 0x02, 'relaxed': 0x04, 'seq_num': 0x11}
 
+    # pylint: disable=too-many-statements
     def __init__(self):
         rospy.init_node('robot_manager')  # , log_level=rospy.DEBUG)
 
@@ -172,8 +174,8 @@ class BolideController(object):
     def connect(self):
         """connect to the robot
 
-        Will first try to disconect and close the serial connection if it exists
-        then re connect.
+        Will first try to disconect and close the serial connection if 
+        it exists then re connect.
         """
         with self.usb_lock:
             if not self.simulate:
@@ -568,7 +570,7 @@ class BolideController(object):
             return
         if header != 0xFF:
             # log(3, 'first byte read did not match header: {}'.format(header))
-            rospy.logerr('Incorrect first byte: {}'.format(header))
+            rospy.logerr('Incorrect first byte: %s', header)
             self.ret = ''
             return
 
@@ -591,7 +593,7 @@ class BolideController(object):
         end = ord(self.ret[-1])
         if end != 0xFE:
             # log(3, 'bad end bit')
-            rospy.logerr('incorrect end bit received: {}'.format(end))
+            rospy.logerr('incorrect end bit received: %s', end)
             self.ret = ''
             return
 

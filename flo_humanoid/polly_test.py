@@ -28,7 +28,8 @@ if "AudioStream" in RESPONSE:
     # number of parallel connections. Here we are using contextlib.closing to
     # ensure the close method of the stream object will be called automatically
     # at the end of the with statement's scope.
-    with closing(RESPONSE["AudioStream"]) as stream:
+    stream = RESPONSE["AudioStream"]
+    with closing(stream):
         OUTPUT = os.path.join(gettempdir(), "speech.mp3")
 
         try:
@@ -47,7 +48,7 @@ else:
 
 # Play the audio using the platform's default player
 if sys.platform == "win32":
-    os.startfile(OUTPUT)
+    os.startfile(OUTPUT)  # pylint: disable=no-member
 else:
     # the following works on Mac and Linux. (Darwin = mac, xdg-open = linux).
     OPENER = "open" if sys.platform == "darwin" else "xdg-open"

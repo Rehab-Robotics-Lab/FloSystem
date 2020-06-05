@@ -28,14 +28,14 @@ if "AudioStream" in RESPONSE:
     # number of parallel connections. Here we are using contextlib.closing to
     # ensure the close method of the stream object will be called automatically
     # at the end of the with statement's scope.
-    stream = RESPONSE["AudioStream"]
-    with closing(stream):
+    STREAM = RESPONSE["AudioStream"]
+    with closing(STREAM):
         OUTPUT = os.path.join(gettempdir(), "speech.mp3")
 
         try:
             # Open a file for writing the output as a binary stream
             with open(OUTPUT, "wb") as file_handle:
-                file_handle.write(stream.read())
+                file_handle.write(STREAM.read())
         except IOError as error:
             # Could not write to file, exit gracefully
             print(error)

@@ -2,12 +2,11 @@
 """A module to display the robot screen using opencv"""
 
 import os
-import socket
 import rospy
 from sensor_msgs.msg import Image as smImage
-from system_monitor.msg import NETstats
 from rosbridge_msgs.msg import ConnectedClients
 from cv_bridge import CvBridge, CvBridgeError
+from system_monitor.msg import NETstats
 import numpy as np
 import cv2
 import Queue
@@ -20,6 +19,13 @@ UPDATE_HOME_TIME = 1
 
 
 class RobotScreen(object):
+    """Class to display the screen on the robot"""
+
+    # This is a ros node, no need for public methods:
+    # pylint: disable=too-few-public-methods
+
+    # Such is the nature of GUIs:
+    # pylint: disable=too-many-instance-attributes
 
     def __init__(self):
         rospy.init_node('robot_screen')
@@ -32,7 +38,7 @@ class RobotScreen(object):
         self.server_addr = os.environ['FLO_SERVER_IP']
         self.name = os.environ['ROBOT_NAME']
 
-        self.ip = ''
+        self.ip_addr = ''
         self.ssid = ''
         self.wifi_quality = 0
         self.wifi_signal = 0
@@ -44,9 +50,11 @@ class RobotScreen(object):
         self.last_home_update = 0
 
         self.home_screen = np.zeros((480, 800, 3), np.uint8)
-        logo = cv2.imread(os.path.join(
-            rospack.get_path('flo_telepresence'), 'RRLlogo.png'),
-            cv2.IMREAD_UNCHANGED)
+        logo = cv2.imread(
+            os.path.join(
+                rospack.get_path('flo_telepresence'), 'RRLlogo.png'),
+            cv2.IMREAD_UNCHANGED
+        )
         small_logo = cv2.resize(logo, (140, 140))
         clean_logo = self.home_screen[10:150, 10:150]
         where_logo = np.where(small_logo[:, :, 3] == 255)
@@ -91,7 +99,7 @@ class RobotScreen(object):
         self.connected_clients = len(msg.clients)
 
     def __new_net_stats(self, msg):
-        self.ip = msg.ip_addr
+        self.ip_addr = msg.ip_addr
         self.ssid = msg.network_ssid
         self.wifi_quality = msg.link_quality
         self.wifi_signal = msg.signal_strength
@@ -117,7 +125,7 @@ class RobotScreen(object):
         if rospy.get_time()-self.last_home_update > UPDATE_HOME_TIME:
             self.filled_home = self.home_screen.copy()
             cv2.putText(self.filled_home,
-                        'IP: '+self.ip,
+                        'IP: '+self.ip_addr,
                         (400, 278),
                         self.font,
                         1,

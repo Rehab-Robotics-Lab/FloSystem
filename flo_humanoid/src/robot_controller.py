@@ -217,6 +217,8 @@ class BolideController(object):
 
         Returns:
         """
+        # hard stuff, lots of locals, oh well
+        # pylint: disable=too-many-locals
         rospy.loginfo('got new movement action command')
         # done = False
         if self.simulate:
@@ -402,15 +404,21 @@ class BolideController(object):
                 if current_move == 0:
                     percent_complete = cur_time/self.sim_seq_times[0]
                     for idx in range(len(self.sim_current_pose)):
-                        self.sim_current_pose[idx] = (percent_complete * (
-                            self.sim_seq_poses[0][idx] -
-                            self.sim_starting_pose[idx]) +
-                            self.sim_starting_pose[idx])
+                        self.sim_current_pose[idx] = (
+                            percent_complete * (
+                                self.sim_seq_poses[0][idx] -
+                                self.sim_starting_pose[idx]) +
+                            self.sim_starting_pose[idx]
+                        )
                 else:
                     percent_complete = (
-                        cur_time-self.sim_seq_times[current_move-1])/(
-                        self.sim_seq_times[current_move] -
-                        self.sim_seq_times[current_move-1])
+                        (
+                            cur_time-self.sim_seq_times[current_move-1]
+                        )/(
+                            self.sim_seq_times[current_move] -
+                            self.sim_seq_times[current_move-1]
+                        )
+                    )
                     for idx in range(len(self.sim_current_pose)):
                         self.sim_current_pose[idx] = (
                             percent_complete *
@@ -583,6 +591,8 @@ class BolideController(object):
         self.seq_num = 0
 
     def read(self):
+        """read from the robot"""
+
         # lots of return statements improves readability:
         # pylint: disable=too-many-return-statements
         # while len(ret) < 1 and tries > 0:

@@ -2,15 +2,15 @@
 """A module to display the robot screen using opencv"""
 
 import os
+import Queue
 import rospy
 from sensor_msgs.msg import Image as smImage
 from rosbridge_msgs.msg import ConnectedClients
 from cv_bridge import CvBridge, CvBridgeError
-from system_monitor.msg import NETstats
 import numpy as np
 import cv2
-import Queue
 import rospkg
+from system_monitor.msg import NETstats
 
 # Screen is 800x480
 

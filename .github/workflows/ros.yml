@@ -78,7 +78,9 @@ jobs:
     steps:
       - name: Lint Catkin
         run: |
-          sudo apt-get update -y && sudo apt-get install -y python-catkin-lint
+          sudo add-apt-repository ppa:roehling/latest
+          sudo apt update -y
+          sudo apt install -y catkin-lint
           cd $GITHUB_WORKSPACE/LilFloSystem
           catkin_lint . -W2
 

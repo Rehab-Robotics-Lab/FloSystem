@@ -29,9 +29,9 @@ include_directories(
 )
 
 install(PROGRAMS
-   src/face_manager.py
-   src/experiment_manager.py
    src/com_manager.py
+   src/experiment_manager.py
+   src/face_manager.py
    src/keyboard_teleop.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )

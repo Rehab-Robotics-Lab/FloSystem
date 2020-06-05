@@ -8,8 +8,8 @@ from sensor_msgs.msg import Image as smImage
 from rosbridge_msgs.msg import ConnectedClients
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
-import cv2
 import rospkg
+import cv2
 from system_monitor.msg import NETstats
 
 # Screen is 800x480

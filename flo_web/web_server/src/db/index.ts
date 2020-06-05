@@ -1,4 +1,4 @@
-import { Pool } from 'pg';
+import pg, { Pool } from 'pg';
 
 //default pg.client() or pg.pool() connect values:
 //PGHOST='localhost'
@@ -14,6 +14,9 @@ const pool = new Pool({
     password: 'docker',
 });
 
-const query = (text: string, params: Array<any>) => pool.query(text, params);
+const query = (
+    text: string,
+    params: Array<string | number | boolean | null>,
+): Promise<pg.QueryResult> => pool.query(text, params);
 
 export { query };

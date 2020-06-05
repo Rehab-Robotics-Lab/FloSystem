@@ -20,9 +20,9 @@ echo "installing for ros version: ${ROS_VERSION}"
 sudo apt-get install -y ros-${ROS_VERSION}-desktop-full
 source /opt/ros/${ROS_VERSION}/setup.bash
 ## install rosmon, it would be weird for this to be in one of the packages:
-sudo apt-get install ros-${ROS_VERSION}-rosmon
+#sudo apt-get install ros-${ROS_VERSION}-rosmon
 
-sudo apt-get install -y python-rosdep2
+sudo apt-get install -y python-rosdep
 [ ! -d "/etc/ros/rosdep/sources.list.d" ] && sudo rosdep init
 rosdep update
 sudo apt-get install -y python-rosinstall python-rosinstall-generator python-wstool build-essential

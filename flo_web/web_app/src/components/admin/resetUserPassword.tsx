@@ -41,7 +41,7 @@ const ResetUserPassword: React.FunctionComponent = () => {
               );
           }}
         >
-          {({ isSubmitting }) => (
+          {({ isSubmitting }): JSX.Element => (
             <Form>
               <label htmlFor="email">e-mail</label>
               <Field type="email" name="email" />

@@ -8,9 +8,9 @@ project(flo_core_defs)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  std_msgs
-  message_generation
   flo_humanoid_defs
+  message_generation
+  std_msgs
 )
 
 
@@ -19,8 +19,11 @@ find_package(catkin REQUIRED COMPONENTS
 ################################################
 
 ## Generate messages in the 'msg' folder
- add_message_files(
+add_message_files(
      FILES
+     DBUpdate.msg
+     GameAction.msg
+     GameBucket.msg
      GameCommand.msg
      GameCommandOptions.msg
      GameDef.msg
@@ -28,35 +31,32 @@ find_package(catkin REQUIRED COMPONENTS
      Pose.msg
      PoseSeq.msg
      StepDef.msg
-     DBUpdate.msg
-     GameAction.msg
      TTSState.msg
      TTSUtterances.msg
-     GameBucket.msg
  )
 
 ## Generate services in the 'srv' folder
- add_service_files(
+add_service_files(
    FILES
+   GetGameBucketID.srv
    GetPoseID.srv
    GetPoseSeqID.srv
+   SearchGameBucket.srv
    SearchPose.srv
    SearchPoseSeq.srv
    SearchUtterance.srv
+   SetGameBucket.srv
    SetPose.srv
    SetPoseSeq.srv
    SetUtterance.srv
-   GetGameBucketID.srv
-   SearchGameBucket.srv
-   SetGameBucket.srv
  )
 
 
 ## Generate added messages and services with any dependencies listed here
- generate_messages(
+generate_messages(
    DEPENDENCIES
-   std_msgs
    flo_humanoid_defs
+   std_msgs
  )
 
 
@@ -69,6 +69,9 @@ catkin_package(
 #  CATKIN_DEPENDS roscpp rospy std_msgs tf
 #  DEPENDS system_lib
 CATKIN_DEPENDS
+flo_humanoid_defs
+message_runtime
+std_msgs
 )
 
 ###########

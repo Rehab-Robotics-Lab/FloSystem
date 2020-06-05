@@ -210,14 +210,14 @@ class Server {
         }
     }
 
-    addSocket(name: string, ws: WebSocket) {
+    addSocket(name: string, ws: WebSocket): void {
         if (this.sockets.has(name)) {
             throw Error('socked already in list');
         }
         this.sockets.set(name, ws);
     }
 
-    removeSocket(name: string) {
+    removeSocket(name: string): void {
         this.sockets.delete(name);
     }
 
@@ -232,7 +232,7 @@ class Server {
             socket: net.Socket,
             head: Buffer,
         ): Promise<WebSocket> => {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 this.wsServer.handleUpgrade(request, socket, head, (ws) => {
                     resolve(ws);
                 });
@@ -283,9 +283,9 @@ export { Server, HandleUpgradePromise, ParseIncoming };
  */
 function killOnDisconnect(
     ws: WebSocket,
-    pingFreq: number = 1000,
-    connectionTimeout: number = 5000,
-) {
+    pingFreq = 1000,
+    connectionTimeout = 5000,
+): { heartbeat: () => void; cancel: () => void } {
     const localLogger = logger.child({
         source: 'killOnDisconnect',
     });
@@ -293,7 +293,7 @@ function killOnDisconnect(
     let pingTimer: undefined | ReturnType<typeof setInterval> = undefined;
     let timeout: undefined | ReturnType<typeof setTimeout> = undefined;
 
-    const cancel = () => {
+    const cancel = (): void => {
         localLogger.verbose('cancel');
         if (pingTimer !== undefined) {
             clearTimeout(pingTimer);
@@ -303,7 +303,7 @@ function killOnDisconnect(
         }
     };
 
-    const heartbeat = () => {
+    const heartbeat = (): void => {
         localLogger.silly('heartbeat');
         if (timeout !== undefined) {
             clearTimeout(timeout);

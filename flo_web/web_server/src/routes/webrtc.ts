@@ -2,7 +2,6 @@ import Router from 'express-promise-router';
 import * as db from '../db';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-import { checkLoggedIn, checkAdmin } from './users';
 // create a new express-promise-router
 // this has the same API as the normal express router except
 // it allows you to use async functions as route handlers
@@ -10,10 +9,13 @@ const router = Router();
 // export our router to be mounted by the parent application
 export default router;
 
-const coturn_secret = process.env.COTURN_SECRET || 'coturn_secret';
+const coturnSecret = process.env.COTURN_SECRET || 'coturn_secret';
 
 // From: https://stackoverflow.com/questions/35766382/coturn-how-to-use-turn-rest-api
-function getTURNCredentials(name: string, secret: string) {
+function getTURNCredentials(
+    name: string,
+    secret: string,
+): { username: string; password: string } {
     const unixTimeStamp = Math.ceil(Date.now() / 1000) + 60 * 60; // this credential would be valid for the next 1 hour
     const username = [unixTimeStamp, name].join(':');
     const hmac = crypto.createHmac('sha1', secret);
@@ -29,10 +31,15 @@ function getTURNCredentials(name: string, secret: string) {
 
 router.post('/turn-credentials', async (req, res) => {
     const { robotName, username, password } = req.body;
+    const session = req.session;
+    if (session === undefined) {
+        res.status(500).json({ error: 'no session found' });
+        return;
+    }
     let ctname: string;
     try {
         if (robotName !== undefined) {
-            const id = req.session!.userID;
+            const id = session.userID;
             const {
                 rows,
             } = await db.query(
@@ -70,9 +77,9 @@ router.post('/turn-credentials', async (req, res) => {
             return;
         }
 
-        const coturn_creds = getTURNCredentials(ctname, coturn_secret);
+        const coturnCreds = getTURNCredentials(ctname, coturnSecret);
 
-        res.status(200).json(coturn_creds);
+        res.status(200).json(coturnCreds);
     } catch (e) {
         res.status(500).json({ error: e });
     }

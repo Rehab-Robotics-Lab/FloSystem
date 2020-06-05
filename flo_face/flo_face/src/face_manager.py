@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 
+"""Code for managing the face of the Lil'Flo robot on the ROS side
+
+Note: this code does not actually interface with the robot, this
+code manages the state and publishes it for other code to pass
+to the robot
+"""
+
 import json
 from os.path import expanduser, join
 import rospy
@@ -16,14 +23,18 @@ class FloFaceManager(object):
     nodes. It receives messages with names of faces to use and directions to
     look, it then broadcasts the current desired state."""
 
+    # pylint: disable=too-many-instance-attributes
+    # Combining instance variables or having more classes would decrease
+    # readability
+
     def __init__(self):
         rospy.init_node('face_manager')
         self.rospack = rospkg.RosPack()
         self.face_fn = expanduser(
             rospy.get_param('face_json', join(
                 self.rospack.get_path('flo_face'), 'data', 'faces.json')))
-        with open(self.face_fn) as file:
-            self.face_data = json.load(file)
+        with open(self.face_fn) as file_handle:
+            self.face_data = json.load(file_handle)
         self.mouth_keys = list(self.face_data['mouths'].keys())
         self.eye_direction = 'center'
         self.current_mouth = 'standard'
@@ -35,13 +46,13 @@ class FloFaceManager(object):
 
         self.state_pub = rospy.Publisher(
             'face_state', FaceState, queue_size=1, latch=True)
-        self.set_eye_service = rospy.Service(
+        rospy.Service(
             'set_eye_direction', SetEyeDirection, self.set_eye_direction)
-        self.set_face_service = rospy.Service(
+        rospy.Service(
             'set_face', SetFace, self.set_face)
-        self.options_service = rospy.Service(
+        rospy.Service(
             'get_face_options', GetFaceOptions, self.get_face_options)
-        self.set_brightness_service = rospy.Service(
+        rospy.Service(
             'set_face_brightness', SetFaceBrightness, self.set_brightness)
         # self.set_face(SetFace(self.current_mouth))
         rospy.loginfo('face manager up')

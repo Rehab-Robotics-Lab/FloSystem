@@ -10,7 +10,7 @@ import Honeybadger from "honeybadger-js";
 //return <RobotController />;
 //}
 //export default App;
-function App() {
+const App: React.FunctionComponent = () => {
   const [loggedIn, setLoggedInInternal] = useState(false);
   const [userName, setUserNameInternal] = useState("");
   const [userType, setUserType] = useState<string>("");
@@ -92,9 +92,10 @@ function App() {
         {loggedIn && (
           <button
             className={navbar.navitem}
-            onClick={() => {
+            onClick={(): void => {
               axios.post("/api/users/logout").then(
-                res => {
+                () => {
+                  // request succeeded
                   setLoggedIn(false);
                   setUserName("");
                 },
@@ -118,6 +119,6 @@ function App() {
       />
     </div>
   );
-}
+};
 
 export default App;

@@ -1,16 +1,11 @@
 import './tracer';
 import express from 'express';
-import http from 'http';
 import WebSocket from 'ws';
 import { v4 as uuidv4 } from 'uuid';
-import net from 'net';
-import bcrypt from 'bcrypt';
 import * as db from './db';
-import ioredis from 'ioredis';
 import {
     sessionParser,
     logger,
-    parseUrl,
     ClientStore,
     ParseIncoming,
     Server,
@@ -41,7 +36,13 @@ const parseIncoming: ParseIncoming = async function (
         request as express.Request,
         {} as express.Response,
         async () => {
-            const id = (request as express.Request).session!.userID;
+            const session = (request as express.Request).session;
+            if (session === undefined) {
+                socket.destroy();
+                logger.error('Session did not exist for requester');
+                return;
+            }
+            const id = session.userID;
             const targetRobot = urlReturn.target;
             const localLogger = logger.child({
                 source: 'operator',
@@ -297,4 +298,4 @@ const parseIncoming: ParseIncoming = async function (
         },
     );
 };
-const server = new Server(8080, parseIncoming);
+new Server(8080, parseIncoming);

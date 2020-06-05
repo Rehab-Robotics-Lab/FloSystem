@@ -27,7 +27,7 @@
     "@types/express-promise-router": "^3.0.0",
     "@types/express-session": "^1.17.0",
     "@types/ioredis": "^4.14.9",
-    "@types/node": "^13.13.2",
+    "@types/node": "^13.13.4",
     "@types/pg": "^7.14.3",
     "@types/redis": "^2.8.18",
     "@types/uuid": "^7.0.3",
@@ -49,7 +49,7 @@
     "ts-node-dev": "^1.0.0-pre.44",
     "uuid": "^7.0.3",
     "winston": "^3.2.1",
-    "ws": "^7.2.3"
+    "ws": "^7.2.5"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^2.26.0",

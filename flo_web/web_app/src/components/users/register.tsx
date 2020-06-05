@@ -41,7 +41,7 @@ const Register: React.FunctionComponent = () => {
                 firstName: values.firstName,
                 lastName: values.lastName
               })
-              .then(res => {
+              .then(() => {
                 alert("user created, please login");
                 history.push("/login");
               })
@@ -51,7 +51,7 @@ const Register: React.FunctionComponent = () => {
               });
           }}
         >
-          {({ isSubmitting }) => (
+          {({ isSubmitting }): JSX.Element => (
             <Form>
               <div
                 style={{

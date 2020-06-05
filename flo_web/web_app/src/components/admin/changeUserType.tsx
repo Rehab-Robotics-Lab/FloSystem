@@ -30,7 +30,7 @@ const ChangeUserType: React.FunctionComponent = () => {
                 userType: values.userType
               })
               .then(
-                res => {
+                () => {
                   alert("sucess!");
                   setSubmitting(false);
                 },
@@ -43,7 +43,7 @@ const ChangeUserType: React.FunctionComponent = () => {
               );
           }}
         >
-          {({ isSubmitting }) => (
+          {({ isSubmitting }): JSX.Element => (
             <Form>
               <label htmlFor="email">e-mail</label>
               <Field type="email" name="email" />

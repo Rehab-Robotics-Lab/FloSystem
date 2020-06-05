@@ -1,3 +1,4 @@
+/* eslint-disable */
 window.WebrtcRos = (function() {
   var newStreamId = function() {
     return (

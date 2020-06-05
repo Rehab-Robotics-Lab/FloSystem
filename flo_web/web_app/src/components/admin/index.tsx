@@ -19,7 +19,7 @@ const Admin: React.FunctionComponent<AdminProps> = ({ loggedIn, userType }) => {
 
   const { path, url } = useRouteMatch();
 
-  if (userType !== "administrator") {
+  if (!loggedIn || userType !== "administrator") {
     history.push("/");
   }
   //<Route path="/user/:userEmail">

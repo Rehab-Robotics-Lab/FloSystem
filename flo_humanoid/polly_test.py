@@ -1,20 +1,21 @@
 """Getting Started Example for Python 2.7+/3.3+"""
-from boto3 import Session
-from botocore.exceptions import BotoCoreError, ClientError
+from __future__ import print_function
 from contextlib import closing
 import os
 import sys
 import subprocess
 from tempfile import gettempdir
+from botocore.exceptions import BotoCoreError, ClientError
+from boto3 import Session
 
 # Create a client using the credentials and region defined in the [adminuser]
 # section of the AWS credentials file (~/.aws/credentials).
-session = Session(profile_name="flo")
-polly = session.client("polly")
+SESSION = Session(profile_name="flo")
+POLLY = SESSION.client("polly")
 
 try:
     # Request speech synthesis
-    response = polly.synthesize_speech(Text="Hello world!", OutputFormat="mp3",
+    RESPONSE = POLLY.synthesize_speech(Text="Hello world!", OutputFormat="mp3",
                                        VoiceId="Joanna")
 except (BotoCoreError, ClientError) as error:
     # The service returned an error, exit gracefully
@@ -22,18 +23,19 @@ except (BotoCoreError, ClientError) as error:
     sys.exit(-1)
 
 # Access the audio stream from the response
-if "AudioStream" in response:
+if "AudioStream" in RESPONSE:
     # Note: Closing the stream is important as the service throttles on the
     # number of parallel connections. Here we are using contextlib.closing to
     # ensure the close method of the stream object will be called automatically
     # at the end of the with statement's scope.
-    with closing(response["AudioStream"]) as stream:
-        output = os.path.join(gettempdir(), "speech.mp3")
+    STREAM = RESPONSE["AudioStream"]
+    with closing(STREAM):
+        OUTPUT = os.path.join(gettempdir(), "speech.mp3")
 
         try:
             # Open a file for writing the output as a binary stream
-            with open(output, "wb") as file:
-                file.write(stream.read())
+            with open(OUTPUT, "wb") as file_handle:
+                file_handle.write(STREAM.read())
         except IOError as error:
             # Could not write to file, exit gracefully
             print(error)
@@ -46,8 +48,8 @@ else:
 
 # Play the audio using the platform's default player
 if sys.platform == "win32":
-    os.startfile(output)
+    os.startfile(OUTPUT)  # pylint: disable=no-member
 else:
     # the following works on Mac and Linux. (Darwin = mac, xdg-open = linux).
-    opener = "open" if sys.platform == "darwin" else "xdg-open"
-    subprocess.call([opener, output])
+    OPENER = "open" if sys.platform == "darwin" else "xdg-open"
+    subprocess.call([OPENER, OUTPUT])

@@ -80,11 +80,13 @@ jobs:
       #      uses: actions/checkout@v2
       #      with:
       #        path: LilFloSystem
-      - name: Lint Catkin
+      - name: Setup Catkin Lint
         run: |
           sudo add-apt-repository ppa:roehling/latest
           sudo apt-get update -y
           sudo apt-get install -y python-catkin-lint
+      - name: Lint Catkin
+        run: |
           cd $GITHUB_WORKSPACE/LilFloSystem
           catkin_lint . -W2 --strict
 

@@ -70,16 +70,16 @@ jobs:
           cd $GITHUB_WORKSPACE/LilFloSystem
           git ls-files | grep 'py$' | xargs pylint --unsafe-load-any-extension=y --disable=fixme
 
-  catkin-lint:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-16.04, ubuntu-18.04]
-    steps:
-      - name: Checkout this repo
-        uses: actions/checkout@v2
-        with:
-          path: LilFloSystem
+      #catkin-lint:
+      #  runs-on: ${{ matrix.os }}
+      #  strategy:
+      #    matrix:
+      #      os: [ubuntu-16.04, ubuntu-18.04]
+      #  steps:
+      #    - name: Checkout this repo
+      #      uses: actions/checkout@v2
+      #      with:
+      #        path: LilFloSystem
       - name: Lint Catkin
         run: |
           sudo add-apt-repository ppa:roehling/latest

@@ -78,7 +78,7 @@ jobs:
     steps:
       - name: Lint Catkin
         run: |
-          pip install python-catkin-lint
+          sudo apt install -y python-catkin-lint
           cd $GITHUB_WORKSPACE/LilFloSystem
           catkin_lint . -W2
 

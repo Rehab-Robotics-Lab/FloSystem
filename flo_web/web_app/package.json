@@ -27,7 +27,7 @@
     "ros3d": "^1.0.1",
     "roslib": "^1.0.1",
     "typescript": "^3.6.2",
-    "webrtc-adapter": "^7.3.0",
+    "webrtc-adapter": "^7.6.1",
     "yup": "^0.28.4"
   },
   "scripts": {

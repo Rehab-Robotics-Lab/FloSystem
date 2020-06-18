@@ -8,7 +8,7 @@
     "@types/node": "^12.12.41",
     "@types/react": "^16.9.35",
     "@types/react-dom": "^16.9.8",
-    "@types/react-helmet": "^5.0.11",
+    "@types/react-helmet": "^5.0.16",
     "@types/react-router-dom": "^5.1.4",
     "@types/roslib": "^0.18.3",
     "@types/yup": "^0.29.0",

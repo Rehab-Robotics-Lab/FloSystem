@@ -28,7 +28,7 @@
     "roslib": "^1.0.1",
     "webrtc-adapter": "^7.6.1",
     "typescript": "^3.9.3",
-    "yup": "^0.28.4"
+    "yup": "^0.29.1"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -13,7 +13,7 @@
     "@types/roslib": "^0.18.3",
     "@types/yup": "^0.29.0",
     "axios": "^0.19.2",
-    "eventemitter2": "^6.4.1",
+    "eventemitter2": "^6.4.2",
     "formik": "^2.1.4",
     "logdown": "^3.3.0",
     "prop-types": "^15.7.2",

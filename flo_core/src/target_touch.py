@@ -26,10 +26,14 @@ def target_touch(new_def, process_step):
     Returns: The action list that defines the game
     """
     actions_list = []
+    reps = 10
+    if new_def.reps:
+        reps = new_def.reps
+
     actions_list.append(
         {'speech': 'in the target touch activity, I will tell you to ' +
                    'touch one of the dots on my hands. Each time I extend ' +
-                   'the hand, you should touch it. We will do 10 touches ' +
+                   'the hand, you should touch it. We will do {} touches '.format(reps) +
                    'per dot. No tricks here, just good work!! Let\'s start ' +
                    'in a ready position'})
     if not new_def.steps:

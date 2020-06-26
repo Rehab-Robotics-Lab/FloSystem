@@ -373,7 +373,7 @@ Some helpful commands (you will need to install `net-tools` for some):
 2. Plug it into power and se tthe mode switch to share hotspot
 3. Go through the quick setup to connect to something
 4. Set the broadcast network name as flo-net for both 2.4 and 5 Ghz
-5. Set security to WPA2-PSK/AES with password floiscool#01
+5. Set security to WPA2-PSK/AES with password xxxxxx
 6. Under the network tab, click LAN and set the IP Address to 10.42.0.1
 7. Under DHCP set the range to 10.42.0.100 - 10.42.0.199
 8. Under IP & MAC binding, set ARP Binding to be enabled
@@ -386,7 +386,7 @@ It also makes sense to setup for tethered sharing, in the [old way](#old-way):
 
 1. Set switch to AP mode
 2. connect by wifi and navigate to 192.168.0.1
-3. Quick setup set ssid to flo-net and password to floiscool#01
+3. Quick setup set ssid to flo-net and password to xxxxxx
 4. Plug in cable
 5. Rock and roll
 

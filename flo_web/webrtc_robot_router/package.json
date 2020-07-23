@@ -23,7 +23,7 @@
     "@types/node": "^13.13.9",
     "@types/uuid": "^7.0.4",
     "@types/ws": "^7.2.4",
-    "eslint-plugin-tsdoc": "^0.2.5",
+    "eslint-plugin-tsdoc": "^0.2.6",
     "express": "^4.17.1",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",

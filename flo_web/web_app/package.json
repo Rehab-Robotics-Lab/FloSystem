@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@datadog/browser-logs": "^1.11.5",
+    "@honeybadger-io/react": "0.0.7",
     "@types/eventemitter2": "^4.1.0",
     "@types/jest": "^24.0.18",
     "@types/node": "^12.12.42",
@@ -15,6 +17,7 @@
     "axios": "^0.19.2",
     "eventemitter2": "^6.4.1",
     "formik": "^2.1.4",
+    "honeybadger": "^1.4.0",
     "logdown": "^3.3.0",
     "prop-types": "^15.7.2",
     "react": "^16.9.0",

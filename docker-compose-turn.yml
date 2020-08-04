@@ -26,3 +26,19 @@ services:
     volumes:
       - ./certs/certbot/conf:/etc/letsencrypt
       - ./certs/certbot/www:/var/www/certbot
+  datadog:
+    restart: unless-stopped
+    image: datadog/agent
+    env_file:
+      - ./certs/datadog.env
+    environment:
+      - DD_APM_ENABLED=true
+      - DD_APM_NON_LOCAL=true
+      - DD_LOGS_ENABLED=true
+      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+      - DD_AC_EXCLUDE=image:datadog/agent
+      - DD_PROCESS_AGENT_ENABLED=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup:/host/sys/fs/cgroup:ro

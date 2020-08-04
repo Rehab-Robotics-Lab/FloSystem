@@ -35,8 +35,5 @@ services:
       - ./flo_web/web_server:/usr/src/app
     command: ["npm", "run", "dev-api"]
   postgres:
-    environment:
-      - POSTGRES_PASSWORD=docker
-      - POSTGRES_DB=flodb
     ports:
       - 5432:5432

@@ -42,6 +42,9 @@ services:
       - ./certs:/etc/nginx/certs
   postgres:
     image: postgres
+    environment:
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=flodb
     volumes:
       - $HOME/docker/volumes/postgres:/var/lib/postgresql/data
       - ./flo_web/web_server/database/setup:/docker-entrypoint-initdb.d

@@ -10,8 +10,14 @@ import WebSocket from 'ws';
 
 const logger = winston.createLogger({
     level: 'info',
+    exitOnError: false,
     format: winston.format.json(),
     transports: [
+        new winston.transports.File({
+            filename: `/usr/logs/datadog.log`,
+            level: 'silly',
+        }),
+
         //
         // - Write to all logs with level `info` and below to `combined.log`
         // - Write all logs error (and below) to `error.log`.

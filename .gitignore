@@ -1,5 +1,7 @@
 # Prerequisites
 *.d
+!flo_web/web_server/datadog/conf.d
+!flo_web/web_server/datadog/conf.d/*
 
 # Compiled Object files
 *.slo

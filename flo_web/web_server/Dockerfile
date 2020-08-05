@@ -1,6 +1,8 @@
 FROM node:12
 #LTS at time of creation
 
+WORKDIR /usr/logs
+
 #create folder fo app
 WORKDIR /usr/src/app
 

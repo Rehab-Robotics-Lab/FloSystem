@@ -88,6 +88,8 @@ jobs:
           echo "SESSION_SECRET=abc123" >> ./certs/session-secret.env
           echo "COTURN_SECRET=xyz789" >> ./certs/coturn.env
           echo "SITE_ADDR=demo.com" >> ./certs/coturn.env
+          echo "DD_API_KEY=keyfromdatadog" >> ./certs/datadog.env
+          echo "DD_HOSTNAME=lilflo.com" >> ./certs/datadog.env
       - name: Build-docker-compose
         run: docker-compose -f docker-compose.yml -f docker-compose.prod.yml build
 
@@ -102,5 +104,7 @@ jobs:
           mkdir certs
           echo "COTURN_SECRET=xyz789" >> ./certs/coturn.env
           echo "SITE_ADDR=demo.com" >> ./certs/coturn.env
+          echo "DD_API_KEY=keyfromdatadog" >> ./certs/datadog.env
+          echo "DD_HOSTNAME=lilflo.com" >> ./certs/datadog.env
       - name: Build-docker-compose
         run: docker-compose -f docker-compose-turn.yml build

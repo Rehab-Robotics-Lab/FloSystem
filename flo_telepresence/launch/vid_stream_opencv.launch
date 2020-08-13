@@ -19,8 +19,8 @@
     <!--[></node><]-->
     <node pkg="nodelet" name="image_web" type="nodelet" args="load image_proc/resize fish_nodelet_manager">
       <param name="use_scale" type="bool" value="False"/>
-      <param name="width" type="int" value="368"/>
-      <param name="height" type="int" value="276"/>
+      <param name="width" type="int" value="360"/>
+      <param name="height" type="int" value="270"/>
       <remap from="image" to="image_throttled"/>
       <remap from="~image" to="image_web"/>
     </node>

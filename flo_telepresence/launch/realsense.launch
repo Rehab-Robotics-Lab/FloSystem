@@ -55,8 +55,8 @@
     <node pkg="topic_tools" name="image_throttled" type="throttle" args="messages image_raw 15 image_throttled"/>
     <node pkg="nodelet" type="nodelet" name="image_web" args="standalone image_proc/resize">
       <param name="use_scale" type="bool" value="False"/>
-      <param name="width" type="int" value="496"/>
-      <param name="height" type="int" value="279"/>
+      <param name="width" type="int" value="480"/>
+      <param name="height" type="int" value="270"/>
       <remap from="image" to="image_throttled"/>
       <remap from="~image" to="image_web"/>
     </node>
@@ -85,8 +85,8 @@
     <node pkg="topic_tools" name="image_throttled" type="throttle" args="messages image_raw 15 image_throttled"/>
     <node pkg="nodelet" type="nodelet" name="image_web" args="standalone image_proc/resize">
       <param name="use_scale" type="bool" value="False"/>
-      <param name="width" type="int" value="496"/>
-      <param name="height" type="int" value="279"/>
+      <param name="width" type="int" value="480"/>
+      <param name="height" type="int" value="270"/>
       <remap from="image" to="image_throttled"/>
       <remap from="~image" to="image_web"/>
     </node>

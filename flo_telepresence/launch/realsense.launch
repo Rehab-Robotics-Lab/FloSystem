@@ -27,7 +27,7 @@
   <arg name="enable_infra" value="false"/>
   <!--<arg name="enable_sync"               default="false"/>-->
   <!--This seems like a good idea, but when this is done, nothing can connect for a while:-->
-  <arg name="initial_reset" value="false"/>
+  <arg name="initial_reset" value="True"/>
   <include file="$(find realsense2_camera)/launch/rs_camera.launch">
     <arg name="serial_no" value="$(arg serial_no_lower)"/>
     <arg name="camera" value="lower_realsense"/>

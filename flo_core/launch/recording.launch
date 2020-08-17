@@ -2,7 +2,7 @@
     <arg name="prefix" default="/home/nuc-admin/flo_data/flo_recording"/>
 
         <node pkg="rosbag" type="record" name="lil_flo_bag"
-        args="record --output-prefix $(arg prefix) --split --duration 5m
+        args="record --output-prefix $(arg prefix) --split --duration 1m
 /lower_realsense/color/image_raw
 /lower_realsense/color/camera_info
 /lower_realsense/depth/image_rect_raw

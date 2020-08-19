@@ -21,6 +21,14 @@ tmux send-keys 'npm run tsc && pm2 start ./build/app.js && pm2 logs' Enter
 
 tmux rotate-window -t flo
 
+tmux split-window -t flo -h
+#tmux send-keys 'mon launch --name=flo_launcher flo_core flo_bringup.launch' Enter
+tmux send-keys 'sleep 20 && roslaunch --wait flo_telepresence realsense-sp-1.launch record:=True' Enter # it is just more stable..
+
+tmux split-window -t flo
+#tmux send-keys 'mon launch --name=flo_launcher flo_core flo_bringup.launch' Enter
+tmux send-keys 'sleep 30 && roslaunch --wait flo_telepresence realsense-sp-2.launch record:=True' Enter # it is just more stable..
+
 tmux new-window -t flo -n audio
 tmux send-keys 'alsamixer' Enter
 tmux split-window -t flo

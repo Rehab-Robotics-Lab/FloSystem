@@ -4,9 +4,9 @@
   <arg name="record" default="False"/>
   <group if="$(eval simulate==False)">
     <!--Realsense-->
-    <include file="$(find flo_telepresence)/launch/realsense.launch">
-      <arg name="record" value="$(arg record)"/>
-    </include>
+    <!--<include file="$(find flo_telepresence)/launch/realsense.launch">-->
+    <!--  <arg name="record" value="$(arg record)"/>-->
+    <!--</include>-->
     <!--Fisheye Camera-->
     <include file="$(find flo_telepresence)/launch/vid_stream_opencv.launch"/>
     <!--Audio-->

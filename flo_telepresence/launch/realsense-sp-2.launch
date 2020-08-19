@@ -29,39 +29,6 @@
   <!--This seems like a good idea, but when this is done, nothing can connect for a while:-->
   <arg name="initial_reset" value="True"/>
   <include file="$(find realsense2_camera)/launch/rs_camera.launch">
-    <arg name="serial_no" value="$(arg serial_no_lower)"/>
-    <arg name="camera" value="lower_realsense"/>
-    <arg name="depth_width" value="$(arg depth_width)"/>
-    <arg name="depth_height" value="$(arg depth_height)"/>
-    <arg name="enable_depth" value="$(arg enable_depth)"/>
-    <arg name="depth_fps" value="$(arg depth_fps)"/>
-    <arg name="infra_width" value="$(arg depth_width)"/>
-    <arg name="infra_height" value="$(arg depth_height)"/>
-    <arg name="infra_fps" value="$(arg depth_fps)"/>
-    <arg name="color_width" value="$(arg color_width)"/>
-    <arg name="color_height" value="$(arg color_height)"/>
-    <arg name="enable_color" value="$(arg enable_color)"/>
-    <arg name="color_fps" value="$(arg color_fps)"/>
-    <arg name="align_depth" value="$(arg align_depth)"/>
-    <arg name="enable_pointcloud" value="$(arg enable_pointcloud)"/>
-    <arg name="enable_gyro" value="false"/>
-    <arg name="enable_accel" value="false"/>
-    <!--<arg name="enable_pose"      value="false"/>-->
-    <arg name="enable_infra1" value="$(arg enable_infra)"/>
-    <arg name="enable_infra2" value="$(arg enable_infra)"/>
-    <arg name="initial_reset" value="$(arg initial_reset)"/>
-  </include>
-  <group ns="lower_realsense/color">
-    <node pkg="topic_tools" name="image_throttled" type="throttle" args="messages image_raw 15 image_throttled"/>
-    <node pkg="nodelet" type="nodelet" name="image_web" args="standalone image_proc/resize">
-      <param name="use_scale" type="bool" value="False"/>
-      <param name="width" type="int" value="480"/>
-      <param name="height" type="int" value="270"/>
-      <remap from="image" to="image_throttled"/>
-      <remap from="~image" to="image_web"/>
-    </node>
-  </group>
-  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
     <arg name="serial_no" value="$(arg serial_no_upper)"/>
     <arg name="camera" value="upper_realsense"/>
     <arg name="depth_width" value="$(arg depth_width)"/>

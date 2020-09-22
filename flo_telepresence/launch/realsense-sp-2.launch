@@ -23,10 +23,6 @@
   <arg name="enable_pointcloud" value="False"/>
   <arg name="enable_infra_l" value="True" if="$(eval record==True)"/>
   <arg name="enable_infra_r" value="false"/>
-  <!--Should be 30:-->
-  <arg name="color_fps" value="30"/>
-  <arg name="enable_pointcloud" value="false"/>
-  <arg name="enable_infra" value="false"/>
   <!--<arg name="enable_sync"               default="false"/>-->
   <!--This seems like a good idea, but when this is done, nothing can connect for a while:-->
   <arg name="initial_reset" value="True"/>
@@ -46,8 +42,8 @@
     <arg name="enable_gyro" value="false"/>
     <arg name="enable_accel" value="false"/>
     <!--<arg name="enable_pose"      value="false"/>-->
-    <arg name="enable_infra1" value="$(arg enable_infra)"/>
-    <arg name="enable_infra2" value="$(arg enable_infra)"/>
+    <arg name="enable_infra1" value="$(arg enable_infra_l)"/>
+    <arg name="enable_infra2" value="$(arg enable_infra_r)"/>
     <arg name="initial_reset" value="$(arg initial_reset)"/>
   </include>
 </launch>

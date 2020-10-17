@@ -76,10 +76,14 @@ router.post('/login', checkLoggedOut, async (req, res) => {
                 ' where email =$1',
             [emailLC],
         );
+        if (!rows[0] || !rows[0]['password_hash']) {
+            res.status(401).json({ error: 'invalid username or password' });
+            return;
+        }
         const passwordHash = rows[0]['password_hash'];
         const validPassword = await bcrypt.compare(password, passwordHash);
         if (!validPassword) {
-            res.status(401).json({ error: 'invalid password' });
+            res.status(401).json({ error: 'invalid username or password' });
             return;
         }
         session.userID = rows[0]['id'];

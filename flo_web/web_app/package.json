@@ -25,7 +25,7 @@
     "react-dom": "^16.9.0",
     "react-helmet": "^5.2.1",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "^3.4.0",
+    "react-scripts": "^4.0.0",
     "react-svg-gauge": "^1.0.10",
     "ros3d": "^1.0.1",
     "roslib": "^1.0.1",

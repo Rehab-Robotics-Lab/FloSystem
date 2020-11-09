@@ -1,5 +1,5 @@
 <launch>
-    <arg name="prefix" default="/home/nuc-admin/flo_data/flo_recording"/>
+    <arg name="prefix" default="$(env HOME)/flo_data/flo_recording"/>
 
         <node pkg="rosbag" type="record" name="lil_flo_bag"
         args="record --output-prefix $(arg prefix) --split --duration 1m --lz4

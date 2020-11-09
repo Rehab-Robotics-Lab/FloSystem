@@ -28,9 +28,9 @@ sudo apt-get install -y ros-${ROS_VERSION}-ddynamic-reconfigure
 
 prior=$(pwd)
 cd ~/catkin_ws/src
-git clone https://github.com/IntelRealSense/realsense-ros.git
+[ ! -d "realsense-ros" ] && git clone https://github.com/IntelRealSense/realsense-ros.git
 cd realsense-ros/
-git checkout `git tag | sort -V | grep -P "^\d+\.\d+\.\d+" | tail -1`
+git checkout `git tag | sort -V | grep -P "^2\.\d+\.\d+" | tail -1`
 cd ~/catkin_ws
 catkin_make
 catkin_make install

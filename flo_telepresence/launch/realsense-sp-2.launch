@@ -1,27 +1,27 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="record" default="False"/>
+  <!--Depending on the platform there are different cameras... Options: flo, podium-->
+  <arg name="platform" default="flo"/>
   <!--This guide tells us settings to start with:-->
   <!--https://www.intel.com/content/dam/support/us/en/documents/emerging-technologies/intel-realsense-technology/BKMs_Tuning_RealSense_D4xx_Cam.pdf-->
   <!--Valid resolutions on page 55:-->
   <!--https://www.intel.com/content/dam/support/us/en/documents/emerging-technologies/intel-realsense-technology/Intel-RealSense-D400-Series-Datasheet.pdf-->
   <!--S/N 1: 904412060717-->
   <!--S/N 2: 912322061173-->
-  <arg name="serial_no_lower" value="904412060717"/>
-  <arg name="serial_no_upper" value="912322061173"/>
+  <arg name="serial_no_upper" value="912322061173" if="$(eval platform=='flo')"/>
+  <arg name="serial_no_upper" value="020122061888" if="$(eval platform=='podium')"/>
   <arg name="depth_width" value="1280"/>
   <arg name="depth_height" value="720"/>
   <arg name="depth_fps" value="30"/>
   <arg name="enable_color" value="True"/>
-  <arg name="enable_depth" value="True" if="$(eval record==True)"/>
-  <arg name="enable_depth" value="False" if="$(eval record==False)"/>
+  <arg name="enable_depth" value="True"/>
   <arg name="color_width" value="848"/>
   <arg name="color_height" value="480"/>
   <arg name="align_depth" value="False"/>
   <!--Should be 30:-->
   <arg name="color_fps" value="30"/>
   <arg name="enable_pointcloud" value="False"/>
-  <arg name="enable_infra_l" value="True" if="$(eval record==True)"/>
+  <arg name="enable_infra_l" value="True"/>
   <arg name="enable_infra_r" value="false"/>
   <!--<arg name="enable_sync"               default="false"/>-->
   <!--This seems like a good idea, but when this is done, nothing can connect for a while:-->

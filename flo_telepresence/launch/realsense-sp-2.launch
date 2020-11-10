@@ -15,14 +15,12 @@
   <arg name="depth_fps" value="30"/>
   <arg name="enable_color" value="True"/>
   <arg name="enable_depth" value="True"/>
-  <arg name="color_width" value="848"/>
-  <arg name="color_height" value="480"/>
-  <arg name="align_depth" value="False"/>
+  <arg name="color_width" value="1920"/>
+  <arg name="color_height" value="1080"/>
+  <arg name="align_depth" value="True"/>
   <!--Should be 30:-->
   <arg name="color_fps" value="30"/>
   <arg name="enable_pointcloud" value="False"/>
-  <arg name="enable_infra_l" value="True"/>
-  <arg name="enable_infra_r" value="false"/>
   <!--<arg name="enable_sync"               default="false"/>-->
   <!--This seems like a good idea, but when this is done, nothing can connect for a while:-->
   <arg name="initial_reset" value="True"/>

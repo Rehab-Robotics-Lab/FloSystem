@@ -53,6 +53,13 @@ cd webrtc_ros/webrtc
 touch CATKIN_IGNORE
 cd $prior
 
+echo "adding OSRF rosbag nodelet"
+prior=$(pwd)
+cd ~/catkin_ws/src
+git clone https://github.com/cjue/nodelet_rosbag.git
+git checkout patch-1
+cd $prior
+
 # build it all
 cd ~/catkin_ws && catkin_make
 source devel/setup.bash

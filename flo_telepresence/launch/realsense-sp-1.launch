@@ -31,6 +31,8 @@
     <arg name="camera" value="lower_realsense"/>
     <arg name="depth_width" value="$(arg depth_width)"/>
     <arg name="depth_height" value="$(arg depth_height)"/>
+    <arg name="infra_width" value="$(arg depth_width)"/>
+    <arg name="infra_height" value="$(arg depth_height)"/>
     <arg name="enable_depth" value="$(arg enable_depth)"/>
     <arg name="depth_fps" value="$(arg depth_fps)"/>
     <arg name="color_width" value="$(arg color_width)"/>

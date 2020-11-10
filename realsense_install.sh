@@ -37,8 +37,10 @@ prior=$(pwd)
 cd ~/catkin_ws/src
 [ ! -d "realsense-ros" ] && git clone https://github.com/IntelRealSense/realsense-ros.git
 cd realsense-ros/
-#git checkout `git tag | sort -V | grep -P "^\d+\.\d+\.\d+" | tail -1`
-git checkout ${REALSENSE_ROS_VERSION}
+#git checkout ${REALSENSE_ROS_VERSION}
+git remote add plusone https://github.com/plusone-robotics/realsense.git
+git fetch plusone
+git checkout plusone/feature-IR-RGB
 cd ~/catkin_ws
 catkin_make
 catkin_make install

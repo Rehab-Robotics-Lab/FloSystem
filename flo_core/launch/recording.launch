@@ -3,14 +3,22 @@
 
         <node pkg="rosbag" type="record" name="lil_flo_bag"
         args="record --output-prefix $(arg prefix) --split --duration 1m --lz4
-/lower_realsense/depth/image_rect_raw
-/lower_realsense/depth/camera_info
-/lower_realsense/infra1/image_rect_raw
-/lower_realsense/infra1/camera_info
-/upper_realsense/depth/image_rect_raw
-/upper_realsense/depth/camera_info
-/upper_realsense/infra1/image_rect_raw
-/upper_realsense/infra1/camera_info
+/lower_realsense/aligned_depth_to_color/image_raw
+/lower_realsense/aligned_depth_to_color/camera_info
+/lower_realsense/aligned_depth_to_infra/image_raw
+/lower_realsense/aligned_depth_to_infra/camera_info
+/lower_realsense/color/image_raw/compressed
+/lower_realsense/color/camera_info
+/lower_realsense/infra/image_raw/compressed
+/lower_realsense/infra/camera_info
+/upper_realsense/aligned_depth_to_color/image_raw
+/upper_realsense/aligned_depth_to_color/camera_info
+/upper_realsense/aligned_depth_to_infra/image_raw
+/upper_realsense/aligned_depth_to_infra/camera_info
+/upper_realsense/color/image_raw/compressed
+/upper_realsense/color/camera_info
+/upper_realsense/infra/image_raw/compressed
+/upper_realsense/infra/camera_info
 /client_count
 /cmd_vel_mux/active
 /cmd_vel_mux/keyboard_teleop

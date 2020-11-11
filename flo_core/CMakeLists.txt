@@ -172,9 +172,9 @@ install(PROGRAMS
    src/game_runner.py
    src/manage_seq_pose.py
    src/param_saver.py
+   src/recording_manager.py
    src/tts_node.py
    src/tty_keyboard_teleop.py
-   src/recording_manager.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 

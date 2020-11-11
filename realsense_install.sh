@@ -38,11 +38,7 @@ cd ~/catkin_ws/src
 [ ! -d "realsense-ros" ] && git clone https://github.com/IntelRealSense/realsense-ros.git
 cd realsense-ros/
 #git checkout ${REALSENSE_ROS_VERSION}
-git remote add plusone https://github.com/plusone-robotics/realsense.git
-git fetch plusone
-git checkout plusone/feature-IR-RGB
-git fetch --tags origin
-git merge 2.2.18 -m 'merging in master tag'
+git checkout development
 cd ~/catkin_ws
 catkin_make
 catkin_make install

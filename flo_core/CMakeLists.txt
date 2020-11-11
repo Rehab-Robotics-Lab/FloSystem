@@ -174,6 +174,7 @@ install(PROGRAMS
    src/param_saver.py
    src/tts_node.py
    src/tty_keyboard_teleop.py
+   src/recording_manager.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 

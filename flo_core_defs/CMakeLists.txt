@@ -49,6 +49,7 @@ add_service_files(
    SetPose.srv
    SetPoseSeq.srv
    SetUtterance.srv
+   SetRecording.srv
  )
 
 

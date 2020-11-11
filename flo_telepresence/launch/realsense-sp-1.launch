@@ -24,7 +24,6 @@
   <!--<arg name="enable_sync"               default="false"/>-->
   <!--This seems like a good idea, but when this is done, nothing can connect for a while:-->
   <arg name="initial_reset" value="True"/>
-  <node pkg="nodelet" type="nodelet" name="lower_realsense_manager" args="manager"/>
   <include file="$(find realsense2_camera)/launch/rs_camera.launch">
     <arg name="serial_no" value="$(arg serial_no_lower)"/>
     <arg name="camera" value="lower_realsense"/>
@@ -48,11 +47,9 @@
     <arg name="enable_infra" value="true"/>
     <arg name="initial_reset" value="$(arg initial_reset)"/>
     <arg name="enable_infrargb" value="True"/>
-    <arg name="external_manager" value="true"/>
-    <arg name="manager" value="/lower_realsense_manager"/>
   </include>
-  <node name="relay" pkg="topic_tools" type="relay" required="true" args="/lower_realsense/infra/image_raw/compressed _stealth:=True _monitor_topic:='/record_video_dummy'"/>
   <group ns="lower_realsense/color">
+    <node name="relay" pkg="topic_tools" type="relay" required="true" args="/image_raw/compressed _stealth:=True _monitor_topic:='/record_video_dummy'"/>
     <node pkg="topic_tools" name="image_throttled" type="throttle" args="messages image_raw 15 image_throttled"/>
     <node pkg="nodelet" type="nodelet" name="image_web" args="standalone image_proc/resize">
       <param name="use_scale" type="bool" value="False"/>
@@ -62,4 +59,8 @@
       <remap from="~image" to="image_web"/>
     </node>
   </group>
+  <node name="lr_relay_color" pkg="topic_tools" type="relay" required="true" args="lower_realsense/color/image_raw/compressed _stealth:=True _monitor_topic:='/record_video_dummy'"/>
+  <node name="lr_relay_di" pkg="topic_tools" type="relay" required="true" args="lower_realsense/aligned_depth_to_infra/image_raw _stealth:=True _monitor_topic:='/record_video_dummy'"/>
+  <node name="lr_relay_dc" pkg="topic_tools" type="relay" required="true" args="lower_realsense/aligned_depth_to_color/image_raw _stealth:=True _monitor_topic:='/record_video_dummy'"/>
+  <node name="lr_relay_infra" pkg="topic_tools" type="relay" required="true" args="lower_realsense/infra/image_raw _stealth:=True _monitor_topic:='/record_video_dummy'"/>
 </launch>

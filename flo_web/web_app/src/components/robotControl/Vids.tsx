@@ -100,7 +100,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
             const remoteStreamConfigUpper = { video: {}, audio: {} };
             remoteStreamConfigUpper.video = {
               id: "subscribed_video_upper",
-              src: "ros_image:/upper_realsense/color/image_raw"
+              src: "ros_image:/upper_realsense/color/image_web"
             };
             remoteStreamConfigUpper.audio = {
               id: "subscribed_audio",
@@ -113,11 +113,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
               .then((event: any) => {
                 //stream started
                 const remoteVideoElement = remoteRefUpper;
-                if (
-                  !remoteVideoElement ||
-                  !remoteVideoElement.current ||
-                  !remoteVideoElement.current.srcObject
-                ) {
+                if (!remoteVideoElement || !remoteVideoElement.current) {
                   console.error(
                     "tried to set remote video element before defining."
                   );
@@ -164,11 +160,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
                   event.stream.getAudioTracks()
                 );
                 const localVideoElement = localRef;
-                if (
-                  !localVideoElement ||
-                  !localVideoElement.current ||
-                  !localVideoElement.current.srcObject
-                ) {
+                if (!localVideoElement || !localVideoElement.current) {
                   console.error(
                     "tried to set local video element before defining."
                   );
@@ -206,7 +198,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
             const remoteStreamConfigLower = { video: {}, audio: {} };
             remoteStreamConfigLower.video = {
               id: "subscribed_video_lower",
-              src: "ros_image:/lower_realsense/color/image_raw"
+              src: "ros_image:/lower_realsense/color/image_web"
             };
 
             connection2
@@ -215,13 +207,9 @@ const Vids: React.FunctionComponent<VidsProps> = ({
               .then((event: any) => {
                 //stream started
                 const remoteVideoElement = remoteRefLower;
-                if (
-                  !remoteVideoElement ||
-                  !remoteVideoElement.current ||
-                  !remoteVideoElement.current.srcObject
-                ) {
+                if (!remoteVideoElement || !remoteVideoElement.current) {
                   console.error(
-                    "tried to remove remote video element but not defined."
+                    "tried to set remote video element but not defined."
                   );
                   return;
                 }
@@ -316,6 +304,8 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         lowerStream && lowerStream.current && closeStreams(lowerStream.current);
         fishStream && fishStream.current && closeStreams(fishStream.current);
       };
+    } else {
+      console.error("Tried to do vids, but not connected");
     }
   }, [robotName, connected, ipAddr]);
   //<script type="text/javascript" src={"/web/adapter.js"} />

@@ -82,7 +82,7 @@ jobs:
       #        path: LilFloSystem
       - name: Setup Catkin Lint
         run: |
-          sudo add-apt-repository ppa:roehling/latest
+          sudo add-apt-repository ppa:roehling/ros
           sudo apt-get update -y
           sudo apt-get install -y python-catkin-lint
       - name: Lint Catkin

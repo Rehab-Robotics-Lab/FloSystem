@@ -482,7 +482,7 @@ function ssh-flo {
    3. enable ssh: `sudo apt install openssh-server`
 2. Use lsyncd with the configuration file (See [Developing](#developing)) to
    copy files over
-3. ssh into the robot and run the install script (`./robot_install.sh`)
+3. ssh into the robot and run the install script (`bash /robot_install.sh`)
 4. add a symlink to make running easier: ssh in and from the home directory type
    `ln -s ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh`.
 5. You need to setup read/write privileges for all of the USB devices and setup

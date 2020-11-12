@@ -48,6 +48,7 @@ add_service_files(
    SetGameBucket.srv
    SetPose.srv
    SetPoseSeq.srv
+   SetRecording.srv
    SetUtterance.srv
  )
 

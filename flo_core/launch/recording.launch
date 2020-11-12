@@ -1,13 +1,25 @@
 <launch>
-    <arg name="prefix" default="~/flo_data/flo_recording"/>
+<node pkg="flo_core" type="recording_manager.py" name="recording_manager"/>
+    <arg name="prefix" default="$(env HOME)/flo_data/flo_recording"/>
 
         <node pkg="rosbag" type="record" name="lil_flo_bag"
         args="record --output-prefix $(arg prefix) --split --duration 1m --lz4
-/lower_realsense/color/image_raw/compressed
-/lower_realsense/depth/image_rect_raw
-/upper_realsense/color/image_raw/compressed
-/upper_realsense/depth/image_rect_raw
-/fisheye_cam/image_raw/compressed
+/lower_realsense/aligned_depth_to_color/image_raw_relay
+/lower_realsense/aligned_depth_to_color/camera_info
+/lower_realsense/aligned_depth_to_infra/image_raw_relay
+/lower_realsense/aligned_depth_to_infra/camera_info
+/lower_realsense/color/image_raw/compressed_relay
+/lower_realsense/color/camera_info
+/lower_realsense/infra/image_raw/compressed_relay
+/lower_realsense/infra/camera_info
+/upper_realsense/aligned_depth_to_color/image_raw_relay
+/upper_realsense/aligned_depth_to_color/camera_info
+/upper_realsense/aligned_depth_to_infra/image_raw_relay
+/upper_realsense/aligned_depth_to_infra/camera_info
+/upper_realsense/color/image_raw/compressed_relay
+/upper_realsense/color/camera_info
+/upper_realsense/infra/image_raw/compressed_relay
+/upper_realsense/infra/camera_info
 /client_count
 /cmd_vel_mux/active
 /cmd_vel_mux/keyboard_teleop
@@ -20,8 +32,6 @@
 /diagnostics_agg
 /diagnostics_toplevel_state
 /face_state
-/fisheye_cam/camera_info
-/fisheye_cam/info
 /game_runner_command_opts
 /game_runner_commands
 /game_runner_def
@@ -35,11 +45,6 @@
 /kobuki_safety_controller/disable
 /kobuki_safety_controller/enable
 /kobuki_safety_controller/reset
-/lower_realsense/color/camera_info
-/lower_realsense/depth/camera_info
-/lower_realsense/extrinsics/depth_to_color
-/lower_realsense/rgb_camera/parameter_descriptions
-/lower_realsense/rgb_camera/parameter_updates
 /mem_stats
 /mobile_base/commands/controller_info
 /mobile_base/commands/digital_output
@@ -73,9 +78,12 @@
 /move/goal
 /move/result
 /move/status
+/move_available
+/move_goal
+/move_stats
 /net_stats
 /odom
-/remote_video
+/remote_video_clean
 /robot_audio/audio
 /robotsound
 /rosout
@@ -95,11 +103,6 @@
 /tts/status
 /tts_utterances
 /tts_state
-/upper_realsense/color/camera_info
-/upper_realsense/depth/camera_info
-/upper_realsense/extrinsics/depth_to_color
-/upper_realsense/rgb_camera/parameter_descriptions
-/upper_realsense/rgb_camera/parameter_updates
 /flo_db_updates
 "
         />

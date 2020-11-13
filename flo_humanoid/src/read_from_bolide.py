@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 
+"""Code to connect to and read from a bolid robot.
+
+This code is meant to be imported and used by another class
+"""
+
 from __future__ import print_function
 from __future__ import division
 
 import time
 import datetime
-import serial
 import numpy as np
-from matplotlib import cm
 
 LOGGING_LEVEL = 6
 
@@ -26,6 +29,7 @@ def log(level, message):
 
 
 class BolideReader(object):
+    """Read input from XYZ Bolide robot"""
 
     commands = {'pos': 0x03, 'current': 0x06, 'torque': 0x07}
 
@@ -50,6 +54,7 @@ class BolideReader(object):
         self.start_time = time.time()
         self.current_time = 0  # elapsed time from start
 
+    # pylint: disable=too-many-return-statements
     def read_data(self, target, tries=5):
         '''Read data from the bolide robot. Check the header, length,
         and end. Read either position, current, or torque
@@ -72,10 +77,10 @@ class BolideReader(object):
             header = ord(ret[0])
         else:
             log(3, 'not enough data returned after tries')
-            return
+            return None
         if header != 0xFF:
             log(3, 'first byte read did not match header: {}'.format(header))
-            return
+            return None
         # If we make it to here, we have received a good header
 
         while len(ret) < 40 and tries > 0:
@@ -86,20 +91,20 @@ class BolideReader(object):
         if len(ret) != 40:
             log(3, 'wrong length returned, got {}, expected {}'.format(
                 len(ret), 40))
-            return
+            return None
 
         len_bit = ord(ret[1])
         if len_bit != 40:
             log(3, 'wrong length bit sent')
-            return
+            return None
         command = ord(ret[2])
         if not command == self.commands[target]:
             log(3, 'incorrect command type: {}'.format(command))
-            return
+            return None
         end = ord(ret[-1])
         if end != 0xFE:
             log(3, 'bad end bit')
-            return
+            return None
         data = ret[3:-1]
         final_joint_pos = [0]*18
         for i in range(18):
@@ -126,10 +131,12 @@ class BolideReader(object):
             header = ord(ret[0])
         else:
             return ('local_err',
-                    'not enough data returned after tries. Length of data: {}'.format(len(ret)))
+                    'not enough data returned after tries. ' +
+                    'Length of data: {}'.format(len(ret)))
 
         if header != 0xFF:
-            return ('local_err', 'first byte read did not match header: {}'.format(header))
+            return ('local_err', 'first byte read did not match header: ' +
+                    '{}'.format(header))
         # If we get to here, we have received a good header
         expected_length = ord(ret[1])
         while len(ret) < expected_length and tries > 0:
@@ -146,7 +153,8 @@ class BolideReader(object):
         if end != 0xFE:
             return ('local_err', 'bad end bit')
 
-        # return [key for key, value in self.feedback.items() if value == feedback]
+        # return [key for key, value in self.feedback.items()
+        # if value == feedback]
         return feedback
 
     # def read_battery_voltage(self):
@@ -160,7 +168,8 @@ class BolideReader(object):
     #         return
     #     header = ord(ret[0])
     #     if header != 0xFF:
-    #         # print('first byte read did not match header: {}'.format(header))
+    #         # print('first byte read did not match header: '+
+    #                 '{}'.format(header))
     #         return
     #     len_bit = ord(ret[1])
     #     if len_bit != 6:

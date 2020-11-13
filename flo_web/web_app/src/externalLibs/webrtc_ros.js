@@ -1,3 +1,4 @@
+/* eslint-disable */
 var newStreamId = function() {
   return (
     "webrtc_ros-stream-" + Math.floor(Math.random() * 1000000000).toString()

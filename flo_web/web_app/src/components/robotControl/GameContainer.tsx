@@ -112,7 +112,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
   const startButton = (
     type: "simon_says" | "target_touch",
     cleanText: string
-  ) => {
+  ): JSX.Element => {
     return (
       <button
         type="button"

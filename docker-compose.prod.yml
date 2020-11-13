@@ -6,11 +6,32 @@ version: "3"
 #     - the addition of a node server that auto recompiles the front end
 #     - Pulling in the nginx config from outside and using the develop instead of the production file
 services:
+  host-server:
+    restart: unless-stopped
+    env_file:
+      - ./flo_web/datadog.env
+    environment:
+      - DD_SERVICE=lilflosystem_host-server
+    labels:
+      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "lilflosystem_host-server", "type": "file", "path": "/usr/logs/datadog.log", "sourcecategory": "sourcecode"}]'
+  operator-server:
+    restart: unless-stopped
+    env_file:
+      - ./flo_web/datadog.env
+    environment:
+      - DD_SERVICE=lilflosystem_operator-server
+    labels:
+      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "lilflosystem_operator-server", "type": "file", "path": "/usr/logs/datadog.log", "sourcecategory": "sourcecode"}]'
   nginx:
     restart: unless-stopped
     volumes:
       - ./certs/certbot/conf:/etc/letsencrypt
       - ./certs/certbot/www:/var/www/certbot
+    labels:
+      com.datadoghq.ad.check_names: '["nginx"]'
+      com.datadoghq.ad.init_configs: "[{}]"
+      com.datadoghq.ad.instances: '[{"nginx_status_url": "http://%%host%%:81/nginx_status/"}]'
+      com.datadoghq.ad.logs: '[{"source": "nginx", "service": "lilflosystem_nginx"}]'
     command: '/bin/sh -c ''while :; do sleep $$(( $$( date -d "next sunday 0700" +%s ) - $$( date +%s ) )) & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
   certbot:
     image: certbot/certbot
@@ -21,14 +42,47 @@ services:
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 48h & wait $${!}; done;'"
     # ^ would use something better, but the container has busybox for its interpreter
   postgres:
-    environment:
-      - POSTGRES_PASSWORD=docker
-      - POSTGRES_DB=flodb
     restart: unless-stopped
+    labels:
+      com.datadoghq.ad.check_names: '["postgres"]'
+      com.datadoghq.ad.init_configs: "[{}]"
+      com.datadoghq.ad.instances: '[{"host": "%%host%%","port": 5432,"username": "datadog","dbname": "flodb","password": "not-so-secret"}]'
+      com.datadoghq.ad.logs: '[{"source": "postgresql", "service": "lilflosystem_postgres"}]'
   session-store:
     restart: unless-stopped
+    labels:
+      com.datadoghq.ad.check_names: '["redisdb"]'
+      com.datadoghq.ad.init_configs: "[{}]"
+      com.datadoghq.ad.instances: '[{"host": "%%host%%", "port": "6379"}]'
+      com.datadoghq.ad.logs: '[{"source": "redis", "service": "lilflosystem_session-store"}]'
   client-store:
     restart: unless-stopped
+    labels:
+      com.datadoghq.ad.check_names: '["redisdb"]'
+      com.datadoghq.ad.init_configs: "[{}]"
+      com.datadoghq.ad.instances: '[{"host": "%%host%%", "port": "6379"}]'
+      com.datadoghq.ad.logs: '[{"source": "redis", "service": "lilflosystem_client-store"}]'
   api-server:
     env_file:
       - ./certs/coturn.env
+      - ./flo_web/datadog.env
+    environment:
+      - DD_SERVICE=lilflosystem_api-server
+    labels:
+      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "lilflosystem_api-server", "type": "file", "path": "/usr/logs/datadog.log", "sourcecategory": "sourcecode"}]'
+  datadog:
+    restart: unless-stopped
+    image: datadog/agent
+    env_file:
+      - ./certs/datadog.env
+    environment:
+      - DD_APM_ENABLED=true
+      - DD_APM_NON_LOCAL_TRAFFIC=true
+      - DD_LOGS_ENABLED=true
+      - DD_AC_EXCLUDE=image:datadog/agent
+      - DD_PROCESS_AGENT_ENABLED=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+      - /opt/datadog-agent/run:/opt/datadog-agent/run:rw

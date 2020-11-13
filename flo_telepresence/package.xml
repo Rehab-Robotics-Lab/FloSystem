@@ -2,13 +2,12 @@
 <package format="2">
   <name>flo_telepresence</name>
   <version>0.0.0</version>
-  <description>The flo_telepresence package which provides launch files for the telepresence components and handles the screen for the remote operator on the robot</description>
+  <description>Provide launch files for the telepresence components and handles the screen for the remote operator on the robot</description>
   <maintainer email="mjsobrep@seas.upenn.edu">Michael Sobrepera</maintainer>
   <license>proprietary</license>
   <buildtool_depend>catkin</buildtool_depend>
   <exec_depend>rospy</exec_depend>
   <exec_depend>cv_camera</exec_depend>
-  <exec_depend>realsense2_camera</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>audio_capture</exec_depend>
   <exec_depend>audio_play</exec_depend>

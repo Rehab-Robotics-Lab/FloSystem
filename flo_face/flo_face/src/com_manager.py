@@ -1,12 +1,18 @@
 #!/usr/bin/env python
 
+"""Code to manage communication between ROS system and the robot's face.
+
+Note: this code doesn't handle the state of the face, just recieves the
+information, parses it, and sends it on.
+"""
+
 # must install serial_coms from FLO_HEAD/teensy/src/seserial_coms/computer/python
 
 import math
 import rospy
 # https://github.com/Rehab-Robotics-Lab/serial_coms/tree/master/computer/python/serial_coms
-from serial_coms import SerialCom
 from flo_face_defs.msg import FaceState
+from serial_coms import SerialCom
 
 
 class FaceComs(object):

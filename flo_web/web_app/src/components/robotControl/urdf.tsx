@@ -36,7 +36,7 @@ const URDF: React.FunctionComponent<URDFProps> = ({ ros, connected }) => {
     setViewer(vw);
     console.log("setup urdf viewer");
 
-    return () => {
+    return (): void => {
       console.log("stopping urdf viewer");
       vw.stop();
     };
@@ -55,12 +55,14 @@ const URDF: React.FunctionComponent<URDFProps> = ({ ros, connected }) => {
     });
     console.log("created a new TF client");
 
+    //eslint-disable-next-line no-undef
     console.log(`hosting urdf from : ${process.env.PUBLIC_URL}/mesh_root/`);
     // The URDF Loader and drawer
     if (viewer === undefined || viewer.scene === null) return;
     const clientT = new ROS3D.UrdfClient({
       ros: ros as ROSLIB.Ros,
       tfClient,
+      //eslint-disable-next-line no-undef
       path: `${process.env.PUBLIC_URL}/mesh_root/`,
       rootObject: viewer.scene
       // loader: ROS3D.COLLADA_LOADER2,

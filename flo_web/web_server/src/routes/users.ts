@@ -14,7 +14,8 @@ export default router;
 const saltRounds = 10;
 
 export const checkLoggedIn: express.RequestHandler = (req, res, next) => {
-    if (req.session!.userID === undefined) {
+    const session = req.session;
+    if (session === undefined || session.userID === undefined) {
         res.status(400).json({ error: 'you are not logged in' });
         return;
     }
@@ -22,7 +23,8 @@ export const checkLoggedIn: express.RequestHandler = (req, res, next) => {
 };
 
 const checkLoggedOut: express.RequestHandler = (req, res, next) => {
-    if (req.session!.userID !== undefined) {
+    const session = req.session;
+    if (session !== undefined && session.userID !== undefined) {
         res.status(400).json({ error: 'you are already logged in' });
         return;
     }
@@ -30,30 +32,39 @@ const checkLoggedOut: express.RequestHandler = (req, res, next) => {
 };
 
 export const checkAdmin: express.RequestHandler = (req, res, next) => {
-    if (req.session!.userID === undefined) {
+    const session = req.session;
+    if (session === undefined || session.userID === undefined) {
         res.status(400).json({ error: 'you are not logged in' });
         return;
     }
-    if (req.session!.userType !== 'administrator') {
+    if (session.userType !== 'administrator') {
         res.status(400).json({ error: 'you are not authorized' });
         return;
     }
     next();
 };
 
+// Check if logged in
 router.get('/login', async (req, res) => {
-    if (req.session!.userID === undefined) {
+    const session = req.session;
+    if (session === undefined || session.userID === undefined) {
         res.status(200).json({ loggedIn: false });
         return;
     }
     res.status(200).json({
         loggedIn: true,
-        userName: req.session!.userName,
-        userType: req.session!.userType,
+        userName: session.userName,
+        userType: session.userType,
     });
 });
 
+// Login
 router.post('/login', checkLoggedOut, async (req, res) => {
+    const session = req.session;
+    if (session === undefined) {
+        res.status(500).json({ error: 'no session found to login on' });
+        return;
+    }
     const { email, password } = req.body;
     const emailLC = email.toLowerCase();
     try {
@@ -65,18 +76,21 @@ router.post('/login', checkLoggedOut, async (req, res) => {
                 ' where email =$1',
             [emailLC],
         );
+        if (!rows[0] || !rows[0]['password_hash']) {
+            res.status(401).json({ error: 'invalid username or password' });
+            return;
+        }
         const passwordHash = rows[0]['password_hash'];
         const validPassword = await bcrypt.compare(password, passwordHash);
         if (!validPassword) {
-            res.status(401).json({ error: 'invalid password' });
+            res.status(401).json({ error: 'invalid username or password' });
             return;
         }
-        req.session!.userID = rows[0]['id'];
+        session.userID = rows[0]['id'];
         const userType = rows[0]['user_type'];
-        req.session!.userType = userType;
+        session.userType = userType;
         const userName = rows[0]['first_name'] + ' ' + rows[0]['last_name'];
-        req.session!.userName = userName;
-        console.log(req.session);
+        session.userName = userName;
         res.status(200).json({
             userName: userName,
             userType: userType,
@@ -90,7 +104,12 @@ router.post('/login', checkLoggedOut, async (req, res) => {
 });
 
 router.post('/logout', checkLoggedIn, async (req, res) => {
-    req.session!.destroy((err) => {
+    const session = req.session;
+    if (session === undefined) {
+        res.status(500).json({ error: 'no session found' });
+        return;
+    }
+    session.destroy((err) => {
         res.clearCookie('connect.sid');
 
         if (err) {
@@ -168,11 +187,16 @@ router.get('/all-users', checkAdmin, async (req, res) => {
 
 router.post('/change-password', checkLoggedIn, async (req, res) => {
     const { oldPassword, newPassword } = req.body;
+    const session = req.session;
+    if (session === undefined) {
+        res.status(500).json({ error: 'no session found' });
+        return;
+    }
     try {
         const {
             rows,
         } = await db.query('select password_hash from users where id =$1', [
-            req.session!.userID,
+            session.userID,
         ]);
         const passwordHash = rows[0]['password_hash'];
         const validPassword = await bcrypt.compare(oldPassword, passwordHash);
@@ -184,7 +208,7 @@ router.post('/change-password', checkLoggedIn, async (req, res) => {
         const newPasswordHash = await bcrypt.hash(newPassword, salt);
         await db.query('update users set password_hash =$1 where id=$2', [
             newPasswordHash,
-            req.session!.userID,
+            session.userID,
         ]);
         res.status(200).json({ success: 'Password succesfully changed' });
     } catch (e) {

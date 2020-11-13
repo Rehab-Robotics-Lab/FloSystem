@@ -9,3 +9,5 @@ bash install_nvm.sh
 source ~/.profile
 nvm install node
 cd $prior
+
+npm install -g pm2

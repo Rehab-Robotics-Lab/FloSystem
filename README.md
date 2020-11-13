@@ -80,6 +80,14 @@ COTURN_SECRET=<cryptographically random value>
 SITE_ADDR=<the site address, ex: lilflo.com>
 ```
 
+You should create a file in `LilFloSystem/certs/datadog.env`
+with contents:
+
+```conf
+DD_API_KEY=<cryptographically random value>
+DD_HOSTNAME=<hostname ex: lilflo.com>
+```
+
 ####To run in development:
 
 1. Go to the root of this repo
@@ -89,6 +97,7 @@ SITE_ADDR=<the site address, ex: lilflo.com>
    If you change the Nginx dev config, you will either need
    to go into the Nginx container and restart it or restart
    the entire docker-compose group (ctrl-c; `docker-compose up`)
+4. Open `https://localhost:80`
 
 #### To run in production:
 
@@ -130,6 +139,20 @@ automatically. They expire every so often, so they need to be regularly regenera
 We have it run once a week on sunday at 2:30AM eastern to regen certs and
 3:30AM eastern to restart the server and use the new certs.
 The whole system runs based on a [guide](https://medium.com/@pentacent/nginx-and-lets-encrypt-with-docker-in-less-than-5-minutes-b4b8a60d3a71)
+
+### Setting up first admin
+
+When you initially create the system, you will have no users. You can register a new
+user, but that user will not have administrator privelages. You need to setup a first
+admin. To do this:
+
+1. Create a user account by registering through the web interface
+2. Attach to the docker image for the postgres database into pg: `docker container exec -it lilflosystem_postgres_1 psql flodb -h localhost -U postgres` (note the number on that container might be different...)
+3. Turn on expanded view to get nice prints: `\x`
+4. Optionally get info on your registered users: `select * from users;`
+5. Find out what id admin users need: `select * from user_types`
+6. Set the user you are interested in to be an admin: `update users set user_type=<id of usertype you want> where email=<email you want>`. Ex: `update users set user_type=1 where email='testsobrep@seas.upenn.edu'`
+7. Check that it worked: `select * from users;`
 
 ### Deploying to Linode
 
@@ -373,7 +396,7 @@ Some helpful commands (you will need to install `net-tools` for some):
 2. Plug it into power and se tthe mode switch to share hotspot
 3. Go through the quick setup to connect to something
 4. Set the broadcast network name as flo-net for both 2.4 and 5 Ghz
-5. Set security to WPA2-PSK/AES with password floiscool#01
+5. Set security to WPA2-PSK/AES with password xxxxxx
 6. Under the network tab, click LAN and set the IP Address to 10.42.0.1
 7. Under DHCP set the range to 10.42.0.100 - 10.42.0.199
 8. Under IP & MAC binding, set ARP Binding to be enabled
@@ -386,7 +409,7 @@ It also makes sense to setup for tethered sharing, in the [old way](#old-way):
 
 1. Set switch to AP mode
 2. connect by wifi and navigate to 192.168.0.1
-3. Quick setup set ssid to flo-net and password to floiscool#01
+3. Quick setup set ssid to flo-net and password to xxxxxx
 4. Plug in cable
 5. Rock and roll
 
@@ -459,7 +482,7 @@ function ssh-flo {
    3. enable ssh: `sudo apt install openssh-server`
 2. Use lsyncd with the configuration file (See [Developing](#developing)) to
    copy files over
-3. ssh into the robot and run the install script (`./robot_install.sh`)
+3. ssh into the robot and run the install script (`bash /robot_install.sh`)
 4. add a symlink to make running easier: ssh in and from the home directory type
    `ln -s ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh`.
 5. You need to setup read/write privileges for all of the USB devices and setup

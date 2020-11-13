@@ -31,7 +31,7 @@ export interface AddError {
 }
 
 export interface SetMovesList {
-  (arg: Move[]): any;
+  (arg: Move[]): void;
 }
 
 export interface AddToMoveList {
@@ -180,7 +180,7 @@ const RobotController: React.FunctionComponent = () => {
     const newRosConnection = new ROSLIB.Ros({
       url: targUrl
     });
-    newRosConnection.on("error", err => {
+    newRosConnection.on("error", () => {
       goHome();
     });
     newRosConnection.on("connection", () => {

@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<launch>
+  <!--Depending on the platform there are different cameras... Options: flo, podium-->
+  <arg name="platform" default="flo"/>
+  <!--This guide tells us settings to start with:-->
+  <!--https://www.intel.com/content/dam/support/us/en/documents/emerging-technologies/intel-realsense-technology/BKMs_Tuning_RealSense_D4xx_Cam.pdf-->
+  <!--Valid resolutions on page 55:-->
+  <!--https://www.intel.com/content/dam/support/us/en/documents/emerging-technologies/intel-realsense-technology/Intel-RealSense-D400-Series-Datasheet.pdf-->
+  <!--S/N 1: 904412060717-->
+  <!--S/N 2: 912322061173-->
+  <arg name="serial_no_lower" value="904412060717" if="$(eval platform=='flo')"/>
+  <arg name="serial_no_lower" value="928222063759" if="$(eval platform=='podium')"/>
+  <arg name="depth_width" value="1280"/>
+  <arg name="depth_height" value="720"/>
+  <arg name="depth_fps" value="30"/>
+  <arg name="enable_color" value="True"/>
+  <arg name="enable_depth" value="True"/>
+  <arg name="color_width" value="1920"/>
+  <arg name="color_height" value="1080"/>
+  <arg name="align_depth" value="True"/>
+  <!--Should be 30:-->
+  <arg name="color_fps" value="30"/>
+  <arg name="enable_pointcloud" value="False"/>
+  <!--<arg name="enable_sync"               default="false"/>-->
+  <!--This seems like a good idea, but when this is done, nothing can connect for a while:-->
+  <arg name="initial_reset" value="True"/>
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+    <arg name="serial_no" value="$(arg serial_no_lower)"/>
+    <arg name="camera" value="lower_realsense"/>
+    <arg name="depth_width" value="$(arg depth_width)"/>
+    <arg name="depth_height" value="$(arg depth_height)"/>
+    <arg name="infra_width" value="$(arg depth_width)"/>
+    <arg name="infra_height" value="$(arg depth_height)"/>
+    <arg name="enable_depth" value="$(arg enable_depth)"/>
+    <arg name="depth_fps" value="$(arg depth_fps)"/>
+    <arg name="color_width" value="$(arg color_width)"/>
+    <arg name="color_height" value="$(arg color_height)"/>
+    <arg name="enable_color" value="$(arg enable_color)"/>
+    <arg name="color_fps" value="$(arg color_fps)"/>
+    <arg name="align_depth" value="$(arg align_depth)"/>
+    <arg name="enable_pointcloud" value="$(arg enable_pointcloud)"/>
+    <arg name="enable_gyro" value="false"/>
+    <arg name="enable_accel" value="false"/>
+    <!--<arg name="enable_pose"      value="false"/>-->
+    <!--<arg name="enable_infra1" value="$(arg enable_infra_l)"/>-->
+    <!--<arg name="enable_infra2" value="$(arg enable_infra_r)"/>-->
+    <arg name="enable_infra" value="true"/>
+    <arg name="initial_reset" value="$(arg initial_reset)"/>
+    <arg name="enable_infrargb" value="True"/>
+  </include>
+  <group ns="lower_realsense/color">
+    <node name="relay" pkg="topic_tools" type="relay" required="true" args="/image_raw/compressed _stealth:=True _monitor_topic:='/record_video_dummy'"/>
+    <node pkg="topic_tools" name="image_throttled" type="throttle" args="messages image_raw 15 image_throttled"/>
+    <node pkg="nodelet" type="nodelet" name="image_web" args="standalone image_proc/resize">
+      <param name="use_scale" type="bool" value="False"/>
+      <param name="width" type="int" value="320"/>
+      <param name="height" type="int" value="180"/>
+      <remap from="image" to="image_throttled"/>
+      <remap from="~image" to="image_web"/>
+    </node>
+  </group>
+  <node name="lr_relay_color" pkg="topic_tools" type="relay" required="true" args="lower_realsense/color/image_raw/compressed _stealth:=True _monitor_topic:='/record_video_dummy'"/>
+  <node name="lr_relay_di" pkg="topic_tools" type="relay" required="true" args="lower_realsense/aligned_depth_to_infra/image_raw _stealth:=True _monitor_topic:='/record_video_dummy'"/>
+  <node name="lr_relay_dc" pkg="topic_tools" type="relay" required="true" args="lower_realsense/aligned_depth_to_color/image_raw _stealth:=True _monitor_topic:='/record_video_dummy'"/>
+  <node name="lr_relay_infra" pkg="topic_tools" type="relay" required="true" args="lower_realsense/infra/image_raw _stealth:=True _monitor_topic:='/record_video_dummy'"/>
+</launch>

@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+
 """ DataBase Module
 This module manages the low level components of the DB for the Lil'Flo system
 
@@ -14,6 +15,8 @@ from os import mkdir
 
 
 class DB(object):
+    """The low level interface to the database kept on the flo robots"""
+
     def __init__(self, db_location):
         db_location = os.path.expanduser(db_location)
 

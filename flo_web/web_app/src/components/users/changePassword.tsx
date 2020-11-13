@@ -23,7 +23,7 @@ const ChangePassword: React.FunctionComponent = () => {
                 oldPassword: values.oldPassword
               })
               .then(
-                res => {
+                () => {
                   alert("succesfully changed password");
                   setSubmitting(false);
                 },
@@ -36,7 +36,7 @@ const ChangePassword: React.FunctionComponent = () => {
               );
           }}
         >
-          {({ isSubmitting }) => (
+          {({ isSubmitting }): JSX.Element => (
             <Form>
               <div
                 style={{

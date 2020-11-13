@@ -18,7 +18,7 @@ create table users(
 create table robot_types(
     id serial primary key,
     robot_type text not null unique,
-    description text  
+    description text
 );
 
 insert into robot_types
@@ -53,18 +53,20 @@ create table user_events(
     user_id int references users(id) not null,
     target_robot_id int references robots(id)
 );
-    
+
 create table robot_events(
     id serial primary key,
     event_time timestamptz,
     event_type int references event_types(id) not null,
     robot_id int references robots(id) not null,
-    target_user_id int references users(id) 
+    target_user_id int references users(id)
 );
 
 create table robot_permissions(
-    robot_id int references robots(id) not null, 
+    robot_id int references robots(id) not null,
     user_id int references users(id) not null,
     primary key (user_id, robot_id)
 );
-        
+
+create user datadog with password 'not-so-secret';
+grant pg_monitor to datadog;

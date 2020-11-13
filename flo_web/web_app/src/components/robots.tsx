@@ -18,9 +18,15 @@ const Robots: React.FunctionComponent = () => {
 
   // Note this is coming from somewhere else, not vanilla
   SetInterval(() => {
-    axios.get("/api/robots/").then(res => {
-      setRobotArray(res.data.robots as Array<Robot>);
-    });
+    axios
+      .get("/api/robots/")
+      .then(res => {
+        console.log(res);
+        setRobotArray(res.data.robots as Array<Robot>);
+      })
+      .catch(err => {
+        console.log("error fetching array of robots");
+      });
   }, 1000 * 1);
 
   const robotRows = robotArray.map(robot => {

@@ -33,10 +33,10 @@ const Vids: React.FunctionComponent<VidsProps> = ({
   connected,
   ipAddr
 }) => {
-  const remoteRefUpper = React.useRef(null);
-  const remoteRefLower = React.useRef(null);
-  const remoteRefFish = React.useRef(null);
-  const localRef = React.useRef(null);
+  const remoteRefUpper = React.useRef<HTMLVideoElement>(null);
+  const remoteRefLower = React.useRef<HTMLVideoElement>(null);
+  const remoteRefFish = React.useRef<HTMLVideoElement>(null);
+  const localRef = React.useRef<HTMLVideoElement>(null);
   const upperStream = React.useRef<MediaStream>();
   const lowerStream = React.useRef<MediaStream>();
   const localStream = React.useRef<MediaStream>();
@@ -67,9 +67,9 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         iceCandidatePoolSize: 10
       };
 
-      let connection1: any;
-      let connection2: any;
-      let connection3: any;
+      let connection1: any; //eslint-disable-line @typescript-eslint/no-explicit-any
+      let connection2: any; //eslint-disable-line @typescript-eslint/no-explicit-any
+      let connection3: any; //eslint-disable-line @typescript-eslint/no-explicit-any
 
       getTurnCreds()
         .then(turnCredentials => {
@@ -100,7 +100,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
             const remoteStreamConfigUpper = { video: {}, audio: {} };
             remoteStreamConfigUpper.video = {
               id: "subscribed_video_upper",
-              src: "ros_image:/upper_realsense/color/image_raw"
+              src: "ros_image:/upper_realsense/color/image_web"
             };
             remoteStreamConfigUpper.audio = {
               id: "subscribed_audio",
@@ -109,13 +109,30 @@ const Vids: React.FunctionComponent<VidsProps> = ({
 
             connection1
               .addRemoteStream(remoteStreamConfigUpper)
+              //eslint-disable-next-line @typescript-eslint/no-explicit-any
               .then((event: any) => {
                 //stream started
-                const remoteVideoElement = remoteRefUpper as any;
+                const remoteVideoElement = remoteRefUpper;
+                if (!remoteVideoElement || !remoteVideoElement.current) {
+                  console.error(
+                    "tried to set remote video element before defining."
+                  );
+                  return;
+                }
                 remoteVideoElement.current.srcObject = event.stream;
                 event.remove.then(function() {
                   //Remote stream removed
-                  remoteVideoElement.srcObject = null;
+                  if (
+                    !remoteVideoElement ||
+                    !remoteVideoElement.current ||
+                    !remoteVideoElement.current.srcObject
+                  ) {
+                    console.error(
+                      "tried to remove remote video element but not defined."
+                    );
+                    return;
+                  }
+                  remoteVideoElement.current.srcObject = null;
                 });
                 upperStream.current = event.stream;
                 //(window as any).remotestream = event.stream;
@@ -134,6 +151,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
 
             connection1
               .addLocalStream(userMediaConfig, localStreamConfig)
+              //eslint-disable-next-line @typescript-eslint/no-explicit-any
               .then(function(event: any) {
                 console.log(
                   "Local stream added",
@@ -141,10 +159,26 @@ const Vids: React.FunctionComponent<VidsProps> = ({
                   event.stream.getVideoTracks(),
                   event.stream.getAudioTracks()
                 );
-                const localVideoElement = localRef as any;
+                const localVideoElement = localRef;
+                if (!localVideoElement || !localVideoElement.current) {
+                  console.error(
+                    "tried to set local video element before defining."
+                  );
+                  return;
+                }
                 localVideoElement.current.srcObject = event.stream;
                 event.remove.then(function() {
                   //console.log("Local stream removed", event);
+                  if (
+                    !localVideoElement ||
+                    !localVideoElement.current ||
+                    !localVideoElement.current.srcObject
+                  ) {
+                    console.error(
+                      "tried to wipe local video element but not defined."
+                    );
+                    return;
+                  }
                   localVideoElement.current.srcObject = null;
                 });
                 localStream.current = event.stream;
@@ -164,18 +198,35 @@ const Vids: React.FunctionComponent<VidsProps> = ({
             const remoteStreamConfigLower = { video: {}, audio: {} };
             remoteStreamConfigLower.video = {
               id: "subscribed_video_lower",
-              src: "ros_image:/lower_realsense/color/image_raw"
+              src: "ros_image:/lower_realsense/color/image_web"
             };
 
             connection2
               .addRemoteStream(remoteStreamConfigLower)
+              //eslint-disable-next-line @typescript-eslint/no-explicit-any
               .then((event: any) => {
                 //stream started
-                const remoteVideoElement = remoteRefLower as any;
+                const remoteVideoElement = remoteRefLower;
+                if (!remoteVideoElement || !remoteVideoElement.current) {
+                  console.error(
+                    "tried to set remote video element but not defined."
+                  );
+                  return;
+                }
                 remoteVideoElement.current.srcObject = event.stream;
                 event.remove.then(function() {
                   //Remote stream removed
-                  remoteVideoElement.srcObject = null;
+                  if (
+                    !remoteVideoElement ||
+                    !remoteVideoElement.current ||
+                    !remoteVideoElement.current.srcObject
+                  ) {
+                    console.error(
+                      "tried to remove remote video element but not defined."
+                    );
+                    return;
+                  }
+                  remoteVideoElement.current.srcObject = null;
                 });
                 //(window as any).remotestream = event.stream;
                 lowerStream.current = event.stream;
@@ -198,13 +249,34 @@ const Vids: React.FunctionComponent<VidsProps> = ({
 
             connection3
               .addRemoteStream(remoteStreamConfigFish)
+              //eslint-disable-next-line @typescript-eslint/no-explicit-any
               .then((event: any) => {
                 //stream started
-                const remoteVideoElement = remoteRefFish as any;
+                const remoteVideoElement = remoteRefFish;
+                if (
+                  !remoteVideoElement ||
+                  !remoteVideoElement.current ||
+                  !remoteVideoElement.current.srcObject
+                ) {
+                  console.error(
+                    "tried to remove remote video element but not defined."
+                  );
+                  return;
+                }
                 remoteVideoElement.current.srcObject = event.stream;
                 event.remove.then(function() {
                   //Remote stream removed
-                  remoteVideoElement.srcObject = null;
+                  if (
+                    !remoteVideoElement ||
+                    !remoteVideoElement.current ||
+                    !remoteVideoElement.current.srcObject
+                  ) {
+                    console.error(
+                      "tried to remove remote video element but not defined."
+                    );
+                    return;
+                  }
+                  remoteVideoElement.current.srcObject = null;
                 });
                 //(window as any).remotestream = event.stream;
                 fishStream.current = event.stream;
@@ -222,7 +294,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         connection3.close();
         const closeStreams = (stream: MediaStream): void => {
           if (stream) {
-            stream.getTracks().forEach((track: any) => {
+            stream.getTracks().forEach((track: MediaStreamTrack) => {
               track.stop();
             });
           }
@@ -232,6 +304,8 @@ const Vids: React.FunctionComponent<VidsProps> = ({
         lowerStream && lowerStream.current && closeStreams(lowerStream.current);
         fishStream && fishStream.current && closeStreams(fishStream.current);
       };
+    } else {
+      console.error("Tried to do vids, but not connected");
     }
   }, [robotName, connected, ipAddr]);
   //<script type="text/javascript" src={"/web/adapter.js"} />

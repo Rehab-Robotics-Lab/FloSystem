@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 """A module to generate target touch type games"""
 
 import random
@@ -44,7 +45,7 @@ def target_touch(new_def, process_step):
         targets, speech = process_step(step)
 
         actions_bag.extend(
-            [{'speech': speech, 'targets': targets} for x in range(10)])
+            [{'speech': speech, 'targets': targets} for _ in range(10)])
 
     random.shuffle(actions_bag)
     actions_list += actions_bag

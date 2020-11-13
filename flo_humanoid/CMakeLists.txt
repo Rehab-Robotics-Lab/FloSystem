@@ -17,7 +17,9 @@ catkin_package(
 #  LIBRARIES flo_humanoid
 #  CATKIN_DEPENDS roscpp rospy std_msgs tf
 #  DEPENDS system_lib
-CATKIN_DEPENDS message_runtime actionlib_msgs
+CATKIN_DEPENDS
+actionlib_msgs
+message_runtime
 )
 
 ###########
@@ -30,3 +32,8 @@ include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
 )
+
+install(PROGRAMS
+    src/robot_controller.py
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+ )

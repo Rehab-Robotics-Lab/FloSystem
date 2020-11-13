@@ -25,7 +25,7 @@ const Home: React.FunctionComponent<HomeProps> = ({ userName, userType }) => {
         </p>
       </div>
 
-      <Robots />
+      {userName && <Robots />}
     </div>
   );
 };

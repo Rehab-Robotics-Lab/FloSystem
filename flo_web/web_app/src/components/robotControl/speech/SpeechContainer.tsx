@@ -23,8 +23,19 @@ interface TTSUtterances {
   text: string;
 }
 
-function reducer(state: string[], newVal: string): string[] {
-  return [newVal].concat(state).slice(0, utterancesLength - 1);
+interface StoredUtterance {
+  idx: number;
+  text: string;
+}
+
+function reducer(state: StoredUtterance[], newVal: string): StoredUtterance[] {
+  const idx = 0;
+  if (state.length > 0) {
+    const idx = state[state.length - 1].idx + 1;
+  }
+  return [{ idx: idx, text: newVal }]
+    .concat(state)
+    .slice(0, utterancesLength - 1);
 }
 
 interface SpeechProps {
@@ -58,7 +69,7 @@ function countSyllables(sentence: string): number {
   let count = 0;
   const words = sentence.split(" ");
 
-  words.map(function(val, key) {
+  words.map(function(val) {
     count += syllables(val);
     return null;
   });
@@ -139,7 +150,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       fileLocation: null
     });
 
-    goal.on("feedback", fb => {
+    goal.on("feedback", () => {
       //TODO: implement voice feedback
       console.log("got feedback on speaking");
     });
@@ -156,6 +167,8 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       // should get a useful response
     });
 
+    // The typing is not complete for the actioni client
+    //eslint-disable-next-line @typescript-eslint/no-explicit-any
     (actionClient as any).on("timeout", () => {
       goal.cancel();
       console.error("there was an error speaking, please try again");
@@ -228,7 +241,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       <div>
         <h3>Recent Utterances</h3>
         {utterances.map(value => (
-          <div>{value}</div>
+          <div key={value.idx}>{value.text}</div>
         ))}
       </div>
     </div>

@@ -1,3 +1,4 @@
+import './tracer';
 import express from 'express';
 import http from 'http';
 import WebSocket from 'ws';
@@ -5,11 +6,8 @@ import { v4 as uuidv4 } from 'uuid';
 import net from 'net';
 import bcrypt from 'bcrypt';
 import * as db from './db';
-import ioredis from 'ioredis';
 import {
-    sessionParser,
     logger,
-    parseUrl,
     ClientStore,
     ParseIncoming,
     Server,
@@ -39,6 +37,16 @@ const parseIncoming: ParseIncoming = async function (
     // For the robots to connect to
     const name = request.headers['robotname'];
     const password = request.headers['robotpassword'];
+
+    if (
+        name === undefined ||
+        password === undefined ||
+        typeof name !== 'string'
+    ) {
+        logger.error('request without name or password');
+        socket.destroy();
+        return;
+    }
 
     const localLogger = logger.child({
         source: 'robot',
@@ -214,4 +222,4 @@ const parseIncoming: ParseIncoming = async function (
     }
 };
 
-const server = new Server(8080, parseIncoming);
+new Server(8080, parseIncoming);

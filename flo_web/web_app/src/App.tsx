@@ -4,16 +4,28 @@ import "./App.css";
 import Routes from "./Routes";
 import axios from "axios";
 import navbar from "./styleDefs/Nav.module.css";
+import Honeybadger from "honeybadger-js";
 
 //function App() {
 //return <RobotController />;
 //}
 //export default App;
-function App() {
+const App: React.FunctionComponent = () => {
   const [loggedIn, setLoggedInInternal] = useState(false);
-  const [userName, setUserName] = useState("");
+  const [userName, setUserNameInternal] = useState("");
   const [userType, setUserType] = useState<string>("");
   const history = useHistory();
+
+  const setUserName = useCallback(
+    (un: string): void => {
+      setUserNameInternal(un);
+      Honeybadger.setContext({
+        //eslint-disable-next-line @typescript-eslint/camelcase
+        user_email: un
+      });
+    },
+    [setUserNameInternal]
+  );
 
   const setLoggedIn = useCallback(
     (ut: boolean): void => {
@@ -81,9 +93,10 @@ function App() {
         {loggedIn && (
           <button
             className={navbar.navitem}
-            onClick={() => {
+            onClick={(): void => {
               axios.post("/api/users/logout").then(
-                res => {
+                () => {
+                  // request succeeded
                   setLoggedIn(false);
                   setUserName("");
                 },
@@ -107,6 +120,6 @@ function App() {
       />
     </div>
   );
-}
+};
 
 export default App;

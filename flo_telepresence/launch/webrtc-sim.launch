@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<launch>
+  <!--<node name="image_concatenater" pkg="flo_telepresence" type="image_concat.py" output="screen"/>-->
+  <node name="ice_server_provider" pkg="webrtc_ros" type="ice_server_service.py" respawn="true" output="screen">
+    <!--These are the servers used for resolving remote addresses, google provides-->
+    <!--some free to use ones, here as defaults. You could setup your own or use-->
+    <!--another provider-->
+    <rosparam param="stun_servers">
+          ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302']
+    </rosparam>
+    <!--Turn servers are used to route traffic from behind challenging networks.-->
+    <!--Not always needed, but in some corporate environments it might be. -->
+    <!--This is the url of the turn server (Ex: coturn)-->
+    <!--You need credentials to access your turn server. The best way to do-->
+    <!--that (the way we support) is to use a seperate rest api with a shared-->
+    <!--secret with coturn. This is the uri, username, and password that will -->
+    <!--be passed to that endpoint. They will be passed to the enpoint as a -->
+    <!--post request with fields username and password in the request body-->
+    <!--It expects the server to respond with the username and password for-->
+    <!--the turn server in fields username and password held in the response-->
+    <!--data-->
+  </node>
+  <node name="webrtc_server" pkg="webrtc_ros" type="webrtc_ros_server_node" respawn="true">
+    <param name="port" value="9091"/>
+  </node>
+  <node name="remote_vid_repub" pkg="image_transport" type="republish" args="in:=/remote_video raw out:=/remote_video_clean"/>
+</launch>

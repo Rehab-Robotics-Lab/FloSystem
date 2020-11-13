@@ -97,6 +97,7 @@ DD_HOSTNAME=<hostname ex: lilflo.com>
    If you change the Nginx dev config, you will either need
    to go into the Nginx container and restart it or restart
    the entire docker-compose group (ctrl-c; `docker-compose up`)
+4. Open `https://localhost:80`
 
 #### To run in production:
 
@@ -138,6 +139,20 @@ automatically. They expire every so often, so they need to be regularly regenera
 We have it run once a week on sunday at 2:30AM eastern to regen certs and
 3:30AM eastern to restart the server and use the new certs.
 The whole system runs based on a [guide](https://medium.com/@pentacent/nginx-and-lets-encrypt-with-docker-in-less-than-5-minutes-b4b8a60d3a71)
+
+### Setting up first admin
+
+When you initially create the system, you will have no users. You can register a new
+user, but that user will not have administrator privelages. You need to setup a first
+admin. To do this:
+
+1. Create a user account by registering through the web interface
+2. Attach to the docker image for the postgres database into pg: `docker container exec -it lilflosystem_postgres_1 psql flodb -h localhost -U postgres` (note the number on that container might be different...)
+3. Turn on expanded view to get nice prints: `\x`
+4. Optionally get info on your registered users: `select * from users;`
+5. Find out what id admin users need: `select * from user_types`
+6. Set the user you are interested in to be an admin: `update users set user_type=<id of usertype you want> where email=<email you want>`. Ex: `update users set user_type=1 where email='testsobrep@seas.upenn.edu'`
+7. Check that it worked: `select * from users;`
 
 ### Deploying to Linode
 

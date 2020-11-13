@@ -3,7 +3,7 @@
 set -e
 
 sudo apt-get update -y && sudo apt-get upgrade -y
-sudo apt-get install lsyncd
+sudo apt-get install -y lsyncd
 
 mkdir -p ~/catkin_ws/src
 ln -sf ~/Documents/git/LilFloSystem ~/catkin_ws/src/

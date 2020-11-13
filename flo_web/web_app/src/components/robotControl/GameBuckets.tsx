@@ -46,7 +46,7 @@ const SaveBucket: React.FunctionComponent<SaveBucketProps> = ({
       serviceType: "flo_core_defs/SetGameBucket"
     });
 
-    const cleanSteps = steps.map(({ ...keep }) => keep);
+    const cleanSteps = steps.map(({ desc, key, ...keep }) => keep);
     console.log(steps);
     console.log(cleanSteps);
 

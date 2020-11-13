@@ -136,7 +136,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
             }
             setBuckets(tmpBuckets);
             setGbID(
-              buckets.findIndex(arg => {
+              tmpBuckets.findIndex(arg => {
                 if (arg === undefined) {
                   return false;
                 } else {
@@ -202,7 +202,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
               return;
             }
             if (buckets[gbID] === undefined) {
-              console.error("tried to play a game with a bad game id");
+              console.error("tried to play a game with a bad game id: " + gbID);
               return;
             }
             const gameDef = new ROSLIB.Message({

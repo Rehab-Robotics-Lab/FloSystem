@@ -1,9 +1,11 @@
 <launch>
-<node pkg="flo_core" type="recording_manager.py" name="recording_manager"/>
-    <arg name="prefix" default="$(env HOME)/flo_data/flo_recording"/>
+<arg name="prefix" default="$(env HOME)/flo_data/flo_recording"/>
 
-        <node pkg="rosbag" type="record" name="lil_flo_bag"
-        args="record --output-prefix $(arg prefix) --split --duration 1m --lz4
+
+<node pkg="flo_core" type="recording_manager.py" name="recording_manager"/>
+
+<node pkg="rosbag" type="record" name="lil_flo_bag"
+args="record --output-prefix $(arg prefix) --split --duration 1m --lz4
 /lower_realsense/aligned_depth_to_color/image_raw_relay
 /lower_realsense/aligned_depth_to_color/camera_info
 /lower_realsense/aligned_depth_to_infra/image_raw_relay

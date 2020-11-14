@@ -32,7 +32,7 @@ const RelaxMotors: React.FunctionComponent<RelaxMotorsProps> = ({
   return (
     <div
       style={Object.assign({}, majorButton, {
-        width: "100%"
+        width: "180px"
       })}
     >
       <button

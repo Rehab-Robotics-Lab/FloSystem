@@ -21,6 +21,7 @@ import GameBuckets from "./robotControl/GameBuckets";
 import { useParams, useHistory } from "react-router-dom";
 import { PoseWrapper } from "./robotControl/seq_pose/PoseContainer";
 import EventEmitter2 from "eventemitter2";
+import Recording from "./robotControl/Recording";
 
 export function genRandID(): number {
   return Math.round(Math.random() * 10000) + Date.now();
@@ -240,7 +241,17 @@ const RobotController: React.FunctionComponent = () => {
             overflow: "auto"
           }}
         >
-          <RelaxMotors ros={ros} connected={connected} />
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+          >
+            <RelaxMotors ros={ros} connected={connected} />
+            <Recording ros={ros} connected={connected} />
+          </div>
           <div
             className="controls"
             style={{

@@ -15,7 +15,7 @@ class RecordingManager(object):
     # Parameters are passed by the ros param system
 
     def __init__(self):
-        rospy.init_node('recording-manager')
+        rospy.init_node('recording_manager')
         rospy.loginfo('started recording manager')
         self.recording = False
         self.pub_dummy = rospy.Publisher(
@@ -23,7 +23,7 @@ class RecordingManager(object):
         pub_status = rospy.Publisher(
             '/record_video_status', Bool, queue_size=1)
         rospy.Service(
-            'set_recording', SetRecording, self.__serv_req)
+            '/set_recording', SetRecording, self.__serv_req)
         self.sub_dummy = None
         rate = rospy.Rate(10)
         while not rospy.is_shutdown():

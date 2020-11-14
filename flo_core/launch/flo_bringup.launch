@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="simulate" default="False"/>
-  <arg name="record" default="False"/>
+  <arg name="record" default="True"/>
   <param name="simulate" type="bool" value="$(arg simulate)"/>
   <!--Face -->
   <include file="$(find flo_face)/launch/base.launch">
@@ -33,7 +33,7 @@
   <!--Game Runer-->
   <node name="game_runner" pkg="flo_core" type="game_runner.py" respawn="true"/>
   <!--Logging-->
-  <group if="$(eval simulate==False and record==True)">
+  <group if="$(eval record==True)">
     <include file="$(find flo_core)/launch/recording.launch"/>
   </group>
   <!--System Monitoring-->

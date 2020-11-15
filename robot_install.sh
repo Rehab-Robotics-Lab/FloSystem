@@ -52,6 +52,9 @@ sudo apt-get install ros-melodic-depthimage-to-laserscan -y
 sudo apt-get install ros-melodic-joy -y
 sudo apt-get install ros-melodic-yocs-velocity-smoother -y
 
+echo "Installing Vid Stream Opencv"
+git clone https://github.com/ros-drivers/video_stream_opencv.git
+
 cd ~/catkin_ws
 rm -rf build devel install
 catkin_make

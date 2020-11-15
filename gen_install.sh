@@ -37,7 +37,7 @@ sudo apt-get install -y python-pip
 pip install 'mutagen==1.43.0' --user
 
 echo "INSTALLING ROSDEP DEPENDENCIES"
-sudo apt-get install python-rosdep -y --skip-keys "realsense2_camera realsense2_description rosbridge_suite rosbridge_server rosbridge_library rosbridge_msgs"
+sudo apt-get install python-rosdep -y --skip-keys "realsense2_camera realsense2_description rosbridge_suite rosbridge_server rosbridge_library rosbridge_msgs video_stream_opencv"
 cd ~/catkin_ws
 rosdep install --from-paths src --ignore-src -r -y
 cd -

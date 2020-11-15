@@ -253,13 +253,9 @@ const Vids: React.FunctionComponent<VidsProps> = ({
               .then((event: any) => {
                 //stream started
                 const remoteVideoElement = remoteRefFish;
-                if (
-                  !remoteVideoElement ||
-                  !remoteVideoElement.current ||
-                  !remoteVideoElement.current.srcObject
-                ) {
+                if (!remoteVideoElement || !remoteVideoElement.current) {
                   console.error(
-                    "tried to remove remote video element but not defined."
+                    "tried to set remote video element but not defined."
                   );
                   return;
                 }

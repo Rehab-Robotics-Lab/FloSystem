@@ -9,5 +9,6 @@
     <arg name="height" value="480"/>
     <!--Should be 30-->
     <arg name="set_camera_fps" value="15"/>
+    <arg name="buffer_queue_size" value="1"/>
   </include>
 </launch>

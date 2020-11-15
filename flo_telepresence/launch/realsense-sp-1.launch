@@ -62,5 +62,5 @@
   <node name="lr_relay_color" pkg="topic_tools" type="relay" required="true" args="lower_realsense/color/image_raw/compressed _stealth:=True _monitor_topic:='/record_video_dummy'"/>
   <node name="lr_relay_di" pkg="topic_tools" type="relay" required="true" args="lower_realsense/aligned_depth_to_infra/image_raw _stealth:=True _monitor_topic:='/record_video_dummy'"/>
   <node name="lr_relay_dc" pkg="topic_tools" type="relay" required="true" args="lower_realsense/aligned_depth_to_color/image_raw _stealth:=True _monitor_topic:='/record_video_dummy'"/>
-  <node name="lr_relay_infra" pkg="topic_tools" type="relay" required="true" args="lower_realsense/infra/image_raw _stealth:=True _monitor_topic:='/record_video_dummy'"/>
+  <node name="lr_relay_infra" pkg="topic_tools" type="relay" required="true" args="lower_realsense/infra/image_raw/compressed _stealth:=True _monitor_topic:='/record_video_dummy'"/>
 </launch>

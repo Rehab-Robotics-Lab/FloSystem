@@ -37,7 +37,7 @@ sudo apt-get install -y python-pip
 pip install 'mutagen==1.43.0' --user
 
 echo "INSTALLING ROSDEP DEPENDENCIES"
-sudo apt-get install python-rosdep -y
+sudo apt-get install python-rosdep -y --skip-keys "realsense2_camera realsense2_description rosbridge_suite rosbridge_server rosbridge_library rosbridge_msgs"
 cd ~/catkin_ws
 rosdep install --from-paths src --ignore-src -r -y
 cd -
@@ -51,6 +51,15 @@ cd ~/catkin_ws/src
 git clone --single-branch --branch develop https://github.com/RobotWebTools/webrtc_ros.git
 cd webrtc_ros/webrtc
 touch CATKIN_IGNORE
+cd $prior
+
+
+echo "Adding rosbridge without unsub"
+prior=$(pwd)
+cd ~/catkin_ws/src
+git clone --single-branch --branch develop https://github.com/mjsobrep/rosbridge_suite.git
+cd rosbridge_suite
+git checkout nousub
 cd $prior
 
 # build it all

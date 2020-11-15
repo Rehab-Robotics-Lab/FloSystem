@@ -2,6 +2,7 @@
 
 set -e
 
+sudo apt install -y python3-pip
 pip3 install -U boto3
 
 ## Installing AWS CLI
@@ -20,5 +21,4 @@ aws configure --profile flo
 
 ### Installing boto3 for AWS stuff. Not 100% sure this is needed
 # It looks like rosdep now handles this
-#sudo apt install -y python3-pip
 #pip3 install -U boto3

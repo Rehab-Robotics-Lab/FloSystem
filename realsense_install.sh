@@ -39,6 +39,7 @@ cd ~/catkin_ws/src
 cd realsense-ros/
 #git checkout ${REALSENSE_ROS_VERSION}
 git checkout development
+git pull
 cd ~/catkin_ws
 catkin_make
 catkin_make install

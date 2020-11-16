@@ -57,9 +57,7 @@ cd $prior
 echo "Adding rosbridge without unsub"
 prior=$(pwd)
 cd ~/catkin_ws/src
-git clone --single-branch --branch develop https://github.com/mjsobrep/rosbridge_suite.git
-cd rosbridge_suite
-git checkout nousub
+git clone --single-branch --branch nousub https://github.com/mjsobrep/rosbridge_suite.git
 cd $prior
 
 # build it all

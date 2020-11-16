@@ -9,6 +9,8 @@ args="record --output-prefix $(arg prefix) --split --duration 1m --lz4
 /lower_realsense/aligned_depth_to_color/image_raw_relay
 /lower_realsense/aligned_depth_to_color/camera_info
 /lower_realsense/aligned_depth_to_infra/image_raw_relay
+/remote_video_clean_relay
+/robot_audio/audio_relay
 /lower_realsense/aligned_depth_to_infra/camera_info
 /lower_realsense/color/image_raw/compressed_relay
 /lower_realsense/color/camera_info
@@ -85,8 +87,6 @@ args="record --output-prefix $(arg prefix) --split --duration 1m --lz4
 /move_stats
 /net_stats
 /odom
-/remote_video_clean
-/robot_audio/audio
 /robotsound
 /rosout
 /rosout_agg

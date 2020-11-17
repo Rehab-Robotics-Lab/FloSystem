@@ -1,0 +1,11 @@
+<launch>
+  <node pkg="rosbag" type="play" name="rosbag" required="true" args="$(env HOME)/flo_data/flo_recording_exp.bag"/>
+
+  <node name="relay_base" pkg="topic_tools" type="relay" required="true" args="lower_realsense/color/image_raw/compressed_relay camera_out/image/compressed"/>
+
+<node name="decompress" pkg="image_transport" type="republish" args="compressed in:=camera_out/image raw out:=camera_out/image"/>
+
+  <node name="extract" pkg="image_view" type="extract_images" respawn="false" required="true" output="screen" cwd="ROS_HOME">
+    <remap from="image" to="/camera_out/image"/>
+  </node>
+</launch>

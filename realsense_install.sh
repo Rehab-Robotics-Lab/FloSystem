@@ -17,8 +17,8 @@ echo "installing for ros version: ${ROS_VERSION}"
 ## Realsense
 sudo add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo ${OS_VERSION} main" -u
 #You need to figure out the versions you want from https://github.com/IntelRealSense/realsense-ros/releases
-LIB_REALSENSE_VERSION=2.39.0
-REALSENSE_ROS_VERSION=2.2.18
+LIB_REALSENSE_VERSION=2.40.0
+REALSENSE_ROS_VERSION=2.2.20
 sudo apt-get install -y librealsense2-dkms
 sudo apt-get install -y librealsense2-utils=${LIB_REALSENSE_VERSION}\*
 sudo apt-get install -y librealsense2-dev=${LIB_REALSENSE_VERSION}\*
@@ -37,9 +37,7 @@ prior=$(pwd)
 cd ~/catkin_ws/src
 [ ! -d "realsense-ros" ] && git clone https://github.com/IntelRealSense/realsense-ros.git
 cd realsense-ros/
-#git checkout ${REALSENSE_ROS_VERSION}
-git checkout development
-git pull
+git checkout ${REALSENSE_ROS_VERSION}
 cd ~/catkin_ws
 catkin_make
 catkin_make install

@@ -2,8 +2,8 @@
 """A module for generating simon says type games"""
 
 import random
-from flo_core_defs.msg import StepDef
 from itertools import chain
+from flo_core_defs.msg import StepDef
 
 DEFAULT_DEF = [
     StepDef(type='move', text='wave', id=2),

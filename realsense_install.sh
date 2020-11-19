@@ -38,7 +38,6 @@ cd ~/catkin_ws/src
 [ ! -d "realsense-ros" ] && git clone https://github.com/IntelRealSense/realsense-ros.git
 cd realsense-ros/
 git checkout ${REALSENSE_ROS_VERSION}
-git pull
 cd ~/catkin_ws
 catkin_make
 catkin_make install

@@ -260,18 +260,17 @@ class GameRunner(object):
         with self.command_lock:
             self.command_queue = queue.Queue()
         self.actions_list = []
-        # Eventually we probably want to make this cleaner, but for now I need
-        # to get a demo going, so we will manually load in the games
-        if new_def.game_type == 'simon_says':
-            self.actions_list = simon_says(new_def, self.__process_step)
-        elif new_def.game_type == 'target_touch':
-            self.actions_list = target_touch(new_def, self.__process_step)
-
         targ, spch = self.__process_step(
             StepDef(type='pose_both', id=1, time=1))
         neutral = {'speech': spch, 'targets': targ}
-        self.actions_list = list(chain.from_iterable(
-            (neutral, at) for at in self.actions_list))
+        # Eventually we probably want to make this cleaner, but for now I need
+        # to get a demo going, so we will manually load in the games
+        if new_def.game_type == 'simon_says':
+            self.actions_list = simon_says(
+                new_def, self.__process_step, neutral)
+        elif new_def.game_type == 'target_touch':
+            self.actions_list = target_touch(
+                new_def, self.__process_step, neutral)
 
         self.__set_options(['start'])
         self.__set_state(self.states.game_loaded)

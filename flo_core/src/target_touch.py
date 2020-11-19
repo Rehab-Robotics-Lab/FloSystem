@@ -17,7 +17,7 @@ DEFAULT_DEF = [
 ]
 
 
-def target_touch(new_def, process_step):
+def target_touch(new_def, process_step, neutral):
     """Generate a target touch game
 
     Args:
@@ -27,23 +27,29 @@ def target_touch(new_def, process_step):
     Returns: The action list that defines the game
     """
     actions_list = []
+    actions_list.append(neutral)
     actions_list.append(
         {'speech': 'in the target touch activity, I will tell you to ' +
-                   'touch one of the dots on my hands. Each time I extend ' +
-                   'the hand, you should touch it. We will do 10 touches ' +
-                   'per dot. No tricks here, just good work!! Let\'s start ' +
+                   'touch the dots on my hands. We will do 10 ' +
+                   'touches, per dot. I will count to tell you when to ' +
+                   'go. No tricks here, just good work!! Let\'s start ' +
                    'in a ready position'})
     if not new_def.steps:
         new_def.steps = DEFAULT_DEF
 
     actions_bag = []
-    for step in new_def.steps:
+    steps = new_def.steps
+    random.shuffle(steps)
+    for step in steps:
         targets, speech = process_step(step)
 
-        actions_bag.extend(
-            [{'speech': speech, 'targets': targets} for _ in range(10)])
+        actions_bag.append(
+            {'speech': speech, 'targets': targets})
 
-    random.shuffle(actions_bag)
+        actions_bag.extend(
+            [{'speech': '{}'.format(idx)} for idx in range(10)])
+        actions_bag.append(neutral)
+
     actions_list += actions_bag
 
     actions_list.append(

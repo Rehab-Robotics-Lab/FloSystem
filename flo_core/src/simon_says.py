@@ -2,6 +2,7 @@
 """A module for generating simon says type games"""
 
 import random
+from itertools import chain
 from flo_core_defs.msg import StepDef
 
 DEFAULT_DEF = [
@@ -28,7 +29,7 @@ DEFAULT_DEF = [
 ]
 
 
-def simon_says(new_def, process_step):
+def simon_says(new_def, process_step, neutral):
     """Generate a simon says game
 
     Args:
@@ -42,7 +43,8 @@ def simon_says(new_def, process_step):
         {'speech': 'in simon says, I will tell you something to do and ' +
                    'show you how to do it, mirrored. If I say simon says, you ' +
                    'should do it with me. If I do not say simon says, you should ' +
-                   'not do the action. Watch out, I may try to trick you.'})
+                   'not do the action. Watch out, I may try to trick you. ' +
+                   'After every movement return to a ready position'})
     if not new_def.steps:
         new_def.steps = DEFAULT_DEF
     actions_bag = []
@@ -60,4 +62,6 @@ def simon_says(new_def, process_step):
 
     actions_list.append(
         {'speech': 'that was a lot of fun, thanks for playing with me'})
+    actions_list = list(chain.from_iterable(
+        (neutral, at) for at in actions_list))
     return actions_list

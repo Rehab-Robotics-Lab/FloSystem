@@ -45,7 +45,6 @@
     <!--<arg name="enable_infra1" value="$(arg enable_infra_l)"/>-->
     <!--<arg name="enable_infra2" value="$(arg enable_infra_r)"/>-->
     <arg name="initial_reset" value="$(arg initial_reset)"/>
-    <arg name="enable_infrargb" value="True"/>
   </include>
   <group ns="upper_realsense/color">
     <node pkg="topic_tools" name="image_throttled" type="throttle" args="messages image_raw 15 image_throttled"/>

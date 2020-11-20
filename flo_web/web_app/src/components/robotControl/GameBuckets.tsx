@@ -570,7 +570,13 @@ const GameBuckets: React.FunctionComponent<GameBucketsProps> = ({
       </button>
       <hr />
 
-      <div style={{ display: "flex", flexDirection: "column-reverse" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column-reverse",
+          overflowY: "auto"
+        }}
+      >
         {steps.map((value, idx) => (
           <GameStep
             def={value}

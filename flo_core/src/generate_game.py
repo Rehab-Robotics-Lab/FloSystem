@@ -1,10 +1,16 @@
 #!/usr/bin/env python
+
+"""Module to generate printouts of games"""
+
 import rospy
 from flo_core_defs.srv import SearchGameBucket
 from flo_core_defs.msg import GameDef
 
+# pylint: disable=superfluous-parens
+
 
 def run():
+    """Get user input and request generation of a game printout"""
     rospy.init_node('game_generator')
 
     rospy.loginfo('node up, waiting for services')
@@ -22,10 +28,11 @@ def run():
     good = False
     while not good:
         target = raw_input(
-            '\nType in number of game bucket to generate from and press enter. Enter -1 to cancel:\n')
+            '\nType in number of game bucket to generate from and press ' +
+            'enter. Enter -1 to cancel:\n')
         try:
             bucket_id = int(target)
-        except:
+        except ValueError:
             print('\ninvalid input')
             continue
         if bucket_id == -1:

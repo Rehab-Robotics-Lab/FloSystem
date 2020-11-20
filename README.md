@@ -42,6 +42,10 @@ We are waiting on approvals from the owners of the repository (The University of
   - [ROS won't build](#broken-build)
   - [No audio plays](#broken-audio)
   - [No videos on web](#broken-web-video)
+- [Camera Recalibration]
+  - [Practical Tips]
+  - [Realsense Tools]
+  - [OpenCV]
 
 ## WebServer Setup
 
@@ -809,3 +813,25 @@ There are a few possible problems:
    chrome://flags/#unsafely-treat-insecure-origin-as-secure b. fill in with:
    `http://10.42.0.189:3000,http://10.42.0.189:9090,http://10.42.0.189:9091` c.
    change to enabled
+
+
+#Recalibrating the Realsense
+
+## Practical tips
+1. The Intel D415 has the following parameters:
+	- Intrinsic : Focal length, Distortion and Principal Point for each of the three cameras.
+	- Extrinsic : baseline, RotationLeftRight, TranslationLeftRight, RotationLeftColor, TranslationLeftColor 
+
+2. The camera might be out of calibration if flat surfaces look noisy/wobbly, depth images have many holes, physical distances are not within 3% of the expected distance. This might happen if the camera falls down/the factory calibration changes due to some other event which in not very frequent.
+
+##Using Realsense Tools
+
+1. On chip self calibration can be performed using the Realsense Viewer(comes with Intel® RealSense™ SDK 2.0). This tool provides a health-check of current calibration. If the value is below 0.25, the calibration is good. Anything above 0.75 needs recalibration. The intrinsics and extrincs can be calibrated by pointing the camera at a flat white wall in good lighthing condition. The application also scores and allows comparison of new calibrations. For more: https://dev.intelrealsense.com/docs/self-calibration-for-depth-cameras
+
+2. Extrinsic calibration using Intel Realsense Dynamic Calibrator(https://dev.intelrealsense.com/docs/intel-realsensetm-d400-series-calibration-tools-user-guide). The guide provides instruction for downloading the Dynamic Calibrator app. Targets and Demos can also be found at the same link.
+
+##Using external tools
+
+One way to check calibration is to print checkerboard targets(https://boofcv.org/index.php?title=Camera_Calibration_Targets). Then use: https://github.com/IRIM-Technology-Transition-Lab/camera-calibration , or equivalent to compare current parameter values with those returned from the calibration program.
+
+

@@ -170,6 +170,7 @@ include_directories(
 install(PROGRAMS
    src/flo_db.py
    src/game_runner.py
+   src/generate_game.py
    src/manage_seq_pose.py
    src/param_saver.py
    src/recording_manager.py

@@ -49,7 +49,7 @@ def simon_says(new_def, process_step, neutral):
         new_def.steps = DEFAULT_DEF
     actions_bag = []
     for step in new_def.steps:
-        targets, speech = process_step(step)
+        targets, speech = process_step(step, True)
 
         actions_bag.append(
             {'speech': 'simon says '+speech, 'targets': targets})

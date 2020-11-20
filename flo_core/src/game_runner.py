@@ -133,7 +133,6 @@ class GameRunner(object):
         self.actions_list = []
         self.action_idx = -1
         self.command_opts = []
-        self.mirror_arms = False
 
         # -- Run -- #
         rate = rospy.Rate(20)
@@ -207,19 +206,19 @@ class GameRunner(object):
                     ['next', 'repeat', 'congratulate', 'try_again',
                      'quit_game'])
 
-    def __process_step(self, step):
+    def __process_step(self, step, mirror_arms=False):
         targets = []
         speech = step.text
         step_time = step.time if step.time and step.time > 0 else 2
         if step.type == 'pose_left':
             pose = self.get_pose_id(step.id).pose  # type: Pose
-            arm = 'right' if self.mirror_arms else 'left'
+            arm = 'right' if mirror_arms else 'left'
             targets = [self.__construct_joint_target(
                 pose.joint_names, pose.joint_positions, step_time, arm)]
             # speech = speech+' with your left hand'
         elif step.type == 'pose_right':
             pose = self.get_pose_id(step.id).pose  # type: Pose
-            arm = 'left' if self.mirror_arms else 'right'
+            arm = 'left' if mirror_arms else 'right'
             targets = [self.__construct_joint_target(
                 pose.joint_names, pose.joint_positions, step_time, arm)]
             # speech = speech+' with your right hand'
@@ -248,9 +247,9 @@ class GameRunner(object):
                 time += sequence.times[idx]
                 def_arm = sequence.arms[idx]
                 if def_arm == 'left':
-                    arm = 'right' if self.mirror_arms else 'left'
+                    arm = 'right' if mirror_arms else 'left'
                 elif def_arm == 'right':
-                    arm = 'left' if self.mirror_arms else 'right'
+                    arm = 'left' if mirror_arms else 'right'
                 else:
                     rospy.logerr(
                         'an invalid arm was passed through a sequence in game runner')
@@ -279,7 +278,6 @@ class GameRunner(object):
         if new_def.game_type == 'simon_says':
             self.actions_list = simon_says(
                 new_def, self.__process_step, neutral)
-            self.mirror_arms = True
         elif new_def.game_type == 'target_touch':
             self.actions_list = target_touch(
                 new_def, self.__process_step, neutral)

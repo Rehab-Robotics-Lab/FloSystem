@@ -44,6 +44,9 @@ try:
 except ImportError:
     import Queue as queue
 import threading
+import os.path
+import os
+import datetime
 import rospy
 import actionlib
 from tts.msg import SpeechAction, SpeechGoal
@@ -108,6 +111,8 @@ class GameRunner(object):
             'game_runner_commands', GameCommand, self.__new_command)
         rospy.Subscriber(
             'game_runner_def', GameDef, self.__new_def)
+        rospy.Subscriber(
+            'game_runner_def_save', GameDef, self.__generate_game_printout)
         rospy.loginfo('setup subscribers')
 
         # -- Services -- #
@@ -259,6 +264,32 @@ class GameRunner(object):
                     time, arm)
                 targets.append(target)
         return targets, speech
+
+    def __generate_game_printout(self, new_def):
+        targ, spch = self.__process_step(
+            StepDef(type='pose_both', id=1, time=1))
+        neutral = {'speech': spch, 'targets': targ}
+        # Eventually we probably want to make this cleaner, but for now I need
+        # to get a demo going, so we will manually load in the games
+        if new_def.game_type == 'simon_says':
+            actions_list = simon_says(
+                new_def, self.__process_step, neutral)
+        elif new_def.game_type == 'target_touch':
+            actions_list = target_touch(
+                new_def, self.__process_step, neutral)
+        path = os.path.expanduser('~/flo_games/')
+        if not os.path.exists(path):
+            os.makedirs(path)
+        path = os.path.join(path,
+                            '{}-{}'.format(
+                                new_def.game_type,
+                                datetime.datetime.now().strftime("%Y%m%d-%H%M%S")))
+        rospy.loginfo('generating new game printout at %s', path)
+        with open(path, 'w') as fhd:
+            for action in actions_list:
+                if 'speech' in action.keys():
+                    fhd.write(action['speech'])
+                    fhd.write('\n')
 
     def __process_def(self, new_def):
         """Process a new game definition

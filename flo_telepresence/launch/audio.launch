@@ -2,5 +2,6 @@
     <include file="$(find audio_capture)/launch/capture.launch" >
         <arg name="ns" value="robot_audio"/>
     </include>
+  <node name="audio_relay" pkg="topic_tools" type="relay" required="true" args="/robot_audio/audio _stealth:=True _monitor_topic:='/record_video_dummy'"/>
 
 </launch>

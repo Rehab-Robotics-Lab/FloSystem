@@ -21,5 +21,6 @@ export ROS_MASTER_URI=http://localhost:11311
 
 export DISPLAY=:0
 
+##### For making npm work #####
 export NPM_CONFIG_PREFIX=~/.npm-global
 export PATH=~/.npm-global/bin:$PATH

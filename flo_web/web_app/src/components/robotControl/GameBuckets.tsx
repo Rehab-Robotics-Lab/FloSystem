@@ -198,7 +198,7 @@ const LoadBucket: React.FunctionComponent<LoadBucketProps> = ({
   buckets,
   setSteps
 }) => {
-  const [loadID, setLoadID] = useState(0);
+  const [loadID, setLoadID] = useState(1);
   const load = (): void => {
     setSteps(buckets[loadID].steps);
     cancel();
@@ -221,7 +221,11 @@ const LoadBucket: React.FunctionComponent<LoadBucketProps> = ({
         </select>
       </label>
 
-      <button type="button" onClick={(): void => load()}>
+      <button
+        type="button"
+        onClick={(): void => load()}
+        disabled={buckets.length < 2}
+      >
         Load
       </button>
       <button type="button" onClick={(): void => cancel()}>

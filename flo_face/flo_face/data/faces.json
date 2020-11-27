@@ -10,7 +10,8 @@
                 [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                 [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
             "description": "sleeping",
-            "eyes" : "sleep"
+            "eyes" : "sleep",
+            "validated": true
         },
         "happy": {
             "on": [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -61,7 +62,8 @@
             [0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0],
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
             "description": "A face to show that flow is very sad",
-            "eyes" : "sad"
+            "eyes" : "sad",
+            "validated": true
         },
 
         "content": {
@@ -100,10 +102,11 @@
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
             "description": "A face to show that flow is pouting",
-            "eyes" : "puppyDog"
+            "eyes" : "puppyDog",
+            "validated": true
         },
 
-        "cheeky": {
+        "mischievous": {
             "on": [[0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0],
             [0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -113,10 +116,12 @@
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
             "description": "A face to show that flow is cheeky",
-            "eyes" : "shades"
+            "eyes" : "shades",
+            "validated": true,
+            "old-name": "cheeky"
         },
 
-        "amused": {
+        "default-happy": {
             "on": [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
             [0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0],
@@ -126,10 +131,12 @@
             [0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
             "description": "A face to show that flow is amused",
-            "eyes" : "small"
+            "eyes" : "small",
+            "validated": true,
+            "old-name": "amused"
         },
 
-        "laughing_hard": {
+        "jovial": {
             "on": [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
             [0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
             [0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
@@ -139,7 +146,9 @@
             [0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
             "description": "A face to show that flow is laughing hard",
-            "eyes" : "concentrating"
+            "eyes" : "concentrating",
+            "validated": true,
+            "old-name": "laughing_hard"
         },
 
         "christmas": {
@@ -154,7 +163,7 @@
             "description": "A face for christmas",
             "eyes" : "christmas_tree"
         },
-        "frowning": {
+        "very-sad": {
             "on": [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0],
             [0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0],
@@ -164,7 +173,9 @@
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
             "description": "A face to show that flow is frowning",
-            "eyes" : "teary"
+            "eyes" : "teary",
+            "validated": true,
+            "old-name": "frowning"
         },
 
         "surprised": {
@@ -177,7 +188,8 @@
             [0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0],
             [0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0]],
             "description": "A face to show that flow is surprised",
-            "eyes" : "stare"
+            "eyes" : "stare",
+            "validated": true
         },
 
         "neutral": {
@@ -193,7 +205,7 @@
             "eyes" : "standard"
         },
 
-        "smiling_hard": {
+        "happy-non-default": {
             "on": [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
             [0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0],
@@ -203,7 +215,9 @@
             [0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
             "description": "A face to show that flow is smiling hard",
-            "eyes" : "large"
+            "eyes" : "large",
+            "validated": true,
+            "old-name": "smiling_hard"
         },
 
         "chortling": {
@@ -229,10 +243,11 @@
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
             "description": "A face to show that flow is so sad",
-            "eyes" : "sad"
+            "eyes" : "sad",
+            "validated": true
         },
 
-        "uncertain": {
+        "dead": {
             "on": [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0],
             [0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0],
@@ -242,7 +257,9 @@
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],
             "description": "A face to show that flow is uncertain",
-            "eyes" : "x"
+            "eyes" : "x",
+            "validated": true,
+            "old-name": "uncertain"
         },
 
         "embarrassed": {

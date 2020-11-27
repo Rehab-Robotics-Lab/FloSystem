@@ -41,6 +41,10 @@ class FloFaceManager(object):
             'validated' in self.face_data['mouths'][key].keys() and
             self.face_data['mouths'][key]['validated']
         ]
+        self.nonvalidated_mouth_keys = [
+            key for key in self.mouth_keys if
+            key not in self.validated_mouth_keys
+        ]
         self.eye_direction = 'center'
         self.current_mouth = 'standard'
         self.current_eyes = 'standard'
@@ -70,7 +74,7 @@ class FloFaceManager(object):
 
         Returns: The list of faces, as names
         """
-        return GetFaceOptionsResponse(self.mouth_keys, self.validated_mouth_keys)
+        return GetFaceOptionsResponse(self.mouth_keys, self.nonvalidated_mouth_keys, self.validated_mouth_keys)
 
     def set_face(self, request):
         """Receive a request to set the face. Load the new mouth and

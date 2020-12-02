@@ -49,7 +49,9 @@ echo "Adding updated webrtcros"
 prior=$(pwd)
 cd ~/catkin_ws/src
 git clone --single-branch --branch develop https://github.com/RobotWebTools/webrtc_ros.git
-cd webrtc_ros/webrtc
+cd webrtc_ros
+git checkout a2a19da
+cd webrtc
 touch CATKIN_IGNORE
 cd $prior
 

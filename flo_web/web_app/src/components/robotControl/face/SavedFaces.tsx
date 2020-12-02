@@ -48,7 +48,8 @@ const SavedFaces: React.FunctionComponent<SavedFacesProps> = ({
   setEyeOptions
 }) => {
   const [setFaceSrv, setSetFaceSrv] = useState<ROSLIB.Service | null>(null);
-  const [faces, setFaces] = useState<string[]>([]);
+  const [otherFaces, setOtherFaces] = useState<string[]>([]);
+  const [validatedFaces, setValidatedFaces] = useState<string[]>([]);
 
   const setFace = (name: string): void => {
     const req = new ROSLIB.ServiceRequest({
@@ -80,7 +81,8 @@ const SavedFaces: React.FunctionComponent<SavedFacesProps> = ({
     const request = new ROSLIB.ServiceRequest({});
 
     getFaceOptions.callService(request, resp => {
-      setFaces(resp.faces);
+      setOtherFaces(resp.other_faces.sort());
+      setValidatedFaces(resp.validated_faces.sort());
       console.log("received back available faces");
     });
     console.log("requested available faces");
@@ -108,7 +110,17 @@ const SavedFaces: React.FunctionComponent<SavedFacesProps> = ({
           maxHeight: "400px"
         }}
       >
-        {faces.map(value => (
+        Validated Faces:
+        {validatedFaces.map(value => (
+          <SavedFace
+            name={value}
+            setFace={(): void => setFace(value)}
+            disabled={!connected}
+            key={value}
+          />
+        ))}
+        Other Faces:
+        {otherFaces.map(value => (
           <SavedFace
             name={value}
             setFace={(): void => setFace(value)}

@@ -47,7 +47,7 @@ def target_touch(new_def, process_step, neutral):
             {'speech': speech, 'targets': targets})
 
         actions_bag.extend(
-            [{'speech': '{}'.format(idx)} for idx in range(10)])
+            [{'speech': '{}'.format(idx+1)} for idx in range(10)])
         actions_bag.append(neutral)
 
     actions_list += actions_bag

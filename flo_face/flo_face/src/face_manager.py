@@ -74,7 +74,9 @@ class FloFaceManager(object):
 
         Returns: The list of faces, as names
         """
-        return GetFaceOptionsResponse(self.mouth_keys, self.nonvalidated_mouth_keys, self.validated_mouth_keys)
+        return GetFaceOptionsResponse(self.mouth_keys,
+                                      self.nonvalidated_mouth_keys,
+                                      self.validated_mouth_keys)
 
     def set_face(self, request):
         """Receive a request to set the face. Load the new mouth and

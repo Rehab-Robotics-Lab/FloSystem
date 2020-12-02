@@ -225,8 +225,17 @@ class BolideController(object):
             self.moving_params['time_start'] = rospy.get_time()
         self.moving_params['completion_times'] = np.array([])
 
-        # SETUP AND SHIP MOVE TO ROBOT
         moves = goal.targets
+        if len(moves) < 1:
+            rospy.logwarn('Recieved a sequence with no moves')
+            result = MoveResult()
+            result.completed = False
+            result.positional_error = 0
+            self.server.set_succeeded(result, "No moves in command")
+            self.available_publisher.publish(True)
+            self.moving = False
+            return
+        # SETUP AND SHIP MOVE TO ROBOT
         # build unique times, for now, lets work linearly:
         # TODO build extra times in to allow for better return values and stopping mid move
         self.moving_params['unique_times'] = np.array([0])

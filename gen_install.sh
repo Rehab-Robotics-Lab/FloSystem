@@ -49,10 +49,32 @@ echo "Adding updated webrtcros"
 prior=$(pwd)
 cd ~/catkin_ws/src
 git clone --single-branch --branch develop https://github.com/RobotWebTools/webrtc_ros.git
-cd webrtc_ros
-git checkout a2a19da
-cd webrtc
-touch CATKIN_IGNORE
+sudo apt-get install -y \
+    gmodule-2.0 \
+    libgtk-3-dev \
+    libglib2.0-dev \
+    pulseaudio \
+    libasound2-dev \
+    libpulse-dev \
+    ros-${ROS_VERSION}-image-transport \
+    ninja-build \
+    stow \
+    ros-${ROS_VERSION}-cv-bridge
+
+cd ~/catkin_ws/src
+git clone --depth 1 https://github.com/GT-RAIL/async_web_server_cpp.git
+
+mkdir -p ~/3rdparty/jsoncpp/
+cd ~/3rdparty/jsoncpp/
+git clone --depth 1 https://github.com/open-source-parsers/jsoncpp.git . && \
+    mkdir build && \
+    cd build && \
+    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DARCHIVE_INSTALL_DIR=. -G "Unix Makefiles" .. &&  \
+    make
+sudo make install
+
+export LD_LIBRARY_PATH=/usr/local/lib/:$LD_LIBRARY_PATH
+
 cd $prior
 
 

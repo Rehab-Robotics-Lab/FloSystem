@@ -133,7 +133,8 @@ const CurrentFace: React.FunctionComponent<CurrentFaceProps> = ({
   }
   return (
     <div>
-      <h3>Current Face :</h3>
+      <h3>Current Face : </h3>
+      <span>{faceState && faceState.mouth_name}</span>
       <svg width="100%" viewBox="-45 -35 90 70">
         {faceMatrices}
       </svg>

@@ -46,7 +46,7 @@ const SaveBucket: React.FunctionComponent<SaveBucketProps> = ({
       serviceType: "flo_core_defs/SetGameBucket"
     });
 
-    const cleanSteps = steps.map(({ ...keep }) => keep);
+    const cleanSteps = steps.map(({ desc, key, ...keep }) => keep);
     console.log(steps);
     console.log(cleanSteps);
 
@@ -198,7 +198,7 @@ const LoadBucket: React.FunctionComponent<LoadBucketProps> = ({
   buckets,
   setSteps
 }) => {
-  const [loadID, setLoadID] = useState(0);
+  const [loadID, setLoadID] = useState(1);
   const load = (): void => {
     setSteps(buckets[loadID].steps);
     cancel();
@@ -221,7 +221,11 @@ const LoadBucket: React.FunctionComponent<LoadBucketProps> = ({
         </select>
       </label>
 
-      <button type="button" onClick={(): void => load()}>
+      <button
+        type="button"
+        onClick={(): void => load()}
+        disabled={buckets.length < 2}
+      >
         Load
       </button>
       <button type="button" onClick={(): void => cancel()}>
@@ -566,7 +570,13 @@ const GameBuckets: React.FunctionComponent<GameBucketsProps> = ({
       </button>
       <hr />
 
-      <div style={{ display: "flex", flexDirection: "column-reverse" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column-reverse",
+          overflowY: "auto"
+        }}
+      >
         {steps.map((value, idx) => (
           <GameStep
             def={value}

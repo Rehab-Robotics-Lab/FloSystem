@@ -49,7 +49,7 @@ const FaceBrightnessSet: React.FunctionComponent<FaceBrightnessSetProps> = ({
   const brightness = faceState ? faceState.mouth_brightness : 0;
   return (
     <div>
-      <h3>Brightness:</h3>
+      <span>Brightness:</span>
       <input
         type="range"
         min="0"

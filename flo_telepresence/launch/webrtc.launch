@@ -31,4 +31,5 @@
     <param name="port" value="9091"/>
   </node>
   <node name="remote_vid_repub" pkg="image_transport" type="republish" args="in:=/remote_video raw out:=/remote_video_clean"/>
+  <node name="remote_vid_relay" pkg="topic_tools" type="relay" required="true" args="/remote_video_clean _stealth:=True _monitor_topic:='/record_video_dummy'"/>
 </launch>

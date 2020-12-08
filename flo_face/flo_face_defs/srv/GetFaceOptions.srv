@@ -1,2 +1,4 @@
 ---
 string[] faces
+string[] other_faces
+string[] validated_faces

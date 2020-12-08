@@ -42,6 +42,10 @@ We are waiting on approvals from the owners of the repository (The University of
   - [ROS won't build](#broken-build)
   - [No audio plays](#broken-audio)
   - [No videos on web](#broken-web-video)
+- [Camera Recalibration]
+  - [Practical Tips]
+  - [Realsense Tools]
+  - [OpenCV]
 
 ## WebServer Setup
 
@@ -478,11 +482,12 @@ function ssh-flo {
 
 1. Setup Ubuntu
    1. Make sure to connect to a network and update everything
+      - When connecting to the network, you should obscure your password. To do this, run wpa_passphrase [ssid-name][password-name] and use the result for the network. Set the password to only save for this user (little logo at the end of the password line)
    2. Make sure to set the system to login automatically
    3. enable ssh: `sudo apt install openssh-server`
 2. Use lsyncd with the configuration file (See [Developing](#developing)) to
    copy files over
-3. ssh into the robot and run the install script (`bash /robot_install.sh`)
+3. ssh into the robot and run the install script (`bash ./robot_install.sh`)
 4. add a symlink to make running easier: ssh in and from the home directory type
    `ln -s ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh`.
 5. You need to setup read/write privileges for all of the USB devices and setup
@@ -509,22 +514,13 @@ function ssh-flo {
     2. `SHELL=/bin/bash` This will set the shell that things should run in
     3. `@reboot (sleep 90; source ~/.bashrc; ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh)`
     4. `*/1 * * * * (source ~/.bashrc; python ~/catkin_ws/src/LilFloSystem/flo_web/pinger/pinger.py)`
-12. Install pm2 (#TODO: put into install scripts): `npm install -g pm2`
-13. Install router dependencies:
-    1. Go into `flo_web/webrtc_robot_router` and run `npm install`
-14. load patched rosbridge suite:
-    1. go into catkin_ws/src
-    2. clone https://github.com/mjsobrep/rosbridge_suite.git
-    3. checkout the `nousub` branch (optionally merge in master)
-    4. delete catkin_ws/devel and catkin_ws/install.
-    5. run catkin_make
-15. Setup firewall (really need that with ros)
+12. Setup firewall (really need that with ros)
     1. `sudo ufw default allow outgoing`
     2. `sudo ufw default deny incoming`
     3. `sudo ufw allow ssh`
     4. `sudo ufw enable`
-    5. check: `ufw status`
-16. Take a look at the bash_includes file. It should be going in through the install system automatically. Might not be though. For testing you want to set the ros_ip. But for deployment you do not. If a ROS IP is set using a network which the robot is connected to, then upon network loss the ros system will crash
+    5. check: `sudo ufw status`
+13. Take a look at the bash_includes file. It should be going in through the install system automatically. Might not be though. For testing you want to set the ros_ip. But for deployment you do not. If a ROS IP is set using a network which the robot is connected to, then upon network loss the ros system will crash
 
 #### Assigning the serial devices to have a fixed addresses {#udev}
 
@@ -817,3 +813,25 @@ There are a few possible problems:
    chrome://flags/#unsafely-treat-insecure-origin-as-secure b. fill in with:
    `http://10.42.0.189:3000,http://10.42.0.189:9090,http://10.42.0.189:9091` c.
    change to enabled
+
+
+#Recalibrating the Realsense
+
+## Practical tips
+1. The Intel D415 has the following parameters:
+	- Intrinsic : Focal length, Distortion and Principal Point for each of the three cameras.
+	- Extrinsic : baseline, RotationLeftRight, TranslationLeftRight, RotationLeftColor, TranslationLeftColor 
+
+2. The camera might be out of calibration if flat surfaces look noisy/wobbly, depth images have many holes, physical distances are not within 3% of the expected distance. This might happen if the camera falls down/the factory calibration changes due to some other event which in not very frequent.
+
+##Using Realsense Tools
+
+1. On chip self calibration can be performed using the Realsense Viewer(comes with Intel® RealSense™ SDK 2.0). This tool provides a health-check of current calibration. If the value is below 0.25, the calibration is good. Anything above 0.75 needs recalibration. The intrinsics and extrincs can be calibrated by pointing the camera at a flat white wall in good lighthing condition. The application also scores and allows comparison of new calibrations. For more: https://dev.intelrealsense.com/docs/self-calibration-for-depth-cameras
+
+2. Extrinsic calibration using Intel Realsense Dynamic Calibrator(https://dev.intelrealsense.com/docs/intel-realsensetm-d400-series-calibration-tools-user-guide). The guide provides instruction for downloading the Dynamic Calibrator app. Targets and Demos can also be found at the same link.
+
+##Using external tools
+
+One way to check calibration is to print checkerboard targets(https://boofcv.org/index.php?title=Camera_Calibration_Targets). Then use: https://github.com/IRIM-Technology-Transition-Lab/camera-calibration , or equivalent to compare current parameter values with those returned from the calibration program.
+
+

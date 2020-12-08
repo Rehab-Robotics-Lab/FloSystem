@@ -27,10 +27,14 @@ def target_touch(new_def, process_step, neutral):
     Returns: The action list that defines the game
     """
     actions_list = []
+    reps = 10
+    if new_def.reps:
+        reps = new_def.reps
+
     actions_list.append(neutral)
     actions_list.append(
         {'speech': 'in the target touch activity, I will tell you to ' +
-                   'touch the dots on my hands. We will do 10 ' +
+                   'touch the dots on my hands. We will do {} '.format(reps) +
                    'touches, per dot. I will count to tell you when to ' +
                    'go. No tricks here, just good work!! Let\'s start ' +
                    'in a ready position, return to this position after every touch'})
@@ -47,7 +51,7 @@ def target_touch(new_def, process_step, neutral):
             {'speech': speech, 'targets': targets})
 
         actions_bag.extend(
-            [{'speech': '{}'.format(idx+1)} for idx in range(10)])
+            [{'speech': '{}'.format(idx+1)} for idx in range(reps)])
         actions_bag.append(neutral)
 
     actions_list += actions_bag

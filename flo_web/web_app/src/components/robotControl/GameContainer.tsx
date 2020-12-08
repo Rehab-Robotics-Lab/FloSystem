@@ -45,6 +45,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
 }) => {
   const [commandOptions, setCommandOptions] = useState<string[]>([]);
   const [gameFeedback, setGameFeedback] = useState<string>("");
+  const [reps, setReps] = useState(10);
   const [gameDefPub, setGameDefPub] = useState<ROSLIB.Topic | null>(null);
   const [gameCommandPub, setGameCommandPub] = useState<ROSLIB.Topic | null>(
     null
@@ -194,6 +195,23 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
             ))}
           </select>
         </label>
+
+        {gameType == "target_touch" && (
+          //TODO: insert a number input for number of reps
+          <label htmlFor="reps">
+            Reps:
+            <input
+              id="reps"
+              type="number"
+              min="0"
+              value={reps}
+              onChange={(obj): void => {
+                setReps(parseInt(obj.target.value, 10));
+              }}
+            />
+          </label>
+        )}
+
         <button
           type="button"
           onClick={(): void => {
@@ -207,7 +225,8 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
             }
             const gameDef = new ROSLIB.Message({
               game_type: gameType, // eslint-disable-line
-              steps: buckets[gbID].steps
+              steps: buckets[gbID].steps,
+              reps: reps
             });
             if (gameDefPub !== null) {
               gameDefPub.publish(gameDef);

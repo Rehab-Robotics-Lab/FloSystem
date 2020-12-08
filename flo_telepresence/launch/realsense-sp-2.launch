@@ -17,7 +17,7 @@
   <arg name="enable_depth" value="True"/>
   <arg name="color_width" value="1920"/>
   <arg name="color_height" value="1080"/>
-  <arg name="align_depth" value="True"/>
+  <arg name="align_depth" value="False"/>
   <!--Should be 30:-->
   <arg name="color_fps" value="30"/>
   <arg name="enable_pointcloud" value="False"/>
@@ -57,5 +57,5 @@
     </node>
   </group>
   <node name="ur_relay_color" pkg="topic_tools" type="relay" required="true" args="upper_realsense/color/image_raw _stealth:=True _monitor_topic:='/record_video_dummy'"/>
-  <node name="ur_relay_dc" pkg="topic_tools" type="relay" required="true" args="upper_realsense/aligned_depth_to_color/image_raw _stealth:=True _monitor_topic:='/record_video_dummy'"/>
+  <node name="ur_relay_dc" pkg="topic_tools" type="relay" required="true" args="upper_realsense/depth/image_raw _stealth:=True _monitor_topic:='/record_video_dummy'"/>
 </launch>

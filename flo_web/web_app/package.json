@@ -14,7 +14,7 @@
     "@types/react-router-dom": "^5.1.4",
     "@types/roslib": "^0.18.3",
     "@types/yup": "^0.29.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "eventemitter2": "^6.4.1",
     "formik": "^2.1.4",
     "honeybadger": "^1.4.0",

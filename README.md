@@ -221,35 +221,6 @@ resources from the rest of the system.
 12. Run `docker-compose -f docker-compose-turn.yml up -d`
 13. Monitor with `docker ps`, `docker stats`, and `docker-compose logs -f`
 
-### Deploying to Heroku
-
-Discovered that on heroku, each individual docker image/service needs its own dyno and the way that they talk between each other doesn't work really well.
-So we are not going with heroku.
-But I am leavin this here for future ref
-
-Heroku is a nice quick way to deploy. They provide a free hobby dyno to students,
-so using that. The Heroku-Redis and Heroku-Postgres serve the need for in system
-messaging, in system memory, and database. In theory heroku will handle keeping
-those systems safe.
-
-1. [Install the Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli#download-and-install)
-2. Login to Heroku CLI: `heroku login`
-3. Create an app: `heroku create <app-name>`. Note that the app name is in a
-   global namespace for all heroku apps, so for example `flo-control-system`
-   is alredy taken
-4. If you don't want to be storing plain text passwords (you don't) you need to
-   [setup a credential helper](https://docs.docker.com/engine/reference/commandline/login/#credentials-store)
-   1. Install the helper, download
-      [the latest release](https://github.com/docker/docker-credential-helpers/releases)
-      and put it in your path. Easiest to just drop in ~/bin and go change the permissions to
-      be runnable (`chmod u+x <filename>`)
-   2. To use pass:
-      1. Install pass and gnupg: `sudo apt install pass gnupg`
-      2. Make a gpg key: gpg --full-gen-key
-      3. Initialize pass: pass init <emailaddr>
-   3. Setup the docker config by editing ~/.docker/config.json to have:
-      `"credsStore": "pass"`
-5. login to the container system: `heroku container:login`
 
 ## Setup
 

@@ -221,6 +221,12 @@ resources from the rest of the system.
 12. Run `docker-compose -f docker-compose-turn.yml up -d`
 13. Monitor with `docker ps`, `docker stats`, and `docker-compose logs -f`
 
+### Deploy to AWS
+
+1. If you are on Linux, [setup compose cli](https://github.com/docker/compose-cli/blob/main/INSTALL.md)
+2. Create a context for aws: `docker create ecs <name of new context>`
+3. Set new context as default: `docker context use <name>`
+
 
 ## Setup
 

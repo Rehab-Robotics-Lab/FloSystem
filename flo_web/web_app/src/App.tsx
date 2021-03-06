@@ -4,7 +4,6 @@ import "./App.css";
 import Routes from "./Routes";
 import axios from "axios";
 import navbar from "./styleDefs/Nav.module.css";
-import Honeybadger from "honeybadger-js";
 
 //function App() {
 //return <RobotController />;
@@ -19,10 +18,6 @@ const App: React.FunctionComponent = () => {
   const setUserName = useCallback(
     (un: string): void => {
       setUserNameInternal(un);
-      Honeybadger.setContext({
-        //eslint-disable-next-line @typescript-eslint/camelcase
-        user_email: un
-      });
     },
     [setUserNameInternal]
   );
@@ -38,7 +33,7 @@ const App: React.FunctionComponent = () => {
   );
 
   useEffect(() => {
-    axios.get("/api/users/login").then(res => {
+    axios.get("/api/users/login").then((res) => {
       const li = res.data["loggedIn"];
       setLoggedIn(li);
       if (li) {
@@ -100,7 +95,7 @@ const App: React.FunctionComponent = () => {
                   setLoggedIn(false);
                   setUserName("");
                 },
-                err => {
+                (err) => {
                   alert("failed to logout: " + err.response.data["error"]);
                 }
               );

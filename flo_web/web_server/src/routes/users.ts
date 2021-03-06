@@ -188,7 +188,7 @@ router.get('/all-users', checkAdmin, async (req, res) => {
 router.post('/change-password', checkLoggedIn, async (req, res) => {
     const { oldPassword, newPassword } = req.body;
     const session = req.session;
-    if (session === undefined) {
+    if (session === undefined || session.userID === undefined) {
         res.status(500).json({ error: 'no session found' });
         return;
     }

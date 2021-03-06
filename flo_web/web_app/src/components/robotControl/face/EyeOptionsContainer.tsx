@@ -12,7 +12,7 @@ interface EyeOptionProps {
 const EyeOption: React.FunctionComponent<EyeOptionProps> = ({
   name,
   disabled,
-  setEyeDirection
+  setEyeDirection,
 }) => {
   return (
     <button
@@ -37,21 +37,21 @@ interface EyeOptionsContainerProps {
 const EyeOptionsContainer: React.FunctionComponent<EyeOptionsContainerProps> = ({
   ros,
   connected,
-  eyeOptions
+  eyeOptions,
 }) => {
   const [
     setEyeDirectionSrv,
-    setSetEyeDirectionSrv
+    setSetEyeDirectionSrv,
   ] = useState<ROSLIB.Service | null>(null);
 
   const setEye = (name: string): void => {
     const req = new ROSLIB.ServiceRequest({
-      direction: name
+      direction: name,
     });
     if (setEyeDirectionSrv === null) {
       return;
     }
-    setEyeDirectionSrv.callService(req, function() {
+    setEyeDirectionSrv.callService(req, function () {
       //do nothing
       console.log("succesfully set eye direction");
     });
@@ -63,7 +63,7 @@ const EyeOptionsContainer: React.FunctionComponent<EyeOptionsContainerProps> = (
     const setEyeDirectionSrvT = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/set_eye_direction",
-      serviceType: "flo_face_defs/SetEyeDirection"
+      serviceType: "flo_face_defs/SetEyeDirection",
     });
     setSetEyeDirectionSrv(setEyeDirectionSrvT);
     console.log("connected to set eye direction service");
@@ -78,10 +78,10 @@ const EyeOptionsContainer: React.FunctionComponent<EyeOptionsContainerProps> = (
         style={{
           display: "flex",
           flexDirection: "column",
-          overflowY: "auto"
+          overflowY: "auto",
         }}
       >
-        {eyeOptions.map(value => (
+        {eyeOptions.map((value) => (
           <EyeOption
             name={value}
             disabled={!connected}

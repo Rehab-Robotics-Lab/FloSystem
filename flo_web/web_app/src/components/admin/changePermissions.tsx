@@ -4,9 +4,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
 const addUserSchema = Yup.object().shape({
-  email: Yup.string()
-    .email("invalid email")
-    .required("required")
+  email: Yup.string().email("invalid email").required("required"),
 });
 
 interface Permissions {
@@ -19,10 +17,10 @@ const ChangePermissions: React.FunctionComponent = () => {
 
   const update = (): void => {
     axios.get("/api/permissions").then(
-      res => {
+      (res) => {
         setPermissionsArray(res.data.permissions as Array<Permissions>);
       },
-      err => {
+      (err) => {
         console.log("error: " + err.response.data["error"]);
       }
     );
@@ -30,7 +28,7 @@ const ChangePermissions: React.FunctionComponent = () => {
 
   useEffect(update, []);
 
-  const permissionsRows = permissionsArray.map(permission => (
+  const permissionsRows = permissionsArray.map((permission) => (
     <li key={permission.robot_name}>
       {permission.robot_name}
       <ul>
@@ -42,14 +40,14 @@ const ChangePermissions: React.FunctionComponent = () => {
               axios
                 .post("/api/permissions/add", {
                   robotName: permission.robot_name,
-                  email: values.email
+                  email: values.email,
                 })
                 .then(
                   () => {
                     update();
                     setSubmitting(false);
                   },
-                  err => {
+                  (err) => {
                     alert(err);
                     setSubmitting(false);
                   }
@@ -68,7 +66,7 @@ const ChangePermissions: React.FunctionComponent = () => {
             )}
           </Formik>
         </li>
-        {permission.users.map(user => {
+        {permission.users.map((user) => {
           if (user) {
             return (
               <li key={permission.robot_name + user}>
@@ -79,7 +77,7 @@ const ChangePermissions: React.FunctionComponent = () => {
                     axios
                       .post("/api/permissions/remove", {
                         robotName: permission.robot_name,
-                        email: user
+                        email: user,
                       })
                       .then(() => {
                         update();
@@ -106,7 +104,7 @@ const ChangePermissions: React.FunctionComponent = () => {
           style={{
             textAlign: "left",
             display: "inline-block",
-            margin: "0 auto"
+            margin: "0 auto",
           }}
         >
           <ul>{permissionsRows}</ul>

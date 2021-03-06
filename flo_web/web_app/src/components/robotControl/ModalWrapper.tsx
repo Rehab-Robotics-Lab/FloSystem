@@ -6,7 +6,7 @@ interface ModalWrapperProps {
 
 const ModalWrapper: React.FunctionComponent<ModalWrapperProps> = ({
   show,
-  children
+  children,
 }) => {
   if (!show) return null;
   return (
@@ -20,7 +20,7 @@ const ModalWrapper: React.FunctionComponent<ModalWrapperProps> = ({
         background: "rgba(0,0,0,.3)",
         display: "flex",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
       }}
     >
       <div
@@ -32,7 +32,7 @@ const ModalWrapper: React.FunctionComponent<ModalWrapperProps> = ({
           position: "relative",
           textAlign: "center",
           display: "flex",
-          flexDirection: "column"
+          flexDirection: "column",
         }}
       >
         {children}

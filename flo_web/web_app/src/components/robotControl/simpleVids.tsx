@@ -31,20 +31,20 @@ interface ServerConfig {
 const Vids: React.FunctionComponent<VidsProps> = ({
   ros,
   connected,
-  ipAddr
+  ipAddr,
 }) => {
   const remoteRefUpper = React.useRef<HTMLVideoElement>(null);
   const localRef = React.useRef<HTMLVideoElement>(null);
   const upperStream = React.useRef<MediaStream>();
   const localStream = React.useRef<MediaStream>();
 
-  const { robotName } = useParams();
+  const { robotName } = useParams<{ robotName: string }>();
 
   useEffect(() => {
     if (connected) {
       const getTurnCreds = async (): Promise<TurnCreds> => {
         const resp = await axios.post(`/api/webrtc/turn-credentials`, {
-          robotName: robotName
+          robotName: robotName,
         });
         return resp.data as TurnCreds;
       };
@@ -56,37 +56,37 @@ const Vids: React.FunctionComponent<VidsProps> = ({
           {
             urls: [
               "stun:stun1.l.google.com:19302",
-              "stun:stun2.l.google.com:19302"
-            ]
-          }
+              "stun:stun2.l.google.com:19302",
+            ],
+          },
         ],
-        iceCandidatePoolSize: 10
+        iceCandidatePoolSize: 10,
       };
 
       let connection1: any; //eslint-disable-line @typescript-eslint/no-explicit-any
 
       getTurnCreds()
-        .then(turnCredentials => {
+        .then((turnCredentials) => {
           serverConfig.iceServers.push(
             {
               urls: `turn:${ipAddr}:5349?transport=udp`,
               username: turnCredentials["username"],
-              credential: turnCredentials["password"]
+              credential: turnCredentials["password"],
             },
             {
               urls: `turn:${ipAddr}:3478?transport=udp`,
               username: turnCredentials["username"],
-              credential: turnCredentials["password"]
+              credential: turnCredentials["password"],
             },
             {
               urls: `turn:${ipAddr}:5349?transport=tcp`,
               username: turnCredentials["username"],
-              credential: turnCredentials["password"]
+              credential: turnCredentials["password"],
             },
             {
               urls: `turn:${ipAddr}:3478?transport=tcp`,
               username: turnCredentials["username"],
-              credential: turnCredentials["password"]
+              credential: turnCredentials["password"],
             }
           );
         })
@@ -104,11 +104,11 @@ const Vids: React.FunctionComponent<VidsProps> = ({
             const remoteStreamConfigUpper = { video: {}, audio: {} };
             remoteStreamConfigUpper.video = {
               id: "subscribed_video_upper",
-              src: "ros_image:/mantaro_cam/image_raw"
+              src: "ros_image:/mantaro_cam/image_raw",
             };
             remoteStreamConfigUpper.audio = {
               id: "subscribed_audio",
-              src: "local:"
+              src: "local:",
             };
 
             connection1
@@ -128,7 +128,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
                   return;
                 }
                 remoteVideoElement.current.srcObject = event.stream;
-                event.remove.then(function() {
+                event.remove.then(function () {
                   //Remote stream removed
                   if (
                     !remoteVideoElement ||
@@ -153,14 +153,14 @@ const Vids: React.FunctionComponent<VidsProps> = ({
               dest: "ros_image:remote_video",
               width: 848,
               height: 480,
-              frameRate: 20
+              frameRate: 20,
             };
             userMediaConfig.audio = true;
 
             connection1
               .addLocalStream(userMediaConfig, localStreamConfig)
               //eslint-disable-next-line @typescript-eslint/no-explicit-any
-              .then(function(event: any) {
+              .then(function (event: any) {
                 console.log(
                   "Local stream added",
                   event,
@@ -179,7 +179,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
                   return;
                 }
                 localVideoElement.current.srcObject = event.stream;
-                event.remove.then(function() {
+                event.remove.then(function () {
                   //console.log("Local stream removed", event);
                   if (
                     !localVideoElement ||
@@ -222,7 +222,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
 
   const vidStyle: CSSProperties = {
     width: "100%",
-    height: "auto"
+    height: "auto",
   };
 
   const vidContainerStyle: CSSProperties = {
@@ -232,7 +232,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
     flexDirection: "column",
     height: "auto",
     borderRadius: "5px",
-    overflow: "hidden"
+    overflow: "hidden",
   };
 
   return (
@@ -248,7 +248,7 @@ const Vids: React.FunctionComponent<VidsProps> = ({
       <div
         style={Object.assign({}, vidContainerStyle, {
           minWidth: "55px",
-          width: "30%"
+          width: "30%",
         })}
       >
         <video

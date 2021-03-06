@@ -1,5 +1,5 @@
-declare module "webrtc-adapter"{
-    export type adapter= any;
+declare module "webrtc-adapter" {
+  export type adapter = any;
 }
 
 declare module "ros3d" {
@@ -32,10 +32,10 @@ declare module "ros3d" {
     stopped: boolean;
     animationRequestID: number; //TODO: Not sure what this is
     start(): void;
-      draw():void;
-      stop():void;
-      addObject(obj: THREE.Object3D, selectable: boolean?):void;
-      resize(width: number, height:number):void;
+    draw(): void;
+    stop(): void;
+    addObject(obj: THREE.Object3D, selectable: ?boolean): void;
+    resize(width: number, height: number): void;
   }
 
   export class UrdfClient {
@@ -44,20 +44,20 @@ declare module "ros3d" {
       param?: string;
       path?: string;
       tfClient: ROSLIB.Ros.TFClient;
-        rootObject?: object; //TODO: I have no clue what this is
+      rootObject?: object; //TODO: I have no clue what this is
       tfPrefix?: string;
       loader?: any;
     });
-      urdf: ROS3D.Urdf;
+    urdf: ROS3D.Urdf;
   }
 
-    export class Urdf{
-        constructor(options:{
-            urdfModel: ROSLIB.UrdfModel;
-            path?:string;
-            tfClient: ROSLIB.Ros.TFClient; 
-            tfPrefix?: string;
-            loader?: object; //TODO: not sure what type this is
-        })
-    }
+  export class Urdf {
+    constructor(options: {
+      urdfModel: ROSLIB.UrdfModel;
+      path?: string;
+      tfClient: ROSLIB.Ros.TFClient;
+      tfPrefix?: string;
+      loader?: object; //TODO: not sure what type this is
+    });
+  }
 }

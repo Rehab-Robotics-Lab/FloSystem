@@ -12,23 +12,23 @@ interface FaceBrightnessSetProps {
 const FaceBrightnessSet: React.FunctionComponent<FaceBrightnessSetProps> = ({
   ros,
   connected,
-  faceState
+  faceState,
 }) => {
   const [
     setBrightnessSrv,
-    setSetBrightnessSrv
+    setSetBrightnessSrv,
   ] = useState<ROSLIB.Service | null>(null);
 
   const setBrightness = (value: number): void => {
     const req = new ROSLIB.ServiceRequest({
       target: "all",
-      value: value
+      value: value,
     });
     // send service call to add new utterance
     if (setBrightnessSrv === null) {
       return;
     }
-    setBrightnessSrv.callService(req, function() {
+    setBrightnessSrv.callService(req, function () {
       //do nothing
       console.log("succesfully changed eye brightness");
     });
@@ -40,7 +40,7 @@ const FaceBrightnessSet: React.FunctionComponent<FaceBrightnessSetProps> = ({
     const setBrightnessSrvT = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/set_face_brightness",
-      serviceType: "flo_face_defs/SetFaceBrightness"
+      serviceType: "flo_face_defs/SetFaceBrightness",
     });
     setSetBrightnessSrv(setBrightnessSrvT);
     console.log("connected to set eye brightness service");

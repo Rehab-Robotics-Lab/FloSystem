@@ -20,7 +20,7 @@ const SaveBucket: React.FunctionComponent<SaveBucketProps> = ({
   connected,
   steps,
   setBucketId,
-  buckets
+  buckets,
 }) => {
   const [saveID, setSaveID] = useState(0);
   const [nme, setNme] = useState("");
@@ -43,7 +43,7 @@ const SaveBucket: React.FunctionComponent<SaveBucketProps> = ({
     const serv = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/set_game_bucket",
-      serviceType: "flo_core_defs/SetGameBucket"
+      serviceType: "flo_core_defs/SetGameBucket",
     });
 
     const cleanSteps = steps.map(({ desc, key, ...keep }) => keep);
@@ -53,32 +53,32 @@ const SaveBucket: React.FunctionComponent<SaveBucketProps> = ({
     const thisBucket = {
       name: nme,
       subject: subjNo,
-      targeted_game: targGame, //eslint-disable-line @typescript-eslint/camelcase
+      targeted_game: targGame,
       description: desc,
-      steps: steps
+      steps: steps,
     };
 
     const cleanBucket = {
       name: nme,
       subject: subjNo,
-      targeted_game: targGame, //eslint-disable-line @typescript-eslint/camelcase
+      targeted_game: targGame,
       description: desc,
-      steps: cleanSteps
+      steps: cleanSteps,
     };
 
     console.log(cleanBucket);
 
     const req = new ROSLIB.ServiceRequest({
       id: saveID,
-      game_bucket: cleanBucket //eslint-disable-line @typescript-eslint/camelcase
+      game_bucket: cleanBucket,
     });
     serv.callService(
       req,
-      resp => {
+      (resp) => {
         setBucketId(resp.id, thisBucket);
         cancel();
       },
-      resp => {
+      (resp) => {
         alert(`failed to save bucket: ${resp}`);
       }
     );
@@ -196,7 +196,7 @@ const LoadBucket: React.FunctionComponent<LoadBucketProps> = ({
   showLoad,
   cancel,
   buckets,
-  setSteps
+  setSteps,
 }) => {
   const [loadID, setLoadID] = useState(1);
   const load = (): void => {
@@ -276,7 +276,7 @@ interface GameActionOptProps {
 const GameActionOpt: React.FunctionComponent<GameActionOptProps> = ({
   action,
   setActiveOpt,
-  active
+  active,
 }) => (
   <button
     type="button"
@@ -303,7 +303,7 @@ enum ActionType {
   rightArm = "pose_right",
   bothArms = "pose_both",
 
-  none = "none"
+  none = "none",
 }
 
 interface PoseButtonProps {
@@ -319,7 +319,7 @@ const PoseButton: React.FunctionComponent<PoseButtonProps> = ({
   disabled,
   ros,
   setGameActionOpts,
-  setActionType
+  setActionType,
 }) => {
   return (
     <button
@@ -329,18 +329,18 @@ const PoseButton: React.FunctionComponent<PoseButtonProps> = ({
         const searchSeqClient = new ROSLIB.Service({
           ros: ros as ROSLIB.Ros,
           name: "/search_pose",
-          serviceType: "flo_core_defs/SearchPose"
+          serviceType: "flo_core_defs/SearchPose",
         });
         console.log("connected to service to search for a pose");
 
         const request = new ROSLIB.ServiceRequest({ search: "" });
 
-        searchSeqClient.callService(request, resp => {
+        searchSeqClient.callService(request, (resp) => {
           const poses = [];
           for (let i = 0; i < resp.ids.length; i += 1) {
             poses.push({
               id: resp.ids[i],
-              description: resp.poses[i].description
+              description: resp.poses[i].description,
             });
           }
           setGameActionOpts(poses);
@@ -360,7 +360,7 @@ const AddGameAction: React.FunctionComponent<AddGameActionProps> = ({
   addGameAction,
   cancel,
   showAdd,
-  connected
+  connected,
 }) => {
   const [gameActionOpts, setGameActionOpts] = useState<GameAction[]>([]);
   const [toSay, setToSay] = useState("");
@@ -387,18 +387,18 @@ const AddGameAction: React.FunctionComponent<AddGameActionProps> = ({
               const searchSeqClient = new ROSLIB.Service({
                 ros: ros as ROSLIB.Ros,
                 name: "/search_pose_seq",
-                serviceType: "flo_core_defs/SearchPoseSeq"
+                serviceType: "flo_core_defs/SearchPoseSeq",
               });
               console.log("connected to service to search for a pose sequence");
 
               const request = new ROSLIB.ServiceRequest({ search: "" });
 
-              searchSeqClient.callService(request, resp => {
+              searchSeqClient.callService(request, (resp) => {
                 const seqs = [];
                 for (let i = 0; i < resp.ids.length; i += 1) {
                   seqs.push({
                     id: resp.ids[i],
-                    description: resp.sequences[i].description
+                    description: resp.sequences[i].description,
                   });
                 }
                 setGameActionOpts(seqs);
@@ -485,7 +485,7 @@ const AddGameAction: React.FunctionComponent<AddGameActionProps> = ({
               id: gameActionOpts[activeOpt].id,
               time: timeTarget,
               desc: gameActionOpts[activeOpt].description,
-              key: actionType + activeOpt + dt.getTime()
+              key: actionType + activeOpt + dt.getTime(),
             });
           }}
         >
@@ -507,7 +507,7 @@ export interface GameBucket {
 // Takes a parameter ros, which is the connection to ros
 const GameBuckets: React.FunctionComponent<GameBucketsProps> = ({
   ros,
-  connected
+  connected,
 }) => {
   const [steps, setSteps] = useState<StepDef[]>([]);
   const [showAdd, setShowAdd] = useState(false);
@@ -522,11 +522,11 @@ const GameBuckets: React.FunctionComponent<GameBucketsProps> = ({
     const srv = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/search_game_bucket_name_desc",
-      serviceType: "flo_core_defs/SearchGameBucket"
+      serviceType: "flo_core_defs/SearchGameBucket",
     });
     console.log("Connected to service to search for a game bucket");
     const request = new ROSLIB.ServiceRequest({ search: "" });
-    srv.callService(request, resp => {
+    srv.callService(request, (resp) => {
       const tmpBuckets = [];
       for (let idx = 0; idx < resp["ids"].length; idx++) {
         tmpBuckets[resp["ids"][idx]] = resp["game_buckets"][idx];
@@ -574,7 +574,7 @@ const GameBuckets: React.FunctionComponent<GameBucketsProps> = ({
         style={{
           display: "flex",
           flexDirection: "column-reverse",
-          overflowY: "auto"
+          overflowY: "auto",
         }}
       >
         {steps.map((value, idx) => (

@@ -19,7 +19,7 @@ interface GameCommandProps {
 
 const GameCommand: React.FunctionComponent<GameCommandProps> = ({
   name,
-  run
+  run,
 }) => {
   return (
     <button
@@ -41,7 +41,7 @@ interface GameContainerProps {
 // Takes a parameter ros, which is the connection to ros
 const GameContainer: React.FunctionComponent<GameContainerProps> = ({
   ros,
-  connected
+  connected,
 }) => {
   const [commandOptions, setCommandOptions] = useState<string[]>([]);
   const [gameFeedback, setGameFeedback] = useState<string>("");
@@ -57,7 +57,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
     const CommandListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "game_runner_command_opts",
-      messageType: "flo_core_defs/GameCommandOptions"
+      messageType: "flo_core_defs/GameCommandOptions",
     });
     const clCallback = (msg: ROSLIB.Message): void => {
       setCommandOptions((msg as CommandOpts).options);
@@ -69,7 +69,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
     const FeedbackListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "game_runner_state",
-      messageType: "flo_core_defs/GameState"
+      messageType: "flo_core_defs/GameState",
     });
     const flCallback = (msg: ROSLIB.Message): void => {
       setGameFeedback((msg as GameState).state);
@@ -81,7 +81,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
     const gameDefPubT = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "/game_runner_def",
-      messageType: "flo_core_defs/GameDef"
+      messageType: "flo_core_defs/GameDef",
     });
     setGameDefPub(gameDefPubT);
     console.log("connected to publish on game runner definition topic");
@@ -89,7 +89,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
     const gameCommandPubT = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "/game_runner_commands",
-      messageType: "flo_core_defs/GameCommand"
+      messageType: "flo_core_defs/GameCommand",
     });
     setGameCommandPub(gameCommandPubT);
     console.log("connected to publish on game runner commands topic");
@@ -125,19 +125,19 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
           const srv = new ROSLIB.Service({
             ros: ros as ROSLIB.Ros,
             name: "/search_game_bucket_name_desc",
-            serviceType: "flo_core_defs/SearchGameBucket"
+            serviceType: "flo_core_defs/SearchGameBucket",
           });
           console.log("Connected to service to search for a game bucket");
           const request = new ROSLIB.ServiceRequest({ search: "" });
           //TODO: Should be sorting out the buckets by game type
-          srv.callService(request, resp => {
+          srv.callService(request, (resp) => {
             const tmpBuckets = [];
             for (let idx = 0; idx < resp["ids"].length; idx++) {
               tmpBuckets[resp["ids"][idx]] = resp["game_buckets"][idx];
             }
             setBuckets(tmpBuckets);
             setGbID(
-              tmpBuckets.findIndex(arg => {
+              tmpBuckets.findIndex((arg) => {
                 if (arg === undefined) {
                   return false;
                 } else {
@@ -157,18 +157,18 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
   return (
     <div
       style={Object.assign({}, basicBlock, {
-        maxwidth: "400px"
+        maxwidth: "400px",
       })}
     >
       <h2>Games:</h2>
       {startButton("simon_says", "Simon Says")}
       {startButton("target_touch", "Target Touch")}
-      {commandOptions.map(value => (
+      {commandOptions.map((value) => (
         <GameCommand
           name={value}
           run={(): void => {
             const msg = new ROSLIB.Message({
-              command: value
+              command: value,
             });
             if (gameCommandPub !== null) {
               gameCommandPub.publish(msg);
@@ -226,7 +226,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
             const gameDef = new ROSLIB.Message({
               game_type: gameType, // eslint-disable-line
               steps: buckets[gbID].steps,
-              reps: reps
+              reps: reps,
             });
             if (gameDefPub !== null) {
               gameDefPub.publish(gameDef);

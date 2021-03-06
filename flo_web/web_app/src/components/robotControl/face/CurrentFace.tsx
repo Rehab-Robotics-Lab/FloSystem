@@ -21,7 +21,7 @@ const Matrix: React.FunctionComponent<MatrixProps> = ({
   on,
   brightness,
   elementSize,
-  pitch
+  pitch,
 }) => {
   const unitWidth = width * elementSize + (width - 1) * pitch;
   const unitHeight = height * elementSize + (height - 1) * pitch;
@@ -67,7 +67,7 @@ const CurrentFace: React.FunctionComponent<CurrentFaceProps> = ({
   ros,
   connected,
   faceState,
-  setFaceState
+  setFaceState,
 }) => {
   useEffect(() => {
     if (!connected) {
@@ -77,7 +77,7 @@ const CurrentFace: React.FunctionComponent<CurrentFaceProps> = ({
     const faceListenerT = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "face_state",
-      messageType: "flo_face_defs/FaceState"
+      messageType: "flo_face_defs/FaceState",
     });
     const callback = (msg: ROSLIB.Message): void => {
       setFaceState(msg as FaceState);
@@ -128,7 +128,7 @@ const CurrentFace: React.FunctionComponent<CurrentFaceProps> = ({
         elementSize={2}
         pitch={1}
         key={3}
-      />
+      />,
     ]);
   }
   return (

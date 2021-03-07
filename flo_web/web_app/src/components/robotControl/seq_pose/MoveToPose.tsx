@@ -5,14 +5,14 @@ import { runSequence, Move } from "./SequenceRunContainer";
 import {
   basicBlock,
   inputWithSpace,
-  majorButton
+  majorButton,
 } from "../../../styleDefs/styles";
 
 const armNames = [
   "shoulder_flexionextension",
   "shoulder_abduction",
   "shoulder_rotation",
-  "elbow_flexionextension"
+  "elbow_flexionextension",
 ];
 
 interface ArmValProps {
@@ -24,7 +24,7 @@ interface ArmValProps {
 const ArmVal: React.FunctionComponent<ArmValProps> = ({
   name,
   val,
-  transfer
+  transfer,
 }) => {
   return (
     <div style={inputWithSpace}>
@@ -53,7 +53,7 @@ const ArmInput: React.FunctionComponent<ArmInputProps> = ({
   setTarget,
   val,
   min = -180,
-  max = 180
+  max = 180,
 }) => {
   return (
     <div style={inputWithSpace}>
@@ -98,7 +98,7 @@ const MoveToPose: React.FunctionComponent<MoveToPoseProps> = ({
   connected,
   moving,
   setMoving,
-  pose
+  pose,
 }) => {
   const numArms = armNames.length;
   const [targetPose, setTargetPose] = useState(new Array(numArms).fill(0));
@@ -126,7 +126,7 @@ const MoveToPose: React.FunctionComponent<MoveToPoseProps> = ({
     for (const arm of ["right", "left"]) {
       for (let idx = 0; idx < numArms; idx += 1) {
         const target = pose.name.findIndex(
-          p => p === arm + "_" + armNames[idx]
+          (p) => p === arm + "_" + armNames[idx]
         );
         const degVal = (pose.position[target] * 180) / Math.PI;
         currentPoses.push(
@@ -149,7 +149,7 @@ const MoveToPose: React.FunctionComponent<MoveToPoseProps> = ({
     <div
       style={Object.assign({}, basicBlock, {
         maxWidth: "none",
-        maxHeight: "auto"
+        maxHeight: "auto",
       })}
     >
       <h2>Move to a Pose</h2>
@@ -205,14 +205,14 @@ const MoveToPose: React.FunctionComponent<MoveToPoseProps> = ({
                       pose: {
                         description: "temp pose",
                         joint_names: armNames, // eslint-disable-line
-                        joint_positions: radPose // eslint-disable-line
+                        joint_positions: radPose, // eslint-disable-line
                       },
-                      id: 0
+                      id: 0,
                     },
                     lr: arm,
                     status: "not-run",
-                    key: 0
-                  }
+                    key: 0,
+                  },
                 ];
 
                 runSequence(movesList, () => null, setMoving, ros);

@@ -9,12 +9,10 @@ interface Robot {
 }
 
 const addRobotSchema = Yup.object().shape({
-  robotName: Yup.string()
-    .min(4, "too short")
-    .required("required"),
+  robotName: Yup.string().min(4, "too short").required("required"),
   robotType: Yup.string()
     .matches(/(lilflo|simple)/, "must be of type lilflo or simple")
-    .required("required")
+    .required("required"),
 });
 
 const AddRobot: React.FunctionComponent = () => {
@@ -30,16 +28,16 @@ const AddRobot: React.FunctionComponent = () => {
             axios
               .post("/api/robots/new-robot", {
                 robotName: values.robotName,
-                robotType: values.robotType
+                robotType: values.robotType,
               })
-              .then(res => {
+              .then((res) => {
                 const name = res.data["newName"];
                 const password = res.data["newPassword"];
 
                 setNewRobot({ name: name, password: password });
                 setSubmitting(false);
               })
-              .catch(err => {
+              .catch((err) => {
                 alert("Failed to add robot: " + err.response.data["error"]);
                 setSubmitting(false);
               });

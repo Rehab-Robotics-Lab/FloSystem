@@ -27,7 +27,7 @@ interface ErrorDisplayProps {
 }
 
 const ErrorDisplay: React.FunctionComponent<ErrorDisplayProps> = ({
-  errorList
+  errorList,
 }) => {
   return (
     <div
@@ -36,7 +36,7 @@ const ErrorDisplay: React.FunctionComponent<ErrorDisplayProps> = ({
         overflow: "auto",
         display: "flex",
         flexDirection: "column-reverse",
-        color: "red"
+        color: "red",
       }}
     >
       <div>

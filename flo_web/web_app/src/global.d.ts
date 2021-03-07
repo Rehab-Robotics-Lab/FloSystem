@@ -1,5 +1,6 @@
-declare module "webrtc-adapter"{
-    export type adapter= any;
+declare module "webrtc-adapter" {
+  //eslint-disable-next-line @typescript-eslint/no-explicit-any
+  export type adapter = any;
 }
 
 declare module "ros3d" {
@@ -25,17 +26,17 @@ declare module "ros3d" {
     renderer: THREE.WebGLRenderer;
     scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
-    cameraControls: object; //TODO: this should be a ROS3D.OrbitContros object
+    cameraControls: Record<string, unknown>; //TODO: this should be a ROS3D.OrbitContros object
     directionalLight: Three.DirectionalLight;
     selectableObjects: THREE.Object3D;
-    mouseHandler: object; //TODO: should be a ROS3D.MouseHandler
+    mouseHandler: Record<string, unknown>; //TODO: should be a ROS3D.MouseHandler
     stopped: boolean;
     animationRequestID: number; //TODO: Not sure what this is
     start(): void;
-      draw():void;
-      stop():void;
-      addObject(obj: THREE.Object3D, selectable: boolean?):void;
-      resize(width: number, height:number):void;
+    draw(): void;
+    stop(): void;
+    addObject(obj: THREE.Object3D, selectable: ?boolean): void;
+    resize(width: number, height: number): void;
   }
 
   export class UrdfClient {
@@ -44,20 +45,21 @@ declare module "ros3d" {
       param?: string;
       path?: string;
       tfClient: ROSLIB.Ros.TFClient;
-        rootObject?: object; //TODO: I have no clue what this is
+      rootObject?: Record<string, unknown>; //TODO: I have no clue what this is
       tfPrefix?: string;
+      //eslint-disable-next-line @typescript-eslint/no-explicit-any
       loader?: any;
     });
-      urdf: ROS3D.Urdf;
+    urdf: ROS3D.Urdf;
   }
 
-    export class Urdf{
-        constructor(options:{
-            urdfModel: ROSLIB.UrdfModel;
-            path?:string;
-            tfClient: ROSLIB.Ros.TFClient; 
-            tfPrefix?: string;
-            loader?: object; //TODO: not sure what type this is
-        })
-    }
+  export class Urdf {
+    constructor(options: {
+      urdfModel: ROSLIB.UrdfModel;
+      path?: string;
+      tfClient: ROSLIB.Ros.TFClient;
+      tfPrefix?: string;
+      loader?: Record<string, unknown>; //TODO: not sure what type this is
+    });
+  }
 }

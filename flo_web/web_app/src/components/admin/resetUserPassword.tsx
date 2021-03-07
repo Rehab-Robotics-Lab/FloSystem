@@ -4,9 +4,7 @@ import * as Yup from "yup";
 import React, { useState } from "react";
 
 const resetPasswordSchema = Yup.object().shape({
-  email: Yup.string()
-    .email("invalid email")
-    .required("required")
+  email: Yup.string().email("invalid email").required("required"),
 });
 
 const ResetUserPassword: React.FunctionComponent = () => {
@@ -22,16 +20,16 @@ const ResetUserPassword: React.FunctionComponent = () => {
           onSubmit={(values, { setSubmitting }): void => {
             axios
               .post("/api/users/reset-password", {
-                email: values.email
+                email: values.email,
               })
               .then(
-                res => {
+                (res) => {
                   const password = res.data["newPassword"];
 
                   setNewPassword(password);
                   setSubmitting(false);
                 },
-                err => {
+                (err) => {
                   alert(
                     "failed to reset users password: " +
                       err.response.data["error"]

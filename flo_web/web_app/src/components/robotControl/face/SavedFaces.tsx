@@ -19,7 +19,7 @@ interface SavedFaceProps extends Face {
 const SavedFace: React.FunctionComponent<SavedFaceProps> = ({
   name,
   setFace,
-  disabled
+  disabled,
 }) => {
   return (
     <button
@@ -45,7 +45,7 @@ interface SavedFacesProps {
 const SavedFaces: React.FunctionComponent<SavedFacesProps> = ({
   ros,
   connected,
-  setEyeOptions
+  setEyeOptions,
 }) => {
   const [setFaceSrv, setSetFaceSrv] = useState<ROSLIB.Service | null>(null);
   const [otherFaces, setOtherFaces] = useState<string[]>([]);
@@ -53,13 +53,13 @@ const SavedFaces: React.FunctionComponent<SavedFacesProps> = ({
 
   const setFace = (name: string): void => {
     const req = new ROSLIB.ServiceRequest({
-      face: name
+      face: name,
     });
     // send service call to add new utterance
     if (setFaceSrv === null) {
       return;
     }
-    setFaceSrv.callService(req, res => {
+    setFaceSrv.callService(req, (res) => {
       setEyeOptions(res.available_eye_directions);
       console.log("received back available eye directions");
     });
@@ -74,13 +74,13 @@ const SavedFaces: React.FunctionComponent<SavedFacesProps> = ({
     const getFaceOptions = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/get_face_options",
-      serviceType: "flo_face_defs/GetFaceOptions"
+      serviceType: "flo_face_defs/GetFaceOptions",
     });
     console.log("connected to service to get face options");
 
     const request = new ROSLIB.ServiceRequest({});
 
-    getFaceOptions.callService(request, resp => {
+    getFaceOptions.callService(request, (resp) => {
       setOtherFaces(resp.other_faces.sort());
       setValidatedFaces(resp.validated_faces.sort());
       console.log("received back available faces");
@@ -90,7 +90,7 @@ const SavedFaces: React.FunctionComponent<SavedFacesProps> = ({
     const setFaceSrvT = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/set_face",
-      serviceType: "flo_face_defs/SetFace"
+      serviceType: "flo_face_defs/SetFace",
     });
     setSetFaceSrv(setFaceSrvT);
     console.log("connected to service to set face");
@@ -107,11 +107,11 @@ const SavedFaces: React.FunctionComponent<SavedFacesProps> = ({
           flexDirection: "column",
           overflowY: "auto",
           width: "auto",
-          maxHeight: "400px"
+          maxHeight: "400px",
         }}
       >
         Validated Faces:
-        {validatedFaces.map(value => (
+        {validatedFaces.map((value) => (
           <SavedFace
             name={value}
             setFace={(): void => setFace(value)}
@@ -120,7 +120,7 @@ const SavedFaces: React.FunctionComponent<SavedFacesProps> = ({
           />
         ))}
         Other Faces:
-        {otherFaces.map(value => (
+        {otherFaces.map((value) => (
           <SavedFace
             name={value}
             setFace={(): void => setFace(value)}

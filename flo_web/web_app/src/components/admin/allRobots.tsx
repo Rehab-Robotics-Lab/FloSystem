@@ -21,12 +21,12 @@ const AllRobots: React.FunctionComponent = () => {
 
   // Note this is coming from somewhere else, not vanilla
   SetInterval(() => {
-    axios.get("/api/robots/all-robots").then(res => {
+    axios.get("/api/robots/all-robots").then((res) => {
       setRobotArray(res.data.robots as Array<Robot>);
     });
   }, 1000 * 1);
 
-  const robotRows = robotArray.map(robot => (
+  const robotRows = robotArray.map((robot) => (
     <tr key={robot.robot_name}>
       <td>{robot["id"]}</td>
       <td>{robot["robot_name"]}</td>

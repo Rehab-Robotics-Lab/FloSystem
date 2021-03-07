@@ -11,7 +11,7 @@ enum speechStates {
   WAITING = 0,
   SYNTHESIZING = 1,
   PLAYING = 2,
-  ERROR = 3
+  ERROR = 3,
 }
 
 interface TTSState {
@@ -29,9 +29,9 @@ interface StoredUtterance {
 }
 
 function reducer(state: StoredUtterance[], newVal: string): StoredUtterance[] {
-  const idx = 0;
+  let idx = 0;
   if (state.length > 0) {
-    const idx = state[state.length - 1].idx + 1;
+    idx = state[state.length - 1].idx + 1;
   }
   return [{ idx: idx, text: newVal }]
     .concat(state)
@@ -69,7 +69,7 @@ function countSyllables(sentence: string): number {
   let count = 0;
   const words = sentence.split(" ");
 
-  words.map(function(val) {
+  words.map(function (val) {
     count += syllables(val);
     return null;
   });
@@ -84,11 +84,11 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
   speechTarget,
   setSpeechTarget,
   setSpeaking,
-  speaking
+  speaking,
 }) => {
   const [speechState, setSpeechState] = useState<TTSState>({
     state: speechStates.UNKNOWN,
-    text: ""
+    text: "",
   });
   const [utterances, setUtterances] = useReducer(reducer, []);
 
@@ -98,7 +98,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
     const stateListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "tts_state",
-      messageType: "flo_core_defs/TTSState"
+      messageType: "flo_core_defs/TTSState",
     });
     const slCB = (msg: ROSLIB.Message): void => {
       setSpeechState(msg as TTSState);
@@ -109,7 +109,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
     const utteranceListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "tts_utterances",
-      messageType: "flo_core_defs/TTSUtterances"
+      messageType: "flo_core_defs/TTSUtterances",
     });
     const ulCB = (msg: ROSLIB.Message): void => {
       setUtterances((msg as TTSUtterances).text);
@@ -128,26 +128,26 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       ros: ros as ROSLIB.Ros,
       serverName: "/tts",
       actionName: "tts/SpeechAction",
-      timeout: 1500 //Not sure about this value here. needs testing
+      timeout: 1500, //Not sure about this value here. needs testing
     });
     console.log("connected to speech action server");
 
     const metadata = JSON.stringify({
       text_type: "ssml", // eslint-disable-line
-      voice_id: "Salli" // eslint-disable-line
+      voice_id: "Salli", // eslint-disable-line
     });
     const goal = new ROSLIB.Goal({
       actionClient,
       goalMessage: {
         text: "<speak>" + speechTarget.text + "</speak>",
-        metadata: metadata
-      }
+        metadata: metadata,
+      },
     });
 
     setSpeechTarget({
       text: speechTarget.text,
       metadata: metadata,
-      fileLocation: null
+      fileLocation: null,
     });
 
     goal.on("feedback", () => {
@@ -155,11 +155,11 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       console.log("got feedback on speaking");
     });
 
-    goal.on("result", res => {
+    goal.on("result", (res) => {
       setSpeechTarget({
         text: speechTarget.text,
         metadata: speechTarget.metadata,
-        fileLocation: res.response
+        fileLocation: res.response,
       });
       setSpeaking(false);
       console.log("done speaking");
@@ -190,7 +190,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
   return (
     <div
       style={Object.assign({}, basicBlock, {
-        maxWidth: "200px"
+        maxWidth: "200px",
       })}
     >
       <h2>Speech</h2>
@@ -205,7 +205,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
             setSpeechTarget({
               text: e.target.value,
               metadata: null,
-              fileLocation: null
+              fileLocation: null,
             })
           }
         />
@@ -240,7 +240,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       />
       <div>
         <h3>Recent Utterances</h3>
-        {utterances.map(value => (
+        {utterances.map((value) => (
           <div key={value.idx}>{value.text}</div>
         ))}
       </div>

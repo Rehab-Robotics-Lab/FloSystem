@@ -20,16 +20,16 @@ const Robots: React.FunctionComponent = () => {
   SetInterval(() => {
     axios
       .get("/api/robots/")
-      .then(res => {
+      .then((res) => {
         console.log(res);
         setRobotArray(res.data.robots as Array<Robot>);
       })
-      .catch(err => {
-        console.log("error fetching array of robots");
+      .catch((err) => {
+        console.log("error fetching array of robots: " + err);
       });
   }, 1000 * 1);
 
-  const robotRows = robotArray.map(robot => {
+  const robotRows = robotArray.map((robot) => {
     const canConnect =
       robot["active_user_first"] === null && robot["connected"];
     let connectionString;

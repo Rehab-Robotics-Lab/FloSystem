@@ -27,7 +27,7 @@ interface SequenceProps {
 const Sequence: React.FunctionComponent<SequenceProps> = ({
   sequence,
   setMovesList,
-  getPoseSrv
+  getPoseSrv,
 }) => {
   return (
     <button
@@ -38,15 +38,15 @@ const Sequence: React.FunctionComponent<SequenceProps> = ({
         for (let idx = 0; idx < seqLength; idx += 1) {
           const poseId = sequence.seq.pose_ids[idx];
           const req = new ROSLIB.ServiceRequest({
-            id: poseId
+            id: poseId,
           });
-          getPoseSrv.callService(req, res => {
+          getPoseSrv.callService(req, (res) => {
             movesListT[idx] = {
               lr: sequence.seq.arms[idx] as "left" | "right",
               pose: { id: poseId, pose: res.pose },
               status: "not-run",
               time: sequence.seq.times[idx],
-              key: genRandID()
+              key: genRandID(),
             };
             setMovesList(movesListT);
           });
@@ -70,7 +70,7 @@ const SequenceContainer: React.FunctionComponent<SequenceContainerProps> = ({
   ros,
   connected,
   setMovesList,
-  MovesList
+  MovesList,
 }) => {
   const [SeqList, setSeqList] = useState<SequenceListItem[]>([]);
   const [showSave, setShowSave] = useState(false);
@@ -86,18 +86,18 @@ const SequenceContainer: React.FunctionComponent<SequenceContainerProps> = ({
     const searchSeqClient = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/search_pose_seq",
-      serviceType: "flo_core_defs/SearchPoseSeq"
+      serviceType: "flo_core_defs/SearchPoseSeq",
     });
     console.log("connected to service to search for a pose sequence");
 
     const request = new ROSLIB.ServiceRequest({ search: "" });
 
-    searchSeqClient.callService(request, resp => {
+    searchSeqClient.callService(request, (resp) => {
       const seqs = [];
       for (let i = 0; i < resp.ids.length; i += 1) {
         seqs.push({
           id: resp.ids[i],
-          seq: resp.sequences[i]
+          seq: resp.sequences[i],
         });
       }
       setSeqList(seqs);
@@ -108,7 +108,7 @@ const SequenceContainer: React.FunctionComponent<SequenceContainerProps> = ({
     const setSeqSrvT = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/set_pose_seq",
-      serviceType: "flo_core_defs/SetPoseSeq"
+      serviceType: "flo_core_defs/SetPoseSeq",
     });
     setSetSeqSrv(setSeqSrvT);
     console.log("connected to service to set pose sequences");
@@ -116,7 +116,7 @@ const SequenceContainer: React.FunctionComponent<SequenceContainerProps> = ({
     const getPoseSrvT = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/get_pose_id",
-      serviceType: "flo_core_defs/GetPoseID"
+      serviceType: "flo_core_defs/GetPoseID",
     });
     setGetPoseSrv(getPoseSrvT);
     console.log("connected to service to get poses by id");
@@ -126,7 +126,7 @@ const SequenceContainer: React.FunctionComponent<SequenceContainerProps> = ({
     <div
       id="sequences-container"
       style={Object.assign({}, basicBlock, {
-        maxWidth: "150px"
+        maxWidth: "150px",
       })}
     >
       <h2>Sequences:</h2>
@@ -200,28 +200,28 @@ const SequenceContainer: React.FunctionComponent<SequenceContainerProps> = ({
               times,
               arms,
               description: saveDescription,
-              total_time: totalTime // eslint-disable-line
+              total_time: totalTime, // eslint-disable-line
             };
             const req = new ROSLIB.ServiceRequest({
               sequence: newSeq,
-              id: saveID
+              id: saveID,
             });
 
             if (setSeqSrv === null) {
               return;
             }
-            setSeqSrv.callService(req, res => {
-              const targetId = SeqList.findIndex(item => item.id === res.id);
+            setSeqSrv.callService(req, (res) => {
+              const targetId = SeqList.findIndex((item) => item.id === res.id);
               const SeqListT = [...SeqList];
               if (targetId === -1) {
                 SeqListT.push({
                   id: res.id,
-                  seq: newSeq
+                  seq: newSeq,
                 });
               } else {
                 SeqListT[targetId] = {
                   id: res.id,
-                  seq: newSeq
+                  seq: newSeq,
                 };
               }
               setSeqList(SeqListT);
@@ -249,11 +249,11 @@ const SequenceContainer: React.FunctionComponent<SequenceContainerProps> = ({
           display: "flex",
           flexDirection: "column",
           overflow: "auto",
-          maxHeight: "400px"
+          maxHeight: "400px",
         }}
       >
         {getPoseSrv !== null &&
-          SeqList.map(value => (
+          SeqList.map((value) => (
             <Sequence
               key={value.id}
               sequence={value}

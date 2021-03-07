@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
 import ModalWrapper from "../ModalWrapper";
 import { basicBlock } from "../../../styleDefs/styles";
-import { JointState } from "../../robotController";
+import { JointState, AddToMoveList } from "../../robotController";
 
 export interface PoseMsg {
   description: string;
@@ -17,13 +17,13 @@ export interface PoseWrapper {
 
 interface PoseProps {
   pose: PoseWrapper;
-  addToMoveList: Function;
+  addToMoveList: AddToMoveList;
 }
 
-interface SearchPoseResp {
-  poses: PoseMsg[];
-  ids: number[];
-}
+//interface SearchPoseResp {
+//  poses: PoseMsg[];
+//  ids: number[];
+//}
 
 interface PoseObj {
   id: number;
@@ -47,7 +47,7 @@ const Pose: React.FunctionComponent<PoseProps> = ({ pose, addToMoveList }) => {
 interface PoseContainerProps {
   ros: ROSLIB.Ros | null;
   connected: boolean;
-  addToMoveList: Function;
+  addToMoveList: AddToMoveList;
   pose: JointState | null;
 }
 
@@ -56,7 +56,7 @@ const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
   ros,
   connected,
   addToMoveList,
-  pose
+  pose,
 }) => {
   const [PosesList, setPosesList] = useState<PoseObj[]>([]);
   const [showSave, setShowSave] = useState(false);
@@ -72,13 +72,13 @@ const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
     const searchPosesClient = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/search_pose",
-      serviceType: "flo_core_defs/SearchPose"
+      serviceType: "flo_core_defs/SearchPose",
     });
     console.log("connected to service to search for poses");
 
     const request = new ROSLIB.ServiceRequest({ search: "" });
 
-    searchPosesClient.callService(request, resp => {
+    searchPosesClient.callService(request, (resp) => {
       const poses = [];
       for (let i = 0; i < resp.ids.length; i += 1) {
         poses.push({ id: resp.ids[i], pose: resp.poses[i] });
@@ -91,7 +91,7 @@ const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
     const setPoseSrvT = new ROSLIB.Service({
       ros: ros as ROSLIB.Ros,
       name: "/set_pose",
-      serviceType: "flo_core_defs/SetPose"
+      serviceType: "flo_core_defs/SetPose",
     });
     setSetPoseSrv(setPoseSrvT);
     console.log("connected to service to set pose");
@@ -101,7 +101,7 @@ const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
     <div
       id="poses-container"
       style={Object.assign({}, basicBlock, {
-        maxWidth: "150px"
+        maxWidth: "150px",
       })}
     >
       <h2>Poses:</h2>
@@ -148,7 +148,7 @@ const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
             }}
           >
             <option value="0">New Pose</option>
-            {PosesList.map(value => (
+            {PosesList.map((value) => (
               <option value={value.id} key={value.id}>
                 {value.pose.description}
               </option>
@@ -186,24 +186,26 @@ const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
             const newPose = {
               description: saveDescription,
               joint_names: cleanNames, // eslint-disable-line
-              joint_positions: pos // eslint-disable-line
+              joint_positions: pos, // eslint-disable-line
             };
             const req = new ROSLIB.ServiceRequest({
               pose: newPose,
-              id: saveID
+              id: saveID,
             });
 
             if (setPoseSrv === null) {
               //TODO: throw an error
               return;
             }
-            setPoseSrv.callService(req, res => {
-              const targetId = PosesList.findIndex(item => item.id === res.id);
+            setPoseSrv.callService(req, (res) => {
+              const targetId = PosesList.findIndex(
+                (item) => item.id === res.id
+              );
               const PosesListT = [...PosesList];
               if (targetId === -1) {
                 PosesListT.push({
                   id: res.id,
-                  pose: newPose
+                  pose: newPose,
                 });
               } else {
                 PosesListT[targetId] = { id: res.id, pose: newPose };
@@ -232,10 +234,10 @@ const PoseContainer: React.FunctionComponent<PoseContainerProps> = ({
         style={{
           display: "flex",
           flexDirection: "column",
-          overflowY: "auto"
+          overflowY: "auto",
         }}
       >
-        {PosesList.map(value => (
+        {PosesList.map((value) => (
           <Pose key={value.id} pose={value} addToMoveList={addToMoveList} />
         ))}
       </div>

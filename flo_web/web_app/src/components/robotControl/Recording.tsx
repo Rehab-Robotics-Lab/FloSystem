@@ -22,7 +22,7 @@ const Record: React.FunctionComponent<RecordProps> = ({ ros, connected }) => {
     const topic = new ROSLIB.Topic({
       ros: ros,
       name: "/record_video_status",
-      messageType: "std_msgs/Bool"
+      messageType: "std_msgs/Bool",
     });
 
     const newRecordingStatus = (msg: ROSLIB.Message): void => {
@@ -45,12 +45,12 @@ const Record: React.FunctionComponent<RecordProps> = ({ ros, connected }) => {
     const setRecordingClient = new ROSLIB.Service({
       ros: ros,
       name: "/set_recording",
-      serviceType: "flo_core_defs/SetRecording.srv"
+      serviceType: "flo_core_defs/SetRecording.srv",
     });
 
     const req = new ROSLIB.ServiceRequest({ record: on });
 
-    setRecordingClient.callService(req, res => {
+    setRecordingClient.callService(req, (res) => {
       console.log("set recording service resp: " + res.success);
     });
   };
@@ -97,13 +97,13 @@ const Record: React.FunctionComponent<RecordProps> = ({ ros, connected }) => {
         display: "flex",
         flexDirection: "row",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
       }}
     >
       {recordingSpan}
       <div
         style={Object.assign({}, majorButton, {
-          width: "180px"
+          width: "180px",
         })}
       >
         {button}

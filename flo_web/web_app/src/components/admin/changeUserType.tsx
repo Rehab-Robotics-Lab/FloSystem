@@ -4,15 +4,13 @@ import * as Yup from "yup";
 import React from "react";
 
 const changeUserTypeSchema = Yup.object().shape({
-  email: Yup.string()
-    .email("invalid email")
-    .required("required"),
+  email: Yup.string().email("invalid email").required("required"),
   userType: Yup.string()
     .matches(
       /(standard|administrator)/,
       "must be of type standard or administrator"
     )
-    .required("required")
+    .required("required"),
 });
 
 const ChangeUserType: React.FunctionComponent = () => {
@@ -27,14 +25,14 @@ const ChangeUserType: React.FunctionComponent = () => {
             axios
               .post("/api/users/change-type", {
                 email: values.email,
-                userType: values.userType
+                userType: values.userType,
               })
               .then(
                 () => {
                   alert("sucess!");
                   setSubmitting(false);
                 },
-                err => {
+                (err) => {
                   alert(
                     "failed to change user type: " + err.response.data["error"]
                   );

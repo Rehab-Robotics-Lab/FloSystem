@@ -42,8 +42,13 @@ cd ~/catkin_ws
 rosdep install --from-paths src --ignore-src -q -r -y --skip-keys "realsense2_camera realsense2_description rosbridge_suite rosbridge_server rosbridge_library rosbridge_msgs video_stream_opencv kobuki"
 cd -
 
+if [ "$GITHUB_ACTIONS" = true ]
+then
+    echo "in github actions, SKIPPING REALSENSE"
+else
 echo "INSTALLING REALSENSE"
 bash realsense_install.sh
+fi
 
 echo "Adding updated webrtcros"
 prior=$(pwd)

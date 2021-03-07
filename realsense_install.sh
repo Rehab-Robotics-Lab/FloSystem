@@ -1,6 +1,9 @@
 #!/bin/bash
 
 set -e
+sudo apt-get -qq update && sudo apt-get -qq upgrade && sudo apt-get -qq dist-upgrade
+sudo apt-get -qq install git libssl-dev libusb-1.0-0-dev pkg-config libgtk-3-dev
+sudo apt-get -qq install libglfw3-dev libgl1-mesa-dev libglu1-mesa-dev at
 
 if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==16));then
     ROS_VERSION="kinetic"

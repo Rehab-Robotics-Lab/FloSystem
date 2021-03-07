@@ -1,3 +1,4 @@
+---
 name: ros
 
 on:
@@ -70,7 +71,7 @@ jobs:
           cd $GITHUB_WORKSPACE/LilFloSystem
           git ls-files | grep 'py$' | xargs pylint --unsafe-load-any-extension=y --disable=fixme
 
-      #catkin-lint:
+      # catkin-lint:
       #  runs-on: ${{ matrix.os }}
       #  strategy:
       #    matrix:
@@ -108,10 +109,10 @@ jobs:
       - name: Setup Pylint
         run: |
           python -m pip install --upgrade pip
-          echo "::add-path::/home/runner/.local/bin"
+          echo "/home/runner/.local/bin" >> $GITHUB_PATH
           python -m pip install "pylint<2.0.0"
 
       - name: Find TODOs
-        run: |
+        run: |-
           cd $GITHUB_WORKSPACE/LilFloSystem
           git ls-files | grep 'py$' | xargs pylint --disable=all --enable=fixme

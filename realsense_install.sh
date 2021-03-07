@@ -19,15 +19,15 @@ sudo add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/
 #You need to figure out the versions you want from https://github.com/IntelRealSense/realsense-ros/releases
 LIB_REALSENSE_VERSION=2.40.0
 REALSENSE_ROS_VERSION=2.2.20
-sudo apt-get install -y librealsense2-dkms
-sudo apt-get install -y librealsense2-utils=${LIB_REALSENSE_VERSION}\*
-sudo apt-get install -y librealsense2-dev=${LIB_REALSENSE_VERSION}\*
-sudo apt-get install -y librealsense2-dbg=${LIB_REALSENSE_VERSION}\*
-sudo apt-get install -y ros-${ROS_VERSION}-cv-bridge
-sudo apt-get install -y ros-${ROS_VERSION}-image-transport
-sudo apt-get install -y ros-${ROS_VERSION}-tf
-sudo apt-get install -y ros-${ROS_VERSION}-diagnostic-updater
-sudo apt-get install -y ros-${ROS_VERSION}-ddynamic-reconfigure
+sudo apt-get -qq install -y librealsense2-dkms
+sudo apt-get -qq install -y librealsense2-utils=${LIB_REALSENSE_VERSION}\*
+sudo apt-get -qq install -y librealsense2-dev=${LIB_REALSENSE_VERSION}\*
+sudo apt-get -qq install -y librealsense2-dbg=${LIB_REALSENSE_VERSION}\*
+sudo apt-get -qq install -y ros-${ROS_VERSION}-cv-bridge
+sudo apt-get -qq install -y ros-${ROS_VERSION}-image-transport
+sudo apt-get -qq install -y ros-${ROS_VERSION}-tf
+sudo apt-get -qq install -y ros-${ROS_VERSION}-diagnostic-updater
+sudo apt-get -qq install -y ros-${ROS_VERSION}-ddynamic-reconfigure
 
 sudo apt-mark hold librealsense2-utils
 sudo apt-mark hold librealsense2-dev

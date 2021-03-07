@@ -23,8 +23,8 @@ source /opt/ros/${ROS_VERSION}/setup.bash
 #sudo apt-get install ros-${ROS_VERSION}-rosmon
 
 sudo apt-get -qq install -y python-rosdep
-[ ! -d "/etc/ros/rosdep/sources.list.d" ] && sudo rosdep init
-rosdep update
+[ ! -d "/etc/ros/rosdep/sources.list.d" ] && sudo rosdep init -q
+rosdep update -q
 sudo apt-get -qq install -y python-rosinstall python-rosinstall-generator python-wstool build-essential
 
 ## Install packages we need:
@@ -34,12 +34,12 @@ echo "INSTALLING DEPENDENCIES NOT FOUND IN ROSDEP"
 #python flo_face/teensy/src/serial_coms/computer/python/serial-coms/setup.py install --user
 # Mutagen has dropped python 2 support. Last supported version was 1.43.0:
 sudo apt-get -qq install -y python-pip
-pip install 'mutagen==1.43.0' --user
+pip install 'mutagen==1.43.0' --user -q
 
 echo "INSTALLING ROSDEP DEPENDENCIES"
 sudo apt-get -qq install python-rosdep -y
 cd ~/catkin_ws
-rosdep install --from-paths src --ignore-src -r -y --skip-keys "realsense2_camera realsense2_description rosbridge_suite rosbridge_server rosbridge_library rosbridge_msgs video_stream_opencv kobuki"
+rosdep install --from-paths src --ignore-src -q -r -y --skip-keys "realsense2_camera realsense2_description rosbridge_suite rosbridge_server rosbridge_library rosbridge_msgs video_stream_opencv kobuki"
 cd -
 
 echo "INSTALLING REALSENSE"

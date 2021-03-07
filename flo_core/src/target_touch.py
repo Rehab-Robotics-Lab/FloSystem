@@ -28,15 +28,17 @@ def target_touch(new_def, process_step, neutral):
     """
     actions_list = []
     reps = 10
+    sides = {'blue': ('left', 'top'), 'red': ('left', 'bottom'), 'yellow': (
+        'right', 'top'), 'green': ('right', 'bottom')}
     if new_def.reps:
         reps = new_def.reps
 
     actions_list.append(neutral)
     actions_list.append(
         {'speech': 'in the target touch activity, I will tell you to ' +
-                   'touch the dots on my hands. We will do {} '.format(reps) +
-                   'touches, per dot. I will count to tell you when to ' +
-                   'go. No tricks here, just good work!! Let\'s start ' +
+                   'touch the dots on my hands. I will tell you which ' +
+                   'hand to use and which color dot to touch then tell you to go. No tricks ' +
+                   'here, just good work!! Let\'s start ' +
                    'in a ready position, return to this position after every touch'})
     if not new_def.steps:
         new_def.steps = DEFAULT_DEF
@@ -44,15 +46,87 @@ def target_touch(new_def, process_step, neutral):
     actions_bag = []
     steps = new_def.steps
     random.shuffle(steps)
+    moves = {
+        'left': {
+            'upper': [],
+            'lower': []
+        },
+        'right': {
+            'upper': [],
+            'lower': []
+
+        }}
     for step in steps:
         targets, speech = process_step(step)
+        for color in sides:
+            if color in speech:
+                color_tuple = sides[color]
+                left_right = color_tuple[0]
+                up_down = color_tuple[1]
+                for _ in range(reps):
+                    moves[left_right][up_down] = {'targets': targets,
+                                                  'speech': speech, 'color': color}
+    while (moves['left']['upper'] or
+            moves['left']['upper'] or
+            moves['left']['upper'] or
+            moves['left']['upper']):
+        num_steps = random.randrange(2, 5)
+        left_ud = None
+        right_ud = None
+
+        if moves['left']['upper'] and (random.getrandbits(1) or not moves['left']['lower']):
+            left_ud = 'upper'
+        elif moves['left']['lower']:
+            left_ud = 'lower'
+
+        if moves['right']['upper'] and (random.getrandbits(1) or not moves['right']['lower']):
+            right_ud = 'upper'
+        elif moves['right']['lower']:
+            right_ud = 'lower'
+
+        left_remain = True
+        right_remain = True
+        seq = []
+        left_target = None
+        right_target = None
+        for _ in range(num_steps):
+            if left_remain and random.getrandbits(1):
+                try:
+                    new_move = moves['left'][left_ud]
+                    left_target = new_move['targets']
+                    seq.append(new_move)
+                except IndexError:
+                    left_remain = False
+            elif right_remain:
+                try:
+                    new_move = moves['right'][right_ud]
+                    right_target = new_move['targets']
+                    seq.append(new_move)
+                except IndexError:
+                    right_remain = False
+
+        if left_target and right_target:
+            final_target = left_target+right_target
+        elif left_target:
+            final_target = left_target
+        elif right_target:
+            final_target = right_target
+        else:
+            raise Exception
+
+        final_speech = ''
+        for item in seq:
+            if 'left' in item['speech']:
+                final_speech = final_speech + \
+                    'left hand ' + item['color'] + ' '
+            elif 'right' in item['speech']:
+                final_speech = final_speech + \
+                    'right hand ' + item['color'] + ' '
+            else:
+                raise Exception
 
         actions_bag.append(
-            {'speech': speech, 'targets': targets})
-
-        actions_bag.extend(
-            [{'speech': '{}'.format(idx+1)} for idx in range(reps)])
-        actions_bag.append(neutral)
+            {'speech': final_speech+' go!', 'targets': final_target})
 
     actions_list += actions_bag
 

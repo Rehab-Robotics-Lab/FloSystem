@@ -211,6 +211,16 @@ class GameRunner(object):
                     ['next', 'repeat', 'congratulate', 'try_again',
                      'quit_game'])
 
+    def __check_side(self, seq_id):
+        arms = self.get_pose_seq_id(seq_id).sequence.arms  # type: PoseSeq
+        if 'left' in arms and 'right' in arms:
+            return 'both'
+        if 'left' in arms:
+            return 'left'
+        if 'right' in arms:
+            return 'right'
+        raise Exception
+
     def __process_step(self, step, mirror_arms=False):
         targets = []
         speech = step.text
@@ -273,7 +283,7 @@ class GameRunner(object):
         # to get a demo going, so we will manually load in the games
         if new_def.game_type == 'simon_says':
             actions_list = simon_says(
-                new_def, self.__process_step, neutral)
+                new_def, self.__process_step, self.__check_side, neutral)
         elif new_def.game_type == 'target_touch':
             actions_list = target_touch(
                 new_def, self.__process_step, neutral)

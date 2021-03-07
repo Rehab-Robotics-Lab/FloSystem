@@ -29,7 +29,7 @@ DEFAULT_DEF = [
 ]
 
 
-def simon_says(new_def, process_step, check_side, neutral):
+def simon_says(new_def, process_step, check_side_seq, neutral):
     """Generate a simon says game
 
     Args:
@@ -65,7 +65,7 @@ def simon_says(new_def, process_step, check_side, neutral):
         elif step.type == 'pose_left':
             left.append({'targets': targets, 'speech': speech})
         elif step.type == 'move':
-            side = check_side((targets, speech))
+            side = check_side_seq(step.id)
             if side == 'right':
                 right.append({'targets': targets, 'speech': speech})
             elif side == 'left':

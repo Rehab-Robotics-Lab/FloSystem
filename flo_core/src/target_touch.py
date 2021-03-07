@@ -28,8 +28,8 @@ def target_touch(new_def, process_step, neutral):
     """
     actions_list = []
     reps = 10
-    sides = {'blue': ('left', 'top'), 'red': ('left', 'bottom'), 'yellow': (
-        'right', 'top'), 'green': ('right', 'bottom')}
+    sides = {'blue': ('left', 'upper'), 'red': ('left', 'lower'), 'yellow': (
+        'right', 'upper'), 'green': ('right', 'lower')}
     if new_def.reps:
         reps = new_def.reps
 
@@ -63,14 +63,20 @@ def target_touch(new_def, process_step, neutral):
                 color_tuple = sides[color]
                 left_right = color_tuple[0]
                 up_down = color_tuple[1]
-                for _ in range(reps):
-                    moves[left_right][up_down] = {'targets': targets,
-                                                  'speech': speech, 'color': color}
+                obj_to_add = {'targets': targets,
+                              'speech': speech, 'color': color}
+                moves[left_right][up_down] = moves[left_right][up_down] + \
+                    reps*[obj_to_add]
+
+    random.shuffle(moves['left']['upper'])
+    random.shuffle(moves['left']['lower'])
+    random.shuffle(moves['right']['upper'])
+    random.shuffle(moves['right']['lower'])
     while (moves['left']['upper'] or
-            moves['left']['upper'] or
-            moves['left']['upper'] or
-            moves['left']['upper']):
-        num_steps = random.randrange(2, 5)
+           moves['left']['lower'] or
+           moves['right']['upper'] or
+           moves['right']['lower']):
+        num_steps = random.randrange(2, 5)  # how many instructions to give
         left_ud = None
         right_ud = None
 
@@ -84,25 +90,25 @@ def target_touch(new_def, process_step, neutral):
         elif moves['right']['lower']:
             right_ud = 'lower'
 
-        left_remain = True
-        right_remain = True
+        left_remain = left_ud is not None
+        right_remain = right_ud is not None
         seq = []
         left_target = None
         right_target = None
         for _ in range(num_steps):
-            if left_remain and random.getrandbits(1):
+            if left_remain and (random.getrandbits(1) or not right_remain):
                 try:
-                    new_move = moves['left'][left_ud]
+                    new_move = moves['left'][left_ud].pop()
                     left_target = new_move['targets']
                     seq.append(new_move)
-                except IndexError:
+                except (IndexError, KeyError):
                     left_remain = False
             elif right_remain:
                 try:
-                    new_move = moves['right'][right_ud]
+                    new_move = moves['right'][right_ud].pop()
                     right_target = new_move['targets']
                     seq.append(new_move)
-                except IndexError:
+                except (IndexError, KeyError):
                     right_remain = False
 
         if left_target and right_target:
@@ -118,16 +124,17 @@ def target_touch(new_def, process_step, neutral):
         for item in seq:
             if 'left' in item['speech']:
                 final_speech = final_speech + \
-                    'left hand ' + item['color'] + ' '
+                    'left hand ' + item['color'] + ', '
             elif 'right' in item['speech']:
                 final_speech = final_speech + \
-                    'right hand ' + item['color'] + ' '
+                    'right hand ' + item['color'] + ', '
             else:
                 raise Exception
 
         actions_bag.append(
             {'speech': final_speech+' go!', 'targets': final_target})
 
+    random.shuffle(actions_bag)
     actions_list += actions_bag
 
     actions_list.append(

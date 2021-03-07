@@ -42,7 +42,9 @@ cd ~/catkin_ws
 rosdep install --from-paths src --ignore-src -q -r -y --skip-keys "realsense2_camera realsense2_description rosbridge_suite rosbridge_server rosbridge_library rosbridge_msgs video_stream_opencv kobuki"
 cd -
 
-echo "$GITHUB_ACTIONS"
+echo "checking vars"
+echo "github_actions: $GITHUB_ACTIONS"
+echo "ci: $CI"
 
 if [ "$GITHUB_ACTIONS" = true ]
 then

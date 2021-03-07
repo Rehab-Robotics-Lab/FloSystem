@@ -1,4 +1,5 @@
 declare module "webrtc-adapter" {
+  //eslint-disable-next-line @typescript-eslint/no-explicit-any
   export type adapter = any;
 }
 
@@ -25,10 +26,10 @@ declare module "ros3d" {
     renderer: THREE.WebGLRenderer;
     scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
-    cameraControls: object; //TODO: this should be a ROS3D.OrbitContros object
+    cameraControls: Record<string, unknown>; //TODO: this should be a ROS3D.OrbitContros object
     directionalLight: Three.DirectionalLight;
     selectableObjects: THREE.Object3D;
-    mouseHandler: object; //TODO: should be a ROS3D.MouseHandler
+    mouseHandler: Record<string, unknown>; //TODO: should be a ROS3D.MouseHandler
     stopped: boolean;
     animationRequestID: number; //TODO: Not sure what this is
     start(): void;
@@ -44,8 +45,9 @@ declare module "ros3d" {
       param?: string;
       path?: string;
       tfClient: ROSLIB.Ros.TFClient;
-      rootObject?: object; //TODO: I have no clue what this is
+      rootObject?: Record<string, unknown>; //TODO: I have no clue what this is
       tfPrefix?: string;
+      //eslint-disable-next-line @typescript-eslint/no-explicit-any
       loader?: any;
     });
     urdf: ROS3D.Urdf;
@@ -57,7 +59,7 @@ declare module "ros3d" {
       path?: string;
       tfClient: ROSLIB.Ros.TFClient;
       tfPrefix?: string;
-      loader?: object; //TODO: not sure what type this is
+      loader?: Record<string, unknown>; //TODO: not sure what type this is
     });
   }
 }

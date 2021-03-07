@@ -57,5 +57,5 @@
     </node>
   </group>
   <node name="ur_relay_color" pkg="topic_tools" type="relay" required="true" args="upper_realsense/color/image_raw _stealth:=True _monitor_topic:='/record_video_dummy'"/>
-  <node name="ur_relay_dc" pkg="topic_tools" type="relay" required="true" args="upper_realsense/depth/image_raw _stealth:=True _monitor_topic:='/record_video_dummy'"/>
+  <node name="ur_relay_dc" pkg="topic_tools" type="relay" required="true" args="upper_realsense/depth/image_rect_raw _stealth:=True _monitor_topic:='/record_video_dummy'"/>
 </launch>

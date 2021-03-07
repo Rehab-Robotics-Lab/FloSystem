@@ -5,7 +5,7 @@
 <node pkg="flo_core" type="recording_manager.py" name="recording_manager"/>
 
 <node pkg="rosbag" type="record" name="lil_flo_bag"
-args="record --output-prefix $(arg prefix) --split --duration 1m --lz4
+args="record --output-prefix $(arg prefix) --split --duration 1m
 /lower_realsense/depth/image_rect_raw_relay
 /lower_realsense/color/image_raw_relay
 /upper_realsense/depth/image_rect_raw_relay

@@ -46,6 +46,7 @@ const SaveBucket: React.FunctionComponent<SaveBucketProps> = ({
       serviceType: "flo_core_defs/SetGameBucket",
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const cleanSteps = steps.map(({ desc, key, ...keep }) => keep);
     console.log(steps);
     console.log(cleanSteps);

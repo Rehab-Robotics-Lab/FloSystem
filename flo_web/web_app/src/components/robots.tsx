@@ -25,7 +25,7 @@ const Robots: React.FunctionComponent = () => {
         setRobotArray(res.data.robots as Array<Robot>);
       })
       .catch((err) => {
-        console.log("error fetching array of robots");
+        console.log("error fetching array of robots: " + err);
       });
   }, 1000 * 1);
 

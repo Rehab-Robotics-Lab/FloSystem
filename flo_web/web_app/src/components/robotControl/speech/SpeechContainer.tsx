@@ -29,9 +29,9 @@ interface StoredUtterance {
 }
 
 function reducer(state: StoredUtterance[], newVal: string): StoredUtterance[] {
-  const idx = 0;
+  let idx = 0;
   if (state.length > 0) {
-    const idx = state[state.length - 1].idx + 1;
+    idx = state[state.length - 1].idx + 1;
   }
   return [{ idx: idx, text: newVal }]
     .concat(state)

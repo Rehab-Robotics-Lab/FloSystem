@@ -20,10 +20,10 @@ interface PoseProps {
   addToMoveList: AddToMoveList;
 }
 
-interface SearchPoseResp {
-  poses: PoseMsg[];
-  ids: number[];
-}
+//interface SearchPoseResp {
+//  poses: PoseMsg[];
+//  ids: number[];
+//}
 
 interface PoseObj {
   id: number;

@@ -27,7 +27,7 @@ def target_touch(new_def, process_step, neutral):
     Returns: The action list that defines the game
     """
     actions_list = []
-    reps = 10
+    reps = 7
     sides = {'blue': ('left', 'upper'), 'red': ('left', 'lower'), 'yellow': (
         'right', 'upper'), 'green': ('right', 'lower')}
     if new_def.reps:

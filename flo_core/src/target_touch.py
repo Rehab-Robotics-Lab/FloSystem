@@ -3,6 +3,7 @@
 """A module to generate target touch type games"""
 
 import random
+from itertools import chain
 from flo_core_defs.msg import StepDef
 
 DEFAULT_DEF = [
@@ -37,7 +38,7 @@ def target_touch(new_def, process_step, neutral):
     actions_list.append(
         {'speech': 'in the target touch activity, I will tell you to ' +
                    'touch the dots on my hands. I will tell you which ' +
-                   'hand to use and which color dot to touch then tell you to go. No tricks ' +
+                   'hand to use and which color dot to touch, then tell you to go. No tricks ' +
                    'here, just good work!! Let\'s start ' +
                    'in a ready position, return to this position after every touch'})
     if not new_def.steps:
@@ -120,23 +121,27 @@ def target_touch(new_def, process_step, neutral):
         else:
             raise Exception
 
-        final_speech = ''
+        final_speech = '<break time="2.5s"/>'
         for item in seq:
             if 'left' in item['speech']:
                 final_speech = final_speech + \
-                    'left hand ' + item['color'] + ', '
+                    '<emphasis>left</emphasis> hand <emphasis>' + \
+                    item['color'] + '</emphasis>, '
             elif 'right' in item['speech']:
                 final_speech = final_speech + \
-                    'right hand ' + item['color'] + ', '
+                    '<emphasis>right</emphasis> hand <emphasis>' + \
+                    item['color'] + '</emphasis>, '
             else:
                 raise Exception
 
         actions_bag.append(
-            {'speech': final_speech+' go!', 'targets': final_target})
+            {'speech': final_speech+'<break time=".5s"/> go!', 'targets': final_target})
 
     random.shuffle(actions_bag)
     actions_list += actions_bag
 
     actions_list.append(
         {'speech': 'that was hard work, but a lot of fun, thanks for playing with me'})
+    # actions_list = list(chain.from_iterable(
+    #     (neutral, at) for at in actions_list))
     return actions_list

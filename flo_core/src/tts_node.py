@@ -57,12 +57,40 @@ read some instructions and immediately get ready for any input.
 import json
 
 import xml.etree.ElementTree as ET
+from HTMLParser import HTMLParser
+from StringIO import StringIO
 import actionlib
 import rospy
 from tts.msg import SpeechAction, SpeechResult
 from tts.srv import Synthesizer
 from sound_play.libsoundplay import SoundClient
 from flo_core_defs.msg import TTSState, TTSUtterances
+
+
+class MLStripper(HTMLParser):
+    """A class to strip out tags
+
+    taken from: https://stackoverflow.com/a/925630/5274985
+    """
+
+    def __init__(self):
+        self.reset()
+        self.text = StringIO()
+
+    def handle_data(self, dat):
+        """ingest data"""
+        self.text.write(dat)
+
+    def get_data(self):
+        """return data"""
+        return self.text.getvalue()
+
+
+def strip_tags(html):
+    """strip html tags"""
+    stripper = MLStripper()
+    stripper.feed(html)
+    return stripper.get_data()
 
 
 def play(filename):
@@ -109,10 +137,11 @@ class TTSManager(object):
         finished, a client can choose
         not to wait by not calling ``SimpleActionClient.waite_for_result()``.
         """
-        rospy.loginfo('speech goal: %s', goal)
+        rospy.logerr('speech goal: %s', goal)
 
-        goal_root = ET.fromstring(goal.text)
-        goal_text = goal_root.text
+        # goal_root = ET.fromstring(goal.text)
+        # goal_text = goal_root.text
+        goal_text = strip_tags(goal.text)
 
         self.state_pub.publish(state=TTSState.SYNTHESIZING, text=goal_text)
         res = do_synthesize(goal)

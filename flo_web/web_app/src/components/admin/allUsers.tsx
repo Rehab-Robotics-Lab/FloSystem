@@ -16,12 +16,12 @@ const AllUsers: React.FunctionComponent = () => {
 
   // Note this is coming from somewhere else, not vanilla
   SetInterval(() => {
-    axios.get("/api/users/all-users").then(res => {
+    axios.get("/api/users/all-users").then((res) => {
       setUserArray(res.data.users as Array<User>);
     });
   }, 1000 * 1);
 
-  const userRows = userArray.map(user => (
+  const userRows = userArray.map((user) => (
     <tr key={user.email}>
       <td>{user.id}</td>
       <td>{user.first_name}</td>

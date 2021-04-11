@@ -23,7 +23,7 @@ const Routes: React.FunctionComponent<RoutesProps> = ({
   setUserName,
   setUserType,
   userType,
-  userName
+  userName,
 }) => {
   return (
     <Switch>

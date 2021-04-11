@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import React, { useState } from "react";
 
 const resetPasswordSchema = Yup.object().shape({
-  name: Yup.string().required("required")
+  name: Yup.string().required("required"),
 });
 
 const ResetRobotPassword: React.FunctionComponent = () => {
@@ -20,16 +20,16 @@ const ResetRobotPassword: React.FunctionComponent = () => {
           onSubmit={(values, { setSubmitting }): void => {
             axios
               .post("/api/robots/new-password", {
-                robotName: values.name
+                robotName: values.name,
               })
               .then(
-                res => {
+                (res) => {
                   const password = res.data["newPassword"];
 
                   setNewPassword(password);
                   setSubmitting(false);
                 },
-                err => {
+                (err) => {
                   alert(
                     "failed to reset users password: " +
                       err.response.data["error"]

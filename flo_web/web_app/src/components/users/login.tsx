@@ -5,10 +5,8 @@ import axios from "axios";
 import { useHistory, Link } from "react-router-dom";
 
 const loginSchema = Yup.object().shape({
-  email: Yup.string()
-    .email("invalid email")
-    .required("required"),
-  password: Yup.string().required("required")
+  email: Yup.string().email("invalid email").required("required"),
+  password: Yup.string().required("required"),
 });
 
 interface LoginProps {
@@ -22,7 +20,7 @@ const Login: React.FunctionComponent<LoginProps> = ({
   setLoggedIn,
   setUserName,
   setUserType,
-  loggedIn
+  loggedIn,
 }) => {
   const history = useHistory();
   if (loggedIn) {
@@ -44,16 +42,16 @@ const Login: React.FunctionComponent<LoginProps> = ({
             axios
               .post("/api/users/login", {
                 email: values.email,
-                password: values.password
+                password: values.password,
               })
               .then(
-                res => {
+                (res) => {
                   setLoggedIn(true);
                   setUserType(res.data["userType"]);
                   setUserName(res.data["userName"]);
                   history.push("/");
                 },
-                err => {
+                (err) => {
                   console.log(err);
                   alert("failed login: " + err.response.data["error"]);
                   setSubmitting(false);
@@ -67,7 +65,7 @@ const Login: React.FunctionComponent<LoginProps> = ({
                 style={{
                   display: "flex",
                   justifyContent: "center",
-                  flexDirection: "column"
+                  flexDirection: "column",
                 }}
               >
                 <div style={{ textAlign: "left" }}>

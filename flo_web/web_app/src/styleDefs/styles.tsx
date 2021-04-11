@@ -8,28 +8,28 @@ export const basicBlock: CSSProperties = {
   display: "flex",
   flexDirection: "column",
   overflow: "hidden",
-  maxHeight: "400px"
+  maxHeight: "400px",
 };
 
 export const inputWithSpace: CSSProperties = {
   display: "flex",
   flexDirection: "row",
   justifyContent: "space-between",
-  flexWrap: "wrap"
+  flexWrap: "wrap",
 };
 
 export const majorButton: CSSProperties = {
-  fontSize: "20px"
+  fontSize: "20px",
 };
 
 export const buttonContainer: CSSProperties = {
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
-  justifyContent: "space-evenly"
+  justifyContent: "space-evenly",
 };
 
 export const wrapStyle: CSSProperties = {
   display: "flex",
-  flexDirection: "column"
+  flexDirection: "column",
 };

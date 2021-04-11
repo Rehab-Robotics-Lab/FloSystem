@@ -25,7 +25,7 @@ const Header: React.FunctionComponent<HeaderProps> = ({ connected }) => {
           alignItems: "stretch",
           justifyContent: "space-between",
           backgroundColor: colors.blue.neutral,
-          color: colors.white
+          color: colors.white,
         }}
       >
         <h1 style={{ margin: "0px" }}>Flo Control Center</h1>

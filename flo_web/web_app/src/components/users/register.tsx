@@ -5,14 +5,10 @@ import axios from "axios";
 import { useHistory, Link } from "react-router-dom";
 
 const registerSchema = Yup.object().shape({
-  email: Yup.string()
-    .email("invalid email")
-    .required("required"),
-  password: Yup.string()
-    .min(5, "too short")
-    .required("required"),
+  email: Yup.string().email("invalid email").required("required"),
+  password: Yup.string().min(5, "too short").required("required"),
   firstName: Yup.string().required("required"),
-  lastName: Yup.string().required("required")
+  lastName: Yup.string().required("required"),
 });
 const Register: React.FunctionComponent = () => {
   const history = useHistory();
@@ -30,7 +26,7 @@ const Register: React.FunctionComponent = () => {
             email: "",
             password: "",
             firstName: "",
-            lastName: ""
+            lastName: "",
           }}
           validationSchema={registerSchema}
           onSubmit={(values, { setSubmitting }): void => {
@@ -39,13 +35,13 @@ const Register: React.FunctionComponent = () => {
                 email: values.email,
                 password: values.password,
                 firstName: values.firstName,
-                lastName: values.lastName
+                lastName: values.lastName,
               })
               .then(() => {
                 alert("user created, please login");
                 history.push("/login");
               })
-              .catch(err => {
+              .catch((err) => {
                 alert("failed to register: " + err.response.data["error"]);
                 setSubmitting(false);
               });
@@ -57,7 +53,7 @@ const Register: React.FunctionComponent = () => {
                 style={{
                   display: "flex",
                   justifyContent: "center",
-                  flexDirection: "column"
+                  flexDirection: "column",
                 }}
               >
                 <div style={{ textAlign: "left" }}>

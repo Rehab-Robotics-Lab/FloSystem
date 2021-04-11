@@ -5,7 +5,7 @@ import { SetMoving, SetMovesList } from "../../robotController";
 import {
   basicBlock,
   majorButton,
-  buttonContainer
+  buttonContainer,
 } from "../../../styleDefs/styles";
 
 interface SetTime {
@@ -53,7 +53,7 @@ export const runSequence = (
     ros: ros,
     serverName: "/move",
     actionName: "flo_humanoid_defs/MoveAction",
-    timeout: 1500 //Not sure about this value here. needs testing
+    timeout: 1500, //Not sure about this value here. needs testing
   });
   console.log("connected to move action action client");
 
@@ -64,7 +64,7 @@ export const runSequence = (
   // - calculate the actual target time
   const targets: Array<ROSLIB.Message> = [];
   let priorArm = "";
-  MovesList.forEach(move => {
+  MovesList.forEach((move) => {
     if (move.lr === priorArm && move.time === 0) {
       throw new Error(
         "There cannot be two arm movements with zero time on the same arm"
@@ -79,7 +79,7 @@ export const runSequence = (
     const msg = new ROSLIB.Message({
       name: names,
       position: move.pose.pose.joint_positions,
-      target_completion_time: time // eslint-disable-line
+      target_completion_time: time, // eslint-disable-line
     });
     targets.push(msg);
   });
@@ -87,8 +87,8 @@ export const runSequence = (
   const goal = new ROSLIB.Goal({
     actionClient,
     goalMessage: {
-      targets
-    }
+      targets,
+    },
   });
 
   //TODO: get this out as an error
@@ -118,7 +118,7 @@ export const runSequence = (
     goal.cancel();
   });
 
-  goal.on("feedback", fb => {
+  goal.on("feedback", (fb) => {
     const curMove = fb.move_number;
     const moveListN = [...MovesList];
     for (let idx = 0; idx < curMove; idx += 1) {
@@ -129,7 +129,7 @@ export const runSequence = (
     console.log("got move action feedback");
   });
 
-  goal.on("result", res => {
+  goal.on("result", (res) => {
     setMoving(false);
     const moveListN = [...MovesList];
     for (let idx = 0; idx < moveListN.length; idx += 1) {
@@ -167,14 +167,14 @@ const Move: React.FunctionComponent<MoveProps> = ({
   status,
   priorLR,
   priorTime,
-  setErrorState
+  setErrorState,
 }) => {
   const style: React.CSSProperties = {
     display: "flex",
     flexDirection: "row",
     flexWrap: "nowrap",
     background: id % 2 ? "#bcd2e0" : "white",
-    border: "none"
+    border: "none",
   };
   if (status === "complete") {
     style.border = "2px solid green";
@@ -262,7 +262,7 @@ const SequenceRunContainer: React.FunctionComponent<SequenceRunContainerProps> =
   MovesList,
   setMovesList,
   moving,
-  setMoving
+  setMoving,
 }) => {
   const [errorList, setErrorList] = useState<boolean[]>([]);
   const setTime: SetTime = (id, time) => {
@@ -273,7 +273,7 @@ const SequenceRunContainer: React.FunctionComponent<SequenceRunContainerProps> =
     setMovesList(moveListN);
   };
 
-  const toggleLR: SimpleModificationFunc = id => {
+  const toggleLR: SimpleModificationFunc = (id) => {
     const moveListN = [...MovesList];
     const target = moveListN[id];
     target.lr = target.lr === "left" ? "right" : "left";
@@ -281,21 +281,21 @@ const SequenceRunContainer: React.FunctionComponent<SequenceRunContainerProps> =
     setMovesList(moveListN);
   };
 
-  const moveUp: SimpleModificationFunc = id => {
+  const moveUp: SimpleModificationFunc = (id) => {
     if (id === 0) return;
     const moveListN = [...MovesList];
     moveListN.splice(id, 0, moveListN.splice(id - 1, 1)[0]);
     setMovesList(moveListN);
   };
 
-  const moveDown: SimpleModificationFunc = id => {
+  const moveDown: SimpleModificationFunc = (id) => {
     if (id === MovesList.length - 1) return;
     const moveListN = [...MovesList];
     moveListN.splice(id, 0, moveListN.splice(id + 1, 1)[0]);
     setMovesList(moveListN);
   };
 
-  const remove: SimpleModificationFunc = id => {
+  const remove: SimpleModificationFunc = (id) => {
     const moveListN = [...MovesList];
     moveListN.splice(id, 1);
     setMovesList(moveListN);
@@ -346,7 +346,7 @@ const SequenceRunContainer: React.FunctionComponent<SequenceRunContainerProps> =
     <div
       id="moves-container"
       style={Object.assign({}, basicBlock, {
-        flexShrink: 0
+        flexShrink: 0,
       })}
     >
       <h2>List of moves to make:</h2>
@@ -355,7 +355,7 @@ const SequenceRunContainer: React.FunctionComponent<SequenceRunContainerProps> =
           display: "flex",
           flexDirection: "column",
           overflowY: "auto",
-          overflowX: "hidden"
+          overflowX: "hidden",
         }}
       >
         <div style={{ display: "flex", flexDirection: "row" }}>
@@ -373,7 +373,7 @@ const SequenceRunContainer: React.FunctionComponent<SequenceRunContainerProps> =
         <button
           type="button"
           style={majorButton}
-          disabled={!connected || moving || errorList.some(val => val)}
+          disabled={!connected || moving || errorList.some((val) => val)}
           onClick={(): void => {
             if (ros === null) {
               return;

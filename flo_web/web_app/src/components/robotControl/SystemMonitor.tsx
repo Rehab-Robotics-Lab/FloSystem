@@ -42,7 +42,7 @@ const Gauge: React.FunctionComponent<GaugeProps> = ({
   valueFormatter,
   min,
   max,
-  invert
+  invert,
 }) => {
   let valueStr = Math.round(value).toString();
   if (valueFormatter) {
@@ -61,7 +61,7 @@ const Gauge: React.FunctionComponent<GaugeProps> = ({
         backgroundColor: perc2color(scaleVal),
         width: "100%",
         height: "auto",
-        fontSize: "1vh"
+        fontSize: "1vh",
       }}
     >
       {label}:{valueStr}
@@ -75,7 +75,7 @@ Gauge.defaultProps = {
   },
   min: 0,
   max: 100,
-  invert: false
+  invert: false,
 };
 
 interface CPUutilMsg {
@@ -103,7 +103,7 @@ function reducer(state: number[], newVal: number): number[] {
 
 const SystemMonitor: React.FunctionComponent<SystemMonitorProps> = ({
   ros,
-  connected
+  connected,
 }) => {
   const [cpu, setCpu] = useReducer(reducer, []);
   const [mem, setMem] = useReducer(reducer, []);
@@ -117,7 +117,7 @@ const SystemMonitor: React.FunctionComponent<SystemMonitorProps> = ({
     const cpuListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "cpu_stats",
-      messageType: "system_monitor/CPUutil"
+      messageType: "system_monitor/CPUutil",
     });
     const cpuCB = (msg: ROSLIB.Message): void => {
       setCpu((msg as CPUutilMsg).percent_utilization);
@@ -127,7 +127,7 @@ const SystemMonitor: React.FunctionComponent<SystemMonitorProps> = ({
     const memListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "mem_stats",
-      messageType: "system_monitor/MEMutil"
+      messageType: "system_monitor/MEMutil",
     });
     const memCB = (msg: ROSLIB.Message): void => {
       setMem((msg as MEMutilMsg).percent_used);
@@ -138,7 +138,7 @@ const SystemMonitor: React.FunctionComponent<SystemMonitorProps> = ({
     const hddListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "hdd_stats",
-      messageType: "system_monitor/HDDutil"
+      messageType: "system_monitor/HDDutil",
     });
     const hddCB = (msg: ROSLIB.Message): void => {
       setHdd((msg as HDDutilMsg).percent_free);
@@ -149,7 +149,7 @@ const SystemMonitor: React.FunctionComponent<SystemMonitorProps> = ({
     const netListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "net_stats",
-      messageType: "system_monitor/NETstats"
+      messageType: "system_monitor/NETstats",
     });
     const netCB = (msg: ROSLIB.Message): void => {
       setNetQ((msg as NETstatsMsg).link_quality);

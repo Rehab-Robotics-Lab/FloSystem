@@ -5,7 +5,7 @@ import axios from "axios";
 
 const changePasswordSchema = Yup.object().shape({
   oldPassword: Yup.string().required("required"),
-  newPassword: Yup.string().required("required")
+  newPassword: Yup.string().required("required"),
 });
 
 const ChangePassword: React.FunctionComponent = () => {
@@ -20,14 +20,14 @@ const ChangePassword: React.FunctionComponent = () => {
             axios
               .post("/api/users/change-password", {
                 newPassword: values.newPassword,
-                oldPassword: values.oldPassword
+                oldPassword: values.oldPassword,
               })
               .then(
                 () => {
                   alert("succesfully changed password");
                   setSubmitting(false);
                 },
-                err => {
+                (err) => {
                   alert(
                     "failed to change password: " + err.response.data["error"]
                   );
@@ -42,7 +42,7 @@ const ChangePassword: React.FunctionComponent = () => {
                 style={{
                   display: "flex",
                   justifyContent: "center",
-                  flexDirection: "column"
+                  flexDirection: "column",
                 }}
               >
                 <div style={{ textAlign: "left" }}>

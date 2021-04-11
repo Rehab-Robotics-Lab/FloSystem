@@ -4,7 +4,7 @@ import URDF from "./robotControl/urdf";
 import PoseContainer from "./robotControl/seq_pose/PoseContainer";
 import ErrorDisplay, { ErrorItem } from "./robotControl/ErrorDisplay";
 import SequenceRunContainer, {
-  Move
+  Move,
 } from "./robotControl/seq_pose/SequenceRunContainer";
 import SequenceContainer from "./robotControl/seq_pose/SequenceContainer";
 import colors from "../styleDefs/colors";
@@ -89,7 +89,7 @@ const RobotController: React.FunctionComponent = () => {
     const err = {
       text: newError.text,
       time: new Date(),
-      src: newError.src
+      src: newError.src,
     };
     errorList = [...errorList, err];
     return errorList;
@@ -103,14 +103,14 @@ const RobotController: React.FunctionComponent = () => {
   const [speechTarget, setSpeechTarget] = useState<Utterance>({
     text: "",
     metadata: null,
-    fileLocation: null
+    fileLocation: null,
   });
   const [speaking, setSpeaking] = useState(false);
   const [pose, setPose] = useState<JointState | null>(null);
   //const [poseListener, setPoseListener] = useState<ROSLIB.Topic | null>(null);
 
   // TODO: make this type more specific
-  const setMovesList: SetMovesList = arg => {
+  const setMovesList: SetMovesList = (arg) => {
     if (!moving) {
       setMovesListInternal(arg);
     }
@@ -129,13 +129,13 @@ const RobotController: React.FunctionComponent = () => {
         pose: value,
         lr: "right",
         status: "not-run",
-        key: genRandID()
-      }
+        key: genRandID(),
+      },
     ]);
   };
 
   const setConnectedWrap: SetConnected = useCallback(
-    con => {
+    (con) => {
       if (con === false) {
         setRos(null);
       }
@@ -152,7 +152,7 @@ const RobotController: React.FunctionComponent = () => {
     const poseListenerT = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "joint_states",
-      messageType: "sensor_msgs/JointState"
+      messageType: "sensor_msgs/JointState",
     });
     const plCB = (msg: ROSLIB.Message): void => {
       const cmsg = msg as JointState;
@@ -168,7 +168,7 @@ const RobotController: React.FunctionComponent = () => {
     //setPoseListener(poseListenerT);
   }, [connected, ros]);
 
-  const { robotName } = useParams();
+  const { robotName } = useParams<{ robotName: string }>();
   const history = useHistory();
 
   const goHome = useCallback((): void => {
@@ -179,7 +179,7 @@ const RobotController: React.FunctionComponent = () => {
   useEffect(() => {
     const targUrl = `wss://${ipAddr}/robot/${robotName}`;
     const newRosConnection = new ROSLIB.Ros({
-      url: targUrl
+      url: targUrl,
     });
     newRosConnection.on("error", () => {
       goHome();
@@ -217,7 +217,7 @@ const RobotController: React.FunctionComponent = () => {
           alignItems: "flex-start",
           margin: "0px",
           flexDirection: "column",
-          justifyContent: "center"
+          justifyContent: "center",
         }}
       >
         <div
@@ -229,7 +229,7 @@ const RobotController: React.FunctionComponent = () => {
             flexWrap: "wrap",
             position: "sticky",
             top: 0,
-            justifyContent: "space-around"
+            justifyContent: "space-around",
           })}
         >
           <Vids ros={ros} connected={connected} ipAddr={ipAddr} />
@@ -238,7 +238,7 @@ const RobotController: React.FunctionComponent = () => {
         <div
           style={{
             flexGrow: 1,
-            overflow: "auto"
+            overflow: "auto",
           }}
         >
           <div
@@ -246,7 +246,7 @@ const RobotController: React.FunctionComponent = () => {
               display: "flex",
               flexDirection: "row",
               justifyContent: "center",
-              alignItems: "center"
+              alignItems: "center",
             }}
           >
             <RelaxMotors ros={ros} connected={connected} />
@@ -259,7 +259,7 @@ const RobotController: React.FunctionComponent = () => {
               flexDirection: "row",
               flexWrap: "wrap",
               alignItems: "flex-start",
-              justifyContent: "center"
+              justifyContent: "center",
             }}
           >
             <Drive ros={ros} connected={connected} />
@@ -279,7 +279,7 @@ const RobotController: React.FunctionComponent = () => {
               style={{
                 display: "flex",
                 flexDirection: "row",
-                flexWrap: "wrap"
+                flexWrap: "wrap",
               }}
             >
               <PoseContainer

@@ -10,7 +10,7 @@ interface RelaxMotorsProps {
 // Takes a parameter ros, which is the connection to ros
 const RelaxMotors: React.FunctionComponent<RelaxMotorsProps> = ({
   ros,
-  connected
+  connected,
 }) => {
   const relaxMotors = (): void => {
     if (!connected || ros === null) {
@@ -19,11 +19,11 @@ const RelaxMotors: React.FunctionComponent<RelaxMotorsProps> = ({
     const topic = new ROSLIB.Topic({
       ros: ros,
       name: "/motor_commands",
-      messageType: "std_msgs/String"
+      messageType: "std_msgs/String",
     });
 
     const relax = new ROSLIB.Message({
-      data: "relax"
+      data: "relax",
     });
     topic.publish(relax);
     console.log("sent command to relax motors");
@@ -32,7 +32,7 @@ const RelaxMotors: React.FunctionComponent<RelaxMotorsProps> = ({
   return (
     <div
       style={Object.assign({}, majorButton, {
-        width: "180px"
+        width: "180px",
       })}
     >
       <button

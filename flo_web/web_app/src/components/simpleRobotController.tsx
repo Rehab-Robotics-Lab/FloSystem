@@ -22,7 +22,7 @@ const SimpleRobotController: React.FunctionComponent = () => {
     const err = {
       text: newError.text,
       time: new Date(),
-      src: newError.src
+      src: newError.src,
     };
     errorList = [...errorList, err];
     return errorList;
@@ -32,7 +32,7 @@ const SimpleRobotController: React.FunctionComponent = () => {
   const [connected, setConnected] = useState(false);
 
   const setConnectedWrap: SetConnected = useCallback(
-    con => {
+    (con) => {
       if (con === false) {
         setRos(null);
       }
@@ -41,7 +41,7 @@ const SimpleRobotController: React.FunctionComponent = () => {
     [setConnected, setRos]
   );
 
-  const { robotName } = useParams();
+  const { robotName } = useParams<{ robotName: string }>();
   const history = useHistory();
 
   const goHome = useCallback((): void => {
@@ -52,9 +52,9 @@ const SimpleRobotController: React.FunctionComponent = () => {
   useEffect(() => {
     const targUrl = `wss://${ipAddr}/robot/${robotName}`;
     const newRosConnection = new ROSLIB.Ros({
-      url: targUrl
+      url: targUrl,
     });
-    newRosConnection.on("error", err => {
+    newRosConnection.on("error", (err) => {
       addError({ text: "ROS Connection Error: " + err, src: "Header" });
     });
     newRosConnection.on("connection", () => {
@@ -90,7 +90,7 @@ const SimpleRobotController: React.FunctionComponent = () => {
           alignItems: "center",
           margin: "0px",
           flexDirection: "column",
-          justifyContent: "center"
+          justifyContent: "center",
         }}
       >
         <div
@@ -102,7 +102,7 @@ const SimpleRobotController: React.FunctionComponent = () => {
             flexWrap: "wrap",
             position: "sticky",
             top: 0,
-            justifyContent: "space-around"
+            justifyContent: "space-around",
           })}
         >
           <Vids ros={ros} connected={connected} ipAddr={ipAddr} />
@@ -114,7 +114,7 @@ const SimpleRobotController: React.FunctionComponent = () => {
               display: "flex",
               flexDirection: "row",
               flexWrap: "wrap",
-              alignItems: "flex-start"
+              alignItems: "flex-start",
             }}
           >
             <Drive ros={ros} connected={connected} />

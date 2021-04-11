@@ -33,7 +33,7 @@ interface FaceContainerProps {
 // Takes a parameter ros, which is the connection to ros
 const FaceContainer: React.FunctionComponent<FaceContainerProps> = ({
   ros,
-  connected
+  connected,
 }) => {
   const [eyeOptions, setEyeOptions] = useState<string[]>([]);
   const [faceState, setFaceState] = useState<FaceState | null>(null);
@@ -41,7 +41,7 @@ const FaceContainer: React.FunctionComponent<FaceContainerProps> = ({
   return (
     <div
       style={Object.assign({}, basicBlock, {
-        maxwidth: "400px"
+        maxwidth: "400px",
       })}
     >
       <h2>Faces:</h2>
@@ -50,7 +50,7 @@ const FaceContainer: React.FunctionComponent<FaceContainerProps> = ({
           display: "flex",
           flexDirection: "row",
           overflow: "hidden",
-          flex: "1"
+          flex: "1",
         }}
       >
         <SavedFaces
@@ -63,7 +63,7 @@ const FaceContainer: React.FunctionComponent<FaceContainerProps> = ({
             maxWidth: "200px",
             overflow: "hidden",
             display: "flex",
-            flexDirection: "column"
+            flexDirection: "column",
           }}
         >
           <CurrentFace

@@ -8,6 +8,14 @@ import http from 'http';
 import net from 'net';
 import WebSocket from 'ws';
 
+declare module 'express-session' {
+    export interface SessionData {
+        userID: number;
+        userType: string;
+        userName: string;
+    }
+}
+
 const logger = winston.createLogger({
     level: 'info',
     exitOnError: false,
@@ -157,9 +165,11 @@ interface Upgrade {
 }
 
 interface HandleUpgradePromise {
-    (request: http.IncomingMessage, socket: net.Socket, head: Buffer): Promise<
-        WebSocket
-    >;
+    (
+        request: http.IncomingMessage,
+        socket: net.Socket,
+        head: Buffer,
+    ): Promise<WebSocket>;
 }
 
 interface ParseIncoming {

@@ -82,7 +82,7 @@ class Joystick {
     this.canvasSize = { width: this.canvas.width, height: this.canvas.height };
     this.circleCenter = {
       x: this.canvasSize.width / 2,
-      y: this.canvasSize.height / 2
+      y: this.canvasSize.height / 2,
     };
     this.circleRadius =
       Math.max(this.canvasSize.height, this.canvasSize.width) * 0.4;
@@ -106,7 +106,7 @@ class Joystick {
     const rect = this.canvas.getBoundingClientRect();
     return {
       x: evt.clientX - rect.left,
-      y: evt.clientY - rect.top
+      y: evt.clientY - rect.top,
     };
   }
 
@@ -221,7 +221,7 @@ class Joystick {
     const touch: Touch = evt.targetTouches.item(0) as Touch;
     this.actOnInput({
       x: touch.clientX - rect.left,
-      y: touch.clientY - rect.top
+      y: touch.clientY - rect.top,
     });
   }
 
@@ -257,7 +257,7 @@ const Drive: React.FunctionComponent<DriveProps> = ({ ros, connected }) => {
     const topic = new ROSLIB.Topic({
       ros: ros,
       name: "/keyop_vel_smoother/raw_cmd_vel",
-      messageType: "geometry_msgs/Twist"
+      messageType: "geometry_msgs/Twist",
     });
     console.log("connected to raw command velocity topic");
 
@@ -271,18 +271,18 @@ const Drive: React.FunctionComponent<DriveProps> = ({ ros, connected }) => {
         const linearMsg = new ROSLIB.Message({
           x: linear,
           y: 0,
-          z: 0
+          z: 0,
         });
 
         const angMsg = new ROSLIB.Message({
           x: 0,
           y: 0,
-          z: twist
+          z: twist,
         });
 
         const msg = new ROSLIB.Message({
           linear: linearMsg,
-          angular: angMsg
+          angular: angMsg,
         });
 
         // trying to publish at 10hz

@@ -1,8 +1,5 @@
 # LilFloSystem
 
-![Check Syntax](https://github.com/Rehab-Robotics-Lab/LilFloSystem/workflows/Check%20Syntax/badge.svg)
-![Install & Build](https://github.com/Rehab-Robotics-Lab/LilFloSystem/workflows/Install%20&%20Build/badge.svg)
-
 This is the the master repository for all of the Lil'Flo remote control, local
 control, messaging, etc.
 
@@ -22,42 +19,43 @@ We are waiting on approvals from the owners of the repository (The University of
 
 ## Contents
 
-- [WebServer Setup](#webserver-setup)
-- [Development Computer Setup](#dev-computer)
-- [Network Setup](#network)
-- [NUC Setup](#nuc)
-  - [UDEV for USB fixed Addresses](#udev)
-  - [USB Speker](#usb-speaker)
-  - [Realsense Cameras](#realsense-cameras)
-- [Amazon Polly Setup](#amazon-polly)
-- [WebRTC ROS Setup](#webrtc-ros)
-- [Developing on The System](#developing)
-  - [Simulator](#simulator)
-- [Running Code](#running)
-- [Things That May Break](#break)
-  - [The Web Interface Doesn't Respond](#broken-web)
-  - [Packages are missing](#missing-packages)
-  - [Services Don't Exist](#broken-services)
-  - [Realsense has version mismatches](#broken-realsense)
-  - [ROS won't build](#broken-build)
-  - [No audio plays](#broken-audio)
-  - [No videos on web](#broken-web-video)
-- [Camera Recalibration]
-  - [Practical Tips]
-  - [Realsense Tools]
-  - [OpenCV]
+*   [WebServer Setup](#webserver-setup)
+*   [Development Computer Setup](#dev-computer)
+*   [Network Setup](#network)
+*   [NUC Setup](#nuc)
+    *   [UDEV for USB fixed Addresses](#udev)
+    *   [USB Speker](#usb-speaker)
+    *   [Realsense Cameras](#realsense-cameras)
+*   [Amazon Polly Setup](#amazon-polly)
+*   [WebRTC ROS Setup](#webrtc-ros)
+*   [Developing on The System](#developing)
+    *   [Simulator](#simulator)
+*   [Running Code](#running)
+*   [Things That May Break](#break)
+    *   [The Web Interface Doesn't Respond](#broken-web)
+    *   [Packages are missing](#missing-packages)
+    *   [Services Don't Exist](#broken-services)
+    *   [Realsense has version mismatches](#broken-realsense)
+    *   [ROS won't build](#broken-build)
+    *   [No audio plays](#broken-audio)
+    *   [No videos on web](#broken-web-video)
+*   \[Camera Recalibration]
+    *   \[Practical Tips]
+    *   \[Realsense Tools]
+    *   \[OpenCV]
 
 ## WebServer Setup
 
 Setting up the webserver is a totally different issue from setting up the robot.
 Everything runs in docker. Let's walk through real quickly what is going on:
 When anything outside hits the webserver stack, they are going to route through
-Nginx, which is listening on both ports 80 and 443. The definition for Nginx depends on the environment, production or development, and is
+Nginx, which is listening on both ports 80 and 443. The definition for Nginx
+depends on the environment, production or development, and is
 defined in `flo_web/nginx-prod.conf` and `flo_web/nginx-dev.conf`
 respectively. In production, Nginx will serve the static front end
 files itself. In development create-react-app (via nodejs) will serve
 them so that the developer has hot reloading. The Nginx docker image
-is defined in `flo_wb/Dockerfile` where the front end is first compiled
+is defined in `flo_web/Dockerfile` where the front end is first compiled
 and then added into Nginx.
 
 When in development, the create-react-app runtime is defined in
@@ -72,6 +70,8 @@ override file, which defines operations during development.
 This is done by changing the commands which run in the docker images,
 changing what volumes are mapped to bring in code and config files,
 and adding in the front end server.
+
+### Server Config Files
 
 You should create a file in `LilFloSystem/certs/session-secret.env`
 with contents: `SESSION_SECRET=<cryptographically random value>`
@@ -92,49 +92,19 @@ DD_API_KEY=<cryptographically random value>
 DD_HOSTNAME=<hostname ex: lilflo.com>
 ```
 
-####To run in development:
-
-1. Go to the root of this repo
-2. `docker-compose build`
-3. `docker-compose up`
-   In theory, you shouldn't have to rebuild for any changes.
-   If you change the Nginx dev config, you will either need
-   to go into the Nginx container and restart it or restart
-   the entire docker-compose group (ctrl-c; `docker-compose up`)
-4. Open `https://localhost:80`
-
-#### To run in production:
-
-1. Go to the root of this repo
-2. `docker-compose -f docker-compose.yml up -d`
-   TODO: [add a production def](https://docs.docker.com/compose/extends/#multiple-compose-files) that sets restart rules and stuff.
-3. If you need to take it down, run: `docker-compose down`
-
-### Using docker compose:
-
-Docker compose is nice because it will build, name, and run all of the necessary
-images.
-This is defined in the `docker-compose.yml` file in the root.
-
-1. Go to the root
-2. Run `docker-compose build`
-3. Run `docker-compose up`, Ctrl+c to take down
-   - To put in background run `docker-compose -D up`
-   - To take out of background: `docker-compose down`
-
 ### SSL certs
 
 #### Local
 
 We need ssl certs during local development.
 
-1. sudo apt install libnss3-tools
-2. Download the latest binary for [mkcert](https://github.com/FiloSottile/mkcert)
-3. Change permissions `sudo chmod u+x <name of binary>`
-4. Setup certs registry: `<name of binary: mkcert...> -install`
-5. Make a certs dir (named `certs`) in the root of this repo and go into it
-6. Make new certs: `<name of binary: mkcert...> localhost` you can add other options here if you want to simulate a local domain by putting it in your hosts file, add in the 127.0.0.1 or other localhost aliases, etc. You can even use wildcards. NOTE: be very careful with these, they can really really open you up to security holes in your local computer if shared.
-7. rename the certs: `mv localhost-key.pem localhost.key && mv localhost.pem localhost.crt` Of course if your certs are named something else... you get the idea.
+1.  `sudo apt install libnss3-tools`
+2.  Download the latest binary for [mkcert](https://github.com/FiloSottile/mkcert)
+3.  Change permissions `sudo chmod u+x <name of binary>`
+4.  Setup certs registry: `<name of binary: mkcert...> -install`
+5.  Make a certs dir (named `certs`) in the root of this repo and go into it
+6.  Make new certs: `<name of binary: mkcert...> localhost` you can add other options here if you want to simulate a local domain by putting it in your hosts file, add in the 127.0.0.1 or other localhost aliases, etc. You can even use wildcards. NOTE: be very careful with these, they can really really open you up to security holes in your local computer if shared.
+7.  rename the certs: `mv localhost-key.pem localhost.key && mv localhost.pem localhost.crt` Of course if your certs are named something else... you get the idea.
 
 #### Server
 
@@ -150,39 +120,40 @@ When you initially create the system, you will have no users. You can register a
 user, but that user will not have administrator privelages. You need to setup a first
 admin. To do this:
 
-1. Create a user account by registering through the web interface
-2. Attach to the docker image for the postgres database into pg: `docker container exec -it lilflosystem_postgres_1 psql flodb -h localhost -U postgres` (note the number on that container might be different...)
-3. Turn on expanded view to get nice prints: `\x`
-4. Optionally get info on your registered users: `select * from users;`
-5. Find out what id admin users need: `select * from user_types`
-6. Set the user you are interested in to be an admin: `update users set user_type=<id of usertype you want> where email=<email you want>`. Ex: `update users set user_type=1 where email='testsobrep@seas.upenn.edu'`
-7. Check that it worked: `select * from users;`
+1.  Create a user account by registering through the web interface
+2.  Attach to the docker image for the postgres database into pg: `docker container exec -it lilflosystem_postgres_1 psql flodb -h localhost -U postgres` (note the number on that container might be different...)
+3.  Turn on expanded view to get nice prints: `\x`
+4.  Optionally get info on your registered users: `select * from users;`
+5.  Find out what id admin users need: `select * from user_types`
+6.  Set the user you are interested in to be an admin: `update users set user_type=<id of usertype you want> where email=<email you want>`. Ex: `update users set user_type=1 where email='testsobrep@seas.upenn.edu'`
+7.  Check that it worked: `select * from users;`
 
 ### Deploying to Linode
 
 Linode is small, easy to use, and affordable.
 
-1. Setup a node on linode. The small size should be fine. When setting up, setup an ssh-key to make your life easier. Use the latest Ubuntu LTS.
-2. Setup the A/AAA record to work with your domain name and have your register use the linode domain servers.
-3. Install and setup firewall:
-   1. `apt install ufw`
-   2. `ufw default allow outgoing`
-   3. `ufw default deny incoming`
-   4. `ufw allow ssh`
-   5. `ufw allow http`
-   6. `ufw allow https`
-   7. `ufw enable`
-   8. Check status with `ufw status`
-4. [Setup unattended updates](https://help.ubuntu.com/lts/serverguide/automatic-updates.html): `apt install unattended-upgrades`
-5. Clone this repository
-6. update and upgrade: `apt update -y && apt upgrade -y`
-7. [Install docker](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository)
-8. Install docker-compose: `apt install docker-compose`
-9. Go into the repo root and run `docker-compose -f docker-compose.yml -f docker-compose.prod.yml build`
+1.  Setup a node on linode. The small size should be fine. When setting up, setup an ssh-key to make your life easier. Use the latest Ubuntu LTS.
+2.  Setup the A/AAA record to work with your domain name and have your register use the linode domain servers.
+3.  Install and setup firewall:
+    1.  `apt install ufw`
+    2.  `ufw default allow outgoing`
+    3.  `ufw default deny incoming`
+    4.  `ufw allow ssh`
+    5.  `ufw allow http`
+    6.  `ufw allow https`
+    7.  `ufw enable`
+    8.  Check status with `ufw status`
+4.  [Setup unattended updates](https://help.ubuntu.com/lts/serverguide/automatic-updates.html): `apt install unattended-upgrades`
+5.  Clone this repository
+6.  update and upgrade: `apt update -y && apt upgrade -y`
+7.  [Install docker](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository)
+8.  Install docker-compose: `apt install docker-compose`
+9.  Go into the repo root and run `docker-compose -f docker-compose.yml -f docker-compose.prod.yml build`
 10. Run `docker pull certbot/certbot`
 11. Setup certificates by running `./init-letsencrypt.sh`
 12. Run `docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d`
 13. Monitor with `docker ps`, `docker stats`, and `docker-compose logs -f`
+14. If you need to take it down, run: `docker-compose down`
 
 ### Deploying TURN Server
 
@@ -195,63 +166,33 @@ I have concluded that the turn server should be on an independent vm. This
 makes the port management easier and prevents the turn server from taking
 resources from the rest of the system.
 
-1. Create a new Ubuntu 18 vm.
-2. Create an A/AAA record for `turn.<url>`
-3. Install and setup firewall:
-   1. `apt install ufw`
-   2. `ufw default allow outgoing`
-   3. `ufw default deny incoming`
-   4. `ufw allow ssh`
-   5. `ufw allow http`
-   6. `ufw allow https`
-   7. `ufw allow 80/udp`
-   8. `ufw allow 443/udp`
-   9. `ufw allow 49152:65535/udp`
-   10. `ufw allow 49152:65535/tcp`
-   11. `ufw enable`
-   12. Check status with `ufw status`
-4. [Setup unattended updates](https://help.ubuntu.com/lts/serverguide/automatic-updates.html): `apt install unattended-upgrades`
-5. Clone this repo
-6. update and upgrade: `apt update -y && apt upgrade -y`
-7. [Install docker](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository)
-8. Install docker-compose: `apt install docker-compose`
-9. Go into the repo root and run `docker-compose -f docker-compose-turn.yml build`
+1.  Create a new Ubuntu 18 vm.
+2.  Create an A/AAA record for `turn.<url>`
+3.  Install and setup firewall:
+    1.  `apt install ufw`
+    2.  `ufw default allow outgoing`
+    3.  `ufw default deny incoming`
+    4.  `ufw allow ssh`
+    5.  `ufw allow http`
+    6.  `ufw allow https`
+    7.  `ufw allow 80/udp`
+    8.  `ufw allow 443/udp`
+    9.  `ufw allow 49152:65535/udp`
+    10. `ufw allow 49152:65535/tcp`
+    11. `ufw enable`
+    12. Check status with `ufw status`
+4.  [Setup unattended updates](https://help.ubuntu.com/lts/serverguide/automatic-updates.html): `apt install unattended-upgrades`
+5.  Clone this repo
+6.  update and upgrade: `apt update -y && apt upgrade -y`
+7.  [Install docker](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository)
+8.  Install docker-compose: `apt install docker-compose`
+9.  Go into the repo root and run `docker-compose -f docker-compose-turn.yml build`
 10. Run `docker pull certbot/certbot`
 11. Setup certificates by running `./init-letsencrypt-turn.sh`
 12. Run `docker-compose -f docker-compose-turn.yml up -d`
 13. Monitor with `docker ps`, `docker stats`, and `docker-compose logs -f`
 
-### Deploying to Heroku
-
-Discovered that on heroku, each individual docker image/service needs its own dyno and the way that they talk between each other doesn't work really well.
-So we are not going with heroku.
-But I am leavin this here for future ref
-
-Heroku is a nice quick way to deploy. They provide a free hobby dyno to students,
-so using that. The Heroku-Redis and Heroku-Postgres serve the need for in system
-messaging, in system memory, and database. In theory heroku will handle keeping
-those systems safe.
-
-1. [Install the Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli#download-and-install)
-2. Login to Heroku CLI: `heroku login`
-3. Create an app: `heroku create <app-name>`. Note that the app name is in a
-   global namespace for all heroku apps, so for example `flo-control-system`
-   is alredy taken
-4. If you don't want to be storing plain text passwords (you don't) you need to
-   [setup a credential helper](https://docs.docker.com/engine/reference/commandline/login/#credentials-store)
-   1. Install the helper, download
-      [the latest release](https://github.com/docker/docker-credential-helpers/releases)
-      and put it in your path. Easiest to just drop in ~/bin and go change the permissions to
-      be runnable (`chmod u+x <filename>`)
-   2. To use pass:
-      1. Install pass and gnupg: `sudo apt install pass gnupg`
-      2. Make a gpg key: gpg --full-gen-key
-      3. Initialize pass: pass init <emailaddr>
-   3. Setup the docker config by editing ~/.docker/config.json to have:
-      `"credsStore": "pass"`
-5. login to the container system: `heroku container:login`
-
-## Setup
+## Robot
 
 Throughout this setup, we will assume that you are using a clean install of the
 version of linux that is called for. The setup may not tolerate weird tweaks to
@@ -266,20 +207,20 @@ You will need to have a development and control computer. At the least you will
 need to follow the instructions in the [Network](#network) section. If you want
 to actually be writing new code and devloping, you will need all of this:
 
-1. Setup Ubuntu, either 16 or 18
-2. Install git: `sudo apt intall git-all`
-3. Clone this repo into `~/Documents/git`
-4. Run `./dev_install.sh`
-5. Setup your bashrc or zshrc to have ros stuff. There an
-   [example loader](example-loader) that you can take a look at.
-6. If you are going to be testing the text to speech system on your development
-   computer, then you need to follow the
-   [Amazon Polly Instructions](#amazon-polly)
-7. Node, is needed to develop and run the websever. You can install directly
-   (better for the robot) using `node_install.sh` or with nvm (better for
-   development) using `nvm_install.sh`. If you are working with the web server,
-   you will also need to install
-8. You will need to [setup the network](#network)
+1.  Setup Ubuntu, either 16 or 18
+2.  Install git: `sudo apt intall git-all`
+3.  Clone this repo into `~/Documents/git`
+4.  Run `./dev_install.sh`
+5.  Setup your bashrc or zshrc to have ros stuff. There an
+    [example loader](example-loader) that you can take a look at.
+6.  If you are going to be testing the text to speech system on your development
+    computer, then you need to follow the
+    [Amazon Polly Instructions](#amazon-polly)
+7.  Node, is needed to develop and run the websever. You can install directly
+    (better for the robot) using `node_install.sh` or with nvm (better for
+    development) using `nvm_install.sh`. If you are working with the web server,
+    you will also need to install
+8.  You will need to [setup the network](#network)
 
 #### Example Loader
 
@@ -351,115 +292,29 @@ function connect_to_robot {
 
 So now, when you run `connect_to_robot xyz` in the terminal:
 
-1. all of the necessary ROS files will be sourced
-2. based on the computer you are on, the correct NIC will be used to get the IP
-   address.
-   1. Note that for mjs-mws, there are two NICs of interest, that are ordered by
-      priority. This allows us to use a wired network if available and if not to
-      fall back to the wireless.
-   2. If there is no IP address, ie. your not connected to a network, then the
-      loopback device will be used.
-3. Based on the input given, the ros master will be set to connect to a specific
-   robot.
-   1. For zero, the local machine will be connected to.
-   2. Other options are `flo`, `kq`, `x220t`. You probably don't need all of
-      these, but it gives you a nice template of how to work.
+1.  all of the necessary ROS files will be sourced
+2.  based on the computer you are on, the correct NIC will be used to get the IP
+    address.
+    1.  Note that for mjs-mws, there are two NICs of interest, that are ordered by
+        priority. This allows us to use a wired network if available and if not to
+        fall back to the wireless.
+    2.  If there is no IP address, ie. your not connected to a network, then the
+        loopback device will be used.
+3.  Based on the input given, the ros master will be set to connect to a specific
+    robot.
+    1.  For zero, the local machine will be connected to.
+    2.  Other options are `flo`, `kq`, `x220t`. You probably don't need all of
+        these, but it gives you a nice template of how to work.
 
 Some things to keep in mind:
 
-- You need to adjust the hostnames section. You should use the host name of your
-  computer and the network adapter you want. You can find the names of your
-  network adapter by typing either `ifconfig` or `ip a` in the terminal
-- You will likely need to add a different robot. You can simply use the ones
-  that are above as a template. You will need your common language name for the
-  robot and its IP address.
-- `connect_to_robot 0` will connect to your local robot
-
-### Network
-
-Some helpful commands (you will need to install `net-tools` for some):
-
-- `nmcli device status` tells you what your network devices are doing.
-  `ip link show` does something similar
-- `nmcli connection show` tells you waht networks are on your list (not the same
-  as what is currently available, this is what you have connected to and saved)
-- `nmcli` gives a general overview of net status
-- `ip a` prints out a ton of info with ip and mac addresses
-- `netstat -i` gives a clean print out of how much traffice each adapter is
-  seeing
-- `lspci | egrep -i --color 'network|ethernet'` to get which physical network
-  adapters are available
-- `cat /proc/net/dev` will show the physical cards even those that aren't
-  installed
-- `sudo lshw -class network` gives hardware details
-- `lsusb` will show the installed usb devices
-
-#### New Way (tp-link AC750)
-
-1. Buy a tp-link ac750 travel router (TL-WR902AC)
-2. Plug it into power and se tthe mode switch to share hotspot
-3. Go through the quick setup to connect to something
-4. Set the broadcast network name as flo-net for both 2.4 and 5 Ghz
-5. Set security to WPA2-PSK/AES with password xxxxxx
-6. Under the network tab, click LAN and set the IP Address to 10.42.0.1
-7. Under DHCP set the range to 10.42.0.100 - 10.42.0.199
-8. Under IP & MAC binding, set ARP Binding to be enabled
-9. Click into the ARP List and select the nuc, set it to be bound on 10.42.0.189
-10. Under DHCP/Address Reservation, add the MAC and IP address that you set to bind
-11. click under system tools and change the password
-12. connect everything up.
-
-It also makes sense to setup for tethered sharing, in the [old way](#old-way):
-
-1. Set switch to AP mode
-2. connect by wifi and navigate to 192.168.0.1
-3. Quick setup set ssid to flo-net and password to xxxxxx
-4. Plug in cable
-5. Rock and roll
-
-When you enter somewhere new, you will need to connect to the local network. TO do this:
-
-1. Turn on the router
-2. navigate to 10.42.0.1
-3. select the quick setup and click through to setup
-
-Some thoughts on this:
-
-- Using 5GHz gives better bandwidth, but that isn't always what you want.
-  2.4GHz gives better range. So you might want to use 2.4 GHz instead.
-  To do that, just name the 5ghz connection something else.
-- Using the network share means the chip is doing extra. It might be faster/stronger
-  if it came off of the ethernet.
-- The router can be placed between the robot and laptop, either using wifi or a cable.
-
-#### Old Way (Router hooked up through ethernet)
-
-You will need a router to get it all working. There is a Cisco Linksys E1200 that we are
-using. Plug in one of the switching Ethernet ports to the port on your development computer.
-Note for Ubuntu 18 you may need to run `nm-connnection-editor`.
-Setup with:
-
-- SSID: flo-net
-- Broadcasting: off
-- PWD: xxxxx
-- type: WPA2
-- router name: flo-net-host
-
-You then need to use the router to share the Internet through your development
-machine, note that if you are actually in the rehab robotics lab, this is
-already done:
-
-- Set router into AP Mode (Access Point Mode)
-- Open network settings on the development machine and click edit connections
-- Click Add
-- Select Ethernet
-- name the connection `shared-net`
-- Under general, select Automatically connect when available and all users may
-  use network
-- Under IPv4 settings select Method: Shared to other computers
-
-You should then be able to connect to the router using the settings setup on the
-router at the beginning from the nuc on the robot
+*   You need to adjust the hostnames section. You should use the host name of your
+    computer and the network adapter you want. You can find the names of your
+    network adapter by typing either `ifconfig` or `ip a` in the terminal
+*   You will likely need to add a different robot. You can simply use the ones
+    that are above as a template. You will need your common language name for the
+    robot and its IP address.
+*   `connect_to_robot 0` will connect to your local robot
 
 #### SSH-Keys, Hosts List, and SSHing in
 
@@ -480,46 +335,46 @@ function ssh-flo {
 
 ### NUC
 
-1. Setup Ubuntu
-   1. Make sure to connect to a network and update everything
-      - When connecting to the network, you should obscure your password. To do this, run wpa_passphrase [ssid-name][password-name] and use the result for the network. Set the password to only save for this user (little logo at the end of the password line)
-   2. Make sure to set the system to login automatically
-   3. enable ssh: `sudo apt install openssh-server`
-2. Use lsyncd with the configuration file (See [Developing](#developing)) to
-   copy files over
-3. ssh into the robot and run the install script (`bash ./robot_install.sh`)
-4. add a symlink to make running easier: ssh in and from the home directory type
-   `ln -s ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh`.
-5. You need to setup read/write privileges for all of the USB devices and setup
-   fixed addresses using [udev](#udev)
-6. The speaker may need to be [setup](#usb-speaker) a bit different
-7. Settings and firmware will need to be updated on the
-   [realsense cameras](#realsense-cameras)
-8. You need to setup [Amazon Polly](#amazon-polly)
-9. You will need to [setup the webrtc ros](#webrtc-ros) code
+1.  Setup Ubuntu
+    1.  Make sure to connect to a network and update everything
+        *   When connecting to the network, you should obscure your password. To do this, run wpa_passphrase \[ssid-name]\[password-name] and use the result for the network. Set the password to only save for this user (little logo at the end of the password line)
+    2.  Make sure to set the system to login automatically
+    3.  enable ssh: `sudo apt install openssh-server`
+2.  Use lsyncd with the configuration file (See [Developing](#developing)) to
+    copy files over
+3.  ssh into the robot and run the install script (`bash ./robot_install.sh`)
+4.  add a symlink to make running easier: ssh in and from the home directory type
+    `ln -s ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh`.
+5.  You need to setup read/write privileges for all of the USB devices and setup
+    fixed addresses using [udev](#udev)
+6.  The speaker may need to be [setup](#usb-speaker) a bit different
+7.  Settings and firmware will need to be updated on the
+    [realsense cameras](#realsense-cameras)
+8.  You need to setup [Amazon Polly](#amazon-polly)
+9.  You will need to [setup the webrtc ros](#webrtc-ros) code
 10. Add to the bashrc file on the robot:
-    - `export ROBOT_NAME=<robots name>` The name should be the unique name of the
-      robot. The current valid values are lilflo and mantaro, as we add more
-      systems, each name must be unique
-    - `export ROBOT_PASSWORD=<robot password>` This is the password generated by
-      the webserver
-    - `export FLO_SERVER_IP=< wherever the server is. Ex: "lilflo.com">` Which will allow the system to point
-      to the webserver. During development you might have a different value here...
-    - If you are working with a server that doesn't have real certs (this should
-      only be true for development on a local machine). THen you also need to tell
-      the router to not check certs by adding to the bashrc:
-      `export NODE_TLS_REJECT_UNAUTHORIZED='0'`
+    *   `export ROBOT_NAME=<robots name>` The name should be the unique name of the
+        robot. The current valid values are lilflo and mantaro, as we add more
+        systems, each name must be unique
+    *   `export ROBOT_PASSWORD=<robot password>` This is the password generated by
+        the webserver
+    *   `export FLO_SERVER_IP=< wherever the server is. Ex: "lilflo.com">` Which will allow the system to point
+        to the webserver. During development you might have a different value here...
+    *   If you are working with a server that doesn't have real certs (this should
+        only be true for development on a local machine). THen you also need to tell
+        the router to not check certs by adding to the bashrc:
+        `export NODE_TLS_REJECT_UNAUTHORIZED='0'`
 11. Add two cron jobs to automatically startup the system:
-    1. `crontab -e`
-    2. `SHELL=/bin/bash` This will set the shell that things should run in
-    3. `@reboot (sleep 90; source ~/.bashrc; ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh)`
-    4. `*/1 * * * * (source ~/.bashrc; python ~/catkin_ws/src/LilFloSystem/flo_web/pinger/pinger.py)`
+    1.  `crontab -e`
+    2.  `SHELL=/bin/bash` This will set the shell that things should run in
+    3.  `@reboot (sleep 90; source ~/.bashrc; ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh)`
+    4.  `*/1 * * * * (source ~/.bashrc; python ~/catkin_ws/src/LilFloSystem/flo_web/pinger/pinger.py)`
 12. Setup firewall (really need that with ros)
-    1. `sudo ufw default allow outgoing`
-    2. `sudo ufw default deny incoming`
-    3. `sudo ufw allow ssh`
-    4. `sudo ufw enable`
-    5. check: `sudo ufw status`
+    1.  `sudo ufw default allow outgoing`
+    2.  `sudo ufw default deny incoming`
+    3.  `sudo ufw allow ssh`
+    4.  `sudo ufw enable`
+    5.  check: `sudo ufw status`
 13. Take a look at the bash_includes file. It should be going in through the install system automatically. Might not be though. For testing you want to set the ros_ip. But for deployment you do not. If a ROS IP is set using a network which the robot is connected to, then upon network loss the ros system will crash
 
 #### Assigning the serial devices to have a fixed addresses {#udev}
@@ -585,30 +440,6 @@ The realsense cameras seem to hold a lot of settings on board. For now, you need
 to plugin the camera and run `realsense-viewer`. For now, set the system to high
 accuracy with the laser projector set to laser.
 
-### Raspberry Pi
-
-A Raspberry Pi cannot be used for most of this system. And it is not needed when
-a beffier computer like a NUC is around. However, for running basic teleop a R/Pi
-can be used. The install instructions are the same as the NUC, except you will
-need to install ubuntu mate for raspberry pi armhf version. The realsense stuff
-can't be installed, so be sure to comment that out of `gen_install.sh` before
-you run it.
-
-After installation, setting up openssh is a bit harder, update the system, install
-openssh, then reconfigure it with sudo dpkg-reconfigure openssh-server
-
-If you want to use the raspberry Pi camera, then run `sudo raspi-reconfigure`
-and enable the camera. Then clone the [raspberry pi camera ros](https://github.com/UbiquityRobotics/raspicam_node)
-repo into the `catkin_ws/src` repo and run:
-
-```bash
-sudo apt install libraspberrypi-dev libraspberrypi0
-rosdep update
-rosdep install --from-paths ~/catkin_ws/src/raspicam_node/ --ignore-src -r -y
-cd ~/catkin_ws
-catkin_make
-```
-
 ### Amazon Polly
 
 Polly will need to have access to AWS to work. To set that up, go to the
@@ -623,42 +454,25 @@ and output set to json.
 
 A few notes:
 
-- you should probably restrict what the user that is getting access can do. The
-  best option is to set the permissions to AmazonPollyReadOnlyAccess
-- You can have other users configured. By changing the --profile, you control
-  the name of the user if no profile is specified, then the information is saved
-  to a default
-- If you ever need to revoke permissions for a user, that can be done from the
-  IAM Console by deactivating the user's Access Keys.
-- TODO: I would like to find a way to limit how many calls can be made by a
-  user.
-- To check whether polly is available given the profile, run
-  `aws polly help --profile flo`. If you get back a list of commands to run on
-  polly, you should be good.
-- To fully test, can run:
-  `aws polly synthesize-speech --output-format mp3 --voice-id Ivy --text 'hello, this is a test' --profile flo test.mp3`
-  and then play the audio by installing: `sudo apt install mpg123` and typing
-  `mpg123 test.mp3`
-- you might find that you are getting some sort of server connection errors. you
-  can resolve that by running `pip3 install -U boto3` (this should now be a part
-  of the install script, but it is commented out)
-
-### Getting WebRTC ROS installed {#webrtc-ros}
-
-This will need to happen wherever you are running the webserver:
-
-1. Clone the dev branch either into the catkin_ws/src folder or somewhere else
-   and link it in for the repo: https://github.com/RobotWebTools/webrtc_ros
-2. Add a file at `webrtc_ros/webrtc` named `CATKIN_IGNORE`, leave it empty
-3. Build the catkin workspace as normal
-4. make sure that at `LilFloSystem/flo_web/web_app/public` you link (`ln -s`) to
-   `~/catkin_ws/src/webrtc_ros/webrtc_ros/web`. This should already be present.
-
-The prior instructions give you the latest version of the package. This is
-needed as the build farm version is not being updated quickly. However if
-eventually the build farm version is used (likely via a rosdep dependency), then
-the link will need to be changed to point to
-`/opt/ros/<distro name>/share/webrtc_ros/web`
+*   you should probably restrict what the user that is getting access can do. The
+    best option is to set the permissions to AmazonPollyReadOnlyAccess
+*   You can have other users configured. By changing the --profile, you control
+    the name of the user if no profile is specified, then the information is saved
+    to a default
+*   If you ever need to revoke permissions for a user, that can be done from the
+    IAM Console by deactivating the user's Access Keys.
+*   TODO: I would like to find a way to limit how many calls can be made by a
+    user.
+*   To check whether polly is available given the profile, run
+    `aws polly help --profile flo`. If you get back a list of commands to run on
+    polly, you should be good.
+*   To fully test, can run:
+    `aws polly synthesize-speech --output-format mp3 --voice-id Ivy --text 'hello, this is a test' --profile flo test.mp3`
+    and then play the audio by installing: `sudo apt install mpg123` and typing
+    `mpg123 test.mp3`
+*   you might find that you are getting some sort of server connection errors. you
+    can resolve that by running `pip3 install -U boto3` (this should now be a part
+    of the install script, but it is commented out)
 
 ## Developing
 
@@ -674,17 +488,27 @@ your work over to the robot.
 
 ### Simulator
 
-If you are developing on your local computer without the robot, there is a
-simulator stack that you can use. under the `flo_core` package:
-`mon launch flo_core flo_sim.launch`. You will also need to launch the webserver
-by going to `flo_web/web_app` and running `npm start`. For development, you may
-want to run the browser on your local machine with `npm chrome`
+For developing anywhere, the best thing to do is to use the docker stack of
+simulators.
+
+If you are on a computer with the realsense cameras plugged in and you can install
+the entire stack locally, then you can run `sim_tmux_launcher.sh`. This will run
+the entire Lil'Flo system in simulation and run the web servers for you. For this
+to work, you will need to [setup the config files and keys needed by the webserver
+](#WebServer-Setup)
+
+If you are on a machine that does not have the entire stack installed, then you can
+run an entire simulation stack within docker. To do this
+
+1.  Follow the instructions for [setting up ssl certs](#ssl-certs)
+2.  Install docker
+3.  Run `docker-compose up`
 
 ## Running
 
-1. ssh into the robot: `ssh nuc-admin@<ip addr>`
-2. Run the tmux launch script: `./robot_tmux_launcher.sh`
-3. Attach to tmux: `tmux a`
+1.  ssh into the robot: `ssh nuc-admin@<ip addr>`
+2.  Run the tmux launch script: `./robot_tmux_launcher.sh`
+3.  Attach to tmux: `tmux a`
 
 When in tmux, you navigate between windows with `ctrl+b` + `w` + arrow keys. You
 navigate between panes with `ctrl+b` + arrow keys. To leave tmux, just
@@ -706,16 +530,16 @@ Run: `rqt -s kobuki_dashboard`.
 Once the robot has been used, you will need to get data off of it. There are a
 few options for this:
 
-- Transfer to external media, this is easy and fast, SSH into the robot,
-  plug storage into the front USB3 ports, and use the `mv`
-  (move) or `cp` (copy) commands to move things to the usb drive. You should be
-  able to find your USB drive in the `/media/nuc-admin` folder. The cp command
-  does not provide feedback, an alternative is to use rsync:
-  `rsync -ah --progress <source> <destination>`
-- Use SCP, this is a pain, not at all worth it
-- Use an FTP gui, this works quite well but is limited by network speed, in your
-  FTP gui, set the address as `ftp://flo-nuc` and then copy the data over the
-  network.
+*   Transfer to external media, this is easy and fast, SSH into the robot,
+    plug storage into the front USB3 ports, and use the `mv`
+    (move) or `cp` (copy) commands to move things to the usb drive. You should be
+    able to find your USB drive in the `/media/nuc-admin` folder. The cp command
+    does not provide feedback, an alternative is to use rsync:
+    `rsync -ah --progress <source> <destination>`
+*   Use SCP, this is a pain, not at all worth it
+*   Use an FTP gui, this works quite well but is limited by network speed, in your
+    FTP gui, set the address as `ftp://flo-nuc` and then copy the data over the
+    network.
 
 All of the data should be stored in the `/home/nuc-admin/flo_data` folder.
 There will be two types of files, rosbag files, 1 per minute of operation,
@@ -807,31 +631,29 @@ here.
 
 There are a few possible problems:
 
-1. things only seem to work in chrome for now, so use that.
-2. You may not have your devices enabled because the source is non-secure. Here
-   is what to do: a. goto:
-   chrome://flags/#unsafely-treat-insecure-origin-as-secure b. fill in with:
-   `http://10.42.0.189:3000,http://10.42.0.189:9090,http://10.42.0.189:9091` c.
-   change to enabled
+1.  things only seem to work in chrome for now, so use that.
+2.  You may not have your devices enabled because the source is non-secure. Here
+    is what to do: a. goto:
+    chrome://flags/#unsafely-treat-insecure-origin-as-secure b. fill in with:
+    `http://10.42.0.189:3000,http://10.42.0.189:9090,http://10.42.0.189:9091` c.
+    change to enabled
 
-
-#Recalibrating the Realsense
+\#Recalibrating the Realsense
 
 ## Practical tips
-1. The Intel D415 has the following parameters:
-	- Intrinsic : Focal length, Distortion and Principal Point for each of the three cameras.
-	- Extrinsic : baseline, RotationLeftRight, TranslationLeftRight, RotationLeftColor, TranslationLeftColor 
 
-2. The camera might be out of calibration if flat surfaces look noisy/wobbly, depth images have many holes, physical distances are not within 3% of the expected distance. This might happen if the camera falls down/the factory calibration changes due to some other event which in not very frequent.
+1.  The Intel D415 has the following parameters:
+    *   Intrinsic : Focal length, Distortion and Principal Point for each of the three cameras.
+    *   Extrinsic : baseline, RotationLeftRight, TranslationLeftRight, RotationLeftColor, TranslationLeftColor
 
-##Using Realsense Tools
+2.  The camera might be out of calibration if flat surfaces look noisy/wobbly, depth images have many holes, physical distances are not within 3% of the expected distance. This might happen if the camera falls down/the factory calibration changes due to some other event which in not very frequent.
 
-1. On chip self calibration can be performed using the Realsense Viewer(comes with Intel® RealSense™ SDK 2.0). This tool provides a health-check of current calibration. If the value is below 0.25, the calibration is good. Anything above 0.75 needs recalibration. The intrinsics and extrincs can be calibrated by pointing the camera at a flat white wall in good lighthing condition. The application also scores and allows comparison of new calibrations. For more: https://dev.intelrealsense.com/docs/self-calibration-for-depth-cameras
+\##Using Realsense Tools
 
-2. Extrinsic calibration using Intel Realsense Dynamic Calibrator(https://dev.intelrealsense.com/docs/intel-realsensetm-d400-series-calibration-tools-user-guide). The guide provides instruction for downloading the Dynamic Calibrator app. Targets and Demos can also be found at the same link.
+1.  On chip self calibration can be performed using the Realsense Viewer(comes with Intel® RealSense™ SDK 2.0). This tool provides a health-check of current calibration. If the value is below 0.25, the calibration is good. Anything above 0.75 needs recalibration. The intrinsics and extrincs can be calibrated by pointing the camera at a flat white wall in good lighthing condition. The application also scores and allows comparison of new calibrations. For more: https://dev.intelrealsense.com/docs/self-calibration-for-depth-cameras
 
-##Using external tools
+2.  Extrinsic calibration using Intel Realsense Dynamic Calibrator(https://dev.intelrealsense.com/docs/intel-realsensetm-d400-series-calibration-tools-user-guide). The guide provides instruction for downloading the Dynamic Calibrator app. Targets and Demos can also be found at the same link.
+
+\##Using external tools
 
 One way to check calibration is to print checkerboard targets(https://boofcv.org/index.php?title=Camera_Calibration_Targets). Then use: https://github.com/IRIM-Technology-Transition-Lab/camera-calibration , or equivalent to compare current parameter values with those returned from the calibration program.
-
-

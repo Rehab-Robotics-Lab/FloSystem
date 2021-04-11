@@ -139,6 +139,8 @@ class GameRunner(object):
         self.action_idx = -1
         self.command_opts = []
 
+        self.repeat_shift = 0  # how far back to go to repeat
+
         # -- Run -- #
         rate = rospy.Rate(20)
         rospy.loginfo('done with initialization')
@@ -211,6 +213,16 @@ class GameRunner(object):
                     ['next', 'repeat', 'congratulate', 'try_again',
                      'quit_game'])
 
+    def __check_side_seq(self, seq_id):
+        arms = self.get_pose_seq_id(seq_id).sequence.arms  # type: PoseSeq
+        if 'left' in arms and 'right' in arms:
+            return 'both'
+        if 'left' in arms:
+            return 'left'
+        if 'right' in arms:
+            return 'right'
+        raise Exception
+
     def __process_step(self, step, mirror_arms=False):
         targets = []
         speech = step.text
@@ -273,10 +285,12 @@ class GameRunner(object):
         # to get a demo going, so we will manually load in the games
         if new_def.game_type == 'simon_says':
             actions_list = simon_says(
-                new_def, self.__process_step, neutral)
+                new_def, self.__process_step, self.__check_side_seq, neutral)
+            self.repeat_shift = 1
         elif new_def.game_type == 'target_touch':
             actions_list = target_touch(
                 new_def, self.__process_step, neutral)
+            self.repeat_shift = 0
         path = os.path.expanduser('~/flo_games/')
         if not os.path.exists(path):
             os.makedirs(path)
@@ -308,10 +322,12 @@ class GameRunner(object):
         # to get a demo going, so we will manually load in the games
         if new_def.game_type == 'simon_says':
             self.actions_list = simon_says(
-                new_def, self.__process_step, neutral)
+                new_def, self.__process_step, self.__check_side_seq, neutral)
+            self.repeat_shift = 1
         elif new_def.game_type == 'target_touch':
             self.actions_list = target_touch(
                 new_def, self.__process_step, neutral)
+            self.repeat_shift = 0
 
         self.__set_options(['start'])
         self.__set_state(self.states.game_loaded)
@@ -458,10 +474,11 @@ class GameRunner(object):
 
     def __repeat_last_step(self):
         rospy.loginfo('repeating the last step')
-        self.action_idx -= 1
+        self.action_idx -= self.repeat_shift
         self.__run_step(self.action_idx)
-        with self.command_lock:
-            self.command_queue.put('next')
+        for _ in range(self.repeat_shift):
+            with self.command_lock:
+                self.command_queue.put('next')
 
     def __congratulate(self):
         rospy.loginfo('saying something congratulatory')

@@ -12,17 +12,17 @@
     <!--Audio-->
     <include file="$(find flo_telepresence)/launch/audio.launch"/>
     <!--Screen on Robot-->
-    <node name="robot_screen" pkg="flo_telepresence" type="display_cv.py" respawn="true"/>
     <!--WebRTC-->
     <include file="$(find flo_telepresence)/launch/webrtc.launch"/>
   </group>
   <group if="$(eval simulate==True)">
     <!--<node name="robot_screen" pkg="flo_telepresence" type="display.py"/>-->
-    <node name="robot_screen" pkg="image_view" type="image_view">
-      <remap from="image" to="/remote_Video"/>
-    </node>
     <!--TODO: Add in something to play a bag file on a loop with data from all realsenses and audio-->
     <!--WebRTC-->
     <include file="$(find flo_telepresence)/launch/webrtc-sim.launch"/>
   </group>
+
+  <node name="robot_screen" pkg="flo_telepresence" type="display_cv.py" respawn="true">
+      <param name="simulate" value="$(arg simulate)" />
+  </node>
 </launch>

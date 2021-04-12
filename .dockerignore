@@ -1,2 +1,4 @@
 flo_web/node_modules
 flo_web/build
+node_modules
+**/node_modules

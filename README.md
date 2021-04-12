@@ -124,7 +124,7 @@ admin. To do this:
 2.  Attach to the docker image for the postgres database into pg: `docker container exec -it lilflosystem_postgres_1 psql flodb -h localhost -U postgres` (note the number on that container might be different...)
 3.  Turn on expanded view to get nice prints: `\x`
 4.  Optionally get info on your registered users: `select * from users;`
-5.  Find out what id admin users need: `select * from user_types`
+5.  Find out what id admin users need: `select * from user_types;`
 6.  Set the user you are interested in to be an admin: `update users set user_type=<id of usertype you want> where email=<email you want>`. Ex: `update users set user_type=1 where email='testsobrep@seas.upenn.edu'`
 7.  Check that it worked: `select * from users;`
 
@@ -501,10 +501,28 @@ If you are on a machine that does not have the entire stack installed, then you 
 run an entire simulation stack within docker. To do this
 
 1.  Follow the instructions for [setting up ssl certs](#ssl-certs)
-2.  Install docker
-3.  Run `docker-compose up`
+2.  Follow instructions for [setting up config files](#config-files)
+3.  Install docker
+4.  Run `docker-compose up`
+5.  Open Chrome and navigate to localhost
+6.  Follow instructions to [setup admin](#setting-up-first-admin)
+7.  Login with your new admin account, go into the admin portal, click add robot,
+    give the robot a name and type of lilflo and submit.
+8.  Make a file `./certs/sim-info.env` with `ROBOT_NAME=<name from web interfave>`
+    and `ROBOT_PASSWORD=<password from web interface>`
+9.  Make a file `./certs/aws-credentials` and populate it with a valid AWS config
+    which has [access to aws polly](#amazon-poly). The first line should have
+    `[flo]` the second line should have `aws_access_key_id = <the access key id>`
+    the third line should have `aws_secret_access_key = <secret key>`
+10. Run `./docker_sim_launcher.sh`. This file can be passed `-r` to rebuild the
+    underlying docker images for the robot if you have changed code
 
 ## Running
+
+If fully set up as described above, then when the robot powers on,
+it will automatically start all of the software after a short delay,
+connect to the server, and be ready to use. If that has not been
+done, then:
 
 1.  ssh into the robot: `ssh nuc-admin@<ip addr>`
 2.  Run the tmux launch script: `./robot_tmux_launcher.sh`

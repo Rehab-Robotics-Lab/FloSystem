@@ -20,18 +20,18 @@
     <!--TODO: Add in something to play a bag file on a loop with data from all realsenses and audio-->
     <!--WebRTC-->
     <include file="$(find flo_telepresence)/launch/webrtc-sim.launch"/>
+    <remap from="/image_publisher_ur/image_raw" to="/upper_realsense/color/image_web"/>
     <node pkg="image_publisher" type="image_publisher" name="image_publisher_ur" args="$(find flo_telepresence)/puppy.jpg">
       <param name="publish_rate" value="15"/>
     </node>
-    <!--<remap from="/image_publisher_lr/image_raw" to="/upper_realsense/color/image_web"/>-->
+    <remap from="/image_publisher_lr/image_raw" to="/lower_realsense/color/image_web"/>
     <node pkg="image_publisher" type="image_publisher" name="image_publisher_lr" args="$(find flo_telepresence)/puppy.jpg">
       <param name="publish_rate" value="15"/>
     </node>
-    <!--<remap from="/image_publisher_ur/image_raw" to="/lower_realsense/color/image_web"/>-->
+    <remap from="/image_publisher_fe/image_raw" to="/fisheye_cam/image_raw"/>
     <node pkg="image_publisher" type="image_publisher" name="image_publisher_fe" args="$(find flo_telepresence)/kitten.jpg">
       <param name="publish_rate" value="15"/>
     </node>
-    <!--<remap from="/image_publisher_fe/image_raw" to="/fisheye_cam/image_raw"/>-->
   </group>
   <node name="robot_screen" pkg="flo_telepresence" type="display_cv.py" respawn="true">
     <param name="simulate" value="$(arg simulate)"/>

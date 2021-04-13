@@ -501,21 +501,35 @@ If you are on a machine that does not have the entire stack installed, then you 
 run an entire simulation stack within docker. To do this
 
 1.  Follow the instructions for [setting up ssl certs](#ssl-certs)
+
 2.  Follow instructions for [setting up config files](#config-files)
+
 3.  Install docker
+
 4.  Run `docker-compose up`
+
 5.  Open Chrome and navigate to localhost
+
 6.  Follow instructions to [setup admin](#setting-up-first-admin)
+
 7.  Login with your new admin account, go into the admin portal, click add robot,
     give the robot a name and type of lilflo and submit.
+
 8.  Make a file `./certs/sim-info.env` with `ROBOT_NAME=<name from web interfave>`
     and `ROBOT_PASSWORD=<password from web interface>`
-9.  Make a file `./certs/aws-credentials` and populate it with a valid AWS config
+
+9.  Make a file `./certs/aws-credentials` and populate it with a valid AWS credential
     which has [access to aws polly](#amazon-poly). The first line should have
     `[flo]` the second line should have `aws_access_key_id = <the access key id>`
-    the third line should have `aws_secret_access_key = <secret key>`
+    the third line should have `aws_secret_access_key = <secret key>`. You also need
+    to create `./certs/aws-config` and pupulate that with valid AWS config. First
+    line should be `[profile flo]` second line should be the region, ex:
+    `region = us-east-1` third line should be the output `output = json`
+
 10. Run `./docker_sim_launcher.sh`. This file can be passed `-r` to rebuild the
     underlying docker images for the robot if you have changed code
+
+11. Go to
 
 ## Running
 

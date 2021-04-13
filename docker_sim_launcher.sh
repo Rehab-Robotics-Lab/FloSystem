@@ -26,6 +26,11 @@ R_GID=$(id -g "$USER")
 R_UID=$(id -u "$USER")
 export R_GID
 export R_UID
+
+pactlmod=$(pactl load-module module-native-protocol-unix socket=/tmp/pulseaudio.socket)
+
+trap 'pactl unload-module "$pactlmod"' EXIT
+
 if [ "$rebuild" = true ] ; then
     docker-compose  -f docker-compose-robot-sim.yml build
 fi

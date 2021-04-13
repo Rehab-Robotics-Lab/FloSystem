@@ -15,23 +15,18 @@ services:
     build:
       context: ./
       args:
-        ROS_USER: rosuser
+        ROS_USER: $USER
         R_GID: $R_GID
         R_UID: $R_UID
     depends_on:
       - ros-master
     volumes:
-      #- /home/$USER:/home/$USER
-      #- /etc/group:/etc/group:ro
-      #- /etc/passwd:/etc/passwd:ro
-      #- /etc/shadow:/etc/shadow:ro
-      #- /etc/sudoers.d:/etc/sudoers.d:ro
-      #- /tmp/.X11-unix:/tmp/.X11-unix:rw
-      # - /media/$USER:/media/$USER
       - $XSOCK:$XSOCK:rw
       - $XAUTH:$XAUTH:rw
-      - ./certs/aws-credentials:/home/rosuser/.aws/credentials
-    user: rosuser
+      - ./certs/aws-credentials:/home/$USER/.aws/credentials
+      - ./certs/aws-config:/home/$USER/.aws/config
+      - /tmp/pulseaudio.socket:/tmp/pulseaudio.socket
+    user: $USER
     networks:
       - ros
     environment:
@@ -42,6 +37,8 @@ services:
       - XAUTHORITY=${XAUTH}
       - FLO_SERVER_IP=host.docker.internal
       - NODE_TLS_REJECT_UNAUTHORIZED=0
+      - PULSE_SERVER=unix:/tmp/pulseaudio.socket
+      - PULSE_COOKIE=/tmp/pulseaudio.cookie
     env_file:
       - ./certs/sim-info.env
     extra_hosts:

@@ -20,8 +20,9 @@ RUN useradd -m $ROS_USER && \
         usermod  --uid $R_UID $ROS_USER && \
         groupmod --gid $R_GID $ROS_USER
 
+COPY pulse-client.conf /etc/pulse/client.conf
 
-RUN apt-get update -y && apt-get install -y python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential python-pip
+RUN apt-get update -y && apt-get install -y python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential python-pip python3-pip unzip libpulse0 pulseaudio pulseaudio-utils
 
 RUN mkdir /home/$ROS_USER/flo_data \
     && mkdir /home/$ROS_USER/catkin_ws/src -p
@@ -33,6 +34,17 @@ RUN HOME="/home/$ROS_USER"\
     && export HOME
 
 RUN /ros_entrypoint.sh pip2 install 'mutagen==1.43.0' --user
+RUN pip3 install -U boto3
+
+USER root
+WORKDIR /aws-temp
+RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip" \
+    && unzip awscli-bundle.zip
+RUN ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws \
+WORKDIR /aws-temp
+RUN rm awscli-bundle.zip && rm -r awscli-bundle
+
+USER $ROS_USER
 
 RUN /ros_entrypoint.sh rosdep update
 
@@ -64,9 +76,6 @@ COPY ./system_monitor/package.xml           ./system_monitor/
 
 WORKDIR /home/$ROS_USER/catkin_ws/src
 
-RUN echo $HOME
-RUN echo $(ls $HOME)
-RUN echo $(pwd)
 RUN git clone --single-branch --branch develop https://github.com/RobotWebTools/webrtc_ros.git \
     && cd webrtc_ros \
     && git checkout a2a19da \

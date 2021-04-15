@@ -4,6 +4,7 @@
 import os
 import Queue
 import rospy
+from std_msgs.msg import Bool
 from sensor_msgs.msg import Image as smImage
 from rosbridge_msgs.msg import ConnectedClients
 from cv_bridge import CvBridge, CvBridgeError
@@ -47,6 +48,8 @@ class RobotScreen(object):
         self.wifi_quality = 0
         self.wifi_signal = 0
         self.connected_clients = 0
+
+        self.recording = False
 
         self.image_queue = Queue.Queue()
 
@@ -96,8 +99,13 @@ class RobotScreen(object):
         rospy.Subscriber('/net_stats', NETstats, self.__new_net_stats)
         rospy.Subscriber('/connected_clients', ConnectedClients,
                          self.__new_connected_clients)
+        rospy.Subscriber('/record_video_status', Bool,
+                         self.__set_recording_state)
         # rospy.Subscriber('/remote_video', smImage, self.__new_img)
         self.__run_display()
+
+    def __set_recording_state(self, msg):
+        self.recording = msg.data
 
     def __new_connected_clients(self, msg):
         self.connected_clients = len(msg.clients)
@@ -119,6 +127,13 @@ class RobotScreen(object):
                 except Queue.Empty:
                     empty = True
             if img is not None:
+                print(img.shape)
+                cv2.putText(img,
+                            'recording' if self.recording else 'not recording',
+                            (5, int(.0325*img.shape[0])),
+                            self.font,
+                            .00125*img.shape[0],
+                            (0, 0, 255) if self.recording else (200, 200, 0))
                 cv2.imshow('remote_vid', img)
                 cv2.waitKey(1)
             elif rospy.get_time()-self.last_msg > HOME_TIME:

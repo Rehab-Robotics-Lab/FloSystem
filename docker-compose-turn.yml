@@ -1,4 +1,5 @@
-version: "3"
+---
+version: '3'
 services:
   coturn:
     restart: unless-stopped
@@ -8,20 +9,21 @@ services:
       - ./certs/coturn.env
     volumes:
       - ./certs/certbot/conf:/etc/letsencrypt
-    network_mode: "host"
+    network_mode: host
   certbot:
     image: certbot/certbot
     restart: unless-stopped
     volumes:
       - ./certs/certbot/conf:/etc/letsencrypt
       - ./certs/certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 48h & wait $${!}; done;'"
+    entrypoint: /bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 48h &
+      wait $${!}; done;'
   nginx:
     build:
       context: ./
       dockerfile: ./flo_web/Dockerfile-turn
     ports:
-      - "80:80"
+      - 80:80
     restart: unless-stopped
     volumes:
       - ./certs/certbot/conf:/etc/letsencrypt

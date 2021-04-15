@@ -1,4 +1,5 @@
-version: "3"
+---
+version: '3'
 services:
   host-server:
     env_file:
@@ -8,7 +9,7 @@ services:
     depends_on:
       - postgres
       - session-store
-    command: ["node", "build/host.js"]
+    command: [node, build/host.js]
   operator-server:
     env_file:
       - ./certs/session-secret.env
@@ -17,7 +18,7 @@ services:
     depends_on:
       - postgres
       - session-store
-    command: ["node", "build/operator.js"]
+    command: [node, build/operator.js]
   api-server:
     env_file:
       - ./certs/session-secret.env
@@ -26,14 +27,14 @@ services:
     depends_on:
       - postgres
       - session-store
-    command: ["node", "build/api.js"]
+    command: [node, build/api.js]
   nginx:
     build:
       context: ./
       dockerfile: ./flo_web/Dockerfile
     ports:
-      - "80:80"
-      - "443:443"
+      - 80:80
+      - 443:443
     depends_on:
       - host-server
       - operator-server
@@ -46,7 +47,6 @@ services:
       - POSTGRES_PASSWORD=docker
       - POSTGRES_DB=flodb
     volumes:
-      - $HOME/docker/volumes/postgres:/var/lib/postgresql/data
       - ./flo_web/web_server/database/setup:/docker-entrypoint-initdb.d
   session-store:
     image: redis

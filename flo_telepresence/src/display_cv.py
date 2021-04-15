@@ -29,9 +29,13 @@ class RobotScreen(object):
 
     def __init__(self):
         rospy.init_node('robot_screen')
-        self.window = cv2.namedWindow('remote_vid', cv2.WINDOW_NORMAL)
-        cv2.setWindowProperty(
-            'remote_vid', cv2.WND_PROP_FULLSCREEN, 1)
+        self.sim = rospy.get_param("simulate", False)
+        if not self.sim:
+            self.window = cv2.namedWindow('remote_vid', cv2.WINDOW_NORMAL)
+            cv2.setWindowProperty(
+                'remote_vid', cv2.WND_PROP_FULLSCREEN, 1)
+        else:
+            self.window = cv2.namedWindow('remote_vid')
 
         rospack = rospkg.RosPack()
 

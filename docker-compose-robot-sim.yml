@@ -51,11 +51,13 @@ services:
       context: ./flo_web/webrtc_robot_router/
     depends_on:
       - ros-master
+      - flo_sim
     networks:
       - ros
     environment:
       - FLO_SERVER_IP=host.docker.internal
       - NODE_TLS_REJECT_UNAUTHORIZED=0
+      - RTC_SERVER_ADDR=flo_sim
     env_file:
       - ./certs/sim-info.env
     extra_hosts:

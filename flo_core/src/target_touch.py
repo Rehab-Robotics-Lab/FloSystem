@@ -28,7 +28,9 @@ def target_touch(new_def, process_step, neutral):
     Returns: The action list that defines the game
     """
     actions_list = []
-    reps = 7
+    reps = 3
+    min_steps = 2
+    max_steps = 4
     sides = {'blue': ('left', 'upper'), 'red': ('left', 'lower'), 'yellow': (
         'right', 'upper'), 'green': ('right', 'lower')}
     if new_def.reps:
@@ -77,7 +79,8 @@ def target_touch(new_def, process_step, neutral):
            moves['left']['lower'] or
            moves['right']['upper'] or
            moves['right']['lower']):
-        num_steps = random.randrange(2, 5)  # how many instructions to give
+        # how many instructions to give
+        num_steps = random.randrange(min_steps, max_steps+1)
         left_ud = None
         right_ud = None
 

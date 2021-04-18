@@ -188,11 +188,13 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
               setGbID(newId);
             }}
           >
-            {buckets.map((value, idx) => (
-              <option key={idx} value={idx}>
-                {value.name}
-              </option>
-            ))}
+            {buckets
+              .filter((value) => value.targeted_game == gameType)
+              .map((value, idx) => (
+                <option key={idx} value={idx}>
+                  {value.name}
+                </option>
+              ))}
           </select>
         </label>
 

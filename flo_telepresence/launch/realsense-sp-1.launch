@@ -9,7 +9,7 @@
   <!--S/N 1: 904412060717-->
   <!--S/N 2: 912322061173-->
   <arg name="serial_no_lower" value="904412060717" if="$(eval platform=='flo')"/>
-  <arg name="serial_no_lower" value="928222063759" if="$(eval platform=='podium')"/>
+  <arg name="serial_no_lower" value="020122061888" if="$(eval platform=='podium')"/>
   <arg name="depth_width" value="1280"/>
   <arg name="depth_height" value="720"/>
   <arg name="depth_fps" value="30"/>

@@ -45,7 +45,10 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
 }) => {
   const [commandOptions, setCommandOptions] = useState<string[]>([]);
   const [gameFeedback, setGameFeedback] = useState<string>("");
-  const [reps, setReps] = useState(10);
+  const [reps, setReps] = useState(3);
+  const [maxSteps, setMaxSteps] = useState(4);
+  const [minSteps, setMinSteps] = useState(2);
+  const [bimanual, setBimanual] = useState(true);
   const [gameDefPub, setGameDefPub] = useState<ROSLIB.Topic | null>(null);
   const [gameCommandPub, setGameCommandPub] = useState<ROSLIB.Topic | null>(
     null
@@ -138,7 +141,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
             setBuckets(tmpBuckets);
             setGbID(
               tmpBuckets.findIndex((arg) => {
-                if (arg === undefined) {
+                if (arg === undefined || arg.targeted_game != type) {
                   return false;
                 } else {
                   return true;
@@ -189,9 +192,10 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
             }}
           >
             {buckets
+              .map((value, idx) => ({ idx, ...value }))
               .filter((value) => value.targeted_game == gameType)
               .map((value, idx) => (
-                <option key={idx} value={idx}>
+                <option key={idx} value={value.idx}>
                   {value.name}
                 </option>
               ))}
@@ -201,7 +205,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
         {gameType == "target_touch" && (
           //TODO: insert a number input for number of reps
           <label htmlFor="reps">
-            Reps:
+            Reps / point:
             <input
               id="reps"
               type="number"
@@ -211,6 +215,48 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
                 setReps(parseInt(obj.target.value, 10));
               }}
             />
+          </label>
+        )}
+        {gameType == "target_touch" && (
+          <label htmlFor="min_steps">
+            Min # of steps:
+            <input
+              id="min_steps"
+              type="number"
+              min="1"
+              value={minSteps}
+              onChange={(obj): void => {
+                setMinSteps(parseInt(obj.target.value, 10));
+              }}
+            />
+          </label>
+        )}
+        {gameType == "target_touch" && (
+          <label htmlFor="max_steps">
+            Max # of steps:
+            <input
+              id="max_steps"
+              type="number"
+              min={minSteps}
+              value={maxSteps}
+              onChange={(obj): void => {
+                setMaxSteps(parseInt(obj.target.value, 10));
+              }}
+            />
+          </label>
+        )}
+        {gameType == "simon_says" && (
+          <label htmlFor="bimanual">
+            Bimanual (simultaneous)?:
+            <button
+              id="bimanual"
+              type="button"
+              onClick={(): void => {
+                setBimanual(!bimanual);
+              }}
+            >
+              {bimanual ? "bimanual" : "unimanual"}
+            </button>
           </label>
         )}
 
@@ -229,6 +275,9 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
               game_type: gameType, // eslint-disable-line
               steps: buckets[gbID].steps,
               reps: reps,
+              min_steps: minSteps,
+              max_steps: maxSteps,
+              bimanual: bimanual,
             });
             if (gameDefPub !== null) {
               gameDefPub.publish(gameDef);

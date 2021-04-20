@@ -118,6 +118,11 @@ class TTSManager(object):
         rospy.set_param("/flo_hum_vol", .9)
         rospy.set_param("/captions", False)
 
+        self.done = True
+        self.length = 0
+        self.goal_text = ''
+        self.result = None
+
         self.server = actionlib.SimpleActionServer(
             'tts', SpeechAction, self.do_speak, False)
         self.server.start()
@@ -130,10 +135,6 @@ class TTSManager(object):
         self.sound_client = actionlib.SimpleActionClient(
             'sound_play', SoundRequestAction
         )
-
-        self.length = 0
-        self.goal_text = ''
-        self.result = None
 
         self.state_pub.publish(state=TTSState.WAITING)
 
@@ -190,11 +191,24 @@ class TTSManager(object):
             msg.arg2 = ""
             goal = SoundRequestGoal()
             goal.sound_request = msg
+            self.done = False
             self.sound_client.send_goal(goal,
                                         active_cb=self.sound_received,
                                         feedback_cb=self.sound_fb,
                                         done_cb=self.sound_done)
             self.result = audio_file
+            t_rate = rospy.Rate(10)
+            success = True
+            while not self.done:
+                if self.server.is_preempt_requested():
+                    self.sound_client.cancel_goal()
+                    self.server.set_preempted()
+                    success = False
+                    break
+                t_rate.sleep()
+            self.state_pub.publish(state=TTSState.WAITING)
+            if success:
+                self.finish_with_result('completed sound play in')
 
     def sound_received(self):
         self.state_pub.publish(state=TTSState.PLAYING, text=self.goal_text)
@@ -207,14 +221,8 @@ class TTSManager(object):
         self.server.publish_feedback(speech_feedback)
 
     def sound_done(self, state, res):
-        if 'Exception' in res:
-            result = '[ERROR] {}'.format(res)
-            rospy.logerr(result)
-            self.state_pub.publish(state=TTSState.ERROR, text=result)
-            self.finish_with_result('Failed to play sound')
-
-        self.state_pub.publish(state=TTSState.WAITING)
-        self.finish_with_result(result)
+        self.result
+        self.done = True
 
 
 if __name__ == '__main__':

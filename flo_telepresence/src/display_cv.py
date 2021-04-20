@@ -29,8 +29,8 @@ def draw_text(img,  # pylint: disable=too-many-arguments
               font_thickness=2,
               text_color=(0, 255, 0),
               text_color_bg=(0, 0, 0),
-              margin=3,
-              num_lines=2
+              margin=5,
+              num_lines=3
               ):
     """Draw text on an image using opencv
 
@@ -47,6 +47,9 @@ def draw_text(img,  # pylint: disable=too-many-arguments
         margin: the margin around the text
     """
 
+    if text == '':
+        return 0
+
     x, y = pos  # pylint: disable=invalid-name
     x = int(math.ceil(x))
     y = int(math.ceil(y))
@@ -55,37 +58,44 @@ def draw_text(img,  # pylint: disable=too-many-arguments
     text_size = (0, 0)
     lines = []
     words = text.split()
-    while next_line_end < len(text):
+    while True:
         text_size, _ = cv2.getTextSize(
-            text[next_line_start:next_line_end+1], font, font_scale, font_thickness)
+            ' '.join(words[next_line_start:next_line_end+1]), font, font_scale, font_thickness)
         text_w, text_h = text_size
-        if next_line_end+1 == len(text) or (x+margin+text_w) > img.shape[1]*0.95:
-            lines.append((next_line_start, next_line_end, text_w, text_h))
-            next_line_start = next_line_end+1
+        if (x+margin+text_w) > img.shape[1]:
+            lines.append((next_line_start, next_line_end-1))
+            next_line_start = next_line_end
             next_line_end = next_line_start
+        elif next_line_end+1 == len(words):
+            lines.append((next_line_start, next_line_end))
+            break
         else:
             next_line_end += 1
     start_y = int(math.ceil(y))
     for line in lines[max(0, len(lines)-num_lines):]:
+        string_to_put = ' '.join(words[line[0]:line[1]+1])
+        text_size, _ = cv2.getTextSize(
+            string_to_put, font, font_scale, font_thickness)
+        text_w, text_h = text_size
         cv2.rectangle(
             img,
             (x, start_y),
-            (int(math.ceil(x + line[2] + 2 * margin)),
-             int(math.ceil(start_y + line[3] + 2 * margin))),
+            (int(math.ceil(x + text_w + 2 * margin)),
+             int(math.ceil(start_y + text_h + 2 * margin))),
             text_color_bg,
             -1
         )
         cv2.putText(
             img,
-            text[line[0]:line[1]+1],
-            (x+margin, int((text_h+margin)+start_y)),
+            string_to_put,
+            (x+margin, int(text_h+margin+start_y)),
             font,
             font_scale,
             text_color,
             font_thickness
         )
-        start_y = int(math.ceil(start_y + 2*margin + line[3]))
-    return text_size
+        start_y = int(math.ceil(start_y + 2*margin + text_h))
+    return start_y
 
 
 class RobotScreen(object):
@@ -205,7 +215,7 @@ class RobotScreen(object):
                     empty = True
             if img is not None:
                 print(img.shape)
-                rec_y = int(.0325*img.shape[0])
+                rec_y = int(.0125*img.shape[0])
                 bottom_rec_text = draw_text(
                     img,
                     'recording' if self.recording else 'not recording',
@@ -216,13 +226,12 @@ class RobotScreen(object):
                     (0, 0, 255) if self.recording else (200, 200, 0)
                 )
                 if rospy.get_param('/captions') and rospy.get_time() - self.caption_time < 5:
-                    text_w, text_h = bottom_rec_text
                     draw_text(
                         img,
                         self.caption,
-                        (5, math.ceil(text_h + rec_y+5)),
+                        (5, math.ceil(bottom_rec_text+5)),
                         self.font,
-                        .0025*img.shape[0],
+                        .002*img.shape[0],
                         1,
                         (255, 255, 255)
                     )

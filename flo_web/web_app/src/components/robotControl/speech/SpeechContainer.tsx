@@ -146,6 +146,18 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
     };
   }, [connected, ros]);
 
+  const preemptSpeech = (): void => {
+    setSpeaking(true);
+    const actionClient = new ROSLIB.ActionClient({
+      ros: ros as ROSLIB.Ros,
+      serverName: "/tts",
+      actionName: "tts/SpeechAction",
+      timeout: 1500, //Not sure about this value here. needs testing
+    });
+    console.log("connected to speech action server");
+    actionClient.cancel();
+  };
+
   const runSpeech = (): void => {
     setSpeaking(true);
     const actionClient = new ROSLIB.ActionClient({
@@ -277,7 +289,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
         onClick={(): void => {
           runSpeech();
         }}
-        disabled={!connected || speaking}
+        disabled={!connected}
       >
         Speak
       </button>
@@ -290,6 +302,22 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
         disabled={speechTarget.text === ""}
       >
         Clear
+      </button>
+
+      <button
+        type="button"
+        onClick={(): void => {
+          preemptSpeech();
+        }}
+        disabled={
+          !connected ||
+          !(
+            speechStates.SYNTHESIZING === speechState.state ||
+            speechStates.PLAYING === speechState.state
+          )
+        }
+      >
+        Stop Speeking
       </button>
 
       <SavedSpeech

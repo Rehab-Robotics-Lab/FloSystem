@@ -529,7 +529,15 @@ run an entire simulation stack within docker. To do this
 10. Run `./docker_sim_launcher.sh`. This file can be passed `-r` to rebuild the
     underlying docker images for the robot if you have changed code
 
-11. Go to
+11. Go to localhost
+
+12. To inspect the system, in an unused terminal:
+    `docker exec -it <container name, ex: lilflosystem_flo_sim_1> /ros_entrypoint.sh bash`
+
+Note: This will mount your local code, so you don't have to shut the entire system down for every
+code change. For the web frontend, code will reload automatically on save (sometimes you need to
+save twice). For python files running on the robot, you can simply kill the affected node(s) using
+your docker exec access terminal (described above) and when they restart they will have your new code
 
 ## Running
 

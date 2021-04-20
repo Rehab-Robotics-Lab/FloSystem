@@ -27,6 +27,7 @@ services:
       - ./certs/aws-config:/home/$USER/.aws/config
       - /tmp/pulseaudio.socket:/tmp/pulseaudio.socket
       - ~/flo_db:/home/$USER/db
+      - ./:/home/$USER/catkin_ws/src/LilFloSystem:ro
     user: $USER
     networks:
       - ros

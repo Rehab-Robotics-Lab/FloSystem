@@ -13,6 +13,8 @@ do
     esac
 done
 
+mkdir -p ~/flo_db
+
 XSOCK=/tmp/.X11-unix
 export XSOCK
 XAUTH=/tmp/.docker.xauth

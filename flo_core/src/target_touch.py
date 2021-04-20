@@ -6,17 +6,6 @@ import random
 from itertools import chain
 from flo_core_defs.msg import StepDef
 
-DEFAULT_DEF = [
-    StepDef(type='pose_left',
-            text='Touch the red dot', id=17, time=.7),
-    StepDef(type='pose_right',
-            text='Touch the green dot', id=17, time=.7),
-    StepDef(type='pose_left',
-            text='Touch the yellow dot', id=18, time=.7),
-    StepDef(type='pose_right',
-            text='Touch the blue dot', id=18, time=.7),
-]
-
 
 def target_touch(new_def, process_step, neutral):
     """Generate a target touch game
@@ -28,11 +17,8 @@ def target_touch(new_def, process_step, neutral):
     Returns: The action list that defines the game
     """
     actions_list = []
-    reps = 7
     sides = {'blue': ('left', 'upper'), 'red': ('left', 'lower'), 'yellow': (
         'right', 'upper'), 'green': ('right', 'lower')}
-    if new_def.reps:
-        reps = new_def.reps
 
     actions_list.append(neutral)
     actions_list.append(
@@ -41,8 +27,6 @@ def target_touch(new_def, process_step, neutral):
                    'hand to use and which color dot to touch, then tell you to go. No tricks ' +
                    'here, just good work!! Let\'s start ' +
                    'in a ready position, return to this position after every touch'})
-    if not new_def.steps:
-        new_def.steps = DEFAULT_DEF
 
     actions_bag = []
     steps = new_def.steps
@@ -67,7 +51,7 @@ def target_touch(new_def, process_step, neutral):
                 obj_to_add = {'targets': targets,
                               'speech': speech, 'color': color}
                 moves[left_right][up_down] = moves[left_right][up_down] + \
-                    reps*[obj_to_add]
+                    new_def.reps*[obj_to_add]
 
     random.shuffle(moves['left']['upper'])
     random.shuffle(moves['left']['lower'])
@@ -77,7 +61,8 @@ def target_touch(new_def, process_step, neutral):
            moves['left']['lower'] or
            moves['right']['upper'] or
            moves['right']['lower']):
-        num_steps = random.randrange(2, 5)  # how many instructions to give
+        # how many instructions to give
+        num_steps = random.randrange(new_def.min_steps, new_def.max_steps+1)
         left_ud = None
         right_ud = None
 

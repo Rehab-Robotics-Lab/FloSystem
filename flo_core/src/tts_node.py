@@ -137,7 +137,6 @@ class TTSManager(object):
         finished, a client can choose
         not to wait by not calling ``SimpleActionClient.waite_for_result()``.
         """
-        rospy.logerr('speech goal: %s', goal)
 
         # goal_root = ET.fromstring(goal.text)
         # goal_text = goal_root.text

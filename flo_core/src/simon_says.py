@@ -5,29 +5,6 @@ import random
 from itertools import chain
 from flo_core_defs.msg import StepDef
 
-DEFAULT_DEF = [
-    StepDef(type='move', text='wave', id=2),
-    StepDef(type='move', text='clap your hands', id=6),
-    StepDef(type='move', text='disco', id=8),
-    StepDef(
-        type='pose_left', text='raise your left arm straight out in front', id=2),
-    StepDef(
-        type='pose_right', text='raise your right arm straight out in front', id=2),
-    StepDef(
-        type='pose_right',
-        text='raise your right arm straight out to the side', id=3),
-    StepDef(
-        type='pose_left',
-        text='raise your left arm straight out to the side', id=3),
-    StepDef(
-        type='pose_left',
-        text='touch the top of your head with your left hand', id=11),
-    StepDef(
-        type='pose_right',
-        text='touch the top of your head with your right hand', id=11),
-    StepDef(type='pose_both', text='cover your eyes!', id=16),
-]
-
 
 def simon_says(new_def, process_step, check_side_seq, neutral):
     """Generate a simon says game
@@ -45,8 +22,6 @@ def simon_says(new_def, process_step, check_side_seq, neutral):
                    'should do it with me. If I do not say simon says, you should ' +
                    'not do the action. Watch out, I may try to trick you. ' +
                    'After every movement return to a ready position'})
-    if not new_def.steps:
-        new_def.steps = DEFAULT_DEF
     actions_bag = []
     left = []
     right = []
@@ -78,16 +53,17 @@ def simon_says(new_def, process_step, check_side_seq, neutral):
             raise Exception
     random.shuffle(left)
     random.shuffle(right)
-    while left and right:
-        left_act = left.pop()
-        right_act = right.pop()
-        if random.getrandbits(1):
-            speech = left_act['speech'] + ' and ' + right_act['speech']
-        else:
-            speech = right_act['speech'] + ' and ' + left_act['speech']
-        targets = left_act['targets']+right_act['targets']
-        targets.sort(key=lambda target: target.target_completion_time)
-        append_action(targets, speech)
+    if new_def.bimanual:
+        while left and right:
+            left_act = left.pop()
+            right_act = right.pop()
+            if random.getrandbits(1):
+                speech = left_act['speech'] + ' and ' + right_act['speech']
+            else:
+                speech = right_act['speech'] + ' and ' + left_act['speech']
+            targets = left_act['targets']+right_act['targets']
+            targets.sort(key=lambda target: target.target_completion_time)
+            append_action(targets, speech)
     while left:
         left_act = left.pop()
         append_action(left_act['targets'], left_act['speech'])

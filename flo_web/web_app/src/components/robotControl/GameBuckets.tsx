@@ -99,7 +99,7 @@ const SaveBucket: React.FunctionComponent<SaveBucketProps> = ({
               setNme(buckets[newId].name);
               setSubjNo(buckets[newId].subject);
               const gt = buckets[newId].targeted_game;
-              if (gt in ["simon_says", "target_touch"]) {
+              if (["simon_says", "target_touch"].includes(gt)) {
                 setTargGame(gt as "simon_says" | "target_touch");
               }
             }
@@ -157,7 +157,7 @@ const SaveBucket: React.FunctionComponent<SaveBucketProps> = ({
           id="bucketGameTypeSave"
           onChange={(obj): void => {
             const gt = obj.target.value;
-            if (gt in ["simon_says", "target_touch"]) {
+            if (["simon_says", "target_touch"].includes(gt)) {
               setTargGame(gt as "simon_says" | "target_touch");
             }
           }}
@@ -578,6 +578,17 @@ const GameBuckets: React.FunctionComponent<GameBucketsProps> = ({
           overflowY: "auto",
         }}
       >
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div>
+            <b>type : description</b>
+          </div>
+          <div>
+            <b>(time s) speech</b>
+          </div>
+          <div>
+            <b>Remove Step</b>
+          </div>
+        </div>
         {steps.map((value, idx) => (
           <GameStep
             def={value}

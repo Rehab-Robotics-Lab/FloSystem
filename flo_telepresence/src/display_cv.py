@@ -67,8 +67,6 @@ def draw_text(img,  # pylint: disable=too-many-arguments
             next_line_end += 1
     start_y = int(math.ceil(y))
     for line in lines[max(0, len(lines)-num_lines):]:
-        err_str = 'x={} y={}'.format(x, start_y)
-        rospy.logerr(err_str)
         cv2.rectangle(
             img,
             (x, start_y),

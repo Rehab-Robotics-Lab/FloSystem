@@ -61,10 +61,14 @@ from HTMLParser import HTMLParser
 from StringIO import StringIO
 import actionlib
 import rospy
-from tts.msg import SpeechAction, SpeechResult
+from tts.msg import SpeechAction, SpeechResult, SpeechFeedback
 from tts.srv import Synthesizer
-from sound_play.libsoundplay import SoundClient
+from sound_play.msg import SoundRequestAction
 from flo_core_defs.msg import TTSState, TTSUtterances
+import contextlib
+import mutagen
+from sound_play.msg import SoundRequestGoal
+from sound_play.msg import SoundRequest
 
 
 class MLStripper(HTMLParser):
@@ -111,6 +115,14 @@ class TTSManager(object):
     def __init__(self):
         rospy.init_node('tts_node')
 
+        rospy.set_param("/flo_hum_vol", .9)
+        rospy.set_param("/captions", False)
+
+        self.done = True
+        self.length = 0
+        self.goal_text = ''
+        self.result = None
+
         self.server = actionlib.SimpleActionServer(
             'tts', SpeechAction, self.do_speak, False)
         self.server.start()
@@ -119,6 +131,10 @@ class TTSManager(object):
         self.state_pub = rospy.Publisher('tts_state', TTSState, queue_size=1)
         self.utterance_pub = rospy.Publisher(
             'tts_utterances', TTSUtterances, queue_size=10)
+
+        self.sound_client = actionlib.SimpleActionClient(
+            'sound_play', SoundRequestAction
+        )
 
         self.state_pub.publish(state=TTSState.WAITING)
 
@@ -140,9 +156,10 @@ class TTSManager(object):
 
         # goal_root = ET.fromstring(goal.text)
         # goal_text = goal_root.text
-        goal_text = strip_tags(goal.text)
+        self.goal_text = strip_tags(goal.text)
 
-        self.state_pub.publish(state=TTSState.SYNTHESIZING, text=goal_text)
+        self.state_pub.publish(
+            state=TTSState.SYNTHESIZING, text=self.goal_text)
         res = do_synthesize(goal)
         rospy.loginfo('synthesizer returns: %s', res)
 
@@ -156,25 +173,56 @@ class TTSManager(object):
             self.finish_with_result(syn)
             return
 
-        result = ''
-
         if 'Audio File' in res:
             audio_file = res['Audio File']
             rospy.loginfo('Will play %s', audio_file)
 
-            self.state_pub.publish(state=TTSState.PLAYING, text=goal_text)
-            self.utterance_pub.publish(goal_text)
-            play(audio_file)
-            result = audio_file
+            mut_d = mutagen.File(audio_file)
+            self.length = mut_d.info.length
 
-        if 'Exception' in res:
-            result = '[ERROR] {}'.format(res)
-            rospy.logerr(result)
-            self.state_pub.publish(state=TTSState.ERROR, text=result)
-            self.finish_with_result(syn)
+            self.utterance_pub.publish(self.goal_text)
+            msg = SoundRequest()
+            # self.sendMsg(SoundRequest.PLAY_FILE, SoundRequest.PLAY_ONCE, sound,
+            #      vol=volume, **kwargs)
+            msg.sound = SoundRequest.PLAY_FILE
+            msg.volume = rospy.get_param("/flo_hum_vol")
+            msg.command = SoundRequest.PLAY_ONCE
+            msg.arg = audio_file
+            msg.arg2 = ""
+            goal = SoundRequestGoal()
+            goal.sound_request = msg
+            self.done = False
+            self.sound_client.send_goal(goal,
+                                        active_cb=self.sound_received,
+                                        feedback_cb=self.sound_fb,
+                                        done_cb=self.sound_done)
+            self.result = audio_file
+            t_rate = rospy.Rate(10)
+            success = True
+            while not self.done:
+                if self.server.is_preempt_requested():
+                    self.sound_client.cancel_goal()
+                    self.server.set_preempted()
+                    success = False
+                    break
+                t_rate.sleep()
+            self.state_pub.publish(state=TTSState.WAITING)
+            if success:
+                self.finish_with_result('completed sound play in')
 
-        self.state_pub.publish(state=TTSState.WAITING)
-        self.finish_with_result(result)
+    def sound_received(self):
+        self.state_pub.publish(state=TTSState.PLAYING, text=self.goal_text)
+
+    def sound_fb(self, feedback):
+        percent_elapsed = feedback.stamp.to_sec()/self.length
+        speech_feedback = SpeechFeedback()
+        speech_feedback.data = self.goal_text[0:int(
+            percent_elapsed*len(self.goal_text))]
+        self.server.publish_feedback(speech_feedback)
+
+    def sound_done(self, state, res):
+        self.result
+        self.done = True
 
 
 if __name__ == '__main__':

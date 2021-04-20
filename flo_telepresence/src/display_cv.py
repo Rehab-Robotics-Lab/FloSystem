@@ -12,11 +12,90 @@ import numpy as np
 import rospkg
 import cv2
 from system_monitor.msg import NETstats
+from tts.msg import SpeechActionFeedback
+import math
 
 # Screen is 800x480
 
 HOME_TIME = 5
 UPDATE_HOME_TIME = 1
+
+
+def draw_text(img,  # pylint: disable=too-many-arguments
+              text,
+              pos=(0, 0),
+              font=cv2.FONT_HERSHEY_SIMPLEX,
+              font_scale=1,
+              font_thickness=2,
+              text_color=(0, 255, 0),
+              text_color_bg=(0, 0, 0),
+              margin=5,
+              num_lines=3
+              ):
+    """Draw text on an image using opencv
+
+    Args:
+        img: opencv compatible image
+        text: text to write
+        pos: the position to start drawing at
+        font: the font to use (find here:
+              https://docs.opencv.org/master/d6/d6e/group__imgproc__draw.html#ga0f9314ea6e35f99bb23f29567fc16e11)
+        font_scale: scale to draw
+        font_thickness: thickness of the lines in text
+        text_color: text color as a tuple of (red, green, blue)
+        text_color_bg: background color as a tuple of (red, green, blue)
+        margin: the margin around the text
+    """
+
+    if text == '':
+        return 0
+
+    x, y = pos  # pylint: disable=invalid-name
+    x = int(math.ceil(x))
+    y = int(math.ceil(y))
+    next_line_start = 0
+    next_line_end = 0
+    text_size = (0, 0)
+    lines = []
+    words = text.split()
+    while True:
+        text_size, _ = cv2.getTextSize(
+            ' '.join(words[next_line_start:next_line_end+1]), font, font_scale, font_thickness)
+        text_w, text_h = text_size
+        if (x+margin+text_w) > img.shape[1]:
+            lines.append((next_line_start, next_line_end-1))
+            next_line_start = next_line_end
+            next_line_end = next_line_start
+        elif next_line_end+1 == len(words):
+            lines.append((next_line_start, next_line_end))
+            break
+        else:
+            next_line_end += 1
+    start_y = int(math.ceil(y))
+    for line in lines[max(0, len(lines)-num_lines):]:
+        string_to_put = ' '.join(words[line[0]:line[1]+1])
+        text_size, _ = cv2.getTextSize(
+            string_to_put, font, font_scale, font_thickness)
+        text_w, text_h = text_size
+        cv2.rectangle(
+            img,
+            (x, start_y),
+            (int(math.ceil(x + text_w + 2 * margin)),
+             int(math.ceil(start_y + text_h + 2 * margin))),
+            text_color_bg,
+            -1
+        )
+        cv2.putText(
+            img,
+            string_to_put,
+            (x+margin, int(text_h+margin+start_y)),
+            font,
+            font_scale,
+            text_color,
+            font_thickness
+        )
+        start_y = int(math.ceil(start_y + 2*margin + text_h))
+    return start_y
 
 
 class RobotScreen(object):
@@ -48,6 +127,8 @@ class RobotScreen(object):
         self.wifi_quality = 0
         self.wifi_signal = 0
         self.connected_clients = 0
+        self.caption = ''
+        self.caption_time = 0
 
         self.recording = False
 
@@ -102,7 +183,13 @@ class RobotScreen(object):
         rospy.Subscriber('/record_video_status', Bool,
                          self.__set_recording_state)
         # rospy.Subscriber('/remote_video', smImage, self.__new_img)
+        rospy.Subscriber('/tts/feedback', SpeechActionFeedback,
+                         self.__new_caption)
         self.__run_display()
+
+    def __new_caption(self, msg):
+        self.caption = msg.feedback.data
+        self.caption_time = rospy.get_time()
 
     def __set_recording_state(self, msg):
         self.recording = msg.data
@@ -128,12 +215,27 @@ class RobotScreen(object):
                     empty = True
             if img is not None:
                 print(img.shape)
-                cv2.putText(img,
-                            'recording' if self.recording else 'not recording',
-                            (5, int(.0325*img.shape[0])),
-                            self.font,
-                            .00125*img.shape[0],
-                            (0, 0, 255) if self.recording else (200, 200, 0))
+                rec_y = int(.0125*img.shape[0])
+                bottom_rec_text = draw_text(
+                    img,
+                    'recording' if self.recording else 'not recording',
+                    (5, rec_y),
+                    self.font,
+                    .00125*img.shape[0],
+                    1,
+                    (0, 0, 255) if self.recording else (200, 200, 0)
+                )
+                if rospy.get_param('/captions') and rospy.get_time() - self.caption_time < 5:
+                    draw_text(
+                        img,
+                        self.caption,
+                        (5, math.ceil(bottom_rec_text+5)),
+                        self.font,
+                        .002*img.shape[0],
+                        1,
+                        (255, 255, 255)
+                    )
+
                 cv2.imshow('remote_vid', img)
                 cv2.waitKey(1)
             elif rospy.get_time()-self.last_msg > HOME_TIME:

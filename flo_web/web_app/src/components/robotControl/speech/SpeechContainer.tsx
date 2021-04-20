@@ -90,10 +90,33 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
     state: speechStates.UNKNOWN,
     text: "",
   });
-  const [utterances, setUtterances] = useReducer(reducer, []);
+  const [voiceVolume, setVoiceVolume] = useState(1);
+  const [captions, setCaptions] = useState(false);
+  //const [utterances, setUtterances] = useReducer(reducer, []);
+  const [lastUtterance, setLastUtterance] = useState("");
 
   useEffect(() => {
     if (!connected) return;
+
+    const captionsParam = new ROSLIB.Param({
+      ros: ros as ROSLIB.Ros,
+      name: "/captions",
+    });
+    captionsParam.get((val) => {
+      if (val != null) {
+        setCaptions(val);
+      }
+    });
+
+    const voiceVolumeParam = new ROSLIB.Param({
+      ros: ros as ROSLIB.Ros,
+      name: "/flo_hum_vol",
+    });
+    voiceVolumeParam.get((val) => {
+      if (val != null) {
+        setVoiceVolume(val);
+      }
+    });
 
     const stateListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
@@ -112,7 +135,8 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       messageType: "flo_core_defs/TTSUtterances",
     });
     const ulCB = (msg: ROSLIB.Message): void => {
-      setUtterances((msg as TTSUtterances).text);
+      //setUtterances((msg as TTSUtterances).text);
+      setLastUtterance((msg as TTSUtterances).text);
     };
     utteranceListener.subscribe(ulCB);
     console.log("Subscribed to tts_utterances");
@@ -194,6 +218,43 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       })}
     >
       <h2>Speech</h2>
+      <label htmlFor="speechVol">
+        Volume:
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step=".1"
+          value={voiceVolume}
+          onChange={(e): void => {
+            const param = new ROSLIB.Param({
+              ros: ros as ROSLIB.Ros,
+              name: "/flo_hum_vol",
+            });
+            const val = parseFloat(e.target.value);
+            param.set(val);
+            setVoiceVolume(val);
+          }}
+        />
+      </label>
+      <label htmlFor="captions">
+        Captions:
+        <button
+          id="captions"
+          type="button"
+          onClick={(): void => {
+            const param = new ROSLIB.Param({
+              ros: ros as ROSLIB.Ros,
+              name: "/captions",
+            });
+            param.set(!captions);
+            setCaptions(!captions);
+          }}
+        >
+          {captions ? "On" : "Off"}
+        </button>
+      </label>
+
       <span>state: {speechStates[speechState.state]}</span>
       <label htmlFor="speechTarget">
         String to speak (SSML):
@@ -239,10 +300,11 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
         speaking={speaking}
       />
       <div>
-        <h3>Recent Utterances</h3>
-        {utterances.map((value) => (
+        <h3>Last Utterance</h3>
+        {lastUtterance}
+        {/*utterances.map((value) => (
           <div key={value.idx}>{value.text}</div>
-        ))}
+        ))*/}
       </div>
     </div>
   );

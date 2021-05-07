@@ -214,7 +214,6 @@ class RobotScreen(object):
                 except Queue.Empty:
                     empty = True
             if img is not None:
-                print(img.shape)
                 rec_y = int(.0125*img.shape[0])
                 bottom_rec_text = draw_text(
                     img,

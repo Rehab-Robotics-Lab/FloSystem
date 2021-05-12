@@ -9,7 +9,7 @@ from PIL import Image, ImageTk
 import os
 import Queue
 import rospy
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, String
 from sensor_msgs.msg import Image as smImage
 from rosbridge_msgs.msg import ConnectedClients
 from cv_bridge import CvBridge, CvBridgeError
@@ -109,7 +109,13 @@ class PodiumScreen(object):
             'search_game_bucket_name_desc', SearchGameBucket)
         self.game_buckets = search_gb('').game_buckets
 
+        self.game_opts_frame = tk.Frame(game_frame)
+        self.game_opts_frame.pack(side=tk.TOP)
+
         self.game_opts = []
+        self.updated_game_opts = True
+        self.game_command_pub = rospy.Publisher(
+            '/game_runner_commands', GameCommand, queue_size=1)
         rospy.Subscriber('/game_runner_command_opts',
                          GameCommandOptions, self.__set_game_opts)
 
@@ -124,6 +130,14 @@ class PodiumScreen(object):
         self.target_touch_b = tk.Button(
             game_def_frame, text="Start Target Touch", command=self.__start_target_touch)
         self.target_touch_b.grid(row=2, column=1)
+
+        game_text_frame = tk.Frame(self.window)
+        game_text_frame.pack(side=tk.TOP)
+        self.game_text_label = tk.Label(game_text_frame)
+        self.game_text_label.pack(side=tk.TOP)
+
+        self.game_text = ' demo '
+        rospy.Subscriber('/game_runner_text', String, self.__set_game_text)
 
         rospy.loginfo('Started Podium Screen Node')
 
@@ -176,6 +190,18 @@ class PodiumScreen(object):
                 self.simon_says_b.configure(state=tk.DISABLED)
                 self.target_touch_b.configure(state=tk.DISABLED)
 
+            # Update game options
+            if self.updated_game_opts:
+                for widget in self.game_opts_frame.winfo_children():
+                    widget.destroy()
+                for opt in self.game_opts:
+                    t_button = tk.Button(self.game_opts_frame, text=opt,
+                                         command=lambda opt=opt: self.__send_command(opt))
+                    t_button.pack(side=tk.TOP)
+                self.updated_game_opts = False
+
+            self.game_text_label.configure(text=self.game_text)
+
             self.window.update_idletasks()
             self.window.update()
 
@@ -216,6 +242,10 @@ class PodiumScreen(object):
 
     def __set_game_opts(self, msg):
         self.game_opts = msg.options
+        self.updated_game_opts = True
+
+    def __send_command(self, opt):
+        self.game_command_pub.publish(opt)
 
     def __set_game_state(self, msg):
         self.game_state = msg.state
@@ -237,6 +267,9 @@ class PodiumScreen(object):
         game_def.game_type = 'target_touch'
         game_def.steps = self.game_buckets[1].steps
         self.__start_game(game_def)
+
+    def __set_game_text(self, msg):
+        self.game_text = msg.data
 
 
 if __name__ == '__main__':

@@ -486,6 +486,7 @@ class GameRunner(object):
         self.action_idx += 1
         self.__run_step(self.action_idx)
 
+# TODO: find everywhere where text is run and add humanoid catch
     def __repeat_last_step(self):
         rospy.loginfo('repeating the last step')
         self.action_idx -= self.repeat_shift
@@ -496,8 +497,12 @@ class GameRunner(object):
 
     def __congratulate(self):
         rospy.loginfo('saying something congratulatory')
-        self.__say_plain_text(random.choice(self.congratulate_strings))
-        self.__set_state(self.states.acting)
+        to_say = random.choice(self.congratulate_strings)
+        if self.humanoid:
+            self.__say_plain_text(to_say)
+            self.__set_state(self.states.acting)
+        else:
+            self.game_text_pub.publish(to_say)
         self.__set_options([])
 
     def __try_again(self):

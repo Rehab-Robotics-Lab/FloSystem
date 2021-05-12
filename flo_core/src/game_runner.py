@@ -20,6 +20,8 @@ Publishers:
                             both individual speech and full
                             steps with both speech and joint
                             targets
+    - /game_runner_text: The text that the game runner commands
+                         to be spoken
 
 Subscribers:
     - /game_runner_commands: Takes the commands to control the
@@ -58,6 +60,7 @@ from flo_core_defs.srv import GetPoseSeqID
 from flo_core_defs.msg import GameAction
 from simon_says import simon_says
 from target_touch import target_touch
+from std_msgs.msg import String
 
 
 class GameRunner(object):
@@ -86,16 +89,20 @@ class GameRunner(object):
 
     def __init__(self):
         rospy.init_node('game_runner')
+        rospy.logerr('starting')
+
+        self.humanoid = rospy.get_param('/humanoid', False)
 
         # -- Action Servers to Make Things Happen -- #
         # set up polly action server
-        self.speech_server = actionlib.SimpleActionClient(
-            'tts', SpeechAction)
-        self.speech_server.wait_for_server()
+        if self.humanoid:
+            self.speech_server = actionlib.SimpleActionClient(
+                'tts', SpeechAction)
+            self.speech_server.wait_for_server()
 
-        # setup movement action server
-        self.move_server = actionlib.SimpleActionClient('move', MoveAction)
-        self.move_server.wait_for_server()
+            # setup movement action server
+            self.move_server = actionlib.SimpleActionClient('move', MoveAction)
+            self.move_server.wait_for_server()
 
         ### Publishers ###
         self.feedback_pub = rospy.Publisher('game_runner_state',
@@ -104,6 +111,8 @@ class GameRunner(object):
                                                 GameCommandOptions, queue_size=1, latch=True)
         self.game_action_pub = rospy.Publisher(
             'game_runner_actions', GameAction, queue_size=10)
+        self.game_text_pub = rospy.Publisher(
+            'game_runner_text', String, queue_size=10)
         rospy.loginfo('setup publishers')
 
         # -- Subscribers -- #
@@ -130,6 +139,7 @@ class GameRunner(object):
 
         # -- State Management -- #
         self.__set_state(self.states.waiting_for_def)
+        rospy.logerr('set state')
         self.moving_state = self.action_states.none
         self.speaking_state = self.action_states.none
         self.state = self.states.waiting_for_command
@@ -199,10 +209,11 @@ class GameRunner(object):
                 self.__process_command(new_command)
 
         if (self.state == self.states.acting
-                and (self.moving_state == self.action_states.done
-                     or self.moving_state == self.action_states.none)
-                and (self.speaking_state == self.action_states.done
-                     or self.speaking_state == self.action_states.none)):
+                and (((self.moving_state == self.action_states.done
+                       or self.moving_state == self.action_states.none)
+                      and (self.speaking_state == self.action_states.done
+                           or self.speaking_state == self.action_states.none))
+                     or not self.humanoid)):
             if self.action_idx+1 == len(self.actions_list):
                 self.__set_state(self.states.waiting_for_command)
                 self.__set_options(
@@ -419,18 +430,21 @@ class GameRunner(object):
         # each step is a dict with:
         # speach, movement or pose
         if 'speech' in this_step and this_step['speech'] != '':
-            self.__say_plain_text(this_step['speech'])
+            if self.humanoid:
+                self.__say_plain_text(this_step['speech'])
+            self.game_text_pub.publish(this_step['speech'])
             command_sent = True
             action.speech = this_step['speech']
         if 'targets' in this_step:
             move_goal = MoveGoal(this_step['targets'])
-            self.move_server.send_goal(
-                move_goal,
-                done_cb=self.__moving_done,
-                active_cb=self.__moving_active,
-                feedback_cb=self.__moving_feedback
-            )
-            self.moving_state = self.action_states.sent
+            if self.humanoid:
+                self.move_server.send_goal(
+                    move_goal,
+                    done_cb=self.__moving_done,
+                    active_cb=self.__moving_active,
+                    feedback_cb=self.__moving_feedback
+                )
+                self.moving_state = self.action_states.sent
             command_sent = True
             action.targets = this_step['targets']
         if not command_sent:

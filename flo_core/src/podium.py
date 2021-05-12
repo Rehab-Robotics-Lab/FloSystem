@@ -19,6 +19,8 @@ import cv2
 from system_monitor.msg import NETstats
 from tts.msg import SpeechActionFeedback
 import math
+from flo_core_defs.srv import SetRecording, SearchGameBucket
+from flo_core_defs.msg import GameCommandOptions, GameState, GameCommand, GameDef
 
 # Screen is 800x480
 
@@ -39,37 +41,92 @@ class PodiumScreen(object):
         rospy.init_node('podium_screen')
 
         self.window = tk.Tk()  # Makes main window
-        # self.window.overrideredirect(True)
-        # self.window.wm_attributes("-topmost", True)
-        # self.window.geometry("800x480+0+0")
         self.window.geometry(
             "{0}x{1}+0+0".format(self.window.winfo_screenwidth(), self.window.winfo_screenheight()))
-        self.displayu = tk.Label(self.window)
+
+        main_frame = tk.Frame(self.window)
+        main_frame.pack(side=tk.TOP)
+
+        left_frame = tk.Frame(main_frame)
+        left_frame.pack(side=tk.LEFT)
+
+        # Video
+        vid_frame = tk.Frame(left_frame)
+        vid_frame.pack(side=tk.TOP)
+
+        self.displayu = tk.Label(vid_frame)
         self.displayu.grid(row=2, column=0, padx=0, pady=0)  # Display 1
 
-        self.displayl = tk.Label(self.window)
+        self.displayl = tk.Label(vid_frame)
         self.displayl.grid(row=1, column=0, padx=0, pady=0)  # Display 1
-
-        self.recording = False
 
         self.image_queue_l = Queue.Queue()
         self.image_queue_u = Queue.Queue()
 
-        self.last_msg = 0
-        self.last_home_update = 0
-
-        # cap = cv2.VideoCapture(0)
-        rospy.loginfo('Started Podium Screen Node')
-
         self.bridge = CvBridge()
-        # msg = rospy.wait_for_message("videofile/image_raw", smImage)
-        # self.new_img(msg)
         rospy.Subscriber('/upper_realsense/color/image_web',
                          smImage, self.__new_img_l)
         rospy.Subscriber('/lower_realsense/color/image_web',
                          smImage, self.__new_img_u)
+
+        # Recording
+        rec_frame = tk.Frame(left_frame)
+        rec_frame.pack(side=tk.TOP)
+
+        self.record_text = tk.Label(rec_frame)
+        self.record_text.grid(row=3, column=0)
+
+        rospy.wait_for_service('set_recording')
+        self.record_button = tk.Button(
+            rec_frame, text="Start Recoring", command=self.__start_recording)
+        self.record_button.grid(row=4, column=0)
+
+        self.record_button = tk.Button(
+            rec_frame, text="Stop Recoring", command=self.__stop_recording)
+        self.record_button.grid(row=4, column=0)
+
+        self.record_button = tk.Button(
+            rec_frame, text="Start Recoring", command=self.__start_recording)
+        self.record_button.grid(row=5, column=0)
+
+        self.recording = False
+
         rospy.Subscriber('/record_video_status', Bool,
                          self.__set_recording_state)
+
+        # Game Runner
+        game_frame = tk.Frame(main_frame)
+        game_frame.pack(side=tk.LEFT)
+
+        self.game_status_l = tk.Label(game_frame, text='unknown')
+        self.game_status_l.pack(side=tk.TOP)
+
+        game_def_frame = tk.Frame(game_frame)
+        game_def_frame.pack(side=tk.TOP)
+
+        rospy.wait_for_service('search_game_bucket_name_desc')
+        search_gb = rospy.ServiceProxy(
+            'search_game_bucket_name_desc', SearchGameBucket)
+        self.game_buckets = search_gb('').game_buckets
+
+        self.game_opts = []
+        rospy.Subscriber('/game_runner_command_opts',
+                         GameCommandOptions, self.__set_game_opts)
+
+        self.game_state = ''
+        rospy.Subscriber('/game_runner_state',
+                         GameState, self.__set_game_state)
+
+        self.simon_says_b = tk.Button(
+            game_def_frame, text="Start Simon Says", command=self.__start_simon_says)
+        self.simon_says_b.grid(row=1, column=1)
+
+        self.target_touch_b = tk.Button(
+            game_def_frame, text="Start Target Touch", command=self.__start_target_touch)
+        self.target_touch_b.grid(row=2, column=1)
+
+        rospy.loginfo('Started Podium Screen Node')
+
         self.__run_display()
 
     def __set_recording_state(self, msg):
@@ -78,6 +135,7 @@ class PodiumScreen(object):
     def __run_display(self):
         rate = rospy.Rate(45)
         while not rospy.is_shutdown():
+            # update images
             img_l = None
             img_u = None
             empty = False
@@ -102,6 +160,22 @@ class PodiumScreen(object):
                 imgtk = ImageTk.PhotoImage(master=self.displayu, image=img)
                 self.displayu.imgtk = imgtk
                 self.displayu.configure(image=imgtk)
+
+            # update recording
+            if self.recording:
+                self.record_text.configure(text='Recording', fg='green')
+            else:
+                self.record_text.configure(text='Not Recording', fg='red')
+
+            # update game state
+            self.game_status_l.configure(text=self.game_state)
+            if self.game_state == 'waiting_for_def':
+                self.simon_says_b.configure(state=tk.NORMAL)
+                self.target_touch_b.configure(state=tk.NORMAL)
+            else:
+                self.simon_says_b.configure(state=tk.DISABLED)
+                self.target_touch_b.configure(state=tk.DISABLED)
+
             self.window.update_idletasks()
             self.window.update()
 
@@ -124,6 +198,45 @@ class PodiumScreen(object):
             return
         # res_img = cv2.resize(cv_image, (800, 480))
         self.image_queue_u.put(cv_image)
+
+    @staticmethod
+    def __set_recording(val):
+        service_proxy = rospy.ServiceProxy('set_recording', SetRecording)
+        try:
+            service_proxy(val)
+        except rospy.ServiceException as exc:
+            tk.messagebox.showwarning(
+                'Recording', 'Unable to set recording state: {}'.format(exc))
+
+    def __start_recording(self):
+        self.__set_recording(True)
+
+    def __stop_recording(self):
+        self.__set_recording(False)
+
+    def __set_game_opts(self, msg):
+        self.game_opts = msg.options
+
+    def __set_game_state(self, msg):
+        self.game_state = msg.state
+
+    @staticmethod
+    def __start_game(game_def):
+        pub = rospy.Publisher('game_runner_def',
+                              GameDef, queue_size=0, latch=True)
+        pub.publish(game_def)
+
+    def __start_simon_says(self):
+        game_def = GameDef()
+        game_def.game_type = 'simon_says'
+        game_def.steps = self.game_buckets[0].steps
+        self.__start_game(game_def)
+
+    def __start_target_touch(self):
+        game_def = GameDef()
+        game_def.game_type = 'target_touch'
+        game_def.steps = self.game_buckets[1].steps
+        self.__start_game(game_def)
 
 
 if __name__ == '__main__':

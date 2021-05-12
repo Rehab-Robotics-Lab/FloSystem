@@ -39,16 +39,21 @@ class PodiumScreen(object):
         rospy.init_node('podium_screen')
 
         self.window = tk.Tk()  # Makes main window
-        self.window.overrideredirect(True)
-        self.window.wm_attributes("-topmost", True)
-        self.window.geometry("800x480+0+0")
-        self.display1 = tk.Label(self.window)
-        self.display1.grid(row=1, column=0, padx=0, pady=0)  # Display 1
+        # self.window.overrideredirect(True)
+        # self.window.wm_attributes("-topmost", True)
+        # self.window.geometry("800x480+0+0")
+        self.window.geometry(
+            "{0}x{1}+0+0".format(self.window.winfo_screenwidth(), self.window.winfo_screenheight()))
+        self.displayu = tk.Label(self.window)
+        self.displayu.grid(row=2, column=0, padx=0, pady=0)  # Display 1
+
+        self.displayl = tk.Label(self.window)
+        self.displayl.grid(row=1, column=0, padx=0, pady=0)  # Display 1
 
         self.recording = False
 
         self.image_queue_l = Queue.Queue()
-        self.image_queue_r = Queue.Queue()
+        self.image_queue_u = Queue.Queue()
 
         self.last_msg = 0
         self.last_home_update = 0
@@ -59,10 +64,10 @@ class PodiumScreen(object):
         self.bridge = CvBridge()
         # msg = rospy.wait_for_message("videofile/image_raw", smImage)
         # self.new_img(msg)
-        rospy.Subscriber('/upper_realsense/image_web',
+        rospy.Subscriber('/upper_realsense/color/image_web',
                          smImage, self.__new_img_l)
-        rospy.Subscriber('/lower_realsense/image_web',
-                         smImage, self.__new_img_r)
+        rospy.Subscriber('/lower_realsense/color/image_web',
+                         smImage, self.__new_img_u)
         rospy.Subscriber('/record_video_status', Bool,
                          self.__set_recording_state)
         self.__run_display()
@@ -74,7 +79,7 @@ class PodiumScreen(object):
         rate = rospy.Rate(45)
         while not rospy.is_shutdown():
             img_l = None
-            img_l = None
+            img_u = None
             empty = False
             while not empty:
                 try:
@@ -84,14 +89,19 @@ class PodiumScreen(object):
             empty = False
             while not empty:
                 try:
-                    img_r = self.image_queue_r.get_nowait()
+                    img_u = self.image_queue_u.get_nowait()
                 except Queue.Empty:
                     empty = True
             if img_l is not None:
                 img = Image.fromarray(img_l)
-                imgtk = ImageTk.PhotoImage(master=self.display1, image=img)
-                self.display1.imgtk = imgtk
-                self.display1.configure(image=imgtk)
+                imgtk = ImageTk.PhotoImage(master=self.displayl, image=img)
+                self.displayl.imgtk = imgtk
+                self.displayl.configure(image=imgtk)
+            if img_u is not None:
+                img = Image.fromarray(img_u)
+                imgtk = ImageTk.PhotoImage(master=self.displayu, image=img)
+                self.displayu.imgtk = imgtk
+                self.displayu.configure(image=imgtk)
             self.window.update_idletasks()
             self.window.update()
 
@@ -99,22 +109,22 @@ class PodiumScreen(object):
 
     def __new_img_l(self, msg):
         try:
-            cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+            cv_image = self.bridge.imgmsg_to_cv2(msg, "rgb8")
         except CvBridgeError as err:
             rospy.logerr('error converting message to cvmat: %s', err)
             return
         # res_img = cv2.resize(cv_image, (800, 480))
         self.image_queue_l.put(cv_image)
 
-    def __new_img_r(self, msg):
+    def __new_img_u(self, msg):
         try:
-            cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+            cv_image = self.bridge.imgmsg_to_cv2(msg, "rgb8")
         except CvBridgeError as err:
             rospy.logerr('error converting message to cvmat: %s', err)
             return
         # res_img = cv2.resize(cv_image, (800, 480))
-        self.image_queue_r.put(cv_image)
+        self.image_queue_u.put(cv_image)
 
 
 if __name__ == '__main__':
-    RobotScreen()
+    PodiumScreen()

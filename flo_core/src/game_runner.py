@@ -450,7 +450,7 @@ class GameRunner(object):
         if 'speech' in this_step and this_step['speech'] != '':
             if self.humanoid:
                 self.__say_plain_text(this_step['speech'])
-            self.game_text_pub.publish(this_step['speech'])
+            self.game_text_pub.publish(strip_tags(this_step['speech']))
             command_sent = True
             action.speech = this_step['speech']
         if 'targets' in this_step:

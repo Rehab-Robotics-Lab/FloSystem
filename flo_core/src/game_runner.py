@@ -109,7 +109,6 @@ class GameRunner(object):
 
     def __init__(self):
         rospy.init_node('game_runner')
-        rospy.logerr('starting')
 
         self.humanoid = rospy.get_param('/humanoid', False)
 
@@ -159,7 +158,6 @@ class GameRunner(object):
 
         # -- State Management -- #
         self.__set_state(self.states.waiting_for_def)
-        rospy.logerr('set state')
         self.moving_state = self.action_states.none
         self.speaking_state = self.action_states.none
         self.state = self.states.waiting_for_command
@@ -519,8 +517,8 @@ class GameRunner(object):
         to_say = random.choice(self.congratulate_strings)
         if self.humanoid:
             self.__say_plain_text(to_say)
-            self.__set_state(self.states.acting)
         self.game_text_pub.publish(to_say)
+        self.__set_state(self.states.acting)
         self.__set_options([])
 
     def __try_again(self):

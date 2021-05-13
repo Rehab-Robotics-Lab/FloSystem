@@ -17,7 +17,7 @@ if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut 
 fi
 fi
 echo "installing for ros version: ${ROS_VERSION}"
-sudo apt-get -qq install -y ros-${ROS_VERSION}-desktop-full
+sudo apt-get install -y ros-${ROS_VERSION}-desktop-full
 source /opt/ros/${ROS_VERSION}/setup.bash
 ## install rosmon, it would be weird for this to be in one of the packages:
 #sudo apt-get install ros-${ROS_VERSION}-rosmon

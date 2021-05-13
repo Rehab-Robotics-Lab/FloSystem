@@ -132,11 +132,15 @@ class PodiumScreen(object):
         self.target_touch_b.grid(row=2, column=1)
 
         game_text_frame = tk.Frame(self.window)
-        game_text_frame.pack(side=tk.TOP)
+        game_text_frame.pack(side=tk.TOP, fill=tk.X)
         self.game_text_label = tk.Label(game_text_frame)
-        self.game_text_label.pack(side=tk.TOP)
+        self.game_text_label.configure(
+            wraplength=500, font=('Arial', 50))
+        self.game_text_label.bind('<Configure>', lambda e: self.game_text_label.config(
+            wraplength=self.game_text_label.winfo_width()))
+        self.game_text_label.pack(side=tk.TOP, fill=tk.X)
 
-        self.game_text = ' demo '
+        self.game_text = ''
         rospy.Subscriber('/game_runner_text', String, self.__set_game_text)
 
         rospy.loginfo('Started Podium Screen Node')

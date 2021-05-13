@@ -5,7 +5,6 @@
 import rospy
 from flo_core_defs.srv import SearchGameBucket
 from flo_core_defs.msg import GameDef
-
 # pylint: disable=superfluous-parens
 
 
@@ -58,7 +57,11 @@ def run():
         game_type, bucket_id))
 
     game_def = GameDef(game_type=game_type,
-                       steps=resp.game_buckets[bucket_id].steps)
+                       steps=resp.game_buckets[bucket_id].steps,
+                       reps=3,
+                       min_steps=2,
+                       max_steps=4,
+                       bimanual=True)
 
     pub = rospy.Publisher('game_runner_def_save',
                           GameDef, queue_size=0, latch=True)

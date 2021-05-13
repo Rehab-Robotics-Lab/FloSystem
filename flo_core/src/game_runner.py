@@ -58,6 +58,26 @@ from flo_core_defs.srv import GetPoseSeqID
 from flo_core_defs.msg import GameAction
 from simon_says import simon_says
 from target_touch import target_touch
+from HTMLParser import HTMLParser
+from StringIO import StringIO
+
+
+class MLStripper(HTMLParser):
+    def __init__(self):
+        self.reset()
+        self.text = StringIO()
+
+    def handle_data(self, d):
+        self.text.write(d)
+
+    def get_data(self):
+        return self.text.getvalue()
+
+
+def strip_tags(html):
+    s = MLStripper()
+    s.feed(html)
+    return s.get_data()
 
 
 class GameRunner(object):
@@ -302,7 +322,7 @@ class GameRunner(object):
         with open(path, 'w') as fhd:
             for action in actions_list:
                 if 'speech' in action.keys():
-                    fhd.write(action['speech'])
+                    fhd.write(strip_tags(action['speech']))
                     fhd.write('\n')
 
     def __process_def(self, new_def):

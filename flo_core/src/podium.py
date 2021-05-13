@@ -264,12 +264,17 @@ class PodiumScreen(object):
         game_def = GameDef()
         game_def.game_type = 'simon_says'
         game_def.steps = self.game_buckets[0].steps
+        game_def.bimanual = True
         self.__start_game(game_def)
 
     def __start_target_touch(self):
         game_def = GameDef()
         game_def.game_type = 'target_touch'
         game_def.steps = self.game_buckets[1].steps
+        game_def.reps = 3
+        game_def.min_steps = 2
+        game_def.max_steps = 4
+        game_def.bimanual = True
         self.__start_game(game_def)
 
     def __set_game_text(self, msg):

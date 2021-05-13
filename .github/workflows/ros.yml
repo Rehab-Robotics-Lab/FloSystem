@@ -21,11 +21,11 @@ jobs:
         with:
           path: LilFloSystem
 
-      - name: Checkout AWS ROS TTS - caching version
-        uses: actions/checkout@v2
-        with:
-          repository: mjsobrep/tts-ros1
-          path: tts-ros1
+      #- name: Checkout AWS ROS TTS - caching version
+      #  uses: actions/checkout@v2
+      #  with:
+      #    repository: mjsobrep/tts-ros1
+      #    path: tts-ros1
 
       #- name: Checkout WebRTC-ROS - dev version
       #  uses: actions/checkout@v2

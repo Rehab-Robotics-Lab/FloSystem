@@ -161,9 +161,11 @@ const ClientStore = (): ioredis.Redis => {
 export { ClientStore };
 
 interface HandleUpgradePromise {
-    (request: http.IncomingMessage, socket: net.Socket, head: Buffer): Promise<
-        WebSocket
-    >;
+    (
+        request: http.IncomingMessage,
+        socket: net.Socket,
+        head: Buffer,
+    ): Promise<WebSocket>;
 }
 
 interface ParseIncoming {

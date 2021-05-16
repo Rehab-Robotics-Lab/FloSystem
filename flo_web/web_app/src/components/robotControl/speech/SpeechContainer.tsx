@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
 import { SetSpeechTarget, SetSpeaking, Utterance } from "../../robotController";
 import SavedSpeech from "./SavedSpeech";
@@ -11,7 +11,7 @@ enum speechStates {
   WAITING = 0,
   SYNTHESIZING = 1,
   PLAYING = 2,
-  ERROR = 3,
+  ERROR = 3
 }
 
 interface TTSState {
@@ -26,16 +26,6 @@ interface TTSUtterances {
 interface StoredUtterance {
   idx: number;
   text: string;
-}
-
-function reducer(state: StoredUtterance[], newVal: string): StoredUtterance[] {
-  let idx = 0;
-  if (state.length > 0) {
-    idx = state[state.length - 1].idx + 1;
-  }
-  return [{ idx: idx, text: newVal }]
-    .concat(state)
-    .slice(0, utterancesLength - 1);
 }
 
 interface SpeechProps {
@@ -69,7 +59,7 @@ function countSyllables(sentence: string): number {
   let count = 0;
   const words = sentence.split(" ");
 
-  words.map(function (val) {
+  words.map(function(val) {
     count += syllables(val);
     return null;
   });
@@ -84,15 +74,14 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
   speechTarget,
   setSpeechTarget,
   setSpeaking,
-  speaking,
+  speaking
 }) => {
   const [speechState, setSpeechState] = useState<TTSState>({
     state: speechStates.UNKNOWN,
-    text: "",
+    text: ""
   });
   const [voiceVolume, setVoiceVolume] = useState(1);
   const [captions, setCaptions] = useState(false);
-  //const [utterances, setUtterances] = useReducer(reducer, []);
   const [lastUtterance, setLastUtterance] = useState("");
 
   useEffect(() => {
@@ -100,9 +89,9 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
 
     const captionsParam = new ROSLIB.Param({
       ros: ros as ROSLIB.Ros,
-      name: "/captions",
+      name: "/captions"
     });
-    captionsParam.get((val) => {
+    captionsParam.get(val => {
       if (val != null) {
         setCaptions(val);
       }
@@ -110,9 +99,9 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
 
     const voiceVolumeParam = new ROSLIB.Param({
       ros: ros as ROSLIB.Ros,
-      name: "/flo_hum_vol",
+      name: "/flo_hum_vol"
     });
-    voiceVolumeParam.get((val) => {
+    voiceVolumeParam.get(val => {
       if (val != null) {
         setVoiceVolume(val);
       }
@@ -121,7 +110,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
     const stateListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "tts_state",
-      messageType: "flo_core_defs/TTSState",
+      messageType: "flo_core_defs/TTSState"
     });
     const slCB = (msg: ROSLIB.Message): void => {
       setSpeechState(msg as TTSState);
@@ -132,7 +121,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
     const utteranceListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
       name: "tts_utterances",
-      messageType: "flo_core_defs/TTSUtterances",
+      messageType: "flo_core_defs/TTSUtterances"
     });
     const ulCB = (msg: ROSLIB.Message): void => {
       //setUtterances((msg as TTSUtterances).text);
@@ -152,7 +141,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       ros: ros as ROSLIB.Ros,
       serverName: "/tts",
       actionName: "tts/SpeechAction",
-      timeout: 1500, //Not sure about this value here. needs testing
+      timeout: 1500 //Not sure about this value here. needs testing
     });
     console.log("connected to speech action server");
     actionClient.cancel();
@@ -164,26 +153,26 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       ros: ros as ROSLIB.Ros,
       serverName: "/tts",
       actionName: "tts/SpeechAction",
-      timeout: 1500, //Not sure about this value here. needs testing
+      timeout: 1500 //Not sure about this value here. needs testing
     });
     console.log("connected to speech action server");
 
     const metadata = JSON.stringify({
       text_type: "ssml", // eslint-disable-line
-      voice_id: "Salli", // eslint-disable-line
+      voice_id: "Salli" // eslint-disable-line
     });
     const goal = new ROSLIB.Goal({
       actionClient,
       goalMessage: {
         text: "<speak>" + speechTarget.text + "</speak>",
-        metadata: metadata,
-      },
+        metadata: metadata
+      }
     });
 
     setSpeechTarget({
       text: speechTarget.text,
       metadata: metadata,
-      fileLocation: null,
+      fileLocation: null
     });
 
     goal.on("feedback", () => {
@@ -191,11 +180,11 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
       console.log("got feedback on speaking");
     });
 
-    goal.on("result", (res) => {
+    goal.on("result", res => {
       setSpeechTarget({
         text: speechTarget.text,
         metadata: speechTarget.metadata,
-        fileLocation: res.response,
+        fileLocation: res.response
       });
       setSpeaking(false);
       console.log("done speaking");
@@ -226,7 +215,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
   return (
     <div
       style={Object.assign({}, basicBlock, {
-        maxWidth: "200px",
+        maxWidth: "200px"
       })}
     >
       <h2>Speech</h2>
@@ -241,7 +230,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
           onChange={(e): void => {
             const param = new ROSLIB.Param({
               ros: ros as ROSLIB.Ros,
-              name: "/flo_hum_vol",
+              name: "/flo_hum_vol"
             });
             const val = parseFloat(e.target.value);
             param.set(val);
@@ -257,7 +246,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
           onClick={(): void => {
             const param = new ROSLIB.Param({
               ros: ros as ROSLIB.Ros,
-              name: "/captions",
+              name: "/captions"
             });
             param.set(!captions);
             setCaptions(!captions);
@@ -278,7 +267,7 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
             setSpeechTarget({
               text: e.target.value,
               metadata: null,
-              fileLocation: null,
+              fileLocation: null
             })
           }
         />

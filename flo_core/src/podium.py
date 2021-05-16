@@ -5,20 +5,12 @@ try:
     import tkinter as tk
 except ImportError:
     import Tkinter as tk
-from PIL import Image, ImageTk
-import os
 import Queue
+from PIL import Image, ImageTk
 import rospy
 from std_msgs.msg import Bool, String
 from sensor_msgs.msg import Image as smImage
-from rosbridge_msgs.msg import ConnectedClients
 from cv_bridge import CvBridge, CvBridgeError
-import numpy as np
-import rospkg
-import cv2
-from system_monitor.msg import NETstats
-from tts.msg import SpeechActionFeedback
-import math
 from flo_core_defs.srv import SetRecording, SearchGameBucket
 from flo_core_defs.msg import GameCommandOptions, GameState, GameCommand, GameDef
 

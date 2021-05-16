@@ -56,19 +56,15 @@ read some instructions and immediately get ready for any input.
 
 import json
 
-import xml.etree.ElementTree as ET
 from HTMLParser import HTMLParser
 from StringIO import StringIO
 import actionlib
 import rospy
 from tts.msg import SpeechAction, SpeechResult, SpeechFeedback
 from tts.srv import Synthesizer
-from sound_play.msg import SoundRequestAction
-from flo_core_defs.msg import TTSState, TTSUtterances
-import contextlib
 import mutagen
-from sound_play.msg import SoundRequestGoal
-from sound_play.msg import SoundRequest
+from sound_play.msg import SoundRequestGoal, SoundRequest, SoundRequestAction
+from flo_core_defs.msg import TTSState, TTSUtterances
 
 
 class MLStripper(HTMLParser):
@@ -78,6 +74,7 @@ class MLStripper(HTMLParser):
     """
 
     def __init__(self):
+        super().__init__()
         self.reset()
         self.text = StringIO()
 
@@ -95,11 +92,6 @@ def strip_tags(html):
     stripper = MLStripper()
     stripper.feed(html)
     return stripper.get_data()
-
-
-def play(filename):
-    """plays the wav or ogg file using sound_play"""
-    SoundClient(blocking=True).playWave(filename)
 
 
 def do_synthesize(goal):
@@ -154,8 +146,6 @@ class TTSManager(object):
         not to wait by not calling ``SimpleActionClient.waite_for_result()``.
         """
 
-        # goal_root = ET.fromstring(goal.text)
-        # goal_text = goal_root.text
         self.goal_text = strip_tags(goal.text)
 
         self.state_pub.publish(
@@ -211,17 +201,29 @@ class TTSManager(object):
                 self.finish_with_result('completed sound play in')
 
     def sound_received(self):
+        """Sound was received by the server"""
         self.state_pub.publish(state=TTSState.PLAYING, text=self.goal_text)
 
     def sound_fb(self, feedback):
+        """Feedback received from the server
+
+        Args:
+            feedback: The received feedback
+        """
         percent_elapsed = feedback.stamp.to_sec()/self.length
         speech_feedback = SpeechFeedback()
         speech_feedback.data = self.goal_text[0:int(
             percent_elapsed*len(self.goal_text))]
         self.server.publish_feedback(speech_feedback)
 
-    def sound_done(self, state, res):
-        self.result
+    def sound_done(self, _, res):
+        """The sound has completed playing (according to server)
+
+        Args:
+            state: Ignored server state
+            res: the result of the last commanded play
+        """
+        self.result = res
         self.done = True
 
 

@@ -3,7 +3,6 @@
 
 import random
 from itertools import chain
-from flo_core_defs.msg import StepDef
 
 
 def simon_says(new_def, process_step, check_side_seq, neutral):
@@ -27,6 +26,13 @@ def simon_says(new_def, process_step, check_side_seq, neutral):
     right = []
 
     def append_action(targets, speech):
+        """Append a new action to the bag of actions, adding a non-simon
+        says action with 30% frequency
+
+        Args:
+            targets: Target to move arms to
+            speech: Speech to speak
+        """
         actions_bag.append(
             {'speech': 'simon says '+speech, 'targets': targets})
         if random.random() > 0.7:  # this is where we add in non-simon says tasks

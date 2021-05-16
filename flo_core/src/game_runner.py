@@ -49,9 +49,12 @@ import threading
 import os.path
 import os
 import datetime
+from HTMLParser import HTMLParser
+from StringIO import StringIO
 import rospy
 import actionlib
 from tts.msg import SpeechAction, SpeechGoal
+from std_msgs.msg import String
 from flo_humanoid_defs.msg import MoveAction, MoveGoal, JointTarget
 from flo_core_defs.msg import GameState, GameCommandOptions, GameDef,\
     GameCommand, StepDef
@@ -60,27 +63,39 @@ from flo_core_defs.srv import GetPoseSeqID
 from flo_core_defs.msg import GameAction
 from simon_says import simon_says
 from target_touch import target_touch
-from std_msgs.msg import String
-from HTMLParser import HTMLParser
-from StringIO import StringIO
 
 
 class MLStripper(HTMLParser):
+    """Strip out tags from text"""
+
     def __init__(self):
+        super().__init__()
         self.reset()
         self.text = StringIO()
 
-    def handle_data(self, d):
-        self.text.write(d)
+    def handle_data(self, dat):
+        """Handles incoming data by writing it into the internal stream
+
+        Args:
+            dat: data to handle
+        """
+        self.text.write(dat)
 
     def get_data(self):
+        """Return internally stored data to caller (this will be the stripped data)
+        """
         return self.text.getvalue()
 
 
 def strip_tags(html):
-    s = MLStripper()
-    s.feed(html)
-    return s.get_data()
+    """Wrapper for stripping tags from a string
+
+    Args:
+        html: the html input with tags
+    """
+    stripper = MLStripper()
+    stripper.feed(html)
+    return stripper.get_data()
 
 
 class GameRunner(object):

@@ -3,8 +3,6 @@
 """A module to generate target touch type games"""
 
 import random
-from itertools import chain
-from flo_core_defs.msg import StepDef
 
 
 def target_touch(new_def, process_step, neutral):

@@ -8,7 +8,6 @@ tmux send-keys 'sleep 20 && connect_to_robot 0 && rostopic echo /record_video_st
 tmux split-window -t flo -h
 tmux send-keys 'connect_to_robot 0 && roscore' Enter
 tmux split-window -t flo -h
-tmux send-keys 'connect_to_robot 0 && rqt' Enter
 
 
 tmux split-window -t flo

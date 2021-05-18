@@ -69,7 +69,6 @@ class MLStripper(HTMLParser):
     """Strip out tags from text"""
 
     def __init__(self):
-        super().__init__()
         self.reset()
         self.text = StringIO()
 

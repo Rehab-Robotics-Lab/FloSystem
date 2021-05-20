@@ -209,12 +209,12 @@ class GameRunner(object):
             if new_command in self.command_opts:
                 self.__process_command(new_command)
 
-        if (self.state == self.states.acting
-                and (((self.moving_state == self.action_states.done
-                       or self.moving_state == self.action_states.none)
-                      and (self.speaking_state == self.action_states.done
-                           or self.speaking_state == self.action_states.none))
-                     or not self.humanoid)):
+        not_moving = (self.moving_state == self.action_states.done
+                      or self.moving_state == self.action_states.none)
+        not_speaking = (self.speaking_state == self.action_states.done
+                        or self.speaking_state == self.action_states.none)
+        if (self.state == self.states.acting and
+                ((not_moving and not_speaking) or not self.humanoid)):
             if self.action_idx+1 == len(self.actions_list):
                 self.__set_state(self.states.waiting_for_command)
                 self.__set_options(

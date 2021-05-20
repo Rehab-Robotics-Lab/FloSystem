@@ -63,38 +63,7 @@ from flo_core_defs.srv import GetPoseSeqID
 from flo_core_defs.msg import GameAction
 from simon_says import simon_says
 from target_touch import target_touch
-
-
-class MLStripper(HTMLParser):
-    """Strip out tags from text"""
-
-    def __init__(self):
-        self.reset()
-        self.text = StringIO()
-
-    def handle_data(self, dat):
-        """Handles incoming data by writing it into the internal stream
-
-        Args:
-            dat: data to handle
-        """
-        self.text.write(dat)
-
-    def get_data(self):
-        """Return internally stored data to caller (this will be the stripped data)
-        """
-        return self.text.getvalue()
-
-
-def strip_tags(html):
-    """Wrapper for stripping tags from a string
-
-    Args:
-        html: the html input with tags
-    """
-    stripper = MLStripper()
-    stripper.feed(html)
-    return stripper.get_data()
+from strip_tags import strip_tags
 
 
 class GameRunner(object):

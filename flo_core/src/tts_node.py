@@ -56,8 +56,6 @@ read some instructions and immediately get ready for any input.
 
 import json
 
-from HTMLParser import HTMLParser
-from StringIO import StringIO
 import actionlib
 import rospy
 from tts.msg import SpeechAction, SpeechResult, SpeechFeedback
@@ -65,32 +63,7 @@ from tts.srv import Synthesizer
 import mutagen
 from sound_play.msg import SoundRequestGoal, SoundRequest, SoundRequestAction
 from flo_core_defs.msg import TTSState, TTSUtterances
-
-
-class MLStripper(HTMLParser):
-    """A class to strip out tags
-
-    taken from: https://stackoverflow.com/a/925630/5274985
-    """
-
-    def __init__(self):
-        self.reset()
-        self.text = StringIO()
-
-    def handle_data(self, dat):
-        """ingest data"""
-        self.text.write(dat)
-
-    def get_data(self):
-        """return data"""
-        return self.text.getvalue()
-
-
-def strip_tags(html):
-    """strip html tags"""
-    stripper = MLStripper()
-    stripper.feed(html)
-    return stripper.get_data()
+from strip_tags import strip_tags
 
 
 def do_synthesize(goal):

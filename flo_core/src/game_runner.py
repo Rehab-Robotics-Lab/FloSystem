@@ -49,8 +49,6 @@ import threading
 import os.path
 import os
 import datetime
-from HTMLParser import HTMLParser
-from StringIO import StringIO
 import rospy
 import actionlib
 from tts.msg import SpeechAction, SpeechGoal

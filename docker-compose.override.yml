@@ -1,4 +1,5 @@
-version: "3"
+---
+version: '3'
 # This docker compose file makes a few changes that make developing easier.
 # Docker will automatically layer this over the docker-compose.yml base file
 #
@@ -13,7 +14,8 @@ services:
     environment:
       - CI=true
     volumes:
-      - ./flo_web/web_app:/usr/src/app
+      - ./flo_web/web_app/src:/usr/src/app/src
+      - ./flo_web/web_app/public:/usr/src/app/public
       - ./flo_humanoid:/usr/flo_humanoid
     ports:
       - 3000:3000
@@ -24,16 +26,16 @@ services:
       - dev-server
   host-server:
     volumes:
-      - ./flo_web/web_server:/usr/src/app
-    command: ["npm", "run", "dev-host"]
+      - ./flo_web/web_server/src:/usr/src/app/src
+    command: [npm, run, dev-host]
   operator-server:
     volumes:
-      - ./flo_web/web_server:/usr/src/app
-    command: ["npm", "run", "dev-operator"]
+      - ./flo_web/web_server/src:/usr/src/app/src
+    command: [npm, run, dev-operator]
   api-server:
     volumes:
-      - ./flo_web/web_server:/usr/src/app
-    command: ["npm", "run", "dev-api"]
+      - ./flo_web/web_server/src:/usr/src/app/src
+    command: [npm, run, dev-api]
   postgres:
     ports:
       - 5432:5432

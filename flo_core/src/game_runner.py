@@ -63,6 +63,10 @@ from StringIO import StringIO
 
 
 class MLStripper(HTMLParser):
+    """A class to strip out tags
+
+    taken from: https://stackoverflow.com/a/925630/5274985
+    """
     def __init__(self):
         self.reset()
         self.text = StringIO()

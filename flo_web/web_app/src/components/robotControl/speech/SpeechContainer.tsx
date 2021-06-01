@@ -1,10 +1,8 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as ROSLIB from "roslib";
 import { SetSpeechTarget, SetSpeaking, Utterance } from "../../robotController";
 import SavedSpeech from "./SavedSpeech";
 import { basicBlock } from "../../../styleDefs/styles";
-
-const utterancesLength = 3;
 
 enum speechStates {
   UNKNOWN = -1,
@@ -21,21 +19,6 @@ interface TTSState {
 
 interface TTSUtterances {
   text: string;
-}
-
-interface StoredUtterance {
-  idx: number;
-  text: string;
-}
-
-function reducer(state: StoredUtterance[], newVal: string): StoredUtterance[] {
-  let idx = 0;
-  if (state.length > 0) {
-    idx = state[state.length - 1].idx + 1;
-  }
-  return [{ idx: idx, text: newVal }]
-    .concat(state)
-    .slice(0, utterancesLength - 1);
 }
 
 interface SpeechProps {
@@ -92,7 +75,6 @@ const Speech: React.FunctionComponent<SpeechProps> = ({
   });
   const [voiceVolume, setVoiceVolume] = useState(1);
   const [captions, setCaptions] = useState(false);
-  //const [utterances, setUtterances] = useReducer(reducer, []);
   const [lastUtterance, setLastUtterance] = useState("");
 
   useEffect(() => {

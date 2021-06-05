@@ -60,7 +60,7 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Pylint
-        if: ${{ success() | failure() }}
+        if: ${{ success() || failure() }}
         run: |
           python -m pip install --upgrade pip
           echo "/home/runner/.local/bin" >> $GITHUB_PATH
@@ -70,7 +70,7 @@ jobs:
           git ls-files | grep 'py$' | xargs pylint --unsafe-load-any-extension=y --disable=fixme
 
       - name: Catkin Lint
-        if: ${{ success() | failure() }}
+        if: ${{ success() || failure() }}
         run: |
           sudo add-apt-repository ppa:roehling/ros
           sudo apt-get update -y

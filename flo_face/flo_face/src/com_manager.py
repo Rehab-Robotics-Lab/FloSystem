@@ -2,6 +2,13 @@
 
 """Code to manage communication between ROS system and the robot's face.
 
+If something goes wrong with the underlying serial connection, then an exception should be thrown
+by the SerialCom object which will end up taking this node down. The node will then be restarted
+by roslaunch.
+
+When started up, the node will try to connect to the face every 2 seconds until a connection is
+established or the system breaks.
+
 Note: this code doesn't handle the state of the face, just recieves the
 information, parses it, and sends it on.
 """
@@ -13,17 +20,31 @@ import rospy
 # https://github.com/Rehab-Robotics-Lab/serial_coms/tree/master/computer/python/serial_coms
 from flo_face_defs.msg import FaceState
 from serial_coms import SerialCom
+from serial import SerialException
 
 
 class FaceComs(object):
     """This class handles communicating with the face, given a state to send, it
     will send it over the serial communciation line"""
 
+    def __reconnect(self):
+        rate = rospy.Rate(2)
+        while not self.coms and not rospy.is_shutdown():
+            try:
+                self.coms = SerialCom(
+                    self.port, self.data_handler, write_timeout=1)
+                rospy.loginfo('connected to face by serial')
+            except SerialException:
+                self.coms = None
+                rate.sleep()
+
     def __init__(self):
         """Construct node, open serial port, prep to receive commands"""
         rospy.init_node('face_com_manager')
         self.port = rospy.get_param('port', '/dev/flo_face')
-        self.coms = SerialCom(self.port, self.data_handler)
+        self.coms = None
+        self.__reconnect()
+
         self.past_state = FaceState()
         self.command_receipt = rospy.Subscriber(
             'face_state', FaceState, self.new_command)

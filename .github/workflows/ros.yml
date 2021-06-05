@@ -66,6 +66,7 @@ jobs:
           python -m pip install "pylint<2.0.0"
 
       - name: Lint with pylint
+        continue-on-error: true
         run: |
           source ~/catkin_ws/src/LilFloSystem/bash_includes
           cd $GITHUB_WORKSPACE/LilFloSystem

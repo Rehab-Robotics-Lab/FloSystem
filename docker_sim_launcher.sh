@@ -3,11 +3,13 @@ set -o errexit
 set -o pipefail
 
 rebuild=false
+target='robot'
 
-while getopts :r flag
+while getopts :rp flag
 do
     case "${flag}" in
         r) rebuild=true;;
+        p) target='podium';;
         :) echo 'missing argument' >&2; exit 1;;
         \?) echo 'invalid option' >&2; exit 1
     esac
@@ -34,6 +36,6 @@ pactlmod=$(pactl load-module module-native-protocol-unix socket=/tmp/pulseaudio.
 trap 'pactl unload-module "$pactlmod"' EXIT
 
 if [ "$rebuild" = true ] ; then
-    docker-compose  -f docker-compose-robot-sim.yml build
+    docker-compose  -f "docker-compose-$target-sim.yml" build
 fi
-docker-compose -f docker-compose-robot-sim.yml up
+docker-compose -f "docker-compose-$target-sim.yml" up

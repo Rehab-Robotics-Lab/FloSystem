@@ -1,0 +1,49 @@
+---
+version: '3'
+networks:
+  ros:
+    driver: bridge
+
+services:
+  ros-master:
+    image: osrf/ros:melodic-desktop-full
+    networks:
+      - ros
+    command: [roscore]
+
+  flo_sim:
+    build:
+      context: ./
+      args:
+        ROS_USER: $USER
+        R_GID: $R_GID
+        R_UID: $R_UID
+    depends_on:
+      - ros-master
+    volumes:
+      - $XSOCK:$XSOCK:rw
+      - $XAUTH:$XAUTH:rw
+      - ./certs/aws-credentials:/home/$USER/.aws/credentials
+      - ./certs/aws-config:/home/$USER/.aws/config
+      - /tmp/pulseaudio.socket:/tmp/pulseaudio.socket
+      - ~/flo_db:/home/$USER/db
+      - ./:/home/$USER/catkin_ws/src/LilFloSystem:ro
+    user: $USER
+    networks:
+      - ros
+    environment:
+      - DISPLAY
+      - ROS_MASTER_URI=http://ros-master:11311
+      - ROS_HOSTNAME=flo_sim
+      #- QT_X11_NO_MITSHM=1
+      - XAUTHORITY=${XAUTH}
+      - FLO_SERVER_IP=host.docker.internal
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+      - PULSE_SERVER=unix:/tmp/pulseaudio.socket
+      - PULSE_COOKIE=/tmp/pulseaudio.cookie
+    env_file:
+      - ./certs/sim-info.env
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    command: [roslaunch --wait flo_core podium_bringup.launch simulate:=True]
+    # command: [rqt_bag]

@@ -3,10 +3,26 @@
 """A module to generate target touch type games"""
 
 import random
-from itertools import chain
-from flo_core_defs.msg import StepDef
 
 
+def shuffle_moves(moves):
+    """shuffle the moves in each part of the moves dictionary
+
+    Args:
+        moves: moves dictionary with keys left and right, each of which are
+               dictionaries with keys upper and lower
+    """
+    random.shuffle(moves['left']['upper'])
+    random.shuffle(moves['left']['lower'])
+    random.shuffle(moves['right']['upper'])
+    random.shuffle(moves['right']['lower'])
+
+
+# pylint: disable=too-many-statements
+# pylint: disable=too-many-branches
+# pylint: disable=too-many-locals
+# This could be broken up into a bunch of smaller functions, but I think that
+# woule make it less readable
 def target_touch(new_def, process_step, neutral):
     """Generate a target touch game
 
@@ -53,10 +69,7 @@ def target_touch(new_def, process_step, neutral):
                 moves[left_right][up_down] = moves[left_right][up_down] + \
                     new_def.reps*[obj_to_add]
 
-    random.shuffle(moves['left']['upper'])
-    random.shuffle(moves['left']['lower'])
-    random.shuffle(moves['right']['upper'])
-    random.shuffle(moves['right']['lower'])
+    shuffle_moves(moves)
     while (moves['left']['upper'] or
            moves['left']['lower'] or
            moves['right']['upper'] or

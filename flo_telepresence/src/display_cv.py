@@ -3,6 +3,7 @@
 
 import os
 import Queue
+import math
 import rospy
 from std_msgs.msg import Bool
 from sensor_msgs.msg import Image as smImage
@@ -10,10 +11,9 @@ from rosbridge_msgs.msg import ConnectedClients
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
 import rospkg
+from tts.msg import SpeechActionFeedback
 import cv2
 from system_monitor.msg import NETstats
-from tts.msg import SpeechActionFeedback
-import math
 
 # Screen is 800x480
 
@@ -30,8 +30,7 @@ def draw_text(img,  # pylint: disable=too-many-arguments
               text_color=(0, 255, 0),
               text_color_bg=(0, 0, 0),
               margin=5,
-              num_lines=3
-              ):
+              num_lines=3):
     """Draw text on an image using opencv
 
     Args:
@@ -50,9 +49,9 @@ def draw_text(img,  # pylint: disable=too-many-arguments
     if text == '':
         return 0
 
-    x, y = pos  # pylint: disable=invalid-name
-    x = int(math.ceil(x))
-    y = int(math.ceil(y))
+    x_pos, y_pos = pos  # pylint: disable=invalid-name
+    x_pos = int(math.ceil(x_pos))
+    y_pos = int(math.ceil(y_pos))
     next_line_start = 0
     next_line_end = 0
     text_size = (0, 0)
@@ -62,7 +61,7 @@ def draw_text(img,  # pylint: disable=too-many-arguments
         text_size, _ = cv2.getTextSize(
             ' '.join(words[next_line_start:next_line_end+1]), font, font_scale, font_thickness)
         text_w, text_h = text_size
-        if (x+margin+text_w) > img.shape[1]:
+        if (x_pos+margin+text_w) > img.shape[1]:
             lines.append((next_line_start, next_line_end-1))
             next_line_start = next_line_end
             next_line_end = next_line_start
@@ -71,7 +70,7 @@ def draw_text(img,  # pylint: disable=too-many-arguments
             break
         else:
             next_line_end += 1
-    start_y = int(math.ceil(y))
+    start_y = int(math.ceil(y_pos))
     for line in lines[max(0, len(lines)-num_lines):]:
         string_to_put = ' '.join(words[line[0]:line[1]+1])
         text_size, _ = cv2.getTextSize(
@@ -79,8 +78,8 @@ def draw_text(img,  # pylint: disable=too-many-arguments
         text_w, text_h = text_size
         cv2.rectangle(
             img,
-            (x, start_y),
-            (int(math.ceil(x + text_w + 2 * margin)),
+            (x_pos, start_y),
+            (int(math.ceil(x_pos + text_w + 2 * margin)),
              int(math.ceil(start_y + text_h + 2 * margin))),
             text_color_bg,
             -1
@@ -88,7 +87,7 @@ def draw_text(img,  # pylint: disable=too-many-arguments
         cv2.putText(
             img,
             string_to_put,
-            (x+margin, int(text_h+margin+start_y)),
+            (x_pos+margin, int(text_h+margin+start_y)),
             font,
             font_scale,
             text_color,
@@ -214,7 +213,6 @@ class RobotScreen(object):
                 except Queue.Empty:
                     empty = True
             if img is not None:
-                print(img.shape)
                 rec_y = int(.0125*img.shape[0])
                 bottom_rec_text = draw_text(
                     img,

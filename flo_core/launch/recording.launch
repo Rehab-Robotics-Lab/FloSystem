@@ -35,6 +35,7 @@ args="record --output-prefix $(arg prefix) --split --duration 1m
 /game_runner_def
 /game_runner_state
 /game_runner_actions
+/game_runner_text
 /hdd_stats
 /joint_states
 /keyop_vel_smoother/parameter_descriptions

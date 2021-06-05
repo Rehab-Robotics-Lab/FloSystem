@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+"""A module for stripping HTML tags from strings"""
+
 from HTMLParser import HTMLParser
 from StringIO import StringIO
 

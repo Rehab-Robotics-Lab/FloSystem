@@ -173,6 +173,7 @@ install(PROGRAMS
    src/generate_game.py
    src/manage_seq_pose.py
    src/param_saver.py
+   src/podium.py
    src/recording_manager.py
    src/tts_node.py
    src/tty_keyboard_teleop.py

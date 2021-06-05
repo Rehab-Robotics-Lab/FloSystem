@@ -85,7 +85,7 @@ class TTSManager(object):
         self.done = True
         self.length = 0
         self.goal_text = ''
-        self.result = None
+        # self.result = None
 
         self.server = actionlib.SimpleActionServer(
             'tts', SpeechAction, self.do_speak, False)
@@ -158,7 +158,7 @@ class TTSManager(object):
                                         active_cb=self.sound_received,
                                         feedback_cb=self.sound_fb,
                                         done_cb=self.sound_done)
-            self.result = audio_file
+            # self.result = audio_file
             t_rate = rospy.Rate(10)
             success = True
             while not self.done:
@@ -195,7 +195,7 @@ class TTSManager(object):
             state: Ignored server state
             res: the result of the last commanded play
         """
-        self.result = res
+        # self.result = res
         self.done = True
 
 

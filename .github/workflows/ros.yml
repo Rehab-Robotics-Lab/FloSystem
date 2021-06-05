@@ -60,13 +60,14 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Setup Pylint
+        if: succeeded() || failed()
         run: |
           python -m pip install --upgrade pip
           echo "/home/runner/.local/bin" >> $GITHUB_PATH
           python -m pip install "pylint<2.0.0"
 
       - name: Lint with pylint
-        continue-on-error: true
+        if: succeeded() || failed()
         run: |
           source ~/catkin_ws/src/LilFloSystem/bash_includes
           cd $GITHUB_WORKSPACE/LilFloSystem
@@ -83,11 +84,13 @@ jobs:
       #      with:
       #        path: LilFloSystem
       - name: Setup Catkin Lint
+        if: succeeded() || failed()
         run: |
           sudo add-apt-repository ppa:roehling/ros
           sudo apt-get update -y
           sudo apt-get install -y python-catkin-lint
       - name: Lint Catkin
+        if: succeeded() || failed()
         run: |
           cd $GITHUB_WORKSPACE/LilFloSystem
           catkin_lint . -W2 --strict

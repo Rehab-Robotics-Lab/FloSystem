@@ -188,7 +188,7 @@ class TTSManager(object):
             percent_elapsed*len(self.goal_text))]
         self.server.publish_feedback(speech_feedback)
 
-    def sound_done(self, _, res):
+    def sound_done(self, _, _):
         """The sound has completed playing (according to server)
 
         Args:

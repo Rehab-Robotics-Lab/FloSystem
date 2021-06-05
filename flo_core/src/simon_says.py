@@ -94,7 +94,7 @@ def simon_says(new_def, process_step, check_side_seq, neutral):
                 {'speech': speech, 'targets': targets})
 
     sort_defs(new_def, left, right, process_step,
-              check_side_seq,  append_action)
+              check_side_seq, append_action)
     random.shuffle(left)
     random.shuffle(right)
     if new_def.bimanual:

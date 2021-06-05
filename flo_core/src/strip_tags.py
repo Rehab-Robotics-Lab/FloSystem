@@ -5,6 +5,8 @@ from HTMLParser import HTMLParser
 from StringIO import StringIO
 
 
+# pylint: disable=super-init-not-called
+# If the super is called, stuff breaks, this works. Not great, but ok for now
 class MLStripper(HTMLParser):
     """A class to strip out tags
 

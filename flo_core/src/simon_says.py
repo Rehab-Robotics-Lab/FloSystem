@@ -5,6 +5,60 @@ import random
 from itertools import chain
 
 
+# ok to have too many args for a utility func
+# pylint: disable=too-many-arguments
+def sort_defs(new_def, left, right, process_step, check_side_seq, append_action):
+    """Sort the definitions from a new game definition into the correct
+    arms/sequences with speech
+
+    Args:
+        new_def: the game definition
+        left: sequences on the left arm (add to this)
+        right: sequences on the right arm (add to this)
+        process_step: Function to process the step to get out the targets and speech
+        check_side_seq: Function to find out which side a sequence of motions operates on
+        append_action: Add the action to the action bag, handling any specialization for game
+    """
+    for step in new_def.steps:
+        targets, speech = process_step(step, True)
+        if step.type == 'pose_right':
+            right.append({'targets': targets, 'speech': speech})
+        elif step.type == 'pose_left':
+            left.append({'targets': targets, 'speech': speech})
+        elif step.type == 'move':
+            side = check_side_seq(step.id)
+            if side == 'right':
+                right.append({'targets': targets, 'speech': speech})
+            elif side == 'left':
+                left.append({'targets': targets, 'speech': speech})
+            elif side == 'both':
+                append_action(targets, speech)
+            else:
+                raise Exception
+        else:
+            raise Exception
+
+
+def mix_bimanual(left, right, append_action):
+    """Mix up actions to make them bimanual
+
+    Args:
+        left: The left arm actions
+        right: The right arm actions
+        append_action: function to append actions to the final game sequence
+    """
+    while left and right:
+        left_act = left.pop()
+        right_act = right.pop()
+        if random.getrandbits(1):
+            speech = left_act['speech'] + ' and ' + right_act['speech']
+        else:
+            speech = right_act['speech'] + ' and ' + left_act['speech']
+        targets = left_act['targets']+right_act['targets']
+        targets.sort(key=lambda target: target.target_completion_time)
+        append_action(targets, speech)
+
+
 def simon_says(new_def, process_step, check_side_seq, neutral):
     """Generate a simon says game
 
@@ -39,37 +93,13 @@ def simon_says(new_def, process_step, check_side_seq, neutral):
             actions_bag.append(
                 {'speech': speech, 'targets': targets})
 
-    for step in new_def.steps:
-        targets, speech = process_step(step, True)
-        if step.type == 'pose_right':
-            right.append({'targets': targets, 'speech': speech})
-        elif step.type == 'pose_left':
-            left.append({'targets': targets, 'speech': speech})
-        elif step.type == 'move':
-            side = check_side_seq(step.id)
-            if side == 'right':
-                right.append({'targets': targets, 'speech': speech})
-            elif side == 'left':
-                left.append({'targets': targets, 'speech': speech})
-            elif side == 'both':
-                append_action(targets, speech)
-            else:
-                raise Exception
-        else:
-            raise Exception
+    sort_defs(new_def, left, right, process_step,
+              check_side_seq,  append_action)
     random.shuffle(left)
     random.shuffle(right)
     if new_def.bimanual:
-        while left and right:
-            left_act = left.pop()
-            right_act = right.pop()
-            if random.getrandbits(1):
-                speech = left_act['speech'] + ' and ' + right_act['speech']
-            else:
-                speech = right_act['speech'] + ' and ' + left_act['speech']
-            targets = left_act['targets']+right_act['targets']
-            targets.sort(key=lambda target: target.target_completion_time)
-            append_action(targets, speech)
+        mix_bimanual(left, right, append_action)
+    # If either we didn't run in bimanual mode or if there is just some left over in one arm:
     while left:
         left_act = left.pop()
         append_action(left_act['targets'], left_act['speech'])

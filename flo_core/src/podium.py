@@ -26,9 +26,11 @@ class PodiumScreen(object):
     # This is a ros node, no need for public methods:
     # pylint: disable=too-few-public-methods
 
-    # Such is the nature of GUIs:
+    # Such is the nature of GUIs. This could be fixed by making a structure/dict/class
+    #                             to hold gui elements and instantiate them in sub
+    #                             functions. It just isn't worth it for this.
     # pylint: disable=too-many-instance-attributes
-
+    # pylint: disable=too-many-statements
     def __init__(self):
         rospy.init_node('podium_screen')
 
@@ -142,65 +144,70 @@ class PodiumScreen(object):
     def __set_recording_state(self, msg):
         self.recording = msg.data
 
+    def __update_recording(self):
+        if self.recording:
+            self.record_text.configure(text='Recording', fg='green')
+        else:
+            self.record_text.configure(text='Not Recording', fg='red')
+
+    def __update_game_state(self):
+        # update game state
+        self.game_status_l.configure(text=self.game_state)
+        if self.game_state == 'waiting_for_def':
+            self.simon_says_b.configure(state=tk.NORMAL)
+            self.target_touch_b.configure(state=tk.NORMAL)
+        else:
+            self.simon_says_b.configure(state=tk.DISABLED)
+            self.target_touch_b.configure(state=tk.DISABLED)
+
+    def __update_game_options(self):
+        # Update game options
+        if self.updated_game_opts:
+            for widget in self.game_opts_frame.winfo_children():
+                widget.destroy()
+            for opt in self.game_opts:
+                t_button = tk.Button(self.game_opts_frame, text=opt,
+                                     command=lambda opt=opt: self.__send_command(opt))
+                t_button.pack(side=tk.TOP)
+            self.updated_game_opts = False
+
+    def __update_images(self):
+        # update images
+        img_l = None
+        img_u = None
+        empty = False
+        while not empty:
+            try:
+                img_l = self.image_queue_l.get_nowait()
+            except Queue.Empty:
+                empty = True
+        empty = False
+        while not empty:
+            try:
+                img_u = self.image_queue_u.get_nowait()
+            except Queue.Empty:
+                empty = True
+        if img_l is not None:
+            img = Image.fromarray(img_l)
+            imgtk = ImageTk.PhotoImage(master=self.displayl, image=img)
+            self.displayl.imgtk = imgtk
+            self.displayl.configure(image=imgtk)
+        if img_u is not None:
+            img = Image.fromarray(img_u)
+            imgtk = ImageTk.PhotoImage(master=self.displayu, image=img)
+            self.displayu.imgtk = imgtk
+            self.displayu.configure(image=imgtk)
+
     def __run_display(self):
         rate = rospy.Rate(45)
         while not rospy.is_shutdown():
-            # update images
-            img_l = None
-            img_u = None
-            empty = False
-            while not empty:
-                try:
-                    img_l = self.image_queue_l.get_nowait()
-                except Queue.Empty:
-                    empty = True
-            empty = False
-            while not empty:
-                try:
-                    img_u = self.image_queue_u.get_nowait()
-                except Queue.Empty:
-                    empty = True
-            if img_l is not None:
-                img = Image.fromarray(img_l)
-                imgtk = ImageTk.PhotoImage(master=self.displayl, image=img)
-                self.displayl.imgtk = imgtk
-                self.displayl.configure(image=imgtk)
-            if img_u is not None:
-                img = Image.fromarray(img_u)
-                imgtk = ImageTk.PhotoImage(master=self.displayu, image=img)
-                self.displayu.imgtk = imgtk
-                self.displayu.configure(image=imgtk)
-
-            # update recording
-            if self.recording:
-                self.record_text.configure(text='Recording', fg='green')
-            else:
-                self.record_text.configure(text='Not Recording', fg='red')
-
-            # update game state
-            self.game_status_l.configure(text=self.game_state)
-            if self.game_state == 'waiting_for_def':
-                self.simon_says_b.configure(state=tk.NORMAL)
-                self.target_touch_b.configure(state=tk.NORMAL)
-            else:
-                self.simon_says_b.configure(state=tk.DISABLED)
-                self.target_touch_b.configure(state=tk.DISABLED)
-
-            # Update game options
-            if self.updated_game_opts:
-                for widget in self.game_opts_frame.winfo_children():
-                    widget.destroy()
-                for opt in self.game_opts:
-                    t_button = tk.Button(self.game_opts_frame, text=opt,
-                                         command=lambda opt=opt: self.__send_command(opt))
-                    t_button.pack(side=tk.TOP)
-                self.updated_game_opts = False
-
+            self.__update_images()
+            self.__update_recording()
+            self.__update_game_state()
+            self.__update_game_options()
             self.game_text_label.configure(text=self.game_text)
-
             self.window.update_idletasks()
             self.window.update()
-
             rate.sleep()
 
     def __new_img_l(self, msg):

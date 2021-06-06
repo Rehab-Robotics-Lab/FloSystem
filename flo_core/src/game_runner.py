@@ -97,7 +97,7 @@ class GameRunner(object):
         # set up polly action server
         self.speech_server = None
         self.move_server = None
-        self.__humanoid_connection({"data": self.humanoid})
+        self.__humanoid_connection(Bool(self.humanoid))
         rospy.Subscriber('humanoid_connection_change',
                          Bool, self.__humanoid_connection)
 
@@ -155,7 +155,7 @@ class GameRunner(object):
             rate.sleep()
 
     def __humanoid_connection(self, msg):
-        if msg['data']:
+        if msg.data:
             self.speech_server = actionlib.SimpleActionClient(
                 'tts', SpeechAction)
             self.speech_server.wait_for_server()

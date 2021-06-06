@@ -94,7 +94,7 @@ class BolideController(object):
 
         connected = False
         self.robot_change_publisher = rospy.Publisher(
-            'humanoid_connnection_change', Bool, queue_size=1)
+            'humanoid_connection_change', Bool, queue_size=1)
         self.robot_change_publisher.publish(False)
         while not connected and not rospy.is_shutdown():
             connected = self.connect()

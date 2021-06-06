@@ -36,7 +36,7 @@ const GameText: React.FunctionComponent<GameTextProps> = ({
 
     const HumanoidListener = new ROSLIB.Topic({
       ros: ros as ROSLIB.Ros,
-      name: "humanoid_connnection_change",
+      name: "humanoid_connection_change",
       messageType: "std_msgs/Bool",
     });
     const hCallback = (msg: ROSLIB.Message): void => {

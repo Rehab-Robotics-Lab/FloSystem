@@ -98,7 +98,7 @@ class GameRunner(object):
         self.speech_server = None
         self.move_server = None
         self.__humanoid_connection({"data": self.humanoid})
-        rospy.Subscriber('humanoid_connnection_change',
+        rospy.Subscriber('humanoid_connection_change',
                          Bool, self.__humanoid_connection)
 
         ### Publishers ###

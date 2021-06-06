@@ -93,6 +93,9 @@ class BolideController(object):
         self.simulate = rospy.get_param('simulate', False)
 
         connected = False
+        self.robot_change_publisher = rospy.Publisher(
+            'humanoid_connnection_change', Bool, queue_size=1)
+        self.robot_change_publisher.publish(False)
         while not connected and not rospy.is_shutdown():
             connected = self.connect()
 
@@ -190,6 +193,7 @@ class BolideController(object):
                     self.ser = serial.Serial(
                         self.port, 115200, timeout=0.05, write_timeout=.5)
                     rospy.set_param('/humanoid', True)
+                    self.robot_change_publisher(True)
                 except serial.SerialException as err:
                     rospy.logerr(
                         'failed to connect to bolide with err: %s', err)

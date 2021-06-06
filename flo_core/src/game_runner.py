@@ -164,10 +164,12 @@ class GameRunner(object):
             self.move_server = actionlib.SimpleActionClient('move', MoveAction)
             self.move_server.wait_for_server()
             self.humanoid = True
+            rospy.loginfo('setup to work with humanoid')
         else:
             self.speech_server = None
             self.move_server = None
             self.humanoid = False
+            rospy.loginfo('setup to work without humanoid')
 
     def __new_def(self, msg):
         """Add a newly received game def to the game def queue.

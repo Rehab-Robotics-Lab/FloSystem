@@ -91,7 +91,10 @@ class BolideController(object):
         self.port = rospy.get_param('robot_port', '/dev/bolide')
         self.ser = None
         self.simulate = rospy.get_param('simulate', False)
-        self.connect()
+
+        connected = False
+        while not connected and not rospy.is_shutdown():
+            connected = self.connect()
 
         self.joint_publisher = rospy.Publisher(
             'joint_states', JointState, queue_size=1)
@@ -179,16 +182,20 @@ class BolideController(object):
         Will first try to disconect and close the serial connection if
         it exists then re connect.
         """
+        rospy.set_param('/humanoid', False)
         with self.usb_lock:
             if not self.simulate:
                 self.close_ser()
                 try:
-                    self.ser = serial.Serial(self.port, 115200, timeout=0.05)
+                    self.ser = serial.Serial(
+                        self.port, 115200, timeout=0.05, write_timeout=.5)
+                    rospy.set_param('/humanoid', True)
                 except serial.SerialException as err:
                     rospy.logerr(
                         'failed to connect to bolide with err: %s', err)
-                    return
+                    return False
             rospy.loginfo('connected to robot')
+            return True
 
     def cleanup(self):
         """cleanup the node and shutdown"""

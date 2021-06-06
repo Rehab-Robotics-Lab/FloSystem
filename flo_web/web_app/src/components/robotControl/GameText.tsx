@@ -4,6 +4,9 @@ import * as ROSLIB from "roslib";
 interface GameTextMsg {
   data: string;
 }
+interface HumanoidMsg {
+  data: boolean;
+}
 
 interface GameTextProps {
   ros: ROSLIB.Ros | null;
@@ -15,6 +18,7 @@ const GameText: React.FunctionComponent<GameTextProps> = ({
   connected,
 }) => {
   const [latestGameText, setLatestGameText] = useState<string>("");
+  const [humanoid, setHumanoid] = useState<boolean>(false);
   useEffect(() => {
     if (!connected) return;
 
@@ -30,8 +34,30 @@ const GameText: React.FunctionComponent<GameTextProps> = ({
     GameTextListener.subscribe(gtCallback);
     console.log("subscribed to game text");
 
+    const HumanoidListener = new ROSLIB.Topic({
+      ros: ros as ROSLIB.Ros,
+      name: "humanoid_connnection_change",
+      messageType: "std_msgs/Bool",
+    });
+    const hCallback = (msg: ROSLIB.Message): void => {
+      setHumanoid((msg as HumanoidMsg).data);
+      console.log("got new humanoid state");
+    };
+    HumanoidListener.subscribe(hCallback);
+    console.log("subscribed to humanoid updates");
+
+    const HumanoidParam = new ROSLIB.Param({
+      ros: ros as ROSLIB.Ros,
+      name: "humanoid",
+    });
+    HumanoidParam.get((value) => {
+      setHumanoid(value);
+      console.log("set humanoid to: " + value);
+    });
+
     return (): void => {
       GameTextListener.unsubscribe(gtCallback);
+      HumanoidListener.unsubscribe(gtCallback);
     };
   }, [connected, ros]);
   return (
@@ -39,7 +65,7 @@ const GameText: React.FunctionComponent<GameTextProps> = ({
       style={{
         height: "40px",
         overflow: "auto",
-        display: "flex",
+        display: humanoid ? "none" : "flex",
         flexDirection: "column-reverse",
         color: "red",
       }}

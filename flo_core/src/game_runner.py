@@ -52,7 +52,7 @@ import datetime
 import rospy
 import actionlib
 from tts.msg import SpeechAction, SpeechGoal
-from std_msgs.msg import String
+from std_msgs.msg import String, Bool
 from flo_humanoid_defs.msg import MoveAction, MoveGoal, JointTarget
 from flo_core_defs.msg import GameState, GameCommandOptions, GameDef,\
     GameCommand, StepDef
@@ -95,14 +95,11 @@ class GameRunner(object):
 
         # -- Action Servers to Make Things Happen -- #
         # set up polly action server
-        if self.humanoid:
-            self.speech_server = actionlib.SimpleActionClient(
-                'tts', SpeechAction)
-            self.speech_server.wait_for_server()
-
-            # setup movement action server
-            self.move_server = actionlib.SimpleActionClient('move', MoveAction)
-            self.move_server.wait_for_server()
+        self.speech_server = None
+        self.move_server = None
+        self.__humanoid_connection({"data": self.humanoid})
+        rospy.Subscriber('humanoid_connnection_change',
+                         Bool, self.__humanoid_connection)
 
         ### Publishers ###
         self.feedback_pub = rospy.Publisher('game_runner_state',
@@ -156,6 +153,21 @@ class GameRunner(object):
         while not rospy.is_shutdown():
             self.__loop()
             rate.sleep()
+
+    def __humanoid_connection(self, msg):
+        if msg['data']:
+            self.speech_server = actionlib.SimpleActionClient(
+                'tts', SpeechAction)
+            self.speech_server.wait_for_server()
+
+            # setup movement action server
+            self.move_server = actionlib.SimpleActionClient('move', MoveAction)
+            self.move_server.wait_for_server()
+            self.humanoid = True
+        else:
+            self.speech_server = None
+            self.move_server = None
+            self.humanoid = False
 
     def __new_def(self, msg):
         """Add a newly received game def to the game def queue.

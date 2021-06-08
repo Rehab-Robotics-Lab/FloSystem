@@ -36,6 +36,7 @@ class FaceComs(object):
                 rospy.loginfo('connected to face by serial')
             except SerialException:
                 self.coms = None
+                rospy.logdebug('failed to connect to face')
                 rate.sleep()
 
     def __init__(self):

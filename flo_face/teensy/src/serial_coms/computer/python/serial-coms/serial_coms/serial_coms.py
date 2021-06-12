@@ -9,7 +9,7 @@ class SerialCom:
     """Class for managing serial connections with variable
     length messages and error checking"""
 
-    def __init__(self, port, data_handler, baud_rate=9600):
+    def __init__(self, port, data_handler, baud_rate=9600, write_timeout=1):
         """Constructs the Serial Communicator
 
         Args:
@@ -19,7 +19,7 @@ class SerialCom:
                                  argument.
             baud_rate (int): The baud rate at which to run
         """
-        self.ser = serial.Serial(port, baud_rate)
+        self.ser = serial.Serial(port, baud_rate, write_timeout=write_timeout)
         self.start_byte = 254
         self.end_byte = 255
         self.reserved_byte = 253
@@ -34,7 +34,10 @@ class SerialCom:
 
     def __del__(self):
         """Destructor fo the object. Closes the serial port"""
-        self.ser.close()
+        try:
+            self.ser.close()
+        except AttributeError:
+            pass  # serial obj does not exist on class
 
     def sendData(self, data):
         """Sends data

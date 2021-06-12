@@ -3,7 +3,6 @@
 
 from __future__ import division
 
-import sys
 import math
 import os
 import Queue

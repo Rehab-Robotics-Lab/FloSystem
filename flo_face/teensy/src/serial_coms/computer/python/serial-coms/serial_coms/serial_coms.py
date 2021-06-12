@@ -34,7 +34,10 @@ class SerialCom:
 
     def __del__(self):
         """Destructor fo the object. Closes the serial port"""
-        self.ser.close()
+        try:
+            self.ser.close()
+        except AttributeError:
+            pass  # serial obj does not exist on class
 
     def sendData(self, data):
         """Sends data

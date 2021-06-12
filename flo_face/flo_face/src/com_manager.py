@@ -16,11 +16,11 @@ information, parses it, and sends it on.
 # must install serial_coms from FLO_HEAD/teensy/src/seserial_coms/computer/python
 
 import math
+from serial import SerialException
 import rospy
 # https://github.com/Rehab-Robotics-Lab/serial_coms/tree/master/computer/python/serial_coms
 from flo_face_defs.msg import FaceState
 from serial_coms import SerialCom
-from serial import SerialException
 
 
 class FaceComs(object):

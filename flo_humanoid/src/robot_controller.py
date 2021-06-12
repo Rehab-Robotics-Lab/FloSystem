@@ -85,7 +85,6 @@ class BolideController(object):
     # pylint: disable=too-many-statements
     def __init__(self):
         rospy.init_node('robot_manager')  # , log_level=rospy.DEBUG)
-        print('!!!!!!!!!!!!!!!!!!!!')
         rospy.loginfo('started new bolide node')
         self.run = True
 
@@ -707,22 +706,6 @@ class BolideController(object):
                 ret = self.read()
                 if ret:
                     returns.append(ret)
-            # try:
-            #     while self.ser.inWaiting():
-            #         ret = self.read()
-            #         if ret:
-            #             returns.append(ret)
-            # except IOError:
-            #     print("ioerror!!!!!!!!!!!!!!")
-            #     rospy.loginfo('Bolide disconnected')
-            #     with self.usb_lock:
-            #         self.ser.close()
-            #     rospy.loginfo('Closed serial port')
-            #     rte = rospy.Rate(1)
-            #     while not self.connect():
-            #         rospy.logdebug('failed to connect')
-            #         rte.sleep()
-            #     rospy.logerr('made it past reconnect')
 
         return returns
 
@@ -828,4 +811,3 @@ class BolideController(object):
 
 if __name__ == "__main__":
     CONTROLLER = BolideController()
-    print('done with main')

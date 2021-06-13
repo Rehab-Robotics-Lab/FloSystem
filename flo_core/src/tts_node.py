@@ -171,6 +171,10 @@ class TTSManager(object):
             self.state_pub.publish(state=TTSState.WAITING)
             if success:
                 self.finish_with_result('completed sound play in')
+        else:
+            rospy.logerr('No audio file in synthesize voice result')
+            self.state_pub.publish(state=TTSState.ERROR, text='no audio file')
+            self.finish_with_result('no audio file')
 
     def sound_received(self):
         """Sound was received by the server"""

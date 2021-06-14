@@ -56,50 +56,14 @@ read some instructions and immediately get ready for any input.
 
 import json
 
-import xml.etree.ElementTree as ET
-from HTMLParser import HTMLParser
-from StringIO import StringIO
 import actionlib
 import rospy
 from tts.msg import SpeechAction, SpeechResult, SpeechFeedback
 from tts.srv import Synthesizer
-from sound_play.msg import SoundRequestAction
-from flo_core_defs.msg import TTSState, TTSUtterances
-import contextlib
 import mutagen
-from sound_play.msg import SoundRequestGoal
-from sound_play.msg import SoundRequest
-
-
-class MLStripper(HTMLParser):
-    """A class to strip out tags
-
-    taken from: https://stackoverflow.com/a/925630/5274985
-    """
-
-    def __init__(self):
-        self.reset()
-        self.text = StringIO()
-
-    def handle_data(self, dat):
-        """ingest data"""
-        self.text.write(dat)
-
-    def get_data(self):
-        """return data"""
-        return self.text.getvalue()
-
-
-def strip_tags(html):
-    """strip html tags"""
-    stripper = MLStripper()
-    stripper.feed(html)
-    return stripper.get_data()
-
-
-def play(filename):
-    """plays the wav or ogg file using sound_play"""
-    SoundClient(blocking=True).playWave(filename)
+from sound_play.msg import SoundRequestGoal, SoundRequest, SoundRequestAction
+from flo_core_defs.msg import TTSState, TTSUtterances
+from strip_tags import strip_tags
 
 
 def do_synthesize(goal):
@@ -121,7 +85,7 @@ class TTSManager(object):
         self.done = True
         self.length = 0
         self.goal_text = ''
-        self.result = None
+        # self.result = None
 
         self.server = actionlib.SimpleActionServer(
             'tts', SpeechAction, self.do_speak, False)
@@ -154,8 +118,6 @@ class TTSManager(object):
         not to wait by not calling ``SimpleActionClient.waite_for_result()``.
         """
 
-        # goal_root = ET.fromstring(goal.text)
-        # goal_text = goal_root.text
         self.goal_text = strip_tags(goal.text)
 
         self.state_pub.publish(
@@ -196,7 +158,7 @@ class TTSManager(object):
                                         active_cb=self.sound_received,
                                         feedback_cb=self.sound_fb,
                                         done_cb=self.sound_done)
-            self.result = audio_file
+            # self.result = audio_file
             t_rate = rospy.Rate(10)
             success = True
             while not self.done:
@@ -209,19 +171,35 @@ class TTSManager(object):
             self.state_pub.publish(state=TTSState.WAITING)
             if success:
                 self.finish_with_result('completed sound play in')
+        else:
+            rospy.logerr('No audio file in synthesize voice result')
+            self.state_pub.publish(state=TTSState.ERROR, text='no audio file')
+            self.finish_with_result('no audio file')
 
     def sound_received(self):
+        """Sound was received by the server"""
         self.state_pub.publish(state=TTSState.PLAYING, text=self.goal_text)
 
     def sound_fb(self, feedback):
+        """Feedback received from the server
+
+        Args:
+            feedback: The received feedback
+        """
         percent_elapsed = feedback.stamp.to_sec()/self.length
         speech_feedback = SpeechFeedback()
         speech_feedback.data = self.goal_text[0:int(
             percent_elapsed*len(self.goal_text))]
         self.server.publish_feedback(speech_feedback)
 
-    def sound_done(self, state, res):
-        self.result
+    def sound_done(self, *_):
+        """The sound has completed playing (according to server)
+
+        Args:
+            state: Ignored server state
+            res: the result of the last commanded play
+        """
+        # self.result = res
         self.done = True
 
 

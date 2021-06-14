@@ -129,7 +129,7 @@ class RobotScreen(object):
         self.connected_clients = 0
         self.caption = ''
         self.caption_time = 0
-        self.hdd_free = '0'
+        self.hdd_free = 0
         self.recording = False
 
         self.image_queue = Queue.Queue()
@@ -294,7 +294,7 @@ class RobotScreen(object):
                         (0, 255, 0) if self.recording else (0, 0, 255))
 
             cv2.putText(self.filled_home,
-                        'Storage % free:'+self.hdd_free,
+                    'Storage free:{:.1f}%'.format(self.hdd_free),
                         (400, 413),
                         self.font,
                         1,

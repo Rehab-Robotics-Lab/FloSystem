@@ -84,6 +84,8 @@ class BolideController(object):
     # pylint: disable=too-many-statements
     def __init__(self):
         rospy.init_node('robot_manager')  # , log_level=rospy.DEBUG)
+        rospy.loginfo('started new bolide node')
+        self.run = True
 
         rospack = rospkg.RosPack()
 
@@ -91,7 +93,10 @@ class BolideController(object):
         self.port = rospy.get_param('robot_port', '/dev/bolide')
         self.ser = None
         self.simulate = rospy.get_param('simulate', False)
-        self.connect()
+
+        connected = False
+        self.robot_change_publisher = rospy.Publisher(
+            'humanoid_connection_change', Bool, queue_size=1)
 
         self.joint_publisher = rospy.Publisher(
             'joint_states', JointState, queue_size=1)
@@ -171,7 +176,40 @@ class BolideController(object):
         self.available_publisher.publish(True)
         rospy.loginfo('started action server for humanoid motion')
 
-        self.read_loop()
+        rate = rospy.Rate(1)
+        while not rospy.is_shutdown():
+            rospy.logdebug('top of init loop')
+            try:
+                rospy.logdebug('trying to connect and run read loop')
+                while not connected and not rospy.is_shutdown():
+                    rate.sleep()
+                    rospy.logdebug('working on connecting')
+                    self.robot_change_publisher.publish(False)
+                    connected = self.connect()
+                    self.pose_waiting_override_delay = 1
+                    self.current_positions = None
+                    self.motors_initialized = False
+                    self.state = 'available'
+                    self.last_pos_req = 0
+                    self.awaiting_pos_resp = False
+                    self.moving_params = {}
+                    self.moving = False
+                    self.moving_params['time_start'] = 0
+                    self.moving_params['unique_times'] = []
+                    self.moving_params['completion_times'] = []
+                    self.ret = ''
+                    self.seq_num = 0
+                    self.last_feedback = None
+                    self.feedback_delay = 1
+                    self.last_feedback_time = rospy.get_time()
+                rospy.logdebug('ready for read loop')
+                self.read_loop()
+            except IOError:
+                rospy.logdebug('ioerror')
+                connected = False
+                self.server.set_aborted()
+                # TODO: reset some existing action commands
+        rospy.logdebug('done with node')
 
     def connect(self):
         """connect to the robot
@@ -179,16 +217,26 @@ class BolideController(object):
         Will first try to disconect and close the serial connection if
         it exists then re connect.
         """
+        rospy.logdebug('trying to connect')
+        rospy.set_param('/humanoid', False)
         with self.usb_lock:
+            rospy.logdebug('connect got the usb lock')
             if not self.simulate:
-                self.close_ser()
+                if self.ser:
+                    self.ser.close()
+                rospy.logdebug('closed serial port to prep for connect')
                 try:
-                    self.ser = serial.Serial(self.port, 115200, timeout=0.05)
+                    self.ser = serial.Serial(
+                        self.port, 115200, timeout=0.05, write_timeout=.5)
+                    rospy.logdebug('got serial interface hooked up')
+                    rospy.set_param('/humanoid', True)
+                    self.robot_change_publisher.publish(True)
                 except serial.SerialException as err:
-                    rospy.logerr(
+                    rospy.logdebug(
                         'failed to connect to bolide with err: %s', err)
-                    return
+                    return False
             rospy.loginfo('connected to robot')
+            return True
 
     def cleanup(self):
         """cleanup the node and shutdown"""
@@ -399,6 +447,7 @@ class BolideController(object):
         self.cleanup()
 
 # TODO: a lot of this could be vectorized using np
+
     def get_pose_sim(self):
         """get the pose of the robot and publish it to the joint state"""
         # with self.usb_lock:
@@ -656,6 +705,7 @@ class BolideController(object):
                 ret = self.read()
                 if ret:
                     returns.append(ret)
+
         return returns
 
     def read_one(self, tries=5):

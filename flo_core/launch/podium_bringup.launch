@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <launch>
+  <arg name="simulate" default="False"/>
   <!--Database for poses, actions, etc-->
   <rosparam param="database_location">"~/db/flo.db"</rosparam>
   <node name="pose_db_manager" pkg="flo_core" type="flo_db.py" respawn="true"/>
@@ -9,4 +10,8 @@
   <include file="$(find flo_core)/launch/recording.launch"/>
   <!--System Monitoring-->
   <node name="system_monitor" pkg="system_monitor" type="stats_publisher.py" respawn="true"/>
+  <node name="podium_gui" pkg="flo_core" type="podium.py" respawn="true"/>
+  <group if="$(eval simulate==True)">
+    <include file="$(find flo_telepresence)/launch/cam_sim.launch"/>
+  </group>
 </launch>

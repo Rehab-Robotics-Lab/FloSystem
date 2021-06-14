@@ -22,6 +22,7 @@ import { useParams, useHistory } from "react-router-dom";
 import { PoseWrapper } from "./robotControl/seq_pose/PoseContainer";
 import EventEmitter2 from "eventemitter2";
 import Recording from "./robotControl/Recording";
+import GameText from "./robotControl/GameText";
 
 export function genRandID(): number {
   return Math.round(Math.random() * 10000) + Date.now();
@@ -234,6 +235,7 @@ const RobotController: React.FunctionComponent = () => {
         >
           <Vids ros={ros} connected={connected} ipAddr={ipAddr} />
           <URDF ros={ros} connected={connected} />
+          <GameText ros={ros} connected={connected} />
         </div>
         <div
           style={{

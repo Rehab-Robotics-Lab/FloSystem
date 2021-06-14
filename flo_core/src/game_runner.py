@@ -20,6 +20,8 @@ Publishers:
                             both individual speech and full
                             steps with both speech and joint
                             targets
+    - /game_runner_text: The text that the game runner commands
+                         to be spoken
 
 Subscribers:
     - /game_runner_commands: Takes the commands to control the
@@ -50,6 +52,7 @@ import datetime
 import rospy
 import actionlib
 from tts.msg import SpeechAction, SpeechGoal
+from std_msgs.msg import String, Bool
 from flo_humanoid_defs.msg import MoveAction, MoveGoal, JointTarget
 from flo_core_defs.msg import GameState, GameCommandOptions, GameDef,\
     GameCommand, StepDef
@@ -58,30 +61,7 @@ from flo_core_defs.srv import GetPoseSeqID
 from flo_core_defs.msg import GameAction
 from simon_says import simon_says
 from target_touch import target_touch
-from HTMLParser import HTMLParser
-from StringIO import StringIO
-
-
-class MLStripper(HTMLParser):
-    """A class to strip out tags
-
-    taken from: https://stackoverflow.com/a/925630/5274985
-    """
-    def __init__(self):
-        self.reset()
-        self.text = StringIO()
-
-    def handle_data(self, d):
-        self.text.write(d)
-
-    def get_data(self):
-        return self.text.getvalue()
-
-
-def strip_tags(html):
-    s = MLStripper()
-    s.feed(html)
-    return s.get_data()
+from strip_tags import strip_tags
 
 
 class GameRunner(object):
@@ -111,15 +91,15 @@ class GameRunner(object):
     def __init__(self):
         rospy.init_node('game_runner')
 
+        self.humanoid = rospy.get_param('/humanoid', False)
+
         # -- Action Servers to Make Things Happen -- #
         # set up polly action server
-        self.speech_server = actionlib.SimpleActionClient(
-            'tts', SpeechAction)
-        self.speech_server.wait_for_server()
-
-        # setup movement action server
-        self.move_server = actionlib.SimpleActionClient('move', MoveAction)
-        self.move_server.wait_for_server()
+        self.speech_server = None
+        self.move_server = None
+        self.__humanoid_connection(Bool(self.humanoid))
+        rospy.Subscriber('humanoid_connection_change',
+                         Bool, self.__humanoid_connection)
 
         ### Publishers ###
         self.feedback_pub = rospy.Publisher('game_runner_state',
@@ -128,6 +108,8 @@ class GameRunner(object):
                                                 GameCommandOptions, queue_size=1, latch=True)
         self.game_action_pub = rospy.Publisher(
             'game_runner_actions', GameAction, queue_size=10)
+        self.game_text_pub = rospy.Publisher(
+            'game_runner_text', String, queue_size=10)
         rospy.loginfo('setup publishers')
 
         # -- Subscribers -- #
@@ -171,6 +153,23 @@ class GameRunner(object):
         while not rospy.is_shutdown():
             self.__loop()
             rate.sleep()
+
+    def __humanoid_connection(self, msg):
+        if msg.data:
+            self.speech_server = actionlib.SimpleActionClient(
+                'tts', SpeechAction)
+            self.speech_server.wait_for_server()
+
+            # setup movement action server
+            self.move_server = actionlib.SimpleActionClient('move', MoveAction)
+            self.move_server.wait_for_server()
+            self.humanoid = True
+            rospy.loginfo('setup to work with humanoid')
+        else:
+            self.speech_server = None
+            self.move_server = None
+            self.humanoid = False
+            rospy.loginfo('setup to work without humanoid')
 
     def __new_def(self, msg):
         """Add a newly received game def to the game def queue.
@@ -222,11 +221,12 @@ class GameRunner(object):
             if new_command in self.command_opts:
                 self.__process_command(new_command)
 
-        if (self.state == self.states.acting
-                and (self.moving_state == self.action_states.done
-                     or self.moving_state == self.action_states.none)
-                and (self.speaking_state == self.action_states.done
-                     or self.speaking_state == self.action_states.none)):
+        not_moving = (self.moving_state == self.action_states.done
+                      or self.moving_state == self.action_states.none)
+        not_speaking = (self.speaking_state == self.action_states.done
+                        or self.speaking_state == self.action_states.none)
+        if (self.state == self.states.acting and
+                ((not_moving and not_speaking) or not self.humanoid)):
             if self.action_idx+1 == len(self.actions_list):
                 self.__set_state(self.states.waiting_for_command)
                 self.__set_options(
@@ -443,18 +443,21 @@ class GameRunner(object):
         # each step is a dict with:
         # speach, movement or pose
         if 'speech' in this_step and this_step['speech'] != '':
-            self.__say_plain_text(this_step['speech'])
+            if self.humanoid:
+                self.__say_plain_text(this_step['speech'])
+            self.game_text_pub.publish(strip_tags(this_step['speech']))
             command_sent = True
             action.speech = this_step['speech']
         if 'targets' in this_step:
             move_goal = MoveGoal(this_step['targets'])
-            self.move_server.send_goal(
-                move_goal,
-                done_cb=self.__moving_done,
-                active_cb=self.__moving_active,
-                feedback_cb=self.__moving_feedback
-            )
-            self.moving_state = self.action_states.sent
+            if self.humanoid:
+                self.move_server.send_goal(
+                    move_goal,
+                    done_cb=self.__moving_done,
+                    active_cb=self.__moving_active,
+                    feedback_cb=self.__moving_feedback
+                )
+                self.moving_state = self.action_states.sent
             command_sent = True
             action.targets = this_step['targets']
         if not command_sent:
@@ -506,14 +509,20 @@ class GameRunner(object):
 
     def __congratulate(self):
         rospy.loginfo('saying something congratulatory')
-        self.__say_plain_text(random.choice(self.congratulate_strings))
+        to_say = random.choice(self.congratulate_strings)
+        if self.humanoid:
+            self.__say_plain_text(to_say)
+        self.game_text_pub.publish(to_say)
         self.__set_state(self.states.acting)
         self.__set_options([])
 
     def __try_again(self):
         rospy.loginfo('saying to try again and rerunning last step')
-        self.__say_plain_text(random.choice(self.try_again_strings))
-        self.speech_server.wait_for_result()
+        to_say = random.choice(self.try_again_strings)
+        if self.humanoid:
+            self.__say_plain_text(to_say)
+            self.speech_server.wait_for_result()
+        self.game_text_pub.publish(to_say)
         self.__repeat_last_step()
 
 

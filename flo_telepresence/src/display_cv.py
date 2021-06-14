@@ -11,7 +11,7 @@ from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
 import rospkg
 import cv2
-from system_monitor.msg import NETstats
+from system_monitor.msg import NETstats, HDDutil
 from tts.msg import SpeechActionFeedback
 import math
 
@@ -129,7 +129,7 @@ class RobotScreen(object):
         self.connected_clients = 0
         self.caption = ''
         self.caption_time = 0
-
+        self.hdd_free = '0'
         self.recording = False
 
         self.image_queue = Queue.Queue()
@@ -178,6 +178,7 @@ class RobotScreen(object):
         # self.new_img(msg)
         rospy.Subscriber('/remote_video_clean', smImage, self.__new_img)
         rospy.Subscriber('/net_stats', NETstats, self.__new_net_stats)
+        rospy.Subscriber('/hdd_stats', HDDutil, self.__new_hdd_stats)
         rospy.Subscriber('/connected_clients', ConnectedClients,
                          self.__new_connected_clients)
         rospy.Subscriber('/record_video_status', Bool,
@@ -202,6 +203,9 @@ class RobotScreen(object):
         self.ssid = msg.network_ssid
         self.wifi_quality = msg.link_quality
         self.wifi_signal = msg.signal_strength
+    
+    def __new_hdd_stats(self,msg):
+       self.hdd_free = msg.percent_free
 
     def __run_display(self):
         rate = rospy.Rate(45)
@@ -259,29 +263,42 @@ class RobotScreen(object):
                         (255, 255, 255))
             cv2.putText(self.filled_home,
                         'WiFi Quality: {:.1f}'.format(self.wifi_quality),
-                        (10, 342),
+                        (10, 323),
                         self.font,
                         1,
                         (255, 255, 255))
             cv2.putText(self.filled_home,
                         'WiFi Signal: {:.1f} dB'.format(self.wifi_signal),
-                        (400, 342),
+                        (400, 323),
                         self.font,
                         1,
                         (255, 255, 255))
             cv2.putText(self.filled_home,
                         'Server: '+self.server_addr,
-                        (10, 406),
+                        (10, 368),
                         self.font,
                         1,
                         (255, 255, 255))
             connected = self.connected_clients > 0
             cv2.putText(self.filled_home,
                         'Connected' if connected else 'Not Connected',
-                        (400, 406),
+                        (400, 368),
                         self.font,
                         1,
                         (0, 255, 0) if connected else (0, 0, 255))
+            cv2.putText(self.filled_home,
+                        'Recording' if self.recording else 'Not Recording',
+                        (10, 413),
+                        self.font,
+                        1,
+                        (0, 255, 0) if self.recording else (0, 0, 255))
+
+            cv2.putText(self.filled_home,
+                        'Storage % free:'+self.hdd_free,
+                        (400, 413),
+                        self.font,
+                        1,
+                        (255, 255, 255))
             cv2.imshow('remote_vid', self.filled_home)
             cv2.waitKey(1)
             self.last_home_update = rospy.get_time()

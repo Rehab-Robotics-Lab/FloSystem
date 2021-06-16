@@ -2,6 +2,7 @@
 """A module to display the robot screen using opencv"""
 
 import os
+import math
 import Queue
 import rospy
 from std_msgs.msg import Bool
@@ -10,10 +11,11 @@ from rosbridge_msgs.msg import ConnectedClients
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
 import rospkg
+from tts.msg import SpeechActionFeedback
 import cv2
 from system_monitor.msg import NETstats, HDDutil
-from tts.msg import SpeechActionFeedback
-import math
+
+
 
 # Screen is 800x480
 
@@ -31,7 +33,7 @@ def draw_text(img,  # pylint: disable=too-many-arguments
               text_color_bg=(0, 0, 0),
               margin=5,
               num_lines=3
-              ):
+             ):
     """Draw text on an image using opencv
 
     Args:
@@ -203,9 +205,9 @@ class RobotScreen(object):
         self.ssid = msg.network_ssid
         self.wifi_quality = msg.link_quality
         self.wifi_signal = msg.signal_strength
-    
-    def __new_hdd_stats(self,msg):
-       self.hdd_free = msg.percent_free
+
+    def __new_hdd_stats(self, msg):
+        self.hdd_free = msg.percent_free
 
     def __run_display(self):
         rate = rospy.Rate(45)
@@ -294,7 +296,7 @@ class RobotScreen(object):
                         (0, 0, 255) if connected else (0, 255, 0))
 
             cv2.putText(self.filled_home,
-                    'Storage free: {:.1f}%'.format(self.hdd_free),
+                        'Storage free: {:.1f}%'.format(self.hdd_free),
                         (400, 413),
                         self.font,
                         1,

@@ -218,7 +218,7 @@ class RobotScreen(object):
                 except Queue.Empty:
                     empty = True
             if img is not None:
-                print(img.shape)
+                #print(img.shape)
                 rec_y = int(.0125*img.shape[0])
                 bottom_rec_text = draw_text(
                     img,
@@ -291,10 +291,10 @@ class RobotScreen(object):
                         (10, 413),
                         self.font,
                         1,
-                        (0, 255, 0) if self.recording else (0, 0, 255))
+                        (0, 0, 255))
 
             cv2.putText(self.filled_home,
-                    'Storage free:{:.1f}%'.format(self.hdd_free),
+                    'Storage free: {:.1f}%'.format(self.hdd_free),
                         (400, 413),
                         self.font,
                         1,

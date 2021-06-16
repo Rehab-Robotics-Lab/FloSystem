@@ -23,7 +23,7 @@ HOME_TIME = 5
 UPDATE_HOME_TIME = 1
 
 
-def draw_text(img,  pylint: disable=too-many-arguments
+def draw_text(img,  # pylint: disable=too-many-arguments
               text,
               pos=(0, 0),
               font=cv2.FONT_HERSHEY_SIMPLEX,
@@ -52,7 +52,7 @@ def draw_text(img,  pylint: disable=too-many-arguments
     if text == '':
         return 0
 
-    x, y = pos   pylint: disable=invalid-name
+    x, y = pos  # pylint: disable=invalid-name
     x = int(math.ceil(x))
     y = int(math.ceil(y))
     next_line_start = 0
@@ -104,10 +104,10 @@ class RobotScreen(object):
     """Class to display the screen on the robot"""
 
     # This is a ros node, no need for public methods:
-    pylint: disable=too-few-public-methods
+    # pylint: disable=too-few-public-methods
 
     # Such is the nature of GUIs:
-    pylint: disable=too-many-instance-attributes
+    # pylint: disable=too-many-instance-attributes
 
     def __init__(self):
         rospy.init_node('robot_screen')

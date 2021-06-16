@@ -291,7 +291,7 @@ class RobotScreen(object):
                         (10, 413),
                         self.font,
                         1,
-                        (0, 0, 255))
+                        (0, 0, 255) if connected else (0, 255, 0))
 
             cv2.putText(self.filled_home,
                     'Storage free: {:.1f}%'.format(self.hdd_free),

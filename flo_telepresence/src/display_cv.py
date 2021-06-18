@@ -22,8 +22,8 @@ from system_monitor.msg import NETstats, HDDutil
 HOME_TIME = 5
 UPDATE_HOME_TIME = 1
 
-# pylint: disable=too-many-arguments
-def draw_text(img,  
+
+def draw_text(img,  # pylint: disable=too-many-arguments
               text,
               pos=(0, 0),
               font=cv2.FONT_HERSHEY_SIMPLEX,
@@ -34,6 +34,7 @@ def draw_text(img,
               margin=5,
               num_lines=3
              ):
+    #pylint: disable-msg=too-many-locals
     """Draw text on an image using opencv
 
     Args:
@@ -52,7 +53,7 @@ def draw_text(img,
     if text == '':
         return 0
     # pylint: disable=invalid-name
-    x, y = pos 
+    x, y = pos
     x = int(math.ceil(x))
     y = int(math.ceil(y))
     next_line_start = 0

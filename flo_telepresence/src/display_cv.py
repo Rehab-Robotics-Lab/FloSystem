@@ -51,8 +51,8 @@ def draw_text(img,  # pylint: disable=too-many-arguments
 
     if text == '':
         return 0
-
-    x, y = pos  # pylint: disable=invalid-name
+    # pylint: disable=invalid-name
+    x, y = pos  
     x = int(math.ceil(x))
     y = int(math.ceil(y))
     next_line_start = 0

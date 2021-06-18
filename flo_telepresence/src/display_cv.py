@@ -22,8 +22,8 @@ from system_monitor.msg import NETstats, HDDutil
 HOME_TIME = 5
 UPDATE_HOME_TIME = 1
 
-
-def draw_text(img,  # pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments
+def draw_text(img,  
               text,
               pos=(0, 0),
               font=cv2.FONT_HERSHEY_SIMPLEX,
@@ -52,7 +52,7 @@ def draw_text(img,  # pylint: disable=too-many-arguments
     if text == '':
         return 0
     # pylint: disable=invalid-name
-    x, y = pos  
+    x, y = pos 
     x = int(math.ceil(x))
     y = int(math.ceil(y))
     next_line_start = 0

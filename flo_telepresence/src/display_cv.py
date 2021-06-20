@@ -2,8 +2,8 @@
 """A module to display the robot screen using opencv"""
 
 import os
-import Queue
 import math
+import Queue
 import rospy
 from std_msgs.msg import Bool
 from sensor_msgs.msg import Image as smImage
@@ -13,7 +13,9 @@ import numpy as np
 import rospkg
 from tts.msg import SpeechActionFeedback
 import cv2
-from system_monitor.msg import NETstats
+from system_monitor.msg import NETstats, HDDutil
+
+
 
 # Screen is 800x480
 
@@ -30,7 +32,9 @@ def draw_text(img,  # pylint: disable=too-many-arguments
               text_color=(0, 255, 0),
               text_color_bg=(0, 0, 0),
               margin=5,
-              num_lines=3):
+              num_lines=3
+             ):
+    #pylint: disable-msg=too-many-locals
     """Draw text on an image using opencv
 
     Args:
@@ -48,10 +52,10 @@ def draw_text(img,  # pylint: disable=too-many-arguments
 
     if text == '':
         return 0
-
-    x_pos, y_pos = pos  # pylint: disable=invalid-name
-    x_pos = int(math.ceil(x_pos))
-    y_pos = int(math.ceil(y_pos))
+    # pylint: disable=invalid-name
+    x, y = pos
+    x = int(math.ceil(x))
+    y = int(math.ceil(y))
     next_line_start = 0
     next_line_end = 0
     text_size = (0, 0)
@@ -61,7 +65,7 @@ def draw_text(img,  # pylint: disable=too-many-arguments
         text_size, _ = cv2.getTextSize(
             ' '.join(words[next_line_start:next_line_end+1]), font, font_scale, font_thickness)
         text_w, text_h = text_size
-        if (x_pos+margin+text_w) > img.shape[1]:
+        if (x+margin+text_w) > img.shape[1]:
             lines.append((next_line_start, next_line_end-1))
             next_line_start = next_line_end
             next_line_end = next_line_start
@@ -70,7 +74,7 @@ def draw_text(img,  # pylint: disable=too-many-arguments
             break
         else:
             next_line_end += 1
-    start_y = int(math.ceil(y_pos))
+    start_y = int(math.ceil(y))
     for line in lines[max(0, len(lines)-num_lines):]:
         string_to_put = ' '.join(words[line[0]:line[1]+1])
         text_size, _ = cv2.getTextSize(
@@ -78,8 +82,8 @@ def draw_text(img,  # pylint: disable=too-many-arguments
         text_w, text_h = text_size
         cv2.rectangle(
             img,
-            (x_pos, start_y),
-            (int(math.ceil(x_pos + text_w + 2 * margin)),
+            (x, start_y),
+            (int(math.ceil(x + text_w + 2 * margin)),
              int(math.ceil(start_y + text_h + 2 * margin))),
             text_color_bg,
             -1
@@ -87,7 +91,7 @@ def draw_text(img,  # pylint: disable=too-many-arguments
         cv2.putText(
             img,
             string_to_put,
-            (x_pos+margin, int(text_h+margin+start_y)),
+            (x+margin, int(text_h+margin+start_y)),
             font,
             font_scale,
             text_color,
@@ -128,7 +132,7 @@ class RobotScreen(object):
         self.connected_clients = 0
         self.caption = ''
         self.caption_time = 0
-
+        self.hdd_free = 0
         self.recording = False
 
         self.image_queue = Queue.Queue()
@@ -177,6 +181,7 @@ class RobotScreen(object):
         # self.new_img(msg)
         rospy.Subscriber('/remote_video_clean', smImage, self.__new_img)
         rospy.Subscriber('/net_stats', NETstats, self.__new_net_stats)
+        rospy.Subscriber('/hdd_stats', HDDutil, self.__new_hdd_stats)
         rospy.Subscriber('/connected_clients', ConnectedClients,
                          self.__new_connected_clients)
         rospy.Subscriber('/record_video_status', Bool,
@@ -202,6 +207,9 @@ class RobotScreen(object):
         self.wifi_quality = msg.link_quality
         self.wifi_signal = msg.signal_strength
 
+    def __new_hdd_stats(self, msg):
+        self.hdd_free = msg.percent_free
+
     def __run_display(self):
         rate = rospy.Rate(45)
         while not rospy.is_shutdown():
@@ -213,6 +221,7 @@ class RobotScreen(object):
                 except Queue.Empty:
                     empty = True
             if img is not None:
+                #print(img.shape)
                 rec_y = int(.0125*img.shape[0])
                 bottom_rec_text = draw_text(
                     img,
@@ -257,29 +266,42 @@ class RobotScreen(object):
                         (255, 255, 255))
             cv2.putText(self.filled_home,
                         'WiFi Quality: {:.1f}'.format(self.wifi_quality),
-                        (10, 342),
+                        (10, 323),
                         self.font,
                         1,
                         (255, 255, 255))
             cv2.putText(self.filled_home,
                         'WiFi Signal: {:.1f} dB'.format(self.wifi_signal),
-                        (400, 342),
+                        (400, 323),
                         self.font,
                         1,
                         (255, 255, 255))
             cv2.putText(self.filled_home,
                         'Server: '+self.server_addr,
-                        (10, 406),
+                        (10, 368),
                         self.font,
                         1,
                         (255, 255, 255))
             connected = self.connected_clients > 0
             cv2.putText(self.filled_home,
                         'Connected' if connected else 'Not Connected',
-                        (400, 406),
+                        (400, 368),
                         self.font,
                         1,
                         (0, 255, 0) if connected else (0, 0, 255))
+            cv2.putText(self.filled_home,
+                        'Recording' if self.recording else 'Not Recording',
+                        (10, 413),
+                        self.font,
+                        1,
+                        (0, 0, 255) if connected else (0, 255, 0))
+
+            cv2.putText(self.filled_home,
+                        'Storage free: {:.1f}%'.format(self.hdd_free),
+                        (400, 413),
+                        self.font,
+                        1,
+                        (255, 255, 255))
             cv2.imshow('remote_vid', self.filled_home)
             cv2.waitKey(1)
             self.last_home_update = rospy.get_time()

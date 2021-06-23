@@ -19,7 +19,10 @@ export ROS_MASTER_URI=http://localhost:11311
 
 #export ROS_IP=`ifip wlp58s0`
 
-export DISPLAY=:0
+# Set display if unset or empty string
+: ${DISPLAY:=:0}
+# and put it in the enviromnet
+export DISPLAY
 
 ##### For making npm work #####
 export NPM_CONFIG_PREFIX=~/.npm-global

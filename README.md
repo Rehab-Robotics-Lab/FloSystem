@@ -208,7 +208,7 @@ need to follow the instructions in the [Network](#network) section. If you want
 to actually be writing new code and devloping, you will need all of this:
 
 1.  Setup Ubuntu, either 16 or 18
-2.  Install git: `sudo apt intall git-all`
+2.  Install git: `sudo apt install git-all`
 3.  Clone this repo into `~/Documents/git`
 4.  Run `./dev_install.sh`
 5.  Setup your bashrc or zshrc to have ros stuff. There an

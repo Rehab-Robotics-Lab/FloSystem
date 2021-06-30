@@ -22,7 +22,8 @@ sudo apt-get install -qq -y ros-${ROS_VERSION}-desktop-full
 source /opt/ros/${ROS_VERSION}/setup.bash
 ## install rosmon, it would be weird for this to be in one of the packages:
 #sudo apt-get install ros-${ROS_VERSION}-rosmon
-if[[$ROS_VERSION=="kinetic"||$ROS_VERSION=="melodic"]]; then
+if[[$ROS_VERSION=="kinetic"||$ROS_VERSION=="melodic"]]
+then
     sudo apt-get -qq install -y python-rosdep 
     sudo apt-get -qq install -y python-pip
     #Mutagen has dropped python 2 support. Last supported version was 1.43.0: mutagen moved into if statement to account for ubuntu 20, also python3 supports latest version of mutagen.
@@ -30,7 +31,8 @@ if[[$ROS_VERSION=="kinetic"||$ROS_VERSION=="melodic"]]; then
     echo "INSTALLING ROSDEP DEPENDENCIES"
     sudo apt-get -qq install python-rosdep -y
 fi
-if[[$ROS_VERSION=="noetic"]]; then
+if[[$ROS_VERSION=="noetic"]]
+then
     sudo apt-get -qq install -y python3-rosdep
     sudo apt-get -qq install -y python3-pip
     pip install 'mutagen' --user -q

@@ -10,17 +10,34 @@ sudo apt-get -qq update -y
 
 if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==16));then
     ROS_VERSION="kinetic"
-    else
-    if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==18)); then
+fi    
+if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==18)); then
     ROS_VERSION="melodic"
 fi
+if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==20)); then
+    ROS_VERSION="noetic"
 fi
 echo "installing for ros version: ${ROS_VERSION}"
 sudo apt-get install -qq -y ros-${ROS_VERSION}-desktop-full
 source /opt/ros/${ROS_VERSION}/setup.bash
 ## install rosmon, it would be weird for this to be in one of the packages:
 #sudo apt-get install ros-${ROS_VERSION}-rosmon
+if(($ROS_VERSION="kinetic"||$ROS_VERSION="melodic")); then
+    sudo apt-get -qq install -y python-rosdep 
+    sudo apt-get -qq install -y python-pip
+    pip install 'mutagen==1.43.0' --user -q
+    echo "INSTALLING ROSDEP DEPENDENCIES"
+    sudo apt-get -qq install python-rosdep -y
 
+
+fi
+if(($ROS_VERSION="noetic")); then
+    sudo apt-get -qq install -y python3-rosdep
+    sudo apt-get -qq install -y python3-pip
+    pip install 'mutagen' --user -q
+    echo "INSTALLING ROSDEP DEPENDENCIES"
+    sudo apt-get -qq install python3-rosdep -y
+fi
 sudo apt-get -qq install -y python-rosdep
 [ ! -d "/etc/ros/rosdep/sources.list.d" ] && sudo rosdep init -q
 rosdep update -q
@@ -31,12 +48,9 @@ echo "INSTALLING DEPENDENCIES NOT FOUND IN ROSDEP"
 #pip install pyqtgraph --user
 #I think I have replaced this by adding a symlink:
 #python flo_face/teensy/src/serial_coms/computer/python/serial-coms/setup.py install --user
-# Mutagen has dropped python 2 support. Last supported version was 1.43.0:
-sudo apt-get -qq install -y python-pip
-pip install 'mutagen==1.43.0' --user -q
+# Mutagen has dropped python 2 support. Last supported version was 1.43.0: mutagen moved up into if statement to account for ubuntu 20, also python3 supports latest version of mutagen.
 
-echo "INSTALLING ROSDEP DEPENDENCIES"
-sudo apt-get -qq install python-rosdep -y
+
 cd ~/catkin_ws
 rosdep install --from-paths src --ignore-src -q -r -y --skip-keys "realsense2_camera realsense2_description rosbridge_suite rosbridge_server rosbridge_library rosbridge_msgs video_stream_opencv kobuki"
 cd -

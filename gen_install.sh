@@ -29,8 +29,6 @@ if[[$ROS_VERSION="kinetic"||$ROS_VERSION="melodic"]]; then
     pip install 'mutagen==1.43.0' --user -q
     echo "INSTALLING ROSDEP DEPENDENCIES"
     sudo apt-get -qq install python-rosdep -y
-
-
 fi
 if(($ROS_VERSION="noetic")); then
     sudo apt-get -qq install -y python3-rosdep

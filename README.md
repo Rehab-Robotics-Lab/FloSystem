@@ -22,6 +22,7 @@ We are waiting on approvals from the owners of the repository (The University of
 *   [WebServer Setup](#webserver-setup)
 *   [Development Computer Setup](#dev-computer)
 *   [Network Setup](#network)
+*   [Podium Setup](#podium)
 *   [NUC Setup](#nuc)
     *   [UDEV for USB fixed Addresses](#udev)
     *   [USB Speker](#usb-speaker)
@@ -191,6 +192,10 @@ resources from the rest of the system.
 11. Setup certificates by running `./init-letsencrypt-turn.sh`
 12. Run `docker-compose -f docker-compose-turn.yml up -d`
 13. Monitor with `docker ps`, `docker stats`, and `docker-compose logs -f`
+
+##Podium
+
+To set up a computer for running the podium, after cloning this repo, run ./gen_install.sh
 
 ## Robot
 

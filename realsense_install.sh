@@ -8,11 +8,14 @@ sudo apt-get -qq install libglfw3-dev libgl1-mesa-dev libglu1-mesa-dev at
 if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==16));then
     ROS_VERSION="kinetic"
     OS_VERSION="xenial"
-    else
-    if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==18)); then
+fi    
+if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==18)); then
     ROS_VERSION="melodic"
     OS_VERSION="bionic"
 fi
+if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==20));then
+    ROS_VERSION="noetic"
+    OS_VERSION="focal"
 fi
 
 sudo apt-key adv --keyserver keys.gnupg.net --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE || sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE

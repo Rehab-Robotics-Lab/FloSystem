@@ -73,14 +73,14 @@ and adding in the front end server.
 
 ### Server Config Files
 
-You should create a file in `LilFloSystem/certs/session-secret.env`
-with contents: `SESSION_SECRET=<cryptographically random value>`
+You should create a file in `LilFloSystem/certs/session-secret.env` either through terminal or via a text editor
+with contents: `SESSION_SECRET=<cryptographically random value ex:random numbers>`
 
 You should create a file in `LilFloSystem/certs/coturn.env`
 with contents:
 
 ```conf
-COTURN_SECRET=<cryptographically random value>
+COTURN_SECRET=<cryptographically random value ex:1329284983>
 SITE_ADDR=<the site address, ex: lilflo.com>
 ```
 
@@ -99,10 +99,10 @@ DD_HOSTNAME=<hostname ex: lilflo.com>
 We need ssl certs during local development.
 
 1.  `sudo apt install libnss3-tools`
-2.  Download the latest binary for [mkcert](https://github.com/FiloSottile/mkcert)
-3.  Change permissions `sudo chmod u+x <name of binary>`
+2.  Download the latest binary for [mkcert](https://github.com/FiloSottile/mkcert) Then install homebrew and use the homebrew option to install mkcert
+3.  Change permissions `sudo chmod u+x <name of binary ex:mkcert>`
 4.  Setup certs registry: `<name of binary: mkcert...> -install`
-5.  Make a certs dir (named `certs`) in the root of this repo and go into it
+5.  Make a certs dir/folder (named `certs`) in the root of this repo and go into it
 6.  Make new certs: `<name of binary: mkcert...> localhost` you can add other options here if you want to simulate a local domain by putting it in your hosts file, add in the 127.0.0.1 or other localhost aliases, etc. You can even use wildcards. NOTE: be very careful with these, they can really really open you up to security holes in your local computer if shared.
 7.  rename the certs: `mv localhost-key.pem localhost.key && mv localhost.pem localhost.crt` Of course if your certs are named something else... you get the idea.
 
@@ -125,7 +125,7 @@ admin. To do this:
 3.  Turn on expanded view to get nice prints: `\x`
 4.  Optionally get info on your registered users: `select * from users;`
 5.  Find out what id admin users need: `select * from user_types;`
-6.  Set the user you are interested in to be an admin: `update users set user_type=<id of usertype you want> where email=<email you want>`. Ex: `update users set user_type=1 where email='testsobrep@seas.upenn.edu'`
+6.  Set the user you are interested in to be an admin: `update users set user_type=<id of usertype you want> where email=<email you want>;`. Ex: `update users set user_type=1 where email='testsobrep@seas.upenn.edu';`
 7.  Check that it worked: `select * from users;`
 
 ### Deploying to Linode
@@ -498,22 +498,22 @@ to work, you will need to [setup the config files and keys needed by the webserv
 ](#WebServer-Setup)
 
 If you are on a machine that does not have the entire stack installed, then you can
-run an entire simulation stack within docker. To do this
+run an entire simulation stack within docker. To do this:
 
 1.  Follow the instructions for [setting up ssl certs](#ssl-certs)
 
 2.  Follow instructions for [setting up config files](#config-files)
 
-3.  Install docker
+3.  Install docker and complete the post installation steps, then test by running the hello world image
 
 4.  Run `docker-compose up`
 
-5.  Open Chrome and navigate to localhost
+5.  Open Chrome, and navigate to localhost.
 
 6.  Follow instructions to [setup admin](#setting-up-first-admin)
 
 7.  Login with your new admin account, go into the admin portal, click add robot,
-    give the robot a name and type of lilflo and submit.
+    give the robot a name and type of lilflo and before submiting copy the password to clipboard and save it. Then hit submit.
 
 8.  Make a file `./certs/sim-info.env` with `ROBOT_NAME=<name from web interfave>`
     and `ROBOT_PASSWORD=<password from web interface>`
@@ -533,6 +533,8 @@ run an entire simulation stack within docker. To do this
 
 12. To inspect the system, in an unused terminal:
     `docker exec -it <container name, ex: lilflosystem_flo_sim_1> /ros_entrypoint.sh bash`
+
+13.  After entering localhost Add the newly created robot to your profile under admin portal.
 
 Note: This will mount your local code, so you don't have to shut the entire system down for every
 code change. For the web frontend, code will reload automatically on save (sometimes you need to

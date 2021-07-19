@@ -23,8 +23,8 @@ services:
     volumes:
       - $XSOCK:$XSOCK:rw
       - $XAUTH:$XAUTH:rw
-      - ./certs/aws-credentials:/home/$USER/.aws/credentials
-      - ./certs/aws-config:/home/$USER/.aws/config
+      - ./certs/aws-credentials:/home/$USER/.aws/credentials;r
+      - ./certs/aws-config:/home/$USER/.aws/config;r
       - /tmp/pulseaudio.socket:/tmp/pulseaudio.socket
       - ~/flo_db:/home/$USER/db:rw
       - ~/flo_games:/home/$USER/flo_games:rw

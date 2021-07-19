@@ -61,6 +61,7 @@ from flo_core_defs.srv import GetPoseSeqID
 from flo_core_defs.msg import GameAction
 from simon_says import simon_says
 from target_touch import target_touch
+from stream import stream
 from strip_tags import strip_tags
 
 
@@ -314,6 +315,10 @@ class GameRunner(object):
         elif new_def.game_type == 'target_touch':
             actions_list = target_touch(
                 new_def, self.__process_step, neutral)
+            self.repeat_shift = 0
+        elif new_def.game_type == 'stream': #process_step,neutral
+            actions_list = stream(
+                 self.__process_step, neutral)
             self.repeat_shift = 0
         path = os.path.expanduser('~/flo_games/')
         if not os.path.exists(path):

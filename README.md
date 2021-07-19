@@ -73,14 +73,14 @@ and adding in the front end server.
 
 ### Server Config Files
 
-You should create a file in `LilFloSystem/certs/session-secret.env` either through terminal or via a text editor
-with contents: `SESSION_SECRET=<cryptographically random value ex:random numbers>`
+You should create a file in `LilFloSystem/certs/session-secret.env` 
+with contents: `SESSION_SECRET=<cryptographically random value ex:random string of characters or numbers>`
 
 You should create a file in `LilFloSystem/certs/coturn.env`
 with contents:
 
 ```conf
-COTURN_SECRET=<cryptographically random value ex:1329284983>
+COTURN_SECRET=<cryptographically random value>
 SITE_ADDR=<the site address, ex: lilflo.com>
 ```
 
@@ -99,7 +99,7 @@ DD_HOSTNAME=<hostname ex: lilflo.com>
 We need ssl certs during local development.
 
 1.  `sudo apt install libnss3-tools`
-2.  Download the latest binary for [mkcert](https://github.com/FiloSottile/mkcert) Then install homebrew and use the homebrew option to install mkcert
+2.  Download the latest binary for [mkcert](https://github.com/FiloSottile/mkcert) Then install mkcert using installation guide on the github
 3.  Change permissions `sudo chmod u+x <name of binary ex:mkcert>`
 4.  Setup certs registry: `<name of binary: mkcert...> -install`
 5.  Make a certs dir/folder (named `certs`) in the root of this repo and go into it
@@ -504,11 +504,11 @@ run an entire simulation stack within docker. To do this:
 
 2.  Follow instructions for [setting up config files](#config-files)
 
-3.  Install docker and complete the post installation steps, then test by running the hello world image
+3.  Install [docker](https://docs.docker.com/desktop/) and complete the post installation steps, then test docker by running the hello world image
 
 4.  Run `docker-compose up`
 
-5.  Open Chrome, and navigate to localhost.
+5.  Open Chrome, and navigate to localhost
 
 6.  Follow instructions to [setup admin](#setting-up-first-admin)
 

@@ -83,7 +83,6 @@ with contents:
 COTURN_SECRET=<cryptographically random value>
 SITE_ADDR=<the site address, ex: lilflo.com>
 ```
-
 You should create a file in `LilFloSystem/certs/datadog.env`
 with contents:
 
@@ -91,7 +90,6 @@ with contents:
 DD_API_KEY=<cryptographically random value>
 DD_HOSTNAME=<hostname ex: lilflo.com>
 ```
-
 ### SSL certs
 
 #### Local
@@ -508,7 +506,7 @@ run an entire simulation stack within docker. To do this:
 
 4.  Run `docker-compose up`
 
-5.  Open Chrome, and navigate to localhost
+5.  Open Chrome and navigate to localhost
 
 6.  Follow instructions to [setup admin](#setting-up-first-admin)
 
@@ -534,7 +532,7 @@ run an entire simulation stack within docker. To do this:
 12. To inspect the system, in an unused terminal:
     `docker exec -it <container name, ex: lilflosystem_flo_sim_1> /ros_entrypoint.sh bash`
 
-13.  After entering localhost Add the newly created robot to your profile under admin portal.
+13.  After entering localhost Add the newly created robot to your profile under admin portal, by putting in the email associated with your account, and hit submit.
 
 Note: This will mount your local code, so you don't have to shut the entire system down for every
 code change. For the web frontend, code will reload automatically on save (sometimes you need to

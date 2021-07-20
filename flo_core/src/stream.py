@@ -1,5 +1,4 @@
 from flo_core_defs.msg import StepDef
-import rospy
 
 
 def stream(process_step, neutral):
@@ -25,5 +24,4 @@ def stream(process_step, neutral):
         {'speech': 'Now touch the top of your head with your right hand'})
     targ, _ = process_step(
         StepDef(type='pose_both', id=1, time=1))
-    rospy.loginfo(actions_list)
     return actions_list

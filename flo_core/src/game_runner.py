@@ -357,6 +357,10 @@ class GameRunner(object):
             self.actions_list = target_touch(
                 new_def, self.__process_step, neutral)
             self.repeat_shift = 0
+        elif new_def.game_type == 'stream':  # process_step,neutral
+            self.actions_list = stream(
+                self.__process_step, neutral)
+            self.repeat_shift = 0
 
         self.__set_options(['start'])
         self.__set_state(self.states.game_loaded)

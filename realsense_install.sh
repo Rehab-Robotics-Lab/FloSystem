@@ -20,8 +20,8 @@ echo "installing for ros version: ${ROS_VERSION}"
 ## Realsense
 sudo add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo ${OS_VERSION} main" -u
 #You need to figure out the versions you want from https://github.com/IntelRealSense/realsense-ros/releases
-LIB_REALSENSE_VERSION=2.45.0
-REALSENSE_ROS_VERSION=2.3.0
+LIB_REALSENSE_VERSION=2.48.0
+REALSENSE_ROS_VERSION=2.3.1
 
 sudo apt-mark unhold librealsense2-utils
 sudo apt-mark unhold librealsense2-dev

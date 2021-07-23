@@ -74,8 +74,7 @@ and adding in the front end server.
 ### Server Config Files
 
 You should create a file in `LilFloSystem/certs/session-secret.env`
-with contents: `SESSION_SECRET=<cryptographically random value>`
-
+with contents: `SESSION_SECRET=<cryptographically random value ex:random string of characters or numbers>`
 You should create a file in `LilFloSystem/certs/coturn.env`
 with contents:
 
@@ -99,7 +98,7 @@ DD_HOSTNAME=<hostname ex: lilflo.com>
 We need ssl certs during local development.
 
 1.  `sudo apt install libnss3-tools`
-2.  Download the latest binary for [mkcert](https://github.com/FiloSottile/mkcert)
+2.  Download the latest binary for [mkcert](https://github.com/FiloSottile/mkcert) Then install mkcert using the installation guide on github
 3.  Change permissions `sudo chmod u+x <name of binary>`
 4.  Setup certs registry: `<name of binary: mkcert...> -install`
 5.  Make a certs dir (named `certs`) in the root of this repo and go into it
@@ -504,7 +503,7 @@ run an entire simulation stack within docker. To do this
 
 2.  Follow instructions for [setting up config files](#config-files)
 
-3.  Install docker
+3.  Install [docker](https:docs.docker.com/desktop/) and complete the post installation steps, then test docker by runnign the hello world image
 
 4.  Run `docker-compose up`
 

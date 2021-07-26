@@ -107,13 +107,13 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
 
   const [showSelector, setShowSelector] = useState(false);
   const [gbID, setGbID] = useState(0);
-  const [gameType, setGameType] = useState<"simon_says" | "target_touch" |"stream">(
-    "simon_says"
-  );
+  const [gameType, setGameType] = useState<
+    "simon_says" | "target_touch" | "stream"
+  >("simon_says");
   const [buckets, setBuckets] = useState<GameBucket[]>([]);
 
   const startButton = (
-    type: "simon_says" | "target_touch"| "stream",
+    type: "simon_says" | "target_touch" | "stream",
     cleanText: string
   ): JSX.Element => {
     return (
@@ -182,30 +182,30 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
         />
       ))}
       <ModalWrapper show={showSelector}>
-      {["simon_says", "target_touch"].includes(gameType) && (
-        <div>
-        <h3>Select Bucket</h3>
-        <label htmlFor="selectGameBucket">
-          Game Bucket:
-          <select
-            id="selectGameBucket"
-            onChange={(obj): void => {
-              const newId: number = parseInt(obj.target.value, 10);
-              setGbID(newId);
-            }}
-          >
-            {buckets
-              .map((value, idx) => ({ idx, ...value }))
-              .filter((value) => value.targeted_game == gameType)
-              .map((value, idx) => (
-                <option key={idx} value={value.idx}>
-                  {value.name}
-                </option>
-              ))}
-          </select>
-        </label>
-        </div>)
-}
+        {["simon_says", "target_touch"].includes(gameType) && (
+          <div>
+            <h3>Select Bucket</h3>
+            <label htmlFor="selectGameBucket">
+              Game Bucket:
+              <select
+                id="selectGameBucket"
+                onChange={(obj): void => {
+                  const newId: number = parseInt(obj.target.value, 10);
+                  setGbID(newId);
+                }}
+              >
+                {buckets
+                  .map((value, idx) => ({ idx, ...value }))
+                  .filter((value) => value.targeted_game == gameType)
+                  .map((value, idx) => (
+                    <option key={idx} value={value.idx}>
+                      {value.name}
+                    </option>
+                  ))}
+              </select>
+            </label>
+          </div>
+        )}
         {gameType == "target_touch" && (
           //TODO: insert a number input for number of reps
           <label htmlFor="reps">
@@ -272,13 +272,15 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
               return;
             }
             let steps = [] as StepDef[];
-            if(["simon_says", "target_type"].includes(gameType)){
-            if (buckets[gbID] === undefined) {
-              console.error("tried to play a game with a bad game id: " + gbID);
-              return;
+            if (["simon_says", "target_type"].includes(gameType)) {
+              if (buckets[gbID] === undefined) {
+                console.error(
+                  "tried to play a game with a bad game id: " + gbID
+                );
+                return;
+              }
+              steps = buckets[gbID].steps;
             }
-             steps = buckets[gbID].steps;
-          }
             const gameDef = new ROSLIB.Message({
               game_type: gameType, // eslint-disable-line
               steps: steps,

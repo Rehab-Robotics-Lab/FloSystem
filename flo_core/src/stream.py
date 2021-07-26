@@ -16,9 +16,9 @@ def stream(process_step, neutral):
     actions_list = []
     actions_list.append(neutral)
     actions_list.append(
-        {'speech': 'Hi I\'m Flo. For this activity we are going to be doing some actions.'
-         'If I do an action, please do it with me. I will demonstrate all movements mirrored.'
-         'Are you ready to get started?'})
+        {'speech': 'Hi I\'m Flo. For this activity we are going to be doing some actions. ' +
+                   'If I do an action, please do it with me. I will demonstrate all ' +
+                   'movements mirrored. Are you ready to get started?'})
     targ, _ = process_step(
         StepDef(type='pose_both', id=6, time=1))
     actions_list.append(

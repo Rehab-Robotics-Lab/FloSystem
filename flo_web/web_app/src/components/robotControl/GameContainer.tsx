@@ -272,7 +272,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
               return;
             }
             let steps = [] as StepDef[];
-            if (["simon_says", "target_type"].includes(gameType)) {
+            if (["simon_says", "target_touch"].includes(gameType)) {
               if (buckets[gbID] === undefined) {
                 console.error(
                   "tried to play a game with a bad game id: " + gbID

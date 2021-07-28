@@ -340,17 +340,16 @@ function ssh-flo {
     3.  enable ssh: `sudo apt install openssh-server`
 2.  Use lsyncd with the configuration file (See [Developing](#developing)) to
     copy files over
-3.  ssh into the robot and run the install script (`bash ./robot_install.sh`)
-4.  add a symlink to make running easier: ssh in and from the home directory type
-    `ln -s ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh`.
-5.  You need to setup read/write privileges for all of the USB devices and setup
+3.  ssh into the robot and run the install script (`bash ./robot_install.sh`).
+    *   It may ask you to set up a secure book key. Make sure that on the next reboot you select install key and enter your password. If you fail to set up properly, attached hardware will fail. Fix this by running `sudo update-secureboot-policy --enroll-key`
+4.  You need to setup read/write privileges for all of the USB devices and setup
     fixed addresses using [udev](#udev)
-6.  The speaker may need to be [setup](#usb-speaker) a bit different
-7.  Settings and firmware will need to be updated on the
+5.  The speaker may need to be [setup](#usb-speaker) a bit different
+6.  Settings and firmware will need to be updated on the
     [realsense cameras](#realsense-cameras)
-8.  You need to setup [Amazon Polly](#amazon-polly)
-9.  You will need to [setup the webrtc ros](#webrtc-ros) code
-10. Add to the bashrc file on the robot:
+7.  You need to setup [Amazon Polly](#amazon-polly) This should be as easy as just answering the questions during the install script.
+8.  You will need to [setup the webrtc ros](#webrtc-ros) code. This is now ahndled by a script as part of the install.
+9.  Add to the bashrc file on the robot:
     *   `export ROBOT_NAME=<robots name>` The name should be the unique name of the
         robot. The current valid values are lilflo and mantaro, as we add more
         systems, each name must be unique
@@ -362,18 +361,18 @@ function ssh-flo {
         only be true for development on a local machine). THen you also need to tell
         the router to not check certs by adding to the bashrc:
         `export NODE_TLS_REJECT_UNAUTHORIZED='0'`
-11. Add two cron jobs to automatically startup the system:
+10. Add two cron jobs to automatically startup the system:
     1.  `crontab -e`
     2.  `SHELL=/bin/bash` This will set the shell that things should run in
     3.  `@reboot (sleep 90; source ~/.bashrc; ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh)`
     4.  `*/1 * * * * (source ~/.bashrc; python ~/catkin_ws/src/LilFloSystem/flo_web/pinger/pinger.py)`
-12. Setup firewall (really need that with ros)
+11. Setup firewall (really need that with ros)
     1.  `sudo ufw default allow outgoing`
     2.  `sudo ufw default deny incoming`
     3.  `sudo ufw allow ssh`
     4.  `sudo ufw enable`
     5.  check: `sudo ufw status`
-13. Take a look at the bash_includes file. It should be going in through the install system automatically. Might not be though. For testing you want to set the ros_ip. But for deployment you do not. If a ROS IP is set using a network which the robot is connected to, then upon network loss the ros system will crash
+12. Take a look at the bash_includes file. It should be going in through the install system automatically. Might not be though. For testing you want to set the ros_ip. But for deployment you do not. If a ROS IP is set using a network which the robot is connected to, then upon network loss the ros system will crash
 
 #### Assigning the serial devices to have a fixed addresses {#udev}
 

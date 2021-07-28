@@ -8,7 +8,7 @@ pip3 install -U boto3
 ## Installing AWS CLI
 prior=$(pwd)
 cd ~/Downloads
-curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
+curl "https://s3.amazonaws.com/aws-cli/awscli-bundle-1.19.112.zip" -o "awscli-bundle.zip"
 unzip awscli-bundle.zip
 sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
 cd ~/Downloads

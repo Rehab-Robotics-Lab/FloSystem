@@ -40,7 +40,7 @@ def stream(process_step, neutral):
     actions_list.append(
         {'speech': 'Finally reach forward towards me with both arms', 'target' : targ}) 
     targ, _ = process_step(
-        StepDef(type='pose_both', id=1, time=1)),
+        StepDef(type='pose_both', id=1, time=1))
     actions_list.append(
         {'speech': 'Thanks for playing with me', 'target' : targ})
     targ, _ = process_step(

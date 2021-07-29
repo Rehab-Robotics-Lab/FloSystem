@@ -23,13 +23,13 @@ def stream(process_step, neutral):
         StepDef(type='pose_both', id=5, time=1))
     actions_list.append(
         {'speech': 'first raise your arms above your head', 'targets': targ})
-    targ, _ = process_step
+    targ, _ = process_step(
         StepDef(type='pose_both', id=5, time=1))
     actions_list.append(
-        {'speech': 'Extend your arms as far as you can toward the ceiling', 'targets': targ})
+        {'speech': 'Extend your arms as far as you can toward the ceiling', 'targets' : targ})
     targ, _ = process_step(
         StepDef(type='pose_both', id=1, time=1))
-    actions_list.append(t
+    actions_list.append(
         {'speech': 'shrug your shoulders as high as you can', 'targets': targ})
     targ, _ = process_step(
         StepDef(type='pose_both', id=9, time=1))
@@ -38,10 +38,10 @@ def stream(process_step, neutral):
     targ, _ = process_step(
         StepDef(type='pose_both', id=7, time=1))
     actions_list.append(
-        {'speech': 'Finally reach forward towards me with both arms', 'target' : targ})s 
+        {'speech': 'Finally reach forward towards me with both arms', 'target' : targ}) 
     targ, _ = process_step(
         StepDef(type='pose_both', id=1, time=1)),
-    actions_list.a
+    actions_list.append(
         {'speech': 'Thanks for playing with me', 'target' : targ})
     targ, _ = process_step(
         StepDef(type='pose_both', id=22, time=1))

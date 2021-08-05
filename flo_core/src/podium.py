@@ -13,11 +13,15 @@ from sensor_msgs.msg import Image as smImage
 from cv_bridge import CvBridge, CvBridgeError
 from flo_core_defs.srv import SetRecording, SearchGameBucket
 from flo_core_defs.msg import GameCommandOptions, GameState, GameCommand, GameDef
+import cv2
 
 # Screen is 800x480
 
 HOME_TIME = 5
 UPDATE_HOME_TIME = 1
+BUTTON_FONT = ('Arial', 20)
+INSTRUCTIONS_FONT = ('Arial', 50)
+IMAGE_SIZE = (480, 270)
 
 
 class PodiumScreen(object):
@@ -67,20 +71,17 @@ class PodiumScreen(object):
         rec_frame = tk.Frame(left_frame)
         rec_frame.pack(side=tk.TOP)
 
-        self.record_text = tk.Label(rec_frame)
+        self.record_text = tk.Label(rec_frame, font=BUTTON_FONT)
         self.record_text.grid(row=3, column=0)
 
         rospy.wait_for_service('set_recording')
+
         self.record_button = tk.Button(
-            rec_frame, text="Start Recoring", command=self.__start_recording)
+            rec_frame, text="Stop Recoring", command=self.__stop_recording, font=BUTTON_FONT)
         self.record_button.grid(row=4, column=0)
 
         self.record_button = tk.Button(
-            rec_frame, text="Stop Recoring", command=self.__stop_recording)
-        self.record_button.grid(row=4, column=0)
-
-        self.record_button = tk.Button(
-            rec_frame, text="Start Recoring", command=self.__start_recording)
+            rec_frame, text="Start Recoring", command=self.__start_recording, font=BUTTON_FONT)
         self.record_button.grid(row=5, column=0)
 
         self.recording = False
@@ -92,7 +93,8 @@ class PodiumScreen(object):
         game_frame = tk.Frame(main_frame)
         game_frame.pack(side=tk.LEFT)
 
-        self.game_status_l = tk.Label(game_frame, text='unknown')
+        self.game_status_l = tk.Label(
+            game_frame, text='unknown', font=BUTTON_FONT)
         self.game_status_l.pack(side=tk.TOP)
 
         game_def_frame = tk.Frame(game_frame)
@@ -118,18 +120,18 @@ class PodiumScreen(object):
                          GameState, self.__set_game_state)
 
         self.simon_says_b = tk.Button(
-            game_def_frame, text="Start Simon Says", command=self.__start_simon_says)
+            game_def_frame, text="Start Simon Says", command=self.__start_simon_says, font=BUTTON_FONT)
         self.simon_says_b.grid(row=1, column=1)
 
         self.target_touch_b = tk.Button(
-            game_def_frame, text="Start Target Touch", command=self.__start_target_touch)
+            game_def_frame, text="Start Target Touch", command=self.__start_target_touch, font=BUTTON_FONT)
         self.target_touch_b.grid(row=2, column=1)
 
         game_text_frame = tk.Frame(self.window)
         game_text_frame.pack(side=tk.TOP, fill=tk.X)
         self.game_text_label = tk.Label(game_text_frame)
         self.game_text_label.configure(
-            wraplength=500, font=('Arial', 50))
+            wraplength=500, font=INSTRUCTIONS_FONT)
         self.game_text_label.bind('<Configure>', lambda e: self.game_text_label.config(
             wraplength=self.game_text_label.winfo_width()))
         self.game_text_label.pack(side=tk.TOP, fill=tk.X)
@@ -167,7 +169,7 @@ class PodiumScreen(object):
                 widget.destroy()
             for opt in self.game_opts:
                 t_button = tk.Button(self.game_opts_frame, text=opt,
-                                     command=lambda opt=opt: self.__send_command(opt))
+                                     command=lambda opt=opt: self.__send_command(opt), font=BUTTON_FONT)
                 t_button.pack(side=tk.TOP)
             self.updated_game_opts = False
 
@@ -213,6 +215,7 @@ class PodiumScreen(object):
     def __new_img_l(self, msg):
         try:
             cv_image = self.bridge.imgmsg_to_cv2(msg, "rgb8")
+            cv_image = cv2.resize(cv_image, IMAGE_SIZE)
         except CvBridgeError as err:
             rospy.logerr('error converting message to cvmat: %s', err)
             return
@@ -222,6 +225,7 @@ class PodiumScreen(object):
     def __new_img_u(self, msg):
         try:
             cv_image = self.bridge.imgmsg_to_cv2(msg, "rgb8")
+            cv_image = cv2.resize(cv_image, IMAGE_SIZE)
         except CvBridgeError as err:
             rospy.logerr('error converting message to cvmat: %s', err)
             return

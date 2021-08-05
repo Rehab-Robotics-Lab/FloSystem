@@ -538,6 +538,12 @@ code change. For the web frontend, code will reload automatically on save (somet
 save twice). For python files running on the robot, you can simply kill the affected node(s) using
 your docker exec access terminal (described above) and when they restart they will have your new code
 
+#### Simulating Podium
+
+You can also run a simulator of the podium. Simply run `./docker_sim_launcher.sh -p`.
+You do not need the webserver running. The podium screen with simulated images should
+just show up.
+
 ## Running
 
 If fully set up as described above, then when the robot powers on,

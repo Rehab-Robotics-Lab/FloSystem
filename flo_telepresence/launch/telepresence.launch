@@ -19,7 +19,12 @@
     <!--<node name="robot_screen" pkg="flo_telepresence" type="display.py"/>-->
     <!--TODO: Add in something to play a bag file on a loop with data from all realsenses and audio-->
     <!--WebRTC-->
+    <include file="$(find flo_telepresence)/launch/webrtc-sim.launch"/>
     <include file="$(find flo_telepresence)/launch/cam_sim.launch"/>
+    <remap from="/image_publisher_fe/image_raw" to="/fisheye_cam/image_raw"/>
+    <node pkg="image_publisher" type="image_publisher" name="image_publisher_fe" args="$(find flo_telepresence)/kitten.jpg">
+      <param name="publish_rate" value="30"/>
+    </node>
   </group>
   <node name="robot_screen" pkg="flo_telepresence" type="display_cv.py" respawn="true">
     <param name="simulate" value="$(arg simulate)"/>

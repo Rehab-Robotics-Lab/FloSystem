@@ -6,6 +6,7 @@ try:
 except ImportError:
     import Tkinter as tk
 import Queue
+import subprocess
 from PIL import Image, ImageTk
 import rospy
 from std_msgs.msg import Bool, String
@@ -41,6 +42,12 @@ class PodiumScreen(object):
         self.window = tk.Tk()  # Makes main window
         self.window.geometry(
             "{0}x{1}+0+0".format(self.window.winfo_screenwidth(), self.window.winfo_screenheight()))
+
+        shutdown_frame = tk.Frame(self.window)
+        shutdown_frame.pack(side=tk.TOP, fill=tk.X)
+        self.shutdown_b = tk.Button(
+            shutdown_frame, text="Shutdown", command=self.__shutdown, font=BUTTON_FONT)
+        self.shutdown_b.grid(row=1, column=1)
 
         main_frame = tk.Frame(self.window)
         main_frame.pack(side=tk.TOP)
@@ -142,6 +149,14 @@ class PodiumScreen(object):
         rospy.loginfo('Started Podium Screen Node')
 
         self.__run_display()
+
+    def __shutdown(self):
+        process = subprocess.Popen(["tmux", "kill-session", "-t", "flo"],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        rospy.loginfo(stdout)
+        rospy.logerr(stderr)
 
     def __set_recording_state(self, msg):
         self.recording = msg.data

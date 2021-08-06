@@ -15,7 +15,7 @@ from cv_bridge import CvBridge, CvBridgeError
 from flo_core_defs.srv import SetRecording, SearchGameBucket
 from flo_core_defs.msg import GameCommandOptions, GameState, GameCommand, GameDef
 import cv2
-from system_monitor.msg import CPUutil, HDDutil, MEMutil, NETstats
+from system_monitor.msg import CPUutil, HDDutil, MEMutil
 
 # Screen is 800x480
 

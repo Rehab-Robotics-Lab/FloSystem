@@ -138,11 +138,13 @@ class PodiumScreen(object):
                          GameState, self.__set_game_state)
 
         self.simon_says_b = tk.Button(
-            game_def_frame, text="Start Simon Says", command=self.__start_simon_says, font=BUTTON_FONT)
+            game_def_frame, text="Start Simon Says",
+            command=self.__start_simon_says, font=BUTTON_FONT)
         self.simon_says_b.grid(row=1, column=1)
 
         self.target_touch_b = tk.Button(
-            game_def_frame, text="Start Target Touch", command=self.__start_target_touch, font=BUTTON_FONT)
+            game_def_frame, text="Start Target Touch",
+            command=self.__start_target_touch, font=BUTTON_FONT)
         self.target_touch_b.grid(row=2, column=1)
 
         game_text_frame = tk.Frame(self.window)
@@ -165,7 +167,8 @@ class PodiumScreen(object):
 
         self.__run_display()
 
-    def __shutdown(self):
+    @staticmethod
+    def __shutdown():
         process = subprocess.Popen(["tmux", "kill-session", "-t", "flo"],
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
@@ -198,8 +201,9 @@ class PodiumScreen(object):
             for widget in self.game_opts_frame.winfo_children():
                 widget.destroy()
             for opt in self.game_opts:
-                t_button = tk.Button(self.game_opts_frame, text=opt,
-                                     command=lambda opt=opt: self.__send_command(opt), font=BUTTON_FONT)
+                t_button = tk.Button(
+                    self.game_opts_frame, text=opt,
+                    command=lambda opt=opt: self.__send_command(opt), font=BUTTON_FONT)
                 t_button.pack(side=tk.TOP)
             self.updated_game_opts = False
 

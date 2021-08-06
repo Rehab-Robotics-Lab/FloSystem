@@ -45,5 +45,5 @@ services:
       - ./certs/sim-info.env
     extra_hosts:
       - host.docker.internal:host-gateway
-    command: [roslaunch --wait flo_core podium_bringup.launch simulate:=True]
+    command: roslaunch --wait flo_core podium_bringup.launch simulate:=True
     # command: [rqt_bag]

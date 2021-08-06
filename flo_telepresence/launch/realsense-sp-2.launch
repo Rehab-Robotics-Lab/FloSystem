@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <launch>
   <!--Depending on the platform there are different cameras... Options: flo, podium-->
+  <arg name="simulate" default="False"/>
   <arg name="platform" default="flo"/>
   <!--This guide tells us settings to start with:-->
   <!--https://www.intel.com/content/dam/support/us/en/documents/emerging-technologies/intel-realsense-technology/BKMs_Tuning_RealSense_D4xx_Cam.pdf-->
@@ -24,7 +25,7 @@
   <!--<arg name="enable_sync"               default="false"/>-->
   <!--This seems like a good idea, but when this is done, nothing can connect for a while:-->
   <arg name="initial_reset" value="True"/>
-  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch" if="$(eval simulate==False)">
     <arg name="serial_no" value="$(arg serial_no_upper)"/>
     <arg name="camera" value="upper_realsense"/>
     <arg name="depth_width" value="$(arg depth_width)"/>
@@ -46,12 +47,20 @@
     <!--<arg name="enable_infra2" value="$(arg enable_infra_r)"/>-->
     <arg name="initial_reset" value="$(arg initial_reset)"/>
   </include>
+  <group if="$(eval simulate==True)">
+    <remap from="/image_publisher_ur/image_raw" to="/upper_realsense/color/image_web"/>
+    <node pkg="image_publisher" type="image_publisher" name="image_publisher_ur" args="$(find flo_telepresence)/puppy.jpg">
+      <param name="publish_rate" value="30"/>
+    </node>
+  </group>
   <group ns="upper_realsense/color">
     <node pkg="topic_tools" name="image_throttled" type="throttle" args="messages image_raw 15 image_throttled"/>
     <node pkg="nodelet" type="nodelet" name="image_web" args="standalone image_proc/resize">
       <param name="use_scale" type="bool" value="False"/>
-      <param name="width" type="int" value="320"/>
-      <param name="height" type="int" value="180"/>
+      <param name="width" type="int" value="320" if="$(eval platform=='flo')"/>
+      <param name="width" type="int" value="640" if="$(eval platform=='podium')"/>
+      <param name="height" type="int" value="180" if="$(eval platform=='flo')"/>
+      <param name="height" type="int" value="360" if="$(eval platform=='podium')"/>
       <remap from="image" to="image_throttled"/>
       <remap from="~image" to="image_web"/>
     </node>

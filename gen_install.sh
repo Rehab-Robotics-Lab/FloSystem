@@ -56,7 +56,9 @@ fi
 echo "Adding updated webrtcros"
 prior=$(pwd)
 cd ~/catkin_ws/src
-git clone --single-branch --branch develop https://github.com/RobotWebTools/webrtc_ros.git
+if [ ! -d "webrtc_ros" ] ; then
+    git clone --single-branch --branch develop https://github.com/RobotWebTools/webrtc_ros.git
+fi
 cd webrtc_ros
 git checkout a2a19da
 cd webrtc
@@ -67,7 +69,9 @@ cd $prior
 echo "Adding rosbridge without unsub"
 prior=$(pwd)
 cd ~/catkin_ws/src
-git clone --single-branch --branch nousub https://github.com/mjsobrep/rosbridge_suite.git
+if [ ! -d "rosbridge_suite" ] ; then
+    git clone --single-branch --branch nousub https://github.com/mjsobrep/rosbridge_suite.git
+fi
 cd $prior
 
 # build it all

@@ -32,13 +32,13 @@ function getTURNCredentials(
 router.post('/turn-credentials', async (req, res) => {
     const { robotName, username, password } = req.body;
     const session = req.session;
-    if (session === undefined || session.userID === undefined) {
-        res.status(500).json({ error: 'no session found' });
-        return;
-    }
     let ctname: string;
     try {
         if (robotName !== undefined) {
+            if (session === undefined || session.userID === undefined) {
+                res.status(500).json({ error: 'no session found' });
+                return;
+            }
             const id = session.userID;
             const {
                 rows,

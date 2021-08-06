@@ -12,6 +12,11 @@
   <node name="system_monitor" pkg="system_monitor" type="stats_publisher.py" respawn="true"/>
   <node name="podium_gui" pkg="flo_core" type="podium.py" respawn="true"/>
   <group if="$(eval simulate==True)">
-    <include file="$(find flo_telepresence)/launch/cam_sim.launch"/>
+    <include file="$(find flo_telepresence)/launch/realsense-sp-1.launch">
+      <arg name="simulate" value="$(arg simulate)"/>
+    </include>
+    <include file="$(find flo_telepresence)/launch/realsense-sp-2.launch">
+      <arg name="simulate" value="$(arg simulate)"/>
+    </include>
   </group>
 </launch>

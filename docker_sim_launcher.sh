@@ -5,11 +5,16 @@ set -o pipefail
 rebuild=false
 target='robot'
 
-while getopts :rp flag
+while getopts :rph flag
 do
     case "${flag}" in
         r) rebuild=true;;
         p) target='podium';;
+        h) echo 'Run Simulator'
+            echo 'Default just runs'
+            echo '-p : podium simulator'
+            echo '-r : force rebuild'
+            exit 0;;
         :) echo 'missing argument' >&2; exit 1;;
         \?) echo 'invalid option' >&2; exit 1
     esac

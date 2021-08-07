@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import * as ROSLIB from "roslib";
 import { basicBlock } from "../../styleDefs/styles";
 import ModalWrapper from "./ModalWrapper";
-import { GameBucket } from "./GameBuckets";
+import { GameBucket, StepDef } from "./GameBuckets";
 
 interface CommandOpts {
   options: string[];
@@ -107,13 +107,13 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
 
   const [showSelector, setShowSelector] = useState(false);
   const [gbID, setGbID] = useState(0);
-  const [gameType, setGameType] = useState<"simon_says" | "target_touch">(
-    "simon_says"
-  );
+  const [gameType, setGameType] = useState<
+    "simon_says" | "target_touch" | "stream"
+  >("simon_says");
   const [buckets, setBuckets] = useState<GameBucket[]>([]);
 
   const startButton = (
-    type: "simon_says" | "target_touch",
+    type: "simon_says" | "target_touch" | "stream",
     cleanText: string
   ): JSX.Element => {
     return (
@@ -166,6 +166,7 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
       <h2>Games:</h2>
       {startButton("simon_says", "Simon Says")}
       {startButton("target_touch", "Target Touch")}
+      {startButton("stream", "Stream")}
       {commandOptions.map((value) => (
         <GameCommand
           name={value}
@@ -181,27 +182,30 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
         />
       ))}
       <ModalWrapper show={showSelector}>
-        <h3>Select Bucket</h3>
-        <label htmlFor="selectGameBucket">
-          Game Bucket:
-          <select
-            id="selectGameBucket"
-            onChange={(obj): void => {
-              const newId: number = parseInt(obj.target.value, 10);
-              setGbID(newId);
-            }}
-          >
-            {buckets
-              .map((value, idx) => ({ idx, ...value }))
-              .filter((value) => value.targeted_game == gameType)
-              .map((value, idx) => (
-                <option key={idx} value={value.idx}>
-                  {value.name}
-                </option>
-              ))}
-          </select>
-        </label>
-
+        {["simon_says", "target_touch"].includes(gameType) && (
+          <div>
+            <h3>Select Bucket</h3>
+            <label htmlFor="selectGameBucket">
+              Game Bucket:
+              <select
+                id="selectGameBucket"
+                onChange={(obj): void => {
+                  const newId: number = parseInt(obj.target.value, 10);
+                  setGbID(newId);
+                }}
+              >
+                {buckets
+                  .map((value, idx) => ({ idx, ...value }))
+                  .filter((value) => value.targeted_game == gameType)
+                  .map((value, idx) => (
+                    <option key={idx} value={value.idx}>
+                      {value.name}
+                    </option>
+                  ))}
+              </select>
+            </label>
+          </div>
+        )}
         {gameType == "target_touch" && (
           //TODO: insert a number input for number of reps
           <label htmlFor="reps">
@@ -267,13 +271,19 @@ const GameContainer: React.FunctionComponent<GameContainerProps> = ({
               console.error("tried to play game when not connected");
               return;
             }
-            if (buckets[gbID] === undefined) {
-              console.error("tried to play a game with a bad game id: " + gbID);
-              return;
+            let steps = [] as StepDef[];
+            if (["simon_says", "target_touch"].includes(gameType)) {
+              if (buckets[gbID] === undefined) {
+                console.error(
+                  "tried to play a game with a bad game id: " + gbID
+                );
+                return;
+              }
+              steps = buckets[gbID].steps;
             }
             const gameDef = new ROSLIB.Message({
               game_type: gameType, // eslint-disable-line
-              steps: buckets[gbID].steps,
+              steps: steps,
               reps: reps,
               min_steps: minSteps,
               max_steps: maxSteps,

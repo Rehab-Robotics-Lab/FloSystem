@@ -92,7 +92,6 @@ You should create a file in `LilFloSystem/certs/datadog.env` with contents:
 DD_API_KEY=<cryptographically random value>
 DD_HOSTNAME=<hostname ex: lilflo.com>
 ```
-
 ### SSL certs
 
 #### Local

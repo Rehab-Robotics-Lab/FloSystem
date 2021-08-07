@@ -177,7 +177,7 @@ const SaveBucket: React.FunctionComponent<SaveBucketProps> = ({
   );
 };
 
-interface StepDef {
+export interface StepDef {
   type: string;
   text: string;
   id: number;

@@ -20,7 +20,12 @@
     <!--TODO: Add in something to play a bag file on a loop with data from all realsenses and audio-->
     <!--WebRTC-->
     <include file="$(find flo_telepresence)/launch/webrtc-sim.launch"/>
-    <include file="$(find flo_telepresence)/launch/cam_sim.launch"/>
+    <include file="$(find flo_telepresence)/launch/realsense-sp-1.launch">
+      <arg name="simulate" value="True"/>
+    </include>
+    <include file="$(find flo_telepresence)/launch/realsense-sp-2.launch">
+      <arg name="simulate" value="True"/>
+    </include>
     <remap from="/image_publisher_fe/image_raw" to="/fisheye_cam/image_raw"/>
     <node pkg="image_publisher" type="image_publisher" name="image_publisher_fe" args="$(find flo_telepresence)/kitten.jpg">
       <param name="publish_rate" value="30"/>

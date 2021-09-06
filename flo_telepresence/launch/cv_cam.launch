@@ -1,8 +1,18 @@
+<?xml version="1.0"?>
 <launch>
-  <node name="fisheye_cam" pkg="cv_camera" type="cv_camera_node" >
-    <param name="device_path" value="/dev/v4l/by-id/usb-HD_Camera_Manufacturer_USB_2.0_Camera-video-index0"/>
-    <param name="image_width" value="1280"/>
-    <param name="image_height" value="1024"/>
-    <param name="rate" value="30"/>
-  </node>
+  <arg name="simulate" default="False"/>
+  <group if="$(eval simulate==False)">
+    <node name="fisheye_cam" pkg="cv_camera" type="cv_camera_node">
+      <param name="device_path" value="/dev/v4l/by-id/usb-HD_Camera_Manufacturer_USB_2.0_Camera-video-index0"/>
+      <param name="image_width" value="1280"/>
+      <param name="image_height" value="1024"/>
+      <param name="rate" value="30"/>
+    </node>
+  </group>
+  <group if="$(eval simulate==True)">
+    <remap from="/image_publisher_fe/image_raw" to="/fisheye_cam/image_raw"/>
+    <node pkg="image_publisher" type="image_publisher" name="image_publisher_fe" args="$(find flo_telepresence)/kitten.jpg">
+      <param name="publish_rate" value="15"/>
+    </node>
+  </group>
 </launch>

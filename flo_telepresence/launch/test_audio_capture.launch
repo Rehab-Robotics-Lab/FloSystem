@@ -1,0 +1,8 @@
+<launch>
+    <group>
+    <remap from="audio" to="audio_relay"/>
+    <include file="$(find audio_capture)/launch/capture.launch">
+        <arg name="ns" value="robot_audio"/>
+    </include>
+    </group>
+</launch>

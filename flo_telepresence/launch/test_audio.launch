@@ -1,7 +1,0 @@
-
-<launch>
-    <include file="$(find audio_play)/launch/play.launch" >
-        <arg name="ns" value="robot_audio"/>
-    </include>
-
-</launch>

@@ -19,4 +19,6 @@
       <arg name="simulate" value="$(arg simulate)"/>
     </include>
   </group>
+  <!--Audio-->
+  <include file="$(find flo_telepresence)/launch/audio.launch"/>
 </launch>

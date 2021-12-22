@@ -2,6 +2,8 @@
 
 source ~/.bashrc
 
+mkdir -p ~/flo_data
+
 tmux new-session -d -s flo
 tmux rename-window startup
 tmux send-keys 'roscore' Enter

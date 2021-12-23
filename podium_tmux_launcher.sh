@@ -9,7 +9,7 @@ tmux split-window -t flo -h
 
 
 tmux split-window -t flo
-tmux send-keys 'connect_to_robot 0 && roslaunch --wait flo_core podium_bringup.launch' Enter # it is just more stable..
+tmux send-keys 'mkdir -p ~/flo_data && connect_to_robot 0 && roslaunch --wait flo_core podium_bringup.launch' Enter # it is just more stable..
 
 tmux rotate-window -t flo
 

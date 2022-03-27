@@ -38,7 +38,7 @@ RUN pip3 install -U boto3
 
 USER root
 WORKDIR /aws-temp
-RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip" \
+RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle-1.19.112.zip" -o "awscli-bundle.zip" \
     && unzip awscli-bundle.zip
 RUN ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws \
 WORKDIR /aws-temp

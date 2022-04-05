@@ -22,7 +22,7 @@ RUN useradd -m $ROS_USER && \
 
 COPY pulse-client.conf /etc/pulse/client.conf
 
-RUN apt-get update -y && apt-get install -y python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential python-pip python3-pip unzip libpulse0 pulseaudio pulseaudio-utils libcanberra-gtk-module
+RUN apt-get update -y && apt-get install -y python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential python-pip python3-pip unzip libpulse0 pulseaudio pulseaudio-utils libcanberra-gtk-module curl
 
 RUN mkdir /home/$ROS_USER/flo_data \
     && mkdir /home/$ROS_USER/catkin_ws/src -p

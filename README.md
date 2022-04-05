@@ -534,7 +534,7 @@ can run an entire simulation stack within docker. To do this:
 
 1.  Follow the instructions for [setting up ssl certs](#ssl-certs)
 
-2.  Follow instructions for [setting up config files](#config-files)
+2.  Follow instructions for [setting up config files](#setting-config-files)
 
 3.  Install [docker](https://docs.docker.com/desktop/) and complete the post
     installation steps, then test docker by running the hello world image
@@ -554,7 +554,7 @@ can run an entire simulation stack within docker. To do this:
     `ROBOT_PASSWORD=<password from web interface>`
 
 9.  Make a file `./certs/aws-credentials` and populate it with a valid AWS
-    credential which has [access to aws polly](#amazon-poly). The first line
+    credential which has [access to aws polly](#amazon-polly). The first line
     should have `[flo]` the second line should have
     `aws_access_key_id = <the access key id>` the third line should have
     `aws_secret_access_key = <secret key>`. You also need to create

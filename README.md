@@ -579,7 +579,8 @@ system down for every code change. For the web frontend, code will reload
 automatically on save (sometimes you need to save twice). For python files
 running on the robot, you can simply kill the affected node(s) using your docker
 exec access terminal (described above) and when they restart they will have your
-new code
+new code. To reset docker (i.e., to remove all unused containers, networks, images 
+(both dangling and unreferenced), and optionally, volumes)), run `docker system prune -a`.
 
 #### Simulating Podium
 

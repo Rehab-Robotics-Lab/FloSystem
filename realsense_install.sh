@@ -13,7 +13,7 @@ if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut 
     ROS_VERSION="melodic"
     OS_VERSION="bionic"
     else 
-    if if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==20)); then
+    if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==20)); then
     ROS_VERSION="noetic"
     OS_VERSION="focal"
 fi    

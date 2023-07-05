@@ -1,4 +1,4 @@
-# LilFloSystem
+# FloSystem
 
 This is the the master repository for all of the Lil'Flo remote control, local
 control, messaging, etc.
@@ -75,18 +75,18 @@ bring in code and config files, and adding in the front end server.
 
 ### Server Config Files
 
-You should create a file in `LilFloSystem/certs/session-secret.env` with
+You should create a file in `FloSystem/certs/session-secret.env` with
 contents:
 `SESSION_SECRET=<cryptographically random value ex:random string of characters or numbers>`
 
-You should create a file in `LilFloSystem/certs/coturn.env` with contents:
+You should create a file in `FloSystem/certs/coturn.env` with contents:
 
 ```conf
 COTURN_SECRET=<cryptographically random value>
 SITE_ADDR=<the site address, ex: lilflo.com>
 ```
 
-You should create a file in `LilFloSystem/certs/datadog.env` with contents:
+You should create a file in `FloSystem/certs/datadog.env` with contents:
 
 ```conf
 DD_API_KEY=<cryptographically random value>
@@ -132,7 +132,7 @@ setup a first admin. To do this:
 
 1.  Create a user account by registering through the web interface
 2.  Attach to the docker image for the postgres database into pg:
-    `docker container exec -it lilflosystem_postgres_1 psql flodb -h localhost -U postgres`
+    `docker container exec -it flosystem_postgres_1 psql flodb -h localhost -U postgres`
     (note the number on that container might be different...)
 3.  Turn on expanded view to get nice prints: `\x`
 4.  Optionally get info on your registered users: `select * from users;`
@@ -395,8 +395,8 @@ function ssh-flo {
 10. Add two cron jobs to automatically startup the system:
     1.  `crontab -e`
     2.  `SHELL=/bin/bash` This will set the shell that things should run in
-    3.  `@reboot (sleep 90; source ~/.bashrc; ~/catkin_ws/src/LilFloSystem/robot_tmux_launcher.sh)`
-    4.  `*/1 * * * * (source ~/.bashrc; python ~/catkin_ws/src/LilFloSystem/flo_web/pinger/pinger.py)`
+    3.  `@reboot (sleep 90; source ~/.bashrc; ~/catkin_ws/src/FloSystem/robot_tmux_launcher.sh)`
+    4.  `*/1 * * * * (source ~/.bashrc; python ~/catkin_ws/src/FloSystem/flo_web/pinger/pinger.py)`
 11. Setup firewall (really need that with ros)
     1.  `sudo ufw default allow outgoing`
     2.  `sudo ufw default deny incoming`
@@ -568,7 +568,7 @@ can run an entire simulation stack within docker. To do this:
 11. Go to localhost
 
 12. To inspect the system, in an unused terminal:
-    `docker exec -it <container name, ex: lilflosystem_flo_sim_1> /ros_entrypoint.sh bash`
+    `docker exec -it <container name, ex: flosystem_flo_sim_1> /ros_entrypoint.sh bash`
 
 13. After entering localhost Add the newly created robot to your profile under
     admin portal and enter the email used to setup your account to add the robot
@@ -649,7 +649,7 @@ installed via rosdep by running:
 ```bash
 sudo apt update -y && sudo apt upgrade -y
 rosdep update
-rosdep install --from-paths ~/catkin_ws/src/LilFloSystem/ --ignore-src -r -y
+rosdep install --from-paths ~/catkin_ws/src/FloSystem/ --ignore-src -r -y
 ```
 
 Some dependencies can't be installed by rosdep and should be installed by the

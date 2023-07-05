@@ -14,6 +14,6 @@ NPM_CONFIG_PREFIX=~/.npm-global
 npm install -g pm2
 
 prior=$(pwd)
-cd ~/catkin_ws/src/LilFloSystem/flo_web/webrtc_robot_router
+cd ~/catkin_ws/src/FloSystem/flo_web/webrtc_robot_router
 npm install
 cd $prior

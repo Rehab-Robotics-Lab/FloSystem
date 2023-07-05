@@ -12,18 +12,18 @@ services:
     env_file:
       - ./flo_web/datadog.env
     environment:
-      - DD_SERVICE=lilflosystem_host-server
+      - DD_SERVICE=flosystem_host-server
     labels:
-      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "lilflosystem_host-server",
+      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "flosystem_host-server",
         "type": "file", "path": "/usr/logs/datadog.log", "sourcecategory": "sourcecode"}]'
   operator-server:
     restart: unless-stopped
     env_file:
       - ./flo_web/datadog.env
     environment:
-      - DD_SERVICE=lilflosystem_operator-server
+      - DD_SERVICE=flosystem_operator-server
     labels:
-      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "lilflosystem_operator-server",
+      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "flosystem_operator-server",
         "type": "file", "path": "/usr/logs/datadog.log", "sourcecategory": "sourcecode"}]'
   nginx:
     restart: unless-stopped
@@ -34,7 +34,7 @@ services:
       com.datadoghq.ad.check_names: '["nginx"]'
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"nginx_status_url": "http://%%host%%:81/nginx_status/"}]'
-      com.datadoghq.ad.logs: '[{"source": "nginx", "service": "lilflosystem_nginx"}]'
+      com.datadoghq.ad.logs: '[{"source": "nginx", "service": "flosystem_nginx"}]'
     command: /bin/sh -c 'while :; do sleep $$(( $$( date -d "next sunday 0700" +%s
       ) - $$( date +%s ) )) & wait $${!}; nginx -s reload; done & nginx -g "daemon
       off;"'
@@ -54,7 +54,7 @@ services:
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"host": "%%host%%","port": 5432,"username": "datadog","dbname":
         "flodb","password": "not-so-secret"}]'
-      com.datadoghq.ad.logs: '[{"source": "postgresql", "service": "lilflosystem_postgres"}]'
+      com.datadoghq.ad.logs: '[{"source": "postgresql", "service": "flosystem_postgres"}]'
     volumes:
       - $HOME/docker/volumes/postgres:/var/lib/postgresql/data
   session-store:
@@ -63,22 +63,22 @@ services:
       com.datadoghq.ad.check_names: '["redisdb"]'
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"host": "%%host%%", "port": "6379"}]'
-      com.datadoghq.ad.logs: '[{"source": "redis", "service": "lilflosystem_session-store"}]'
+      com.datadoghq.ad.logs: '[{"source": "redis", "service": "flosystem_session-store"}]'
   client-store:
     restart: unless-stopped
     labels:
       com.datadoghq.ad.check_names: '["redisdb"]'
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"host": "%%host%%", "port": "6379"}]'
-      com.datadoghq.ad.logs: '[{"source": "redis", "service": "lilflosystem_client-store"}]'
+      com.datadoghq.ad.logs: '[{"source": "redis", "service": "flosystem_client-store"}]'
   api-server:
     env_file:
       - ./certs/coturn.env
       - ./flo_web/datadog.env
     environment:
-      - DD_SERVICE=lilflosystem_api-server
+      - DD_SERVICE=flosystem_api-server
     labels:
-      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "lilflosystem_api-server",
+      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "flosystem_api-server",
         "type": "file", "path": "/usr/logs/datadog.log", "sourcecategory": "sourcecode"}]'
   datadog:
     restart: unless-stopped

@@ -1,4 +1,4 @@
-#NOTE: This needs to be built from the LilFloSystem directory.
+#NOTE: This needs to be built from the FloSystem directory.
 #So you can run `docker build -f flo_web/Dockerfile .`
 
 # Stage 0, "build-stage", based on Node.js, to build and compile the frontend

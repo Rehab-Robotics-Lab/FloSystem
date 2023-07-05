@@ -65,7 +65,7 @@ RUN /ros_entrypoint.sh rosdep install --from-paths src --ignore-src -r -y --skip
 WORKDIR /home/$ROS_USER/catkin_ws
 RUN /ros_entrypoint.sh catkin_make
 
-WORKDIR /home/$ROS_USER/catkin_ws/src/LilFloSystem
+WORKDIR /home/$ROS_USER/catkin_ws/src/FloSystem
 COPY ./flo_core/CMakeLists.txt        ./flo_core/
 COPY ./flo_core/package.xml           ./flo_core/
 COPY ./flo_core_defs/CMakeLists.txt   ./flo_core_defs/
@@ -96,7 +96,7 @@ WORKDIR /home/$ROS_USER/catkin_ws
 RUN /ros_entrypoint.sh rosdep install --from-paths src --ignore-src -r -y --skip-keys "realsense2_camera realsense2_description rosbridge_suite rosbridge_server rosbridge_library rosbridge_msgs video_stream_opencv"
 
 
-WORKDIR /home/$ROS_USER/catkin_ws/src/LilFloSystem
+WORKDIR /home/$ROS_USER/catkin_ws/src/FloSystem
 COPY ./ ./
 
 WORKDIR /home/$ROS_USER/catkin_ws

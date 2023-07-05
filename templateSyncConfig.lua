@@ -14,8 +14,8 @@ settings{
 }
 sync {
     default.rsync,
-    source    = "/home/mjsobrep/Documents/git/LilFloSystem",
-    target    = "nuc-admin@10.42.0.189:/home/nuc-admin/catkin_ws/src/LilFloSystem",
+    source    = "/home/mjsobrep/Documents/git/FloSystem",
+    target    = "nuc-admin@10.42.0.189:/home/nuc-admin/catkin_ws/src/FloSystem",
     delay     = 1, -- How long to wait before executing. Give it a second in
                    -- case there are lots of changes we can put together, but
                    -- don't want to be sitting around forever...

@@ -19,7 +19,7 @@ jobs:
       - name: Checkout this repo
         uses: actions/checkout@v2
         with:
-          path: LilFloSystem
+          path: FloSystem
 
       #- name: Checkout AWS ROS TTS - caching version
       #  uses: actions/checkout@v2
@@ -36,7 +36,7 @@ jobs:
 
       - name: Link repos into catkin ws
         run: |
-          ln -s "$GITHUB_WORKSPACE/LilFloSystem" "$HOME/catkin_ws/src/"
+          ln -s "$GITHUB_WORKSPACE/FloSystem" "$HOME/catkin_ws/src/"
           ln -s "$GITHUB_WORKSPACE/tts-ros1" "$HOME/catkin_ws/src/"
       #- name: Show where we are
       #  run: |
@@ -49,7 +49,7 @@ jobs:
       #  run: touch ./webrtc_ros/webrtc/CATKIN_IGNORE
       - name: Run Install Script
         run: |
-          cd "$HOME/catkin_ws/src/LilFloSystem"
+          cd "$HOME/catkin_ws/src/FloSystem"
           bash gen_install.sh
 
       - uses: actions/cache@v1
@@ -65,8 +65,8 @@ jobs:
           python -m pip install --upgrade pip
           echo "/home/runner/.local/bin" >> $GITHUB_PATH
           python -m pip install "pylint<2.0.0"
-          source ~/catkin_ws/src/LilFloSystem/bash_includes
-          cd $GITHUB_WORKSPACE/LilFloSystem
+          source ~/catkin_ws/src/FloSystem/bash_includes
+          cd $GITHUB_WORKSPACE/FloSystem
           git ls-files | grep 'py$' | xargs pylint --unsafe-load-any-extension=y --disable=fixme
 
       - name: Catkin Lint
@@ -75,7 +75,7 @@ jobs:
           sudo add-apt-repository ppa:roehling/ros
           sudo apt-get update -y
           sudo apt-get install -y python-catkin-lint
-          cd $GITHUB_WORKSPACE/LilFloSystem
+          cd $GITHUB_WORKSPACE/FloSystem
           catkin_lint . -W2 --strict
 
   python-todos:
@@ -84,7 +84,7 @@ jobs:
       - name: Checkout this repo
         uses: actions/checkout@v2
         with:
-          path: LilFloSystem
+          path: FloSystem
 
       - uses: actions/cache@v1
         with:
@@ -101,5 +101,5 @@ jobs:
 
       - name: Find TODOs
         run: |-
-          cd $GITHUB_WORKSPACE/LilFloSystem
+          cd $GITHUB_WORKSPACE/FloSystem
           git ls-files | grep 'py$' | xargs pylint --disable=all --enable=fixme

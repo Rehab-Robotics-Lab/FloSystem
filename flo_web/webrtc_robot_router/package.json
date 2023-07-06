@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Rehab-Robotics-Lab/LilFloSystem.git"
+    "url": "git+https://github.com/Rehab-Robotics-Lab/FloSystem.git"
   },
   "author": "Michael Sobrepera",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://github.com/Rehab-Robotics-Lab/LilFloSystem/issues"
+    "url": "https://github.com/Rehab-Robotics-Lab/FloSystem/issues"
   },
-  "homepage": "https://github.com/Rehab-Robotics-Lab/LilFloSystem#readme",
+  "homepage": "https://github.com/Rehab-Robotics-Lab/FloSystem#readme",
   "dependencies": {
     "@types/express": "^4.17.11",
     "@types/node": "^14.14.31",

@@ -14,7 +14,7 @@ git pull
 echo 'pulled latest version of tts-ros'
 cd ../..
 rosdep update
-rosdep install --from-paths ~/catkin_ws/src/LilFloSystem/ --ignore-src -r -y
+rosdep install --from-paths ~/catkin_ws/src/FloSystem/ --ignore-src -r -y
 catkin_make clean
 catkin_make
 catkin_make install

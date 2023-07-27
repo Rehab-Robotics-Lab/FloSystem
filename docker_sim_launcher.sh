@@ -41,6 +41,6 @@ pactlmod=$(pactl load-module module-native-protocol-unix socket=/tmp/pulseaudio.
 trap 'pactl unload-module "$pactlmod"' EXIT
 
 if [ "$rebuild" = true ] ; then
-    docker-compose  -f "docker-compose-$target-sim.yml" build
+    docker-compose  -f "docker-compose-$target-sim.yml" build --no-cache
 fi
 docker-compose -f "docker-compose-$target-sim.yml" up

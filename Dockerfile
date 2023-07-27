@@ -46,7 +46,7 @@ RUN rm awscli-bundle.zip && rm -r awscli-bundle
 
 USER $ROS_USER
 
-RUN /ros_entrypoint.sh rosdep update
+RUN /ros_entrypoint.sh rosdep update --include-eol-distros
 
 WORKDIR /home/$ROS_USER/catkin_ws/src
 

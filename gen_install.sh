@@ -13,6 +13,10 @@ if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut 
     else
     if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==18)); then
     ROS_VERSION="melodic"
+    else
+    if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==20)); then
+    ROS_VERSION="noetic"
+fi
 fi
 fi
 echo "installing for ros version: ${ROS_VERSION}"
@@ -21,10 +25,11 @@ source /opt/ros/${ROS_VERSION}/setup.bash
 ## install rosmon, it would be weird for this to be in one of the packages:
 #sudo apt-get install ros-${ROS_VERSION}-rosmon
 
-sudo apt-get -qq install -y python-rosdep
+sudo apt-get -qq install -y python3-rosdep
 [ ! -d "/etc/ros/rosdep/sources.list.d" ] && sudo rosdep init -q
 rosdep update -q
-sudo apt-get -qq install -y python-rosinstall python-rosinstall-generator python-wstool build-essential
+
+sudo apt-get -qq install -y python3-rosinstall python3-rosinstall-generator python3-wstool build-essential python3-catkin-tools 
 
 ## Install packages we need:
 echo "INSTALLING DEPENDENCIES NOT FOUND IN ROSDEP"
@@ -32,13 +37,15 @@ echo "INSTALLING DEPENDENCIES NOT FOUND IN ROSDEP"
 #I think I have replaced this by adding a symlink:
 #python flo_face/teensy/src/serial_coms/computer/python/serial-coms/setup.py install --user
 # Mutagen has dropped python 2 support. Last supported version was 1.43.0:
-sudo apt-get -qq install -y python-pip
+sudo apt-get -qq install -y python3-pip
 pip install 'mutagen==1.43.0' --user -q
 
 echo "INSTALLING ROSDEP DEPENDENCIES"
-sudo apt-get -qq install python-rosdep -y
+sudo apt-get -qq install python3-rosdep -y
 cd ~/catkin_ws
+echo "===== CHECK"
 rosdep install --from-paths src --ignore-src -q -r -y --skip-keys "realsense2_camera realsense2_description rosbridge_suite rosbridge_server rosbridge_library rosbridge_msgs video_stream_opencv kobuki"
+echo "===== CHECK"
 cd -
 
 echo "checking vars"
@@ -50,19 +57,16 @@ then
     echo "in github actions, SKIPPING REALSENSE"
 else
 echo "INSTALLING REALSENSE"
-bash realsense_install.sh
+# bash realsense_install.sh
 fi
 
 echo "Adding updated webrtcros"
+sudo apt-get install -qq -y libjsoncpp-dev #ros-melodic-webrtc
 prior=$(pwd)
 cd ~/catkin_ws/src
 if [ ! -d "webrtc_ros" ] ; then
-    git clone --single-branch --branch develop https://github.com/RobotWebTools/webrtc_ros.git
+    git clone --single-branch --branch develop https://github.com/RobotWebTools/webrtc_ros.git #https://github.com/anht-nguyen/webrtc_ros.git
 fi
-cd webrtc_ros
-git checkout a2a19da
-cd webrtc
-touch CATKIN_IGNORE
 cd $prior
 
 
@@ -75,7 +79,7 @@ fi
 cd $prior
 
 # build it all
-cd ~/catkin_ws && catkin_make
+cd ~/catkin_ws && catkin build
 source devel/setup.bash
 cd -
 

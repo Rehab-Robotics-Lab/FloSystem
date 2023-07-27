@@ -15,8 +15,8 @@
   <exec_depend>sound_play</exec_depend>
   <exec_depend>webrtc_ros</exec_depend>
   <exec_depend>python-imaging-imagetk</exec_depend>
-  <exec_depend>python-opencv</exec_depend>
-  <exec_depend>python-numpy</exec_depend>
+  <exec_depend>python3-opencv</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
   <exec_depend>video_stream_opencv</exec_depend>
   <export>
     <!-- Other tools can request additional information be placed here -->

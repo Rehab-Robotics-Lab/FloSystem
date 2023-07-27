@@ -20,7 +20,7 @@ const Home: React.FunctionComponent<HomeProps> = ({ userName, userType }) => {
           <li>Your user type is: {userType}</li>
         </ul>
         <p>
-          If you have any trouble with the system, please rech out to{" "}
+          If you have any trouble with the system, please reach out to{" "}
           <a href="https://michaelsobrepera.com/contact/">Michael Sobrepera</a>
         </p>
       </div>

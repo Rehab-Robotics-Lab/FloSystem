@@ -132,7 +132,7 @@ setup a first admin. To do this:
 
 1.  Create a user account by registering through the web interface
 2.  Attach to the docker image for the postgres database into pg:
-    `docker container exec -it flosystem_postgres_1 psql flodb -h localhost -U postgres`
+    `docker container exec -it flosystem-postgres_1 psql flodb -h localhost -U postgres`
     (note the number on that container might be different...)
 3.  Turn on expanded view to get nice prints: `\x`
 4.  Optionally get info on your registered users: `select * from users;`

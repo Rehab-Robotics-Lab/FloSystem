@@ -33,12 +33,17 @@ sudo apt-mark unhold librealsense2-dev
 sudo apt-mark unhold librealsense2-dbg
 
 sudo apt-get  install -y librealsense2-dkms
+sudo apt-get  install -y librealsense2=${LIB_REALSENSE_VERSION}\*
+sudo apt-get  install -y librealsense2-gl=${LIB_REALSENSE_VERSION}\*
+sudo apt-get  install -y librealsense2-net=${LIB_REALSENSE_VERSION}\*
 sudo apt-get  install -y librealsense2-utils=${LIB_REALSENSE_VERSION}\*
 sudo apt-get  install -y librealsense2-dev=${LIB_REALSENSE_VERSION}\*
 sudo apt-get  install -y librealsense2-dbg=${LIB_REALSENSE_VERSION}\*
 sudo apt-get  install -y ros-${ROS_VERSION}-cv-bridge
 sudo apt-get  install -y ros-${ROS_VERSION}-image-transport
 sudo apt-get  install -y ros-${ROS_VERSION}-tf
+sudo apt-get  install -y ros-${ROS_VERSION}-tf2-web-republisher
+sudo apt-get  install -y ros-${ROS_VERSION}-web-video-server
 sudo apt-get  install -y ros-${ROS_VERSION}-diagnostic-updater
 sudo apt-get  install -y ros-${ROS_VERSION}-ddynamic-reconfigure
 

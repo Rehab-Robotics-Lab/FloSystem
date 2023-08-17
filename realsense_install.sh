@@ -28,17 +28,23 @@ sudo add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo ${OS
 LIB_REALSENSE_VERSION=2.48.0
 REALSENSE_ROS_VERSION=2.3.1
 
-sudo apt-mark unhold librealsense2-utils
-sudo apt-mark unhold librealsense2-dev
-sudo apt-mark unhold librealsense2-dbg
+sudo apt-mark unhold \
+	librealsense2 \
+	librealsense2-udev-rules \
+	librealsense2-utils \
+	librealsense2-gl \
+	librealsense2-net \
+	librealsense2-dev
 
-sudo apt-get  install -y librealsense2-dkms
-sudo apt-get  install -y librealsense2=${LIB_REALSENSE_VERSION}\*
-sudo apt-get  install -y librealsense2-gl=${LIB_REALSENSE_VERSION}\*
-sudo apt-get  install -y librealsense2-net=${LIB_REALSENSE_VERSION}\*
-sudo apt-get  install -y librealsense2-utils=${LIB_REALSENSE_VERSION}\*
-sudo apt-get  install -y librealsense2-dev=${LIB_REALSENSE_VERSION}\*
-sudo apt-get  install -y librealsense2-dbg=${LIB_REALSENSE_VERSION}\*
+sudo apt-get  install -y --allow-downgrades librealsense2-dkms \
+    librealsense2=${LIB_REALSENSE_VERSION}\* \
+    librealsense2-udev-rules=${LIB_REALSENSE_VERSION}\* \
+    librealsense2-gl=${LIB_REALSENSE_VERSION}\* \
+    librealsense2-net=${LIB_REALSENSE_VERSION}\* \
+    librealsense2-utils=${LIB_REALSENSE_VERSION}\* \
+    librealsense2-dev=${LIB_REALSENSE_VERSION}\* \
+    librealsense2-dbg=${LIB_REALSENSE_VERSION}\*
+
 sudo apt-get  install -y ros-${ROS_VERSION}-cv-bridge
 sudo apt-get  install -y ros-${ROS_VERSION}-image-transport
 sudo apt-get  install -y ros-${ROS_VERSION}-tf
@@ -47,17 +53,28 @@ sudo apt-get  install -y ros-${ROS_VERSION}-web-video-server
 sudo apt-get  install -y ros-${ROS_VERSION}-diagnostic-updater
 sudo apt-get  install -y ros-${ROS_VERSION}-ddynamic-reconfigure
 
-sudo apt-mark hold librealsense2-utils
-sudo apt-mark hold librealsense2-dev
-sudo apt-mark hold librealsense2-dbg
+sudo apt-mark hold \
+	librealsense2 \
+	librealsense2-udev-rules \
+	librealsense2-utils \
+	librealsense2-gl \
+	librealsense2-net \
+	librealsense2-dev
 
 prior=$(pwd)
 cd ~/catkin_ws/src
-[ ! -d "realsense-ros" ] && git clone https://github.com/IntelRealSense/realsense-ros.git
+# [ ! -d "realsense-ros" ] && git clone https://github.com/IntelRealSense/realsense-ros.git
+# cd realsense-ros/
+# git fetch
+# git checkout ${REALSENSE_ROS_VERSION}
+
+[ ! -d "realsense-ros" ] && git clone https://github.com/anht-nguyen/realsense-ros.git
 cd realsense-ros/
 git fetch
-git checkout ${REALSENSE_ROS_VERSION}
+git checkout '2.3.1b'
+
 cd ~/catkin_ws
 catkin_make
 catkin_make install
 cd $prior
+

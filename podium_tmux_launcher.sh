@@ -4,17 +4,17 @@ source ~/.bashrc
 
 tmux new-session -d -s flo
 tmux rename-window startup
-tmux send-keys 'connect_to_robot 0 && roscore' Enter
+tmux send-keys 'roscore' Enter
 tmux split-window -t flo -h
 
 
 tmux split-window -t flo
-tmux send-keys 'mkdir -p ~/flo_data && connect_to_robot 0 && roslaunch --wait flo_core podium_bringup.launch' Enter # it is just more stable..
+tmux send-keys 'mkdir -p ~/flo_data && roslaunch --wait flo_core podium_bringup.launch' Enter # it is just more stable..
 
 tmux rotate-window -t flo
 
 tmux split-window -t flo -h
-tmux send-keys 'sleep 5 && connect_to_robot 0 && roslaunch --wait flo_telepresence realsense-sp-1.launch platform:=podium' Enter # it is just more stable..
+tmux send-keys 'sleep 5 && roslaunch --wait flo_telepresence realsense-sp-1.launch platform:=podium' Enter # it is just more stable..
 
 tmux split-window -t flo
-tmux send-keys 'sleep 10 && connect_to_robot 0 && roslaunch --wait flo_telepresence realsense-sp-2.launch platform:=podium' Enter # it is just more stable..
+tmux send-keys 'sleep 10 && roslaunch --wait flo_telepresence realsense-sp-2.launch platform:=podium' Enter # it is just more stable..

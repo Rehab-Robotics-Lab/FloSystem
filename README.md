@@ -139,7 +139,7 @@ setup a first admin. To do this:
 5.  Find out what id admin users need: `select * from user_types;`
 6.  Set the user you are interested in to be an admin:
     `update users set user_type=<id of usertype you want> where email=<email you want>;`.
-    Ex: `update users set user_type=1 where email='testsobrep@seas.upenn.edu';`
+    Ex: `update users set user_type=1 where email='testsobrep@seas.upenn.edu';` (Note: (1,'standard'), (2,'administrator'))
 7.  Check that it worked: `select * from users;`
 
 ### Deploying to Linode

@@ -30,14 +30,6 @@ CMD_SEQ_relax = 0x20
 CMD_SEQ_halt = 0x30
 
 NUM_MOTORS = 18
-# # ff:05:03:01:fe
-# for i in range(0xff,0x00,-5):
-#     ser.write(bytearray([0xFF,0x07,0x02,0x02,0x02,0x00+i,0xfe]))
-#     ret = ser.read(ser.in_waiting)
-#     print('iteration {}, returned: {}'.format(i,[ord(r) for r in ret]))
-#     # time.sleep(0.1)
-#     # time.sleep(0.01)
-#     time.sleep(0.1)
 
 # for i in range(0x00,0xff,8):
 #     ser.write(bytearray([0xFF,0x07,0x02,0x02,0x02,0x00+i,0xfe]))

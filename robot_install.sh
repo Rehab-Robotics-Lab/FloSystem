@@ -13,7 +13,7 @@ source gen_install.sh
 bash aws_install.sh
 
 ## Kobuki udev rules
-sudo apt-get install ros-melodic-kobuki-ftdi
+sudo apt-get install -y ros-melodic-kobuki-ftdi
 source ~/.bashrc && rosrun kobuki_ftdi create_udev_rules
 
 bash node_install.sh

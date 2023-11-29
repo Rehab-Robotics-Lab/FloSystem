@@ -23,7 +23,7 @@ source /opt/ros/${ROS_VERSION}/setup.bash
 
 sudo apt-get -qq install -y python-rosdep
 [ ! -d "/etc/ros/rosdep/sources.list.d" ] && sudo rosdep init -q
-rosdep update -q
+rosdep update -q --include-eol-distros
 sudo apt-get -qq install -y python-rosinstall python-rosinstall-generator python-wstool build-essential
 
 ## Install packages we need:

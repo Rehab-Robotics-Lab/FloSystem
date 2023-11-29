@@ -30,7 +30,7 @@ CMD_SEQ_relax = 0x20
 CMD_SEQ_halt = 0x30
 
 NUM_MOTORS = 18
-
+##why are we writing bytearrays and using bytes in the first place?
 # for i in range(0x00,0xff,8):
 #     ser.write(bytearray([0xFF,0x07,0x02,0x02,0x02,0x00+i,0xfe]))
 #     ret = ser.read(ser.in_waiting)

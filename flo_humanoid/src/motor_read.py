@@ -158,57 +158,6 @@ class BolideReader(object):
         # if value == feedback]
         return feedback
 
-    # def read_battery_voltage(self):
-    #     ''' Read battery voltage, not ready for usage
-    #     '''
-    #     self.ser.flushInput()
-    #     self.ser.write(bytearray([0xFF, 0x04, 0x08, 0xfe]))
-    #     ret = self.ser.read(6)
-    #     if len(ret) != 6:
-    #         # print('wrong length returned')
-    #         return
-    #     header = ord(ret[0])
-    #     if header != 0xFF:
-    #         # print('first byte read did not match header: '+
-    #                 '{}'.format(header))
-    #         return
-    #     len_bit = ord(ret[1])
-    #     if len_bit != 6:
-    #         # print('wrong length bit sent')
-    #         return
-    #     command = ord(ret[2])
-    #     if not command == 0x08:
-    #         # print('incorrect command type: {}'.format(command))
-    #         return
-    #     end = ord(ret[-1])
-    #     if end != 0xFE:
-    #         # print('bad end bit')
-    #         return
-    #     data = ret[3:-1]
-    #     final_joint_pos = [0]*18
-    #     voltage = ((ord(data[0]) << 8) + ord(data[1]))*0.0124
-    #     # print('{}:{}'.format('battery voltage', voltage))
-    #     return voltage
-
-    # def setup_pos_plots(self):
-    #     '''Set up the pyqt graph to visualize positions'''
-    #     import pyqtgraph as pg
-    #     colormap = cm.get_cmap("viridis")  # cm.get_cmap("CMRmap")
-    #     colormap._init()
-    #     # Convert matplotlib colormap from 0-1 to 0 -255 for Qt
-    #     color_lut = (colormap._lut * 255).view(np.ndarray)
-
-    #     self.pos_win = pg.GraphicsWindow()
-    #     self.pos_win.setWindowTitle('Robot Position')
-
-    #     p2 = self.pos_win.addPlot()
-    #     p2.setDownsampling(mode='peak')
-    #     p2.setClipToView(True)
-    #     p2.addLegend()
-    #     self.curves = [p2.plot(pen=pg.mkPen(
-    #         color_lut[idx*color_lut.shape[0]/len(self.motors)]),
-    #         name=name) for idx, name in enumerate(self.motors.keys())]
-
     def collect_pos_data(self, to_store=-1):
         '''Ask the robot for its position and store the result
 
@@ -229,37 +178,20 @@ class BolideReader(object):
             return position
         return False
 
-    # def update_pos_plot(self, time_to_plot=15):
-    #     '''updates the position plots
-
-    #     Args:
-    #         time_to_plot: The amount of time back to plot in seconds
-    #     '''
-    #     from pyqtgraph.Qt import QtCore, QtGui
-    #     if len(self.times) > 0:
-    #         plot_min_idx = np.argmax(self.times > self.current_time-15)
-    #         for idx, curve in enumerate(self.curves):
-    #             curve.setData(self.times[plot_min_idx:],
-    #                           self.servo_vals[plot_min_idx:, idx])
-    #         QtGui.QApplication.processEvents()
-    #         self.pos_win.repaint()
-
-    # def print_pos(self, position):
-    #     toprint = ''
-    #     for motor in self.motors.keys():
-    #         toprint += '{}:{}\t'.format(motor, position[self.motors[motor]])
-    #     print(toprint)
-    #     print(position)
+    def print_pos(self, position):
+        toprint = ''
+        for motor in self.motors.keys():
+            toprint += '{}:{}\t'.format(motor, position[self.motors[motor]])
+        print(toprint)
+        print(position)
 
 
-# if __name__ == "__main__":
-#     ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=0.2)
-#     # print('connection established')
+if __name__ == "__main__":
+    ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=0.2)
+    # print('connection established')
 
-#     robot = BolideReader(ser)
-#     robot.setup_pos_plots()
-#     while True:
-#         pos = robot.collect_pos_data()
-#         if pos:
-#             robot.print_pos(pos)
-#         robot.update_pos_plot()
+    robot = BolideReader(ser)
+    while True:
+        pos = robot.collect_pos_data()
+        if pos:
+            robot.print_pos(pos)

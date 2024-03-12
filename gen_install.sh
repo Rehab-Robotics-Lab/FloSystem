@@ -27,8 +27,8 @@ source /opt/ros/${ROS_VERSION}/setup.bash
 
 sudo apt-get -qq install -y python3-rosdep
 [ ! -d "/etc/ros/rosdep/sources.list.d" ] && sudo rosdep init -q
-rosdep update -q
 
+rosdep update -q --include-eol-distros
 sudo apt-get -qq install -y python3-rosinstall python3-rosinstall-generator python3-wstool build-essential python3-catkin-tools 
 
 ## Install packages we need:

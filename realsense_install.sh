@@ -8,25 +8,30 @@ sudo apt-get -qq install libglfw3-dev libgl1-mesa-dev libglu1-mesa-dev at
 if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==16));then
     ROS_VERSION="kinetic"
     OS_VERSION="xenial"
+    LIB_REALSENSE_VERSION=2.48.0
+    REALSENSE_ROS_VERSION=2.3.1
     else
     if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==18)); then
     ROS_VERSION="melodic"
     OS_VERSION="bionic"
-    else 
+    LIB_REALSENSE_VERSION=2.48.0
+    REALSENSE_ROS_VERSION=2.3.1
+    else
     if(($(cat /etc/os-release | grep VERSION_ID|grep -o '".*"' | sed 's/"//g' | cut -c1-2 )==20)); then
     ROS_VERSION="noetic"
     OS_VERSION="focal"
-fi    
+    LIB_REALSENSE_VERSION=2.54.1
+    REALSENSE_ROS_VERSION=2.3.1
+fi
 fi
 fi
 
 sudo apt-key adv --keyserver keys.gnupg.net --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE || sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE
-echo "installing for ros version: ${ROS_VERSION}"
+echo "installing for ros version: ${ROS_VERSION} and os version: ${OS_VERSIOIN}"
 ## Realsense
 sudo add-apt-repository "deb https://librealsense.intel.com/Debian/apt-repo ${OS_VERSION} main" -u
 #You need to figure out the versions you want from https://github.com/IntelRealSense/realsense-ros/releases
-LIB_REALSENSE_VERSION=2.48.0
-REALSENSE_ROS_VERSION=2.3.1
+
 
 sudo apt-mark unhold \
 	librealsense2 \
@@ -74,7 +79,7 @@ git fetch
 git checkout '2.3.1b'
 
 cd ~/catkin_ws
-catkin_make
+catkin_make --only-pkg-with-deps realsense2_camera realsense2_description
 catkin_make install
 cd $prior
 

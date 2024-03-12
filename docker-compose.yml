@@ -10,6 +10,7 @@ services:
       - postgres
       - session-store
     command: [node, build/host.js]
+  
   operator-server:
     env_file:
       - ./certs/session-secret.env
@@ -19,6 +20,7 @@ services:
       - postgres
       - session-store
     command: [node, build/operator.js]
+  
   api-server:
     env_file:
       - ./certs/session-secret.env
@@ -28,6 +30,7 @@ services:
       - postgres
       - session-store
     command: [node, build/api.js]
+  
   nginx:
     build:
       context: ./
@@ -41,6 +44,7 @@ services:
       - api-server
     volumes:
       - ./certs:/etc/nginx/certs
+  
   postgres:
     image: postgres
     environment:

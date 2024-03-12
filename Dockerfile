@@ -22,7 +22,9 @@ RUN useradd -m $ROS_USER && \
 
 COPY pulse-client.conf /etc/pulse/client.conf
 
-RUN apt-get update -y && apt-get install -y python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential python-pip python3-pip unzip libpulse0 pulseaudio pulseaudio-utils libcanberra-gtk-module curl
+RUN apt-get update -y && apt-get install -y python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential python-pip python3-pip unzip libpulse0 pulseaudio pulseaudio-utils libcanberra-gtk* curl libjsoncpp-dev python-catkin-tools  ros-melodic-webrtc ros-melodic-sound-play ros-melodic-rosauth groff ros-melodic-tts
+
+RUN export GTK_PATH=/usr/lib/x86_64-linux-gnu/gtk-2.0
 
 RUN mkdir /home/$ROS_USER/flo_data \
     && mkdir /home/$ROS_USER/catkin_ws/src -p
@@ -49,12 +51,18 @@ USER $ROS_USER
 RUN /ros_entrypoint.sh rosdep update --include-eol-distros
 
 WORKDIR /home/$ROS_USER/catkin_ws/src
+RUN git clone --single-branch --branch ros1-develop https://github.com/fkie/async_web_server_cpp.git
 
+WORKDIR /home/$ROS_USER/catkin_ws/src
 RUN git clone --single-branch --branch develop https://github.com/RobotWebTools/webrtc_ros.git \
     && cd webrtc_ros \
     && git checkout a2a19da \
     && cd webrtc \
     && touch CATKIN_IGNORE
+# RUN git clone https://github.com/anht-nguyen/webrtc_ros.git
+
+WORKDIR /home/$ROS_USER/catkin_ws/src
+RUN git clone https://github.com/RobotWebTools/tf2_web_republisher.git
 
 WORKDIR /home/$ROS_USER/catkin_ws/src
 RUN git clone --single-branch --branch nousub https://github.com/mjsobrep/rosbridge_suite.git
@@ -63,7 +71,12 @@ WORKDIR /home/$ROS_USER/catkin_ws
 RUN /ros_entrypoint.sh rosdep install --from-paths src --ignore-src -r -y --skip-keys "realsense2_camera realsense2_description rosbridge_suite rosbridge_server rosbridge_library rosbridge_msgs video_stream_opencv"
 
 WORKDIR /home/$ROS_USER/catkin_ws
-RUN /ros_entrypoint.sh catkin_make
+RUN /ros_entrypoint.sh catkin build
+
+# Replace catkin_make with catkin_tools (eg: catkin build)
+# RUN /ros_entrypoint.sh catkin build #webrtc_ros 
+# RUN /ros_entrypoint.sh catkin_make
+# RUN /ros_entrypoint.sh catkin_make --build-space build2
 
 WORKDIR /home/$ROS_USER/catkin_ws/src/FloSystem
 COPY ./flo_core/CMakeLists.txt        ./flo_core/
@@ -100,8 +113,10 @@ WORKDIR /home/$ROS_USER/catkin_ws/src/FloSystem
 COPY ./ ./
 
 WORKDIR /home/$ROS_USER/catkin_ws
-RUN /ros_entrypoint.sh catkin_make
-RUN /ros_entrypoint.sh catkin_make install
+RUN /ros_entrypoint.sh catkin build
+RUN /ros_entrypoint.sh catkin config --install
+# RUN /ros_entrypoint.sh catkin_make
+# RUN /ros_entrypoint.sh catkin_make install
 
 #RUN echo "source /catkin_ws/devel/setup.bash" >> /root/.bashrc
 

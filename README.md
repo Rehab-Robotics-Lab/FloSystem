@@ -525,12 +525,12 @@ simulators.
 
 If you are on a computer with the realsense cameras plugged in and you can
 install the entire stack locally, then you can run `sim_tmux_launcher.sh`. This
-will run the entire Lil'Flo system in simulation and run the web servers for
-you. For this to work, you will need to
-[setup the config files and keys needed by the webserver ](#WebServer-Setup)
+will run the entire Flo robot system in simulation and allow you to connect to a 
+webserver to host the system. 
 
-If you are on a machine that does not have the entire stack installed, then you
-can run an entire simulation stack within docker. To do this:
+Alternatively, you
+can run an entire simulation stack within docker, including the robot, simulated
+cameras, and the simulated webservers. To do this:
 
 1.  Follow the instructions for [setting up ssl certs](#ssl-certs)
 

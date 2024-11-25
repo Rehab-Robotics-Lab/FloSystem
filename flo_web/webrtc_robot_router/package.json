@@ -24,7 +24,7 @@
     "@types/uuid": "^8.3.0",
     "@types/ws": "^7.4.0",
     "eslint-plugin-tsdoc": "^0.2.11",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
     "ts-node-dev": "^1.1.6",
